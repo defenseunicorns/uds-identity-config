@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.2.0...v0.2.1) (2024-02-22)
+
+
+### Miscellaneous
+
+* add buildx action ([1e7146e](https://github.com/defenseunicorns/uds-identity-config/commit/1e7146e51e5c028ce260c3a973f51f98a12c1a9b))
+
 ## [0.2.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.1.0...v0.2.0) (2024-02-22)
 
 
