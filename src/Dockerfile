@@ -9,7 +9,8 @@ COPY plugin/src ./src
 RUN mvn clean package
 
 # Build the Java truststore from DOD CAs
-FROM amazoncorretto:21-alpine-jdk as truststore
+FROM cgr.dev/chainguard/jdk:latest-dev as truststore
+USER root
 RUN apk add openssl coreutils sed bash findutils
 
 WORKDIR /home/build
