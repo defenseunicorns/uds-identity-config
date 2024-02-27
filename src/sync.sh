@@ -11,7 +11,7 @@ cp -fvu realm.json /opt/keycloak/data/import/realm.json
 cp -fvur theme /opt/keycloak/themes/theme
 cp -fvu *.jar /opt/keycloak/providers/
 # Wrap in some conditional logic based on an ENV, copy a different truststore
-if [ -z "${CUSTOM_TRUSTSTORE}" ]; then
+if [ ! -z "${CUSTOM_TRUSTSTORE}" ]; then
   cp -fvi "$CUSTOM_TRUSTSTORE" /opt/keycloak/conf/truststore.jks
 else
   cp -fvu truststore.jks /opt/keycloak/conf/truststore.jks
