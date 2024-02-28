@@ -11,6 +11,7 @@ jobs:
     name: Validate PR Title
     permissions:
       pull-requests: read
+      contents: read
 
     steps:
       - name: Checkout
