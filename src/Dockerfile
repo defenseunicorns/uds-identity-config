@@ -28,7 +28,8 @@ WORKDIR /home/nonroot
 # Copy the built plugin
 COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
 
-# Copy additional JARs to this directory to have Keycloak load them on startup
+# Copy additional JARs to the extra-jars to have Keycloak load them on startup
+COPY --chown=nonroot extra-jars/*.jar .
 
 # Copy the DOD Unclass truststore for Keycloak Auth
 COPY --chown=nonroot --from=truststore /home/build/truststore.jks .
