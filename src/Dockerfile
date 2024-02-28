@@ -1,4 +1,8 @@
-# Build the Keycloak java plugin
+###################################################################################
+#                                                                                 #
+# Build the Keycloak java plugin and copy any extra-jars                          #
+#                                                                                 #
+###################################################################################
 FROM cgr.dev/chainguard/maven:openjdk-17 as plugin
 
 WORKDIR /home/build
@@ -8,29 +12,46 @@ COPY plugin/src ./src
 
 RUN mvn clean package
 
-# Build the Java truststore from DOD CAs
+# Include anything in the extra-jars directory in the target directory
+# We will filter out in the next build stage
+COPY extra-jars/* ./target/
+
+###################################################################################
+#                                                                                 #
+# Build the Java truststore from DOD CAs                                          #
+#                                                                                 #
+###################################################################################
 FROM cgr.dev/chainguard/jdk:latest-dev as truststore
 USER root
 RUN apk add openssl coreutils sed bash findutils
 
 WORKDIR /home/build
 
-ADD https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-dod_approved_external_pkis_trust_chains.zip /tmp/dod_cas/dod_cas.zip
+ARG CA_REGEX_EXCLUSION_FILTER="\(.*EMAIL.*\|.*SW.*\)"
+ARG CA_ZIP_URL=https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-dod_approved_external_pkis_trust_chains.zip
+
+# Allowe overriding the default regex filter for the CA names
+ENV CA_REGEX_EXCLUSION_FILTER=${CA_REGEX_EXCLUSION_FILTER}
+
+ADD ${CA_ZIP_URL} /tmp/authorized_certs/authorized_certs.zip
 COPY truststore/ca-to-jks.sh .
 
 RUN ./ca-to-jks.sh
 
-# Use busybox as the base image to perform the sync
+###################################################################################
+#                                                                                 #
+# Use busybox as the base image to perform the sync                               #
+#                                                                                 #
+###################################################################################
 FROM cgr.dev/chainguard/busybox:latest
 
 WORKDIR /home/nonroot
 
-# Copy the built plugin
+# Copy JArs from the plugin build stage
 COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
 
-# Copy additional JARs to this directory to have Keycloak load them on startup
-
-# Copy the DOD Unclass truststore for Keycloak Auth
+# Copy the DOD Unclass PEM and truststore for Istio & Keycloak Auth
+COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
 COPY --chown=nonroot --from=truststore /home/build/truststore.jks .
 
 # The realm.json is loaded into Keycloak on startup only if the realm does not exist
