@@ -1,6 +1,6 @@
 ###################################################################################
 #                                                                                 #
-# Build the Keycloak java plugin                                                  #
+# Build the Keycloak java plugin and copy any extra-jars                          #
 #                                                                                 #
 ###################################################################################
 FROM cgr.dev/chainguard/maven:openjdk-17 as plugin
@@ -11,6 +11,10 @@ COPY plugin/pom.xml .
 COPY plugin/src ./src
 
 RUN mvn clean package
+
+# Include anything in the extra-jars directory in the target directory
+# We will filter out in the next build stage
+COPY extra-jars/* ./target/
 
 ###################################################################################
 #                                                                                 #
@@ -43,11 +47,8 @@ FROM cgr.dev/chainguard/busybox:latest
 
 WORKDIR /home/nonroot
 
-# Copy the built plugin
+# Copy JArs from the plugin build stage
 COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
-
-# Copy additional JARs to the extra-jars to have Keycloak load them on startup
-COPY --chown=nonroot extra-jars/*.jar .
 
 # Copy the DOD Unclass PEM and truststore for Istio & Keycloak Auth
 COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
