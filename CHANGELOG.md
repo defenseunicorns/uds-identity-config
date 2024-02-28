@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.2.1...v0.3.0) (2024-02-28)
+
+
+### Features
+
+* add truststore to config image ([#5](https://github.com/defenseunicorns/uds-identity-config/issues/5)) ([0f94c4e](https://github.com/defenseunicorns/uds-identity-config/commit/0f94c4e084fb9c45da4910d9c6669a6cb2779991))
+* generalize plugin & truststore customization ([#7](https://github.com/defenseunicorns/uds-identity-config/issues/7)) ([5993ee2](https://github.com/defenseunicorns/uds-identity-config/commit/5993ee25cc584aa15aed0d8206418cab94ab4928))
+
 ## [0.2.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.2.0...v0.2.1) (2024-02-22)
 
 
