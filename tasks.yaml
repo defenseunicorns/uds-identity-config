@@ -4,34 +4,53 @@ variables:
     # x-release-please-start-version
     default: "0.3.0"
     # x-release-please-end
+  - name: IMAGE_NAME
+    description: "The repository + name for the published image"
+    default: "ghcr.io/defenseunicorns/uds/identity-config"
 
 tasks:
   - name: build-and-publish
+    description: "Build and publish the multi-arch image"
     actions:
-      - cmd: |
-          docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/defenseunicorns/uds/identity-config:${VERSION} src
+      - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} src
+
+  - name: dev-build
+    description: "Build the image locally for dev"
+    actions:
+      - cmd: docker build src -t uds-core-config:keycloak
 
   - name: dev-update-image
+    description: "Build the image and import locally into k3d"
     actions:
+      - task: dev-build
       - cmd: |
-          docker build src -t uds-core-config:keycloak
           k3d image import -c uds uds-core-config:keycloak
           kubectl rollout restart statefulset -n keycloak keycloak
 
   - name: dev-theme
+    description: "Copy theme to Keycloak in dev cluster"
     actions:
-      - description: "Copy theme to Keycloak (must be run from src/keycloak dir)"
-        cmd: |
+      - cmd: |
           PV=$(kubectl get pvc keycloak-themes -n keycloak -o jsonpath='{.spec.volumeName}')
           THEME_PATH=$(kubectl get pv $PV -o jsonpath="{.spec.hostPath.path}")
           docker cp src/theme k3d-uds-server-0:/$THEME_PATH
 
+  - name: cacert
+    description: "Get the CA cert value for the Istio Gateway"
+    actions:
+      # This is written to a file rather than printed because it is a massive value to copy out of the terminal
+      - cmd: |
+          docker run --rm --entrypoint sh ${IMAGE_NAME}:${VERSION} -c "cat /home/nonroot/authorized_certs.pem | base64 -w 0" > cacert.b64
+          echo "Base64 encoded CA Cert value is in cacert.b64, this can be passed to your Istio tenant gateway for Keycloak OPTIONAL_MUTUAL"
+
   - name: debug-istio-traffic
+    description: "Debug Istio traffic on keycloak"
     actions:
       - cmd: istioctl proxy-config log keycloak-0.keycloak --level debug
       - cmd: kubectl -n keycloak logs keycloak-0 -c istio-proxy -f
 
   - name: regenerate-test-pki
+    description: "Generate a PKI cert for testing"
     actions:
       - cmd: |
           openssl genrsa -out test.pem 2048

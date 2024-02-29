@@ -1,0 +1,29 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [main]
+    types: [milestoned, opened, reopened, synchronize]
+
+# Abort prior jobs in the same workflow / PR
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  title_check:
+    runs-on: ubuntu-latest
+    name: Test Docker Build
+    permissions:
+      pull-requests: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Environment setup
+        uses: defenseunicorns/uds-common/.github/actions/setup@417b9c2bc088f664c616c9929a2b3ce448d251f7
+
+      - name: Test building the docker image
+        run: uds run dev-build
