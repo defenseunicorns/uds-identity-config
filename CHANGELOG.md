@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.1...v0.3.2) (2024-02-29)
+
+
+### Bug Fixes
+
+* add default ocsp for CACs ([#15](https://github.com/defenseunicorns/uds-identity-config/issues/15)) ([a9bd62a](https://github.com/defenseunicorns/uds-identity-config/commit/a9bd62a72ed45a62f5ded4a88df80eafb20195dd))
+
 ## [0.3.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.0...v0.3.1) (2024-02-29)
 
 
