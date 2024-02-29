@@ -2379,6 +2379,7 @@
             "config": {
                 "x509-cert-auth.canonical-dn-enabled": "false",
                 "x509-cert-auth.mapper-selection.user-attribute-name": "usercertificate",
+                "x509-cert-auth.ocsp-responder-uri": "http://ocsp.disa.mil/",
                 "x509-cert-auth.serialnumber-hex-enabled": "false",
                 "x509-cert-auth.ocsp-fail-open": "true",
                 "x509-cert-auth.regular-expression": "(.*?)(?:$)",
