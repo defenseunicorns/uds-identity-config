@@ -4,17 +4,24 @@ variables:
     # x-release-please-start-version
     default: "0.3.0"
     # x-release-please-end
+  - name: IMAGE_NAME
+    description: "The repository + name for the published image"
+    default: "ghcr.io/defenseunicorns/uds/identity-config"
 
 tasks:
   - name: build-and-publish
     actions:
-      - cmd: |
-          docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/defenseunicorns/uds/identity-config:${VERSION} src
+      - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} src
+
+  - name: dev-build
+    description: "Build the image locally for dev"
+    actions:
+      - cmd: docker build src -t uds-core-config:keycloak
 
   - name: dev-update-image
     actions:
+      - task: dev-build
       - cmd: |
-          docker build src -t uds-core-config:keycloak
           k3d image import -c uds uds-core-config:keycloak
           kubectl rollout restart statefulset -n keycloak keycloak
 
@@ -25,6 +32,14 @@ tasks:
           PV=$(kubectl get pvc keycloak-themes -n keycloak -o jsonpath='{.spec.volumeName}')
           THEME_PATH=$(kubectl get pv $PV -o jsonpath="{.spec.hostPath.path}")
           docker cp src/theme k3d-uds-server-0:/$THEME_PATH
+
+  - name: cacert
+    actions:
+      # This is written to a file rather than printed because it is a massive value to copy out of the terminal
+      - description: "Get the CA cert value for the Istio Gateway"
+        cmd: |
+          docker run --rm --entrypoint sh ${IMAGE_NAME}:${VERSION} -c "cat /home/nonroot/authorized_certs.pem | base64 -w 0" > cacert.b64
+          echo "Base64 encoded CA Cert value is in cacert.b64, this can be passed to your Istio tenant gateway for Keycloak OPTIONAL_MUTUAL"
 
   - name: debug-istio-traffic
     actions:
