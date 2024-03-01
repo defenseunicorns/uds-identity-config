@@ -52,9 +52,16 @@ tasks:
   - name: regenerate-test-pki
     description: "Generate a PKI cert for testing"
     actions:
-      - cmd: |
+      - description: generate pki
+        dir: pki
+        cmd: |
           openssl genrsa -out test.pem 2048
           openssl genrsa -out ca.pem 2048
-          openssl req -x509 -new -nodes -key ca.pem -sha256 -days 1825 -out ca.crt -subj "/C=US/O=U.S. Government/OU=DoD/OU=PKI/CN=DOD ID CA-59 FAKE TEST"
+          openssl req -x509 -new -nodes -key ca.pem -sha256 -days 1825 -out ca.cer -subj "/C=US/O=U.S. Government/OU=DoD/OU=PKI/CN=DOD ID CA-59 FAKE TEST"
           openssl req -new -key test.pem -out test.csr -config csr.conf
-          openssl x509 -req -in test.csr -CA ca.crt -CAkey ca.pem -CAcreateserial -out test.crt -days 365 -extensions v3_ext -extfile csr.conf
+          openssl x509 -req -in test.csr -CA ca.cer -CAkey ca.pem -CAcreateserial -out test.cer -days 365 -extensions v3_ext -extfile csr.conf
+          openssl pkcs12 -export -out test.p12 -inkey test.pem -in test.cer -passout pass:password
+          zip ../src/truststore/test.zip ca.cer
+      - description: build image
+        cmd: docker build src -t ${IMAGE_NAME}:${VERSION} --build-arg CA_ZIP_URL=truststore/test.zip
+      - task: cacert

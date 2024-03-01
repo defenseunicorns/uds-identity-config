@@ -1,0 +1,5 @@
+# git ignore everything except csr.conf
+*
+!.gitignore
+!csr.conf
+
