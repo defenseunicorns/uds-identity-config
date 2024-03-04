@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.2...v0.3.3) (2024-03-04)
+
+
+### Bug Fixes
+
+* account header username ([#19](https://github.com/defenseunicorns/uds-identity-config/issues/19)) ([a05fe97](https://github.com/defenseunicorns/uds-identity-config/commit/a05fe974d7ff8e68dc945f3885e236560de45f85))
+* update link ([#20](https://github.com/defenseunicorns/uds-identity-config/issues/20)) ([24f5a01](https://github.com/defenseunicorns/uds-identity-config/commit/24f5a01fa509a522986c69a167c4387c8a2a350c))
+
+
+### Miscellaneous
+
+* **deps:** update defenseunicorns/uds-common digest to fc12e3a ([#17](https://github.com/defenseunicorns/uds-identity-config/issues/17)) ([ceb5cd1](https://github.com/defenseunicorns/uds-identity-config/commit/ceb5cd1ebe9eb5b01cd9f85321c1f393912245e9))
+
 ## [0.3.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.1...v0.3.2) (2024-02-29)
 
 
