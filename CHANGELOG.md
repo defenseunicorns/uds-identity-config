@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.3...v0.3.4) (2024-03-04)
+
+
+### Bug Fixes
+
+* set -e on sync ([#22](https://github.com/defenseunicorns/uds-identity-config/issues/22)) ([38f3526](https://github.com/defenseunicorns/uds-identity-config/commit/38f352687b31dc6ab76bb32fcc562da8f9cce11f))
+
 ## [0.3.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.2...v0.3.3) (2024-03-04)
 
 
