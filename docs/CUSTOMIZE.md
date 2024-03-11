@@ -26,7 +26,7 @@ These docs are intended for demonstrating how to customize the uds-core Identity
          The default values.yaml are specified [here](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L10), but will be overridden by the flavor values.
 
    4. Deploy uds-core: 
-      - If being able to access the different Keycloak UI's is required, utilize the `uds-core` task `identity-setup`, this will install ISTIO, PEPR, Keycloak, and Authservice.
+      - If being able to access the different Keycloak UI's is required, utilize the `uds-core` task `dev-identity`, this will install ISTIO, PEPR, Keycloak, and Authservice.
       - Otherwise, if Keycloak UI access isn't required, the quickest solution is to use the `uds-core` task `test-single-package`. This task can utilize local images and doesn't require the images be pushed up to a public registry.
          ```bash
          UDS_PKG=keycloak uds run test-single-package
@@ -56,7 +56,7 @@ These docs are intended for demonstrating how to customize the uds-core Identity
    #### Testing Changes
    To test the `identity-config` theme changes, a local running Keycloak instance is required.
 
-   Don't have a local Keycloak instance? The simplest testing path is utilizing [uds-core](https://github.com/defenseunicorns/uds-core), specifically the `identity-setup` task. This will create a k3d cluster with Istio, Pepr, Keycloak, and Authservice.
+   Don't have a local Keycloak instance? The simplest testing path is utilizing [uds-core](https://github.com/defenseunicorns/uds-core), specifically the `dev-identity` task. This will create a k3d cluster with Istio, Pepr, Keycloak, and Authservice.
 
    Once that cluster is up and healthy and after making theme changes:
 
