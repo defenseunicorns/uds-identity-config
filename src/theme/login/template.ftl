@@ -91,9 +91,7 @@ ${message.type}
             </div>
             </div>
             <footer class="fixed-footer">
-                <#-- <img src="${url.resourcesPath}/img/yoda-mission-obsessed.png" /> -->
                 <img src="${url.resourcesPath}/img/full-du-logo.png" />
-                <#-- Powered by DoD Platform One -->
             </footer>
             </body>
 

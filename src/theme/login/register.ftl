@@ -2,7 +2,7 @@
     <@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm'); section>
         <#if section="form">
             <form action="/chuck-norris-calendar-goes-straight-from-march-31st-to-april-2nd-because-no-one-fools-chuck-norris"
-                id="baby-yoda-form" method="post">
+                id="unicorn-registration-form" method="post">
                 <#if cacIdentity??>
                     <div class="alert alert-info cac-info">
                         <h2>DoD PKI User Registration</h2>
@@ -267,7 +267,7 @@
             confidence.innerText = Math.round((count / threshold) * 100);
             if (count > threshold) {
                 complete = true;
-                const form = document.getElementById('baby-yoda-form');
+                const form = document.getElementById('kc-form');
                 const register = document.getElementById('do-register');
                 const location = document.getElementById('user.attributes.location');
                 location.value = '42';
