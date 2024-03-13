@@ -2381,7 +2381,7 @@
                 "x509-cert-auth.mapper-selection.user-attribute-name": "usercertificate",
                 "x509-cert-auth.ocsp-responder-uri": "http://ocsp.disa.mil/",
                 "x509-cert-auth.serialnumber-hex-enabled": "false",
-                "x509-cert-auth.ocsp-fail-open": "true",
+                "x509-cert-auth.ocsp-fail-open": "false",
                 "x509-cert-auth.regular-expression": "(.*?)(?:$)",
                 "x509-cert-auth.certificate-policy-mode": "All",
                 "x509-cert-auth.timestamp-validation-enabled": "true",
