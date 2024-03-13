@@ -2,12 +2,11 @@
 
 These docs are intended for demonstrating how to customize the uds-core Identity (Keycloak) deployment by updating/changing the config image.  
 
-* [Add additional jars (supported)](README.md#add-additional-jars)
-* [Customizing the theme  (supported)](README.md#customize-theme)
-* [Customizing the truststore (supported)](README.md#customize-truststore)
-* [Changing the realm values (supported)](README.md#override-default-realm)
-* [Disabling the UDS plugin (experimental)](README.md#replace--disable-custom-plugin).
-
+* [Add additional jars (supported)](./CUSTOMIZE.md#add-additional-jars)
+* [Customizing the theme  (supported)](./CUSTOMIZE.md#customize-theme)
+* [Customizing the truststore (supported)](./CUSTOMIZE.md#customize-truststore)
+* [Changing the realm values (supported)](./CUSTOMIZE.md#override-default-realm)
+* [Disabling the UDS plugin (experimental)](./CUSTOMIZE.md#replace--disable-custom-plugin).
 
 ## Testing custom image in UDS Core
 
@@ -164,21 +163,20 @@ See [Testing custom image in UDS Core](../CUSTOMIZE.md#testing-custom-image-in-u
 openssl s_client -connect sso.uds.dev:443
 ```
 
-
-## Replace / Disable Custom Plugin
+## Custom Plugin
 > [!IMPORTANT]
 > This isn't recommended, however can be achieved if necessary
 
+> [!TIP]
+> Making these changes iteratively and importing into Keycloak to create a new realm can help to alleviate typo's and mis-configurations. This is also the quickest solution for testing without having to create,build,deploy with new images each time.
+
 The plugin provides the auth flows that keycloak uses for x509 (CAC) authentication as well as some of the surrounding registration flows.
 
-If desired the Plugin can be removed from the identity-config image by commenting out these lines in the [Dockerfile](../src/Dockerfile):
+#### Developing
 
-```
-COPY plugin/pom.xml .
-COPY plugin/src ../src
+See [PLUGIN.md](./PLUGIN.md).
 
-RUN mvn clean package
-```
+#### Configuration
 
 In addition, modify the realm for keycloak, otherwise the realm will require plugin capabilities for registering and authenticating users. In the current [realm.json](../src/realm.json) there is a few sections specifically using the plugin capabilities. Here is the following changes necessary:
 - Remove all of the `UDS ...` authenticationFlows:
@@ -203,7 +201,17 @@ In addition, modify the realm for keycloak, otherwise the realm will require plu
    - `"registrationFlow": "registration"`
    - `"resetCredentialsFlow": "reset credentials"`
 
-> [!TIP]
-> Making these changes iteratively and importing into Keycloak to create a new realm can help to alleviate typo's and mis-configurations. This is also the quickest solution for testing without having to create,build,deploy with new images each time.
+#### Disabling
+
+If desired the Plugin can be removed from the identity-config image by commenting out these lines in the [Dockerfile](../src/Dockerfile):
+
+```
+COPY plugin/pom.xml .
+COPY plugin/src ../src
+
+RUN mvn clean package
+```
+
+#### Building New Image with Updates
 
 Once satisfied with changes and tested that they work, see [Testing custom image in UDS Coren](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
