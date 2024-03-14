@@ -56,5 +56,6 @@ tasks:
           openssl genrsa -out test.pem 2048
           openssl genrsa -out ca.pem 2048
           openssl req -x509 -new -nodes -key ca.pem -sha256 -days 1825 -out ca.crt -subj "/C=US/O=U.S. Government/OU=DoD/OU=PKI/CN=DOD ID CA-59 FAKE TEST"
-          openssl req -new -key test.pem -out test.csr -config csr.conf
-          openssl x509 -req -in test.csr -CA ca.crt -CAkey ca.pem -CAcreateserial -out test.crt -days 365 -extensions v3_ext -extfile csr.conf
+          openssl req -new -key test.pem -out test.csr -config csr.conf -subj "/C=US/ST=Colorado/L=Colorado Springs/O=Defense Unicorns/CN=uds.dev"
+          openssl x509 -req -in test.csr -CA ca.crt -CAkey ca.pem -CAcreateserial -out test.cer -days 365 -extensions v3_ext -extfile csr.conf
+          zip src/authorized_certs ca.crt ca.pem test.cer test.csr test.pem

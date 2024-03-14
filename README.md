@@ -1,12 +1,21 @@
 # UDS Identity Config
 
-This repo builds the UDS Identity (keycloak) Config image used by UDS Identity. In this repo you'll find the following:
+This repo builds the UDS Identity (Keycloak) Config image used by UDS Identity. Utilize this repository to create your own Keycloak config image for customizing `uds-core`'s [Identity deployment](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L10).
 
-- `src/extra-jars` - Place any extra jars here to be added to the Keycloak server
-- `src/Dockerfile` - The Dockerfile used to build the image, `CA_ZIP_URL` and `CA_REGEX_EXCLUSION_FILTER` builds args control the Trust Store
-- `src/plugin` - A custom Keycloak plugin to add x509 certificate auto-enrollment
-- `src/theme` - A custom Keycloak theme for the login, registration, and account management pages
-- `src/truststore` - A script to pull CA certs into a truststore, using the docker build ARGs for `CA_ZIP_URL` (remote URL to a zip file with CA certs) and `CA_REGEX_EXCLUSION_FILTER` (regex for certs to exclude)
-- `src/realm.json` - The UDS Identity realm configuration used by Keycloak on startup (if the realm doesn't exist)
+## UDS Tasks
 
-Also included are a number of UDS tasks under `tasks.yaml`. Each task can be viewed with its name and description using `uds run --list`.
+   Available tasks used by `uds run <task name>`, also can be viewed via command line by running `uds run --list`.
+
+   | Task Name | Task Description |
+   |---------------------|---------------------------------------------|
+   | build-and-publish   | Build and publish the multi-arch image      |
+   | dev-build           | Build the image locally for dev             |
+   | dev-update-image    | Build the image and import locally into k3d |
+   | dev-theme           | Copy theme to Keycloak in dev cluster       |
+   | cacert              | Get the CA cert value for the Istio Gateway |
+   | debug-istio-traffic | Debug Istio traffic on keycloak             |
+   | regenerate-test-pki | Generate a PKI cert for testing             |
+
+## Customizing UDS Identity Config
+
+If the default realm, plugin, theme, truststore, or jars do not provide enough functionality ( or provide too much functionality ), take a look at the [CUSTOMIZE.md](./docs/CUSTOMIZE.md) docs for making changes to the identity config.
