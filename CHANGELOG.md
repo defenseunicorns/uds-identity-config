@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.5](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.4...v0.3.5) (2024-03-14)
+
+
+### Bug Fixes
+
+* fail if ocsp response fails, get ocsp from cert ([#31](https://github.com/defenseunicorns/uds-identity-config/issues/31)) ([90bc2b1](https://github.com/defenseunicorns/uds-identity-config/commit/90bc2b1e5ed998d71de01be1018b7cade8fcb0d1))
+
+
+### Miscellaneous
+
+* cleanup misc baby-yoda references ([#28](https://github.com/defenseunicorns/uds-identity-config/issues/28)) ([898505b](https://github.com/defenseunicorns/uds-identity-config/commit/898505b76a80734488edf09a3769b1ac42470072))
+* document processes ([#26](https://github.com/defenseunicorns/uds-identity-config/issues/26)) ([33b848e](https://github.com/defenseunicorns/uds-identity-config/commit/33b848e135ff30b27c484abc8462377dcd795b1f))
+
 ## [0.3.4](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.3...v0.3.4) (2024-03-04)
 
 
