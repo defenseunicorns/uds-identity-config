@@ -42,7 +42,7 @@ Adding additional jars to Keycloak's deployment is as simple as adding that jar 
 
 Adding new jars will require building a new identity-config image for [uds-core](https://github.com/defenseunicorns/uds-core).
 
-See [Testing custom image in UDS Coren](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
+See [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
 
 Once `uds-core` has sucessfully deployed with your new image, viewing the Keycloak pod can provide insight into a successful deployment or not. Also describing the Keycloak pod, should display your new image being pulled instead of the default image defined [here](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L10) in the events section.
 
@@ -75,7 +75,7 @@ The `UDS Identity` realm is defined in the realm.json found in [src/realm.json](
 > [!CAUTION]
 > Be aware that changing values in the realm may also need be to updated throughout the configuration of Keycloak and Authservice in `uds-core`. For example, changing the realm name will break a few different things within Keycloak unless those values are changed in `uds-core` as well.
 
-See the [Testing custom image in UDS Coren](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
+See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
 
 ## Customize Truststore
 The default truststore is configured in a [script](../src/truststore/ca-to-jks.sh) and excuted in the [Dockerfile](../src/Dockerfile). There is a few different ways the script could be customized. 
@@ -214,4 +214,4 @@ RUN mvn clean package
 
 #### Building New Image with Updates
 
-Once satisfied with changes and tested that they work, see [Testing custom image in UDS Coren](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
+Once satisfied with changes and tested that they work, see [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
