@@ -30,7 +30,7 @@ WORKDIR /home/build
 ARG CA_REGEX_EXCLUSION_FILTER="\(.*EMAIL.*\|.*SW.*\)"
 ARG CA_ZIP_URL=https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-dod_approved_external_pkis_trust_chains.zip
 
-# Allowe overriding the default regex filter for the CA names
+# Allow overriding the default regex filter for the CA names
 ENV CA_REGEX_EXCLUSION_FILTER=${CA_REGEX_EXCLUSION_FILTER}
 
 ADD ${CA_ZIP_URL} /tmp/authorized_certs/authorized_certs.zip
@@ -47,7 +47,7 @@ FROM cgr.dev/chainguard/busybox:latest
 
 WORKDIR /home/nonroot
 
-# Copy JArs from the plugin build stage
+# Copy Jars from the plugin build stage
 COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
 
 # Copy the DOD Unclass PEM and truststore for Istio & Keycloak Auth

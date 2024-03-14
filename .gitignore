@@ -6,3 +6,10 @@ build/
 zarf-sbom
 tmp/
 cacert.b64
+csr.conf
+ca.crt
+ca.pem
+test.cer
+test.csr
+test.pem
+*authorized_certs*
