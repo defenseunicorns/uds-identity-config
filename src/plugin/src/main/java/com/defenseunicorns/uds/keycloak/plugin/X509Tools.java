@@ -5,7 +5,6 @@ import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.PolicyInformation;
-import org.jboss.logging.Logger;
 import org.keycloak.authentication.FormContext;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.authenticators.x509.AbstractX509ClientCertificateAuthenticator;
@@ -26,17 +25,9 @@ import java.util.stream.Stream;
 
 public final class X509Tools {
 
-    private static final Logger LOG = Logger.getLogger(X509Tools.class.getName());
-
-    private static String getLogPrefix(final AuthenticationSessionModel authenticationSession, final String suffix) {
-        return "P1_X509_TOOLS_" + suffix + "_" + authenticationSession.getParentSession().getId();
-    }
-
     private static boolean isX509Registered(final KeycloakSession session, final HttpRequest httpRequest, final RealmModel realm) {
 
-        String logPrefix = getLogPrefix(session.getContext().getAuthenticationSession(), "IS_X509_REGISTERED");
         String username = getX509Username(session, httpRequest, realm);
-        LOG.infof("{} X509 ID: {}", logPrefix, username);
 
         if (username != null) {
             Stream<UserModel> users = session.users().searchForUserByUserAttributeStream(realm, Common.USER_ID_ATTRIBUTE, username);
@@ -143,10 +134,8 @@ public final class X509Tools {
      */
     public static Object getX509IdentityFromCertChain(final X509Certificate[] certs, final RealmModel realm, final AuthenticationSessionModel authenticationSession) {
 
-        String logPrefix = getLogPrefix(authenticationSession, "GET_X509_IDENTITY_FROM_CHAIN");
 
         if (certs == null || certs.length == 0) {
-            LOG.infof("{} no valid certs found", logPrefix);
             return null;
         }
 
@@ -160,18 +149,15 @@ public final class X509Tools {
                 if (certificatePolicyId == null) {
                     break;
                 }
-                LOG.infof("{} checking cert policy {}", logPrefix, certificatePolicyId);
                 hasValidPolicy = Common.REQUIRED_CERT_POLICIES.stream().anyMatch(s -> s.equals(certificatePolicyId));
                 index++;
             } catch (Exception ignored) {
-                LOG.warnf("{} error parsing cert policies", logPrefix);
                 // abort checks
                 index = Common.MAX_CERT_POLICIES_TO_CHECK;
             }
         }
 
         if (!hasValidPolicy) {
-            LOG.warnf("{} no valid cert policies found", logPrefix);
             return null;
         }
 
@@ -204,7 +190,7 @@ public final class X509Tools {
 
             return getX509IdentityFromCertChain(certs, realm, authenticationSession);
         } catch (GeneralSecurityException e) {
-            LOG.error(e.getMessage());
+            // LOG.error(e.getMessage());
         }
         return null;
     }

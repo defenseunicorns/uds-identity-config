@@ -8,7 +8,7 @@ FROM cgr.dev/chainguard/maven:openjdk-17 as plugin
 WORKDIR /home/build
 
 COPY plugin/pom.xml .
-COPY plugin/src ./src
+COPY plugin/src ./src/main
 
 RUN mvn clean package
 
