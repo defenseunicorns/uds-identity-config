@@ -41,21 +41,6 @@
             <artifactId>keycloak-crypto-default</artifactId>
             <version>${keycloak.version}</version>
         </dependency>
-
-        <!-- Do we need these libraries as well? -->
-        <!-- 
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-crypto-fips1402</artifactId>
-            <version>${keycloak.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bc-fips</artifactId>
-            <version>1.0.2.4</version>
-        </dependency> 
-        -->
-
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpg-fips</artifactId>
