@@ -36,5 +36,4 @@ public class YAMLConfig {
     @Getter
     @Setter
     private List<YAMLConfigEmailAutoJoin> emailMatchAutoJoinGroup;
-
 }

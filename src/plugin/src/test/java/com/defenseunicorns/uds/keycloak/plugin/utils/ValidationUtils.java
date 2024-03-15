@@ -338,9 +338,6 @@ public class ValidationUtils {
             public AuthenticatorConfigModel getAuthenticatorConfig() {
                 return null;
             }
-
         };
-
     }
-
 }

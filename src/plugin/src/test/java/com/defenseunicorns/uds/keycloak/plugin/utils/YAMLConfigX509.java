@@ -33,5 +33,4 @@ public class YAMLConfigX509 {
     @Getter
     @Setter
     private List<String> requiredCertificatePolicies;
-
 }

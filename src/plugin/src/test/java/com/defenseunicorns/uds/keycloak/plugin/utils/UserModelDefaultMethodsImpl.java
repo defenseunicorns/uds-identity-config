@@ -189,5 +189,4 @@ public class UserModelDefaultMethodsImpl extends UserModelDefaultMethods {
     public String toString() {
         return null;
     }
-
 }

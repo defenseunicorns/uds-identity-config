@@ -158,5 +158,4 @@ public final class CommonConfig {
     public List<String> getIgnoredGroupProtectionClients() {
         return config.getGroupProtectionIgnoreClients();
     }
-
 }

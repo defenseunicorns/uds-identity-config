@@ -192,5 +192,4 @@ public class RegistrationValidationTest {
         AuthenticationExecutionModel.Requirement[] expected = { AuthenticationExecutionModel.Requirement.REQUIRED };
         assertArrayEquals(expected, subject.getRequirementChoices());
     }
-
 }
