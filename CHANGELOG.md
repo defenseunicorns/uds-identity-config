@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.6](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.5...v0.3.6) (2024-03-18)
+
+
+### Bug Fixes
+
+* register form id robot check ([#34](https://github.com/defenseunicorns/uds-identity-config/issues/34)) ([0007ec1](https://github.com/defenseunicorns/uds-identity-config/commit/0007ec15fb177f99703e5d728bdcd2eb37c0fc5d))
+
 ## [0.3.5](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.4...v0.3.5) (2024-03-14)
 
 
