@@ -267,7 +267,7 @@
             confidence.innerText = Math.round((count / threshold) * 100);
             if (count > threshold) {
                 complete = true;
-                const form = document.getElementById('kc-form');
+                const form = document.getElementById('unicorn-registration-form');
                 const register = document.getElementById('do-register');
                 const location = document.getElementById('user.attributes.location');
                 location.value = '42';
