@@ -27,3 +27,20 @@ jobs:
 
       - name: Test building the docker image
         run: uds run dev-build
+
+  uds_core_integration:
+    runs-on: ubuntu-latest
+    name: Test integration of uds-identity-config and uds-core
+    permissions:
+      pull-requests: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Environment setup
+        uses: defenseunicorns/uds-common/.github/actions/setup@fc12e3a773580020a1d63e254525eab0f8b99fc8
+
+      - name: Test building the docker image
+        run: uds run uds-core-integration-test
