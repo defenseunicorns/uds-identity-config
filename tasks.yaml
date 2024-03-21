@@ -12,12 +12,12 @@ tasks:
   - name: build-and-publish
     description: "Build and publish the multi-arch image"
     actions:
-      - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} src
+      - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} --no-cache src
 
   - name: dev-build
     description: "Build the image locally for dev"
     actions:
-      - cmd: docker build src -t uds-core-config:keycloak
+      - cmd: docker build src -t uds-core-config:keycloak --no-cache
 
   - name: dev-update-image
     description: "Build the image and import locally into k3d"
@@ -63,6 +63,7 @@ tasks:
   - name: uds-core-integration-test
     description: "UDS Core integration test"
     actions:
-      - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-slim-dev:0.16.2 --confirm
+      - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:0.16.1 --confirm
       - task: dev-build
+      - cmd: git clone https://github.com/defenseunicorns/uds-core.git
       - cmd: uds zarf package create . --confirm && uds zarf package deploy zarf-package-identity-* --confirm
