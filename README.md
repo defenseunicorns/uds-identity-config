@@ -15,6 +15,8 @@ This repo builds the UDS Identity (Keycloak) Config image used by UDS Identity. 
    | cacert              | Get the CA cert value for the Istio Gateway |
    | debug-istio-traffic | Debug Istio traffic on keycloak             |
    | regenerate-test-pki | Generate a PKI cert for testing             |
+   | uds-core-integration-test | Create cluster and deploy uds-core identity using local uds-identity-config image |
+   | uds-core-registration-integration-test | Web flow registration integration test |
 
 ## Customizing UDS Identity Config
 
