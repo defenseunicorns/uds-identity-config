@@ -12,12 +12,12 @@ tasks:
   - name: build-and-publish
     description: "Build and publish the multi-arch image"
     actions:
-      - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} src
+      - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} --no-cache src
 
   - name: dev-build
     description: "Build the image locally for dev"
     actions:
-      - cmd: docker build src -t uds-core-config:keycloak
+      - cmd: docker build src -t uds-core-config:keycloak --no-cache
 
   - name: dev-update-image
     description: "Build the image and import locally into k3d"
@@ -59,3 +59,11 @@ tasks:
           openssl req -new -key test.pem -out test.csr -config csr.conf -subj "/C=US/ST=Colorado/L=Colorado Springs/O=Defense Unicorns/CN=uds.dev"
           openssl x509 -req -in test.csr -CA ca.crt -CAkey ca.pem -CAcreateserial -out test.cer -days 365 -extensions v3_ext -extfile csr.conf
           zip src/authorized_certs ca.crt ca.pem test.cer test.csr test.pem
+
+  - name: uds-core-integration-test
+    description: "UDS Core integration test"
+    actions:
+      - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:0.16.1 --confirm
+      - task: dev-build
+      - cmd: git clone https://github.com/defenseunicorns/uds-core.git
+      - cmd: uds zarf package create . --confirm && uds zarf package deploy zarf-package-identity-* --confirm
