@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@fc12e3a773580020a1d63e254525eab0f8b99fc8
+        uses: defenseunicorns/uds-common/.github/actions/setup@264ec430c4079129870820e70c4439f3f3d57cbc
 
       - name: Test building the docker image
         run: uds run dev-build
