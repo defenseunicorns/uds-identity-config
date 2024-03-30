@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/defenseunicorns/zarf/main/zarf.schema.json
+kind: ZarfPackageConfig
+metadata:
+  name: keycloak-identity-config
+  version: "0.0.1"
+
+constants:
+  - name: IDENTIFY_CONFIG_IMG
+    description: "Image name and tag (MUST BE PROVIDED -- no default)"
+    value: '###ZARF_PKG_TMPL_IDENTITY_CONFIG_IMG###'
+
+components:
+  - name: keycloak-config-wrapper
+    required: true
+    images:
+      - '###ZARF_PKG_TMPL_IDENTITY_CONFIG_IMG###'

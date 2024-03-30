@@ -2,7 +2,7 @@ variables:
   - name: VERSION
     description: "The image tag"
     # x-release-please-start-version
-    default: "0.3.6"
+    default: "0.3.7"
     # x-release-please-end
   - name: IMAGE_NAME
     description: "The repository + name for the published image"
@@ -13,6 +13,17 @@ tasks:
     description: "Build and publish the multi-arch image"
     actions:
       - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} src
+
+  - name: build-multi-arch
+    description: "Build the multi-arch image"
+    actions:
+      - cmd: docker buildx build --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} src
+  
+  - name: build-zarf-pkg
+    description: "Build the custom docker image and the zarf package for transporting it"
+    actions:
+      - task: build-multi-arch
+      - cmd: ./uds zarf package create . --set IDENTITY_CONFIG_IMG=${IMAGE_NAME}:${VERSION} --confirm
 
   - name: dev-build
     description: "Build the image locally for dev"
