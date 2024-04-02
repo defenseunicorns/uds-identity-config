@@ -1,0 +1,13 @@
+{
+  "name": "uds-identity-config",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "cy.open": "cypress open",
+    "cy.run": "cypress run"
+  },
+  "devDependencies": {
+    "cypress": "^13.7.1",
+    "typescript": "^5.4.3"
+  }
+}

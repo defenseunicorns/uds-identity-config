@@ -23,7 +23,7 @@ COPY extra-jars/* ./target/
 ###################################################################################
 FROM cgr.dev/chainguard/jdk:latest-dev as truststore
 USER root
-RUN apk add openssl coreutils sed bash findutils
+RUN apk add openssl coreutils sed=4.8-r1 bash findutils
 
 WORKDIR /home/build
 

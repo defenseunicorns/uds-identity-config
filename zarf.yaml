@@ -1,0 +1,57 @@
+
+kind: ZarfPackageConfig
+metadata:
+  name: identity-config
+  description: Identity Config
+
+variables:
+  - name: DOMAIN
+    description: "Cluster domain"
+    default: "uds.dev"
+
+components:
+  - name: keycloak
+    required: true
+    charts:
+      - name: keycloak
+        namespace: keycloak
+        version: 23.0.4
+        localPath: ./uds-core/src/keycloak/chart
+        valuesFiles:
+          - "values.yaml"
+    images:
+      - quay.io/keycloak/keycloak:23.0.4
+      - uds-core-config:keycloak
+      - docker.io/istio/pilot:1.20.3-distroless
+      - docker.io/istio/proxyv2:1.20.3-distroless
+    actions:
+      onDeploy:
+        after:
+          - description: Validate Identity Deployment
+            maxTotalSeconds: 300
+            wait:
+              cluster:
+                kind: Packages
+                name: keycloak
+                namespace: keycloak
+                condition: "'{.status.phase}'=Ready"
+          - description: Validate Keycloak Container
+            maxTotalSeconds: 300
+            wait:
+              cluster:
+                kind: Pods
+                name: keycloak-0
+                namespace: keycloak
+                condition: ContainersReady
+          - description: Validate admin interface
+            wait:
+              network:
+                protocol: https
+                address: keycloak.admin.uds.dev
+                code: 200
+          - description: Validate public interface
+            wait:
+              network:
+                protocol: https
+                address: sso.uds.dev
+                code: 200

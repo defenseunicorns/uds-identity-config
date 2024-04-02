@@ -42,7 +42,7 @@ tasks:
       - cmd: |
           cat <<EOF > tls_cacert.yaml
           tls:
-            cacert: "$(docker run --rm --entrypoint sh ${IMAGE_NAME}:${VERSION} -c 'cat /home/nonroot/authorized_certs.pem | base64 -w 0')"
+            cacert: "$(docker run --rm --entrypoint sh uds-core-config:keycloak -c 'cat /home/nonroot/authorized_certs.pem | base64 -w 0')"
           EOF
           echo "Base64 encoded CA Cert value is in cacert.b64, this can be passed to your Istio tenant gateway for Keycloak OPTIONAL_MUTUAL"
 
@@ -58,46 +58,59 @@ tasks:
       - cmd: |
           openssl genrsa -out test.pem 2048
           openssl genrsa -out ca.pem 2048
-          openssl req -x509 -new -nodes -key ca.pem -sha256 -days 1825 -out ca.crt -subj "/C=US/O=U.S. Government/OU=DoD/OU=PKI/CN=DOD ID CA-59 FAKE TEST"
-          openssl req -new -key test.pem -out test.csr -config src/test/csr.conf -subj "/C=US/ST=Colorado/L=Colorado Springs/O=Defense Unicorns/CN=uds.dev"
-          openssl x509 -req -in test.csr -CA ca.crt -CAkey ca.pem -CAcreateserial -out test.cer -days 365 -extensions v3_ext -extfile src/test/csr.conf
-          zip src/authorized_certs ca.crt ca.pem test.cer test.csr test.pem
+          openssl req -x509 -new -nodes -key ca.pem -sha256 -days 1825 -out ca.cer -subj "/C=US/O=U.S. Government/OU=DoD/OU=PKI/CN=DOD ID CA-59 FAKE TEST"
+          openssl req -new -key test.pem -out test.csr -config src/csr.conf -batch
+          openssl x509 -req -in test.csr -CA ca.cer -CAkey ca.pem -CAcreateserial -out test.cer -days 365 -extensions v3_ext -extfile src/csr.conf
+          openssl pkcs12 -export -out test.pfx -inkey test.pem -in test.cer -certfile ca.cer -passout pass:
+          zip src/authorized_certs ca.cer
 
-  - name: uds-core-integration-test
-    description: "UDS Core + Identity Config basic integration test"
+  - name: uds-core-smoke-test
+    description: "UDS Core + Identity Config smoke test with base realm.json"
     actions:
       - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:0.16.1 --confirm
       - task: dev-build
       - cmd: git clone https://github.com/defenseunicorns/uds-core.git
-      - cmd: uds zarf package create ./test --confirm && uds zarf package deploy test/zarf-package-identity-* --confirm
+      - cmd: uds zarf package create . --confirm && uds zarf package deploy zarf-package-identity-* --confirm
 
-  - name: uds-core-integration-registration-test
-    description: "UDS Core + Identity Config integration test of user registration"
+  - name: uds-core-integration-tests
+    description: "UDS Core + Identity Config Integration Testing"
     actions:
-      - task: cleanup
-      - task: regenerate-test-pki
-      - cmd: docker build --build-arg CA_ZIP_URL="authorized_certs.zip" --build-arg REALM_FILE="test/realm.json" -t uds-core-config:keycloak --no-cache src
-      # todo: comment this back in
-      # - cmd: git clone https://github.com/defenseunicorns/uds-core.git
-      - task: cacert
-      - cmd: yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-tenant.yaml tls_cacert.yaml
-      - cmd: yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-admin.yaml tls_cacert.yaml
-      - cmd: uds zarf package create . --confirm
-      - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:0.16.1 --confirm
-      - cmd: uds zarf package deploy zarf-package-identity-* --confirm
-      - task: playwright-tests
+      - description: Create x509 certs for testing
+        task: regenerate-test-pki
 
-  - name: cleanup
-    actions:
-      - cmd: rm -rf tls_cacert.yaml test.cer test.csr test.pem ca.crt ca.pem src/authorized_certs.zip zarf-sbom/ zarf-package-identity-config-amd64.tar.zst
+      - description: Build identity config image
+        cmd: docker build --build-arg CA_ZIP_URL="authorized_certs.zip" --build-arg REALM_FILE="cypress/realm.json" -t uds-core-config:keycloak --no-cache src
 
+      - description: Clone uds core source
+        cmd: git clone https://github.com/defenseunicorns/uds-core.git
 
-  - name: playwright-tests
-    description: "Run all playwright tests ( requires an existing deployed UDS Core Identity )"
+      - description: Retrieve cacert from identity config image
+        task: cacert
+
+      - description: Copy cacert value into uds-core istio gateways
+        cmd: |
+          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-tenant.yaml tls_cacert.yaml
+          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-admin.yaml tls_cacert.yaml
+
+      - description: Create deployment of uds-core + identity-config
+        cmd: uds zarf package create . --confirm
+
+      - description: Setup K3d cluster with zarf and istio
+        cmd: |
+          cd uds-core 
+          uds run dev-setup 
+          npx pepr deploy --confirm
+          uds zarf package deploy oci://defenseunicorns/init:v0.32.3 --confirm
+
+      - description: Deploy zarf package of uds-core+uds-identity-config
+        cmd: uds zarf package deploy zarf-package-identity-* --confirm
+
+      - description: Run integration cypress tests
+        task: cypress-tests
+
+  - name: cypress-tests
+    description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
     actions:
       - cmd: |
-          cd src/test
-          npx playwright test
-
-# todo: combine uds-core-integration-test and uds-core-integration-registration-test and playwright-tests together into uds-core-integration-tests
-# todo: the current integration tests are not just registration tests so need something thats general integration tests 
+          npm --prefix src/cypress install
+          npm --prefix src/cypress run cy.run
