@@ -9,6 +9,7 @@ This repo builds the UDS Identity (Keycloak) Config image used by UDS Identity. 
    | Task Name | Task Description |
    |---------------------|---------------------------------------------|
    | build-and-publish   | Build and publish the multi-arch image      |
+   | build-zarf-pkg      | Build the image locally and package it with Zarf |
    | dev-build           | Build the image locally for dev             |
    | dev-update-image    | Build the image and import locally into k3d |
    | dev-theme           | Copy theme to Keycloak in dev cluster       |
