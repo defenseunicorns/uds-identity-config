@@ -21,7 +21,7 @@ COPY extra-jars/* ./target/
 # Build the Java truststore from DOD CAs                                          #
 #                                                                                 #
 ###################################################################################
-FROM cgr.dev/chainguard/jdk:latest-dev as truststore
+FROM amazoncorretto:21-alpine-jdk as truststore
 USER root
 RUN apk add openssl coreutils sed bash findutils
 

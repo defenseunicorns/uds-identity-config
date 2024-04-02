@@ -66,5 +66,15 @@
         "matchPaths": [".github/**"],
         "groupName": "GHA-DEPS"
     }
+  ],
+  "regexManagers":[
+    {
+      "fileMatch": ["^tasks.ya?ml$", "^tasks/.*\\.ya?ml$", "^\\.vscode/settings\\.json$"],
+      "matchStrings": [
+         "https:\\/\\/raw\\.githubusercontent\\.com\\/(?<depName>[^\\/]+\\/[^\\/]+)\\/(?<currentValue>[^\\/]+)"
+      ],
+      "versioningTemplate": "semver-coerced",
+      "datasourceTemplate": "github-tags"
+    }  
   ]
 }
