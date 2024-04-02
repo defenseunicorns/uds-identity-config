@@ -27,3 +27,6 @@ jobs:
 
       - name: Test building the docker image
         run: uds run dev-build
+
+      - name: Test building a zarf package
+        run: uds run build-zarf-pkg
