@@ -17,7 +17,7 @@ tasks:
   - name: build-zarf-pkg
     description: "Build the custom docker image and the zarf package for transporting it"
     actions:
-      - task: docker build --tag ${IMAGE_NAME}:${VERSION} src
+      - cmd: docker build --tag ${IMAGE_NAME}:${VERSION} src
       - cmd: ./uds zarf package create . --set IDENTITY_CONFIG_IMG=${IMAGE_NAME}:${VERSION} --confirm
 
   - name: dev-build
