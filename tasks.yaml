@@ -7,6 +7,9 @@ variables:
   - name: IMAGE_NAME
     description: "The repository + name for the published image"
     default: "ghcr.io/defenseunicorns/uds/identity-config"
+  - name: CORE_VERSION
+    description: UDS Core Version for Releases and Clone
+    default: "0.16.1"
 
 tasks:
   - name: build-and-publish
@@ -67,16 +70,16 @@ tasks:
   - name: uds-core-smoke-test
     description: "UDS Core + Identity Config smoke test with base realm.json"
     actions:
-      - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:0.16.1 --confirm
+      - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:${CORE_VERSION} --confirm
       - task: dev-build
-      - cmd: git clone https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
       - cmd: uds zarf package create . --confirm && uds zarf package deploy zarf-package-identity-* --confirm
 
   - name: uds-core-integration-tests
     description: "UDS Core + Identity Config Integration Testing"
     actions:
       - description: Cleanup from last run
-        cmd: rm -rf uds-core/ ca.cer ca.pem test.cer test.csr test.pem test.pfx tls_cacert.yaml zarf-package-identity-config-amd64.tar.zst
+        task: cert-cleanup
 
       - description: Create x509 certs for testing
         task: regenerate-test-pki
@@ -85,7 +88,7 @@ tasks:
         cmd: docker build --build-arg CA_ZIP_URL="authorized_certs.zip" --build-arg REALM_FILE="cypress/realm.json" -t uds-core-config:keycloak --no-cache src
 
       - description: Clone uds core source
-        cmd: git clone https://github.com/defenseunicorns/uds-core.git
+        cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
 
       - description: Retrieve cacert from identity config image
         task: cacert
@@ -118,3 +121,8 @@ tasks:
       - cmd: |
           npm --prefix src/cypress install
           npm --prefix src/cypress run cy.run
+
+  - name: cert-cleanup
+    description: "Cleanup all the extra certs and folders that are created each deployment"
+    actions:
+      - cmd: rm -rf uds-core/ ca.cer ca.pem test.cer test.csr test.pem test.pfx tls_cacert.yaml zarf-package-identity-config-amd64.tar.zst

@@ -6,12 +6,13 @@
 
 | Test Name (link) | Test Description |
 |------------------|------------------|
-| [Login Existing User](../src/cypress/e2e/user_login.cy.ts) | Login in existing user that is created in the testing [realm.json](../src/cypress/realm.json) |
-| [Login Nonexistant User / Incorrect creds](../src/cypress/e2e/user_login.cy.ts) | User cannot login / authenticate with incorrect creds or without account |
-| [Successfuly CAC Registration](../src/cypress/e2e/user_registration.cy.ts) | New user can successfully register with CAC |
-| [Duplicate User Registration](../src/cypress/e2e/user_registration.cy.ts) | User cannot register more than once |
-| [Password check for special characters](../src/cypress/e2e/user_registration.cy.ts) | User registration requires password special characters |
-| [Password check for length](../src/cypress/e2e/user_registration.cy.ts) | User registration requires password length check |
+| [Login Existing User](../src/cypress/e2e/login.cy.ts) | Login in existing user that is created in the testing [realm.json](../src/cypress/realm.json) |
+| [Login Nonexistant User / Incorrect creds](../src/cypress/e2e/login.cy.ts) | User cannot login / authenticate with incorrect creds or without account |
+| [Successfuly CAC Registration](../src/cypress/e2e/registration.cy.ts) | New user can successfully register with CAC |
+| [CAC User Login](../src/cypress/e2e/registration.cy.ts) | New user can successfully login with CAC |
+| [Duplicate User Registration](../src/cypress/e2e/registration.cy.ts) | User cannot register more than once |
+| [Password check for special characters](../src/cypress/e2e/registration.cy.ts) | User registration requires password special characters |
+| [Password check for length](../src/cypress/e2e/registration.cy.ts) | User registration requires password length check |
 
 ## Cypress Testing
 Using uds-cli task [`uds-core-integration-tests`](../../tasks.yaml). 

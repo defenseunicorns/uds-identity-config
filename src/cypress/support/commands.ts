@@ -34,8 +34,16 @@ Cypress.Commands.add('loginPage', () => {
 Cypress.Commands.add('registrationPage', (formData: RegistrationFormData) => {
     cy.loginPage();
 
+    // if the dod pki login page is present then we need to click a different button to get to the registration page
+    cy.contains('h2', 'DoD PKI Detected').then(($header) => {
+        if ($header.length > 0 && $header.text().trim() === 'DoD PKI Detected') {
+            // If the header is present, click the "Ignore" button to get to the registration page
+            cy.get('#kc-cancel').should('be.visible').click();
+        }
+      });
+
     // Verify the presence of the registration link and then click
-    cy.get('a[href*="/registration"]').should('be.visible').click();
+    cy.contains('.footer-text a', 'Click here').should('be.visible').click();
 
     // Verify client cert has been loaded properly by this header being present
     cy.contains('h2', 'DoD PKI User Registration').should('be.visible');

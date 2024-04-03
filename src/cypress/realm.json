@@ -1631,7 +1631,7 @@
                     "authenticator": "auth-x509-client-username-form",
                     "authenticatorFlow": false,
                     "requirement": "ALTERNATIVE",
-                    "priority": 1,
+                    "priority": 0,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 },
@@ -1639,7 +1639,7 @@
                     "authenticator": "auth-username-password-form",
                     "authenticatorFlow": false,
                     "requirement": "ALTERNATIVE",
-                    "priority": 0,
+                    "priority": 1,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }
@@ -2406,7 +2406,7 @@
                 "x509-cert-auth.crl-relative-path": "crl.pem",
                 "x509-cert-auth.crldp-checking-enabled": "false",
                 "x509-cert-auth.mapping-source-selection": "Subject's Alternative Name otherName (UPN)",
-                "x509-cert-auth.ocsp-checking-enabled": "true"
+                "x509-cert-auth.ocsp-checking-enabled": "false"
             }
         },
         {
