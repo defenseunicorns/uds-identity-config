@@ -75,6 +75,9 @@ tasks:
   - name: uds-core-integration-tests
     description: "UDS Core + Identity Config Integration Testing"
     actions:
+      - description: Cleanup from last run
+        cmd: rm -rf uds-core/ ca.cer ca.pem test.cer test.csr test.pem test.pfx tls_cacert.yaml zarf-package-identity-config-amd64.tar.zst
+
       - description: Create x509 certs for testing
         task: regenerate-test-pki
 

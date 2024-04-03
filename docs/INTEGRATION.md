@@ -17,6 +17,7 @@
 Using uds-cli task [`uds-core-integration-tests`](../../tasks.yaml). 
 
 Task explanation:
+  - Cleanup any of the existing files that are no longer necessary
   - Generate fresh PKI certs using the `regenerate-test-pki` task
   - Create docker image that uses the new certs as well as a testing realm.json ( has a defined user, no MFA, and no email verification )
   - Clone [`uds-core`](https://github.com/defenseunicorns/uds-core) necessary for setting up k3d cluster to test against
