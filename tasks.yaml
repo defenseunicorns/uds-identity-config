@@ -97,7 +97,8 @@ tasks:
 
       - description: Setup K3d cluster with zarf and istio
         cmd: |
-          cd uds-core 
+          cd uds-core
+          npm ci
           uds run dev-setup 
           npx pepr deploy --confirm
           uds zarf package deploy oci://defenseunicorns/init:v0.32.3 --confirm
