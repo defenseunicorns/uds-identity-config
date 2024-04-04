@@ -7,8 +7,8 @@ module.exports = defineConfig({
       ca: [],
       certs: [
         {
-          pfx: "../../test.pfx",
-          passphrase: "pfx_passphrase.txt",
+          pfx: "certs/test.pfx",
+          passphrase: "certs/pfx_passphrase.txt",
         },
       ],
     },

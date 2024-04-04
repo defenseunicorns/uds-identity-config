@@ -1,6 +1,8 @@
+import { RegistrationFormData } from "../support/types";
+
 describe('CAC Registration Flow', () => {
 
-    const formData = {
+    const formData: RegistrationFormData = {
         firstName: 'John',
         lastName: 'Doe',
         organization: 'Defense Unicorns',
@@ -47,7 +49,7 @@ describe('CAC Registration Flow', () => {
 describe('Registration Tests', () => {
 
     it('Duplicate Registration', () => {
-        const formData = {
+        const formData: RegistrationFormData = {
             firstName: 'Testing',
             lastName: 'User',
             organization: 'Defense Unicorns',
@@ -66,7 +68,7 @@ describe('Registration Tests', () => {
     });
 
     it('Password Length', () => {
-        const formData = {
+        const formData: RegistrationFormData = {
             firstName: 'New',
             lastName: 'User',
             organization: 'Defense Unicorns',
@@ -84,7 +86,7 @@ describe('Registration Tests', () => {
     });
 
     it('Password Complexity', () => {
-        const formData = {
+        const formData: RegistrationFormData = {
             firstName: 'New',
             lastName: 'User',
             organization: 'Defense Unicorns',

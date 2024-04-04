@@ -16,7 +16,7 @@ components:
       - name: keycloak
         namespace: keycloak
         version: 23.0.4
-        localPath: ./uds-core/src/keycloak/chart
+        localPath: ../../uds-core/src/keycloak/chart
         valuesFiles:
           - "values.yaml"
     images:

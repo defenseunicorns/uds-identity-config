@@ -1,8 +1,10 @@
+import { RegistrationFormData } from "../support/types";
+
 describe('Login Flow', () => {
 
     it('Existing User', () => {
       // existing user created in test realm.json 
-      const formData = {
+      const formData: RegistrationFormData = {
           firstName: 'Testing',
           lastName: 'User',
           username: 'testing_user',
@@ -19,8 +21,7 @@ describe('Login Flow', () => {
     });
 
     it('Invalid User Creds', () => {
-      
-      const formData = {
+      const formData: RegistrationFormData = {
           username: 'testing_user',
           password: 'PrettyUnicorns!!',
       };

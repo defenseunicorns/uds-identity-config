@@ -4,11 +4,14 @@ variables:
     # x-release-please-start-version
     default: "0.3.6"
     # x-release-please-end
+
   - name: IMAGE_NAME
     description: "The repository + name for the published image"
     default: "ghcr.io/defenseunicorns/uds/identity-config"
+
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
+    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
     default: "0.16.1"
 
 tasks:
@@ -67,39 +70,39 @@ tasks:
           openssl pkcs12 -export -out test.pfx -inkey test.pem -in test.cer -certfile ca.cer -passout pass:
           zip src/authorized_certs ca.cer
 
+  - name: uds-core-gateway-cacert
+    description: "Copy cacert values into istio gateways"
+    actions:
+      - cmd: |
+          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-tenant.yaml src/test/cypress/certs/tls_cacert.yaml
+          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-admin.yaml src/test/cypress/certs/tls_cacert.yaml
+
   - name: uds-core-smoke-test
     description: "UDS Core + Identity Config smoke test with base realm.json"
     actions:
+      - cmd: rm -rf uds-core/
       - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:${CORE_VERSION} --confirm
       - task: dev-build
       - cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
-      - cmd: uds zarf package create . --confirm && uds zarf package deploy zarf-package-identity-* --confirm
+      - cmd: uds zarf package create ./src/test --confirm && uds zarf package deploy zarf-package-identity-* --confirm
 
   - name: uds-core-integration-tests
     description: "UDS Core + Identity Config Integration Testing"
     actions:
       - description: Cleanup from last run
-        task: cert-cleanup
-
-      - description: Create x509 certs for testing
-        task: regenerate-test-pki
+        cmd: rm -rf uds-core/
 
       - description: Build identity config image
-        cmd: docker build --build-arg CA_ZIP_URL="authorized_certs.zip" --build-arg REALM_FILE="cypress/realm.json" -t uds-core-config:keycloak --no-cache src
+        cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" --build-arg REALM_FILE="test/cypress/realm.json" -t uds-core-config:keycloak --no-cache src
 
       - description: Clone uds core source
         cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
 
-      - description: Retrieve cacert from identity config image
-        task: cacert
-
       - description: Copy cacert value into uds-core istio gateways
-        cmd: |
-          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-tenant.yaml tls_cacert.yaml
-          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-admin.yaml tls_cacert.yaml
+        task: uds-core-gateway-cacert
 
       - description: Create deployment of uds-core + identity-config
-        cmd: uds zarf package create . --confirm
+        cmd: uds zarf package create ./src/test --confirm
 
       - description: Setup K3d cluster with zarf and istio
         cmd: |
@@ -119,10 +122,6 @@ tasks:
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
     actions:
       - cmd: |
-          npm --prefix src/cypress install
-          npm --prefix src/cypress run cy.run
+          npm --prefix src/test/cypress install
+          npm --prefix src/test/cypress run cy.run
 
-  - name: cert-cleanup
-    description: "Cleanup all the extra certs and folders that are created each deployment"
-    actions:
-      - cmd: rm -rf uds-core/ ca.cer ca.pem test.cer test.csr test.pem test.pfx tls_cacert.yaml zarf-package-identity-config-amd64.tar.zst
