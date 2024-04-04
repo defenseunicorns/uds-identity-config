@@ -15,3 +15,4 @@ uds-core/
 ./src/authorized_certs.zip
 ./tls_cacert.yaml
 ./test.pfx
+src/extra-jars/
