@@ -13,3 +13,5 @@ test.cer
 test.csr
 test.pem
 *authorized_certs*
+src/extra-jars/
+uds-core/

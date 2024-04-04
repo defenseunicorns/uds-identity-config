@@ -1,54 +1,15 @@
 kind: ZarfPackageConfig
 metadata:
-  name: identity-config
-  description: Identity Config
+  name: keycloak-identity-config
+  version: "0.0.1"
 
-variables:
-  - name: DOMAIN
-    description: "Cluster domain"
-    default: "uds.dev"
+constants:
+  - name: IDENTIFY_CONFIG_IMG
+    description: "Image name and tag (MUST BE PROVIDED -- no default)"
+    value: '###ZARF_PKG_TMPL_IDENTITY_CONFIG_IMG###'
 
 components:
-  - name: keycloak
+  - name: keycloak-config-wrapper
     required: true
-    charts:
-      - name: keycloak
-        namespace: keycloak
-        version: 23.0.4
-        localPath: ./uds-core/src/keycloak/chart
-        valuesFiles:
-          - "values.yaml"
     images:
-      - quay.io/keycloak/keycloak:23.0.4
-      - uds-core-config:keycloak
-    actions:
-      onDeploy:
-        after:
-          - description: Validate Identity Deployment
-            maxTotalSeconds: 300
-            wait:
-              cluster:
-                kind: Packages
-                name: keycloak
-                namespace: keycloak
-                condition: "'{.status.phase}'=Ready"
-          - description: Validate Keycloak Container
-            maxTotalSeconds: 300
-            wait:
-              cluster:
-                kind: Pods
-                name: keycloak-0
-                namespace: keycloak
-                condition: ContainersReady
-          - description: Validate admin interface
-            wait:
-              network:
-                protocol: https
-                address: keycloak.admin.uds.dev
-                code: 200
-          - description: Validate public interface
-            wait:
-              network:
-                protocol: https
-                address: sso.uds.dev
-                code: 200
+      - '###ZARF_PKG_TMPL_IDENTITY_CONFIG_IMG###'

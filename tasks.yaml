@@ -2,17 +2,29 @@ variables:
   - name: VERSION
     description: "The image tag"
     # x-release-please-start-version
-    default: "0.3.5"
+    default: "0.3.6"
     # x-release-please-end
+
   - name: IMAGE_NAME
     description: "The repository + name for the published image"
     default: "ghcr.io/defenseunicorns/uds/identity-config"
+
+  - name: CORE_VERSION
+    description: UDS Core Version for Releases and Clone
+    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
+    default: "0.16.1"
 
 tasks:
   - name: build-and-publish
     description: "Build and publish the multi-arch image"
     actions:
       - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} --no-cache src
+  
+  - name: build-zarf-pkg
+    description: "Build the custom docker image and the zarf package for transporting it"
+    actions:
+      - cmd: docker build --tag ${IMAGE_NAME}:${VERSION} src
+      - cmd: ./uds zarf package create . --set IDENTITY_CONFIG_IMG=${IMAGE_NAME}:${VERSION} --confirm
 
   - name: dev-build
     description: "Build the image locally for dev"
@@ -34,6 +46,13 @@ tasks:
           PV=$(kubectl get pvc keycloak-themes -n keycloak -o jsonpath='{.spec.volumeName}')
           THEME_PATH=$(kubectl get pv $PV -o jsonpath="{.spec.hostPath.path}")
           docker cp src/theme k3d-uds-server-0:/$THEME_PATH
+
+  - name: dev-plugin
+    description: "Build and test Keycloak plugin source and create maven-surefire report"
+    actions:
+      - cmd: |
+          cd src/plugin
+          mvn surefire-report:report | egrep ".*"
 
   - name: cacert
     description: "Get the CA cert value for the Istio Gateway"
@@ -60,10 +79,11 @@ tasks:
           openssl x509 -req -in test.csr -CA ca.crt -CAkey ca.pem -CAcreateserial -out test.cer -days 365 -extensions v3_ext -extfile csr.conf
           zip src/authorized_certs ca.crt ca.pem test.cer test.csr test.pem
 
-  - name: uds-core-integration-test
-    description: "UDS Core integration test"
+  - name: uds-core-smoke-test
+    description: "UDS Core + Identity Config smoke test with base realm.json"
     actions:
-      - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:0.16.1 --confirm
+      - cmd: rm -rf uds-core/
+      - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:${CORE_VERSION} --confirm
       - task: dev-build
-      - cmd: git clone https://github.com/defenseunicorns/uds-core.git
-      - cmd: uds zarf package create . --confirm && uds zarf package deploy zarf-package-identity-* --confirm
+      - cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+      - cmd: uds zarf package create ./src/test --confirm && uds zarf package deploy zarf-package-identity-* --confirm

@@ -215,3 +215,13 @@ RUN mvn clean package
 #### Building New Image with Updates
 
 Once satisfied with changes and tested that they work, see [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
+
+
+## Transport Custom Image with Zarf
+For convenience, a Zarf package definition has been included to simplify custom image transport and install in air-gapped systems.
+
+#### Build the Zarf package
+Use the included UDS task to build the custom image and package it with Zarf:
+```
+uds run build-zarf-pkg
+```
