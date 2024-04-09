@@ -44,7 +44,7 @@
                     <hr/>
                     <h2>${msg("identity-provider-login-label")}</h2>
 
-                    <ul class="test kc-social-links <#if social.providers?size gt 3>pf-l-grid kc-social-grid</#if>">
+                    <ul class="social-ul kc-social-links <#if social.providers?size gt 3>pf-l-grid kc-social-grid</#if>">
                         <#list social.providers as p>
                             <li>
                                 <a id="social-${p.alias}" class="pf-c-button pf-m-control pf-m-block kc-social-item kc-social-gray <#if social.providers?size gt 3>pf-l-grid__item</#if>"

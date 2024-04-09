@@ -302,7 +302,7 @@ body.password .subtitle {
 }
 
 /* Social */
-.pf-c-button.pf-m-control {
+.pf-c-button .pf-m-control {
   border-color: rgba(230, 230, 230, 0.5);
 }
 
@@ -310,7 +310,7 @@ body.password .subtitle {
   margin-top: 20px;
 }
 
-.test {
+.social-ul {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -339,7 +339,6 @@ body.password .subtitle {
 }
 
 .kc-social-item {
-  margin-bottom: var(--pf-global--spacer--sm);
   font-size: 15px;
   text-align: center;
 }
@@ -357,16 +356,10 @@ body.password .subtitle {
   grid-column-gap: 10px;
   grid-row-gap: 5px;
   grid-column-end: span 6;
-  --pf-l-grid__item--GridColumnEnd: span 6;
 }
 
 .kc-social-grid .kc-social-icon-text {
   left: -10px;
-}
-
-.kc-login-tooltip {
-  position: relative;
-  display: inline-block;
 }
 
 .kc-social-section {
