@@ -114,13 +114,13 @@ tasks:
         task: cypress-tests
 
   - name: clone-core
-    description: "Clone UDS Core"
+    description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core/
       - cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
-    description: "Build/Deploy Custom Slim"
+    description: "Build/Deploy custom slim dev bundle for integration testing"
     actions:
       - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak
       - cmd: cd uds-core && uds run create:slim-dev-package
