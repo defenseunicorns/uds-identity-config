@@ -12,14 +12,14 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "0.16.1"
+    default: "0.18.0"
 
 tasks:
   - name: build-and-publish
     description: "Build and publish the multi-arch image"
     actions:
       - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} src
-  
+
   - name: build-zarf-pkg
     description: "Build the custom docker image and the zarf package for transporting it"
     actions:
@@ -93,43 +93,39 @@ tasks:
   - name: uds-core-smoke-test
     description: "UDS Core + Identity Config smoke test with base realm.json"
     actions:
-      - cmd: rm -rf uds-core/
-      - cmd: uds deploy ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:${CORE_VERSION} --confirm
       - task: dev-build
-      - cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
-      - cmd: uds zarf package create ./src/test --confirm && uds zarf package deploy zarf-package-identity-* --confirm
+      - task: clone-core
+      - task: build-deploy-custom-slim
 
   - name: uds-core-integration-tests
     description: "UDS Core + Identity Config Integration Testing"
     actions:
-      - description: Cleanup from last run
-        cmd: rm -rf uds-core/
-
       - description: Build identity config image
         cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" --build-arg REALM_FILE="test/cypress/realm.json" -t uds-core-config:keycloak --no-cache src
 
-      - description: Clone uds core source
-        cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+      - task: clone-core
 
       - description: Copy cacert value into uds-core istio gateways
         task: uds-core-gateway-cacert
 
-      - description: Create deployment of uds-core + identity-config
-        cmd: uds zarf package create ./src/test --confirm
-
-      - description: Setup K3d cluster with zarf and istio
-        cmd: |
-          cd uds-core
-          npm ci
-          uds run dev-setup 
-          npx pepr deploy --confirm
-          uds zarf package deploy oci://defenseunicorns/init:v0.32.3 --confirm
-
-      - description: Deploy zarf package of uds-core+uds-identity-config
-        cmd: uds zarf package deploy zarf-package-identity-* --confirm
+      - task: build-deploy-custom-slim
 
       - description: Run integration cypress tests
         task: cypress-tests
+
+  - name: clone-core
+    description: "Clone UDS Core"
+    actions:
+      - cmd: rm -rf uds-core/
+      - cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+
+  - name: build-deploy-custom-slim
+    description: "Build/Deploy Custom Slim"
+    actions:
+      - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak
+      - cmd: cd uds-core && uds run create:slim-dev-package
+      - cmd: uds create bundles --confirm
+      - cmd: uds deploy bundles/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-slim-dev.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm
 
   - name: cypress-tests
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
@@ -137,4 +133,3 @@ tasks:
       - cmd: |
           npm --prefix src/test/cypress install
           npm --prefix src/test/cypress run cy.run
-
