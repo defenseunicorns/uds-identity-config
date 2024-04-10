@@ -1,3 +1,3 @@
 // cypress/support/index.js
 
-import './commands';
+import "./commands";

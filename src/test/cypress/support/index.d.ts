@@ -4,11 +4,10 @@
 
 declare namespace Cypress {
   interface Chainable {
+    loginPage(): Chainable;
 
-      loginPage(): Chainable;
+    loginUser(username: string, password: string): Chainable;
 
-      loginUser(username: string, password: string): Chainable;
-
-      registrationPage(formData: any): Chainable;
+    registrationPage(formData: any): Chainable;
   }
 }
