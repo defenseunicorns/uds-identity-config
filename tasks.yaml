@@ -29,7 +29,7 @@ tasks:
   - name: dev-build
     description: "Build the image locally for dev"
     actions:
-      - cmd: docker build src -t uds-core-config:keycloak
+      - cmd: docker build src -t uds-core-config:keycloak --no-cache
 
   - name: dev-update-image
     description: "Build the image and import locally into k3d"
