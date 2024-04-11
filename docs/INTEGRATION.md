@@ -33,7 +33,7 @@ Cypress testing requires that a ca.cer be created and put into an authorized_cer
 
 Our cypress testing utilizes [static certs](../src/test/cypress/certs/) that are created and saved to limit the need for constantly rebuilding and importing those certs.
 
-Follow these steps to update the certs for cypresss:
+Follow these steps to update the certs for cypress:
 1. Run `uds run regenerate-test-pki` to regenerate the necessary certs and authorized_certs.zip
 2. Run `docker build --build-arg CA_ZIP_URL="authorized_certs.zip" -t uds-core-config:keycloak --no-cache src` to create docker image
 3. Run `uds run cacert` to extract cacert from docker image for the tls_cacert.yaml file
