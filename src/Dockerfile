@@ -55,7 +55,8 @@ COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
 COPY --chown=nonroot --from=truststore /home/build/truststore.jks .
 
 # The realm.json is loaded into Keycloak on startup only if the realm does not exist
-COPY --chown=nonroot realm.json .
+ARG REALM_FILE=realm.json
+COPY --chown=nonroot ${REALM_FILE} .
 
 # This provides the custom theme for the Keycloak instance
 COPY --chown=nonroot theme theme

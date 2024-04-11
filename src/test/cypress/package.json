@@ -1,0 +1,15 @@
+{
+  "name": "uds-identity-config",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "cy.open": "cypress open",
+    "cy.run": "cypress run",
+    "prettier": "prettier --write **/*.ts"
+  },
+  "devDependencies": {
+    "cypress": "^13.7.1",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.3"
+  }
+}

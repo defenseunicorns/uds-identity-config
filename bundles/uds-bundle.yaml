@@ -1,0 +1,44 @@
+kind: UDSBundle
+metadata:
+  name: k3d-core-slim-dev
+  description: A UDS bundle for deploying Istio from UDS Core on a development cluster
+  version: "dev"
+
+packages:
+  - name: uds-k3d-dev
+    repository: ghcr.io/defenseunicorns/packages/uds-k3d
+    # renovate: datasource=github-tags depName=defenseunicorns/uds-k3d versioning=semver
+    ref: 0.6.0
+
+  - name: init
+    repository: ghcr.io/defenseunicorns/packages/init
+    # renovate: datasource=github-tags depName=defenseunicorns/zarf versioning=semver
+    ref: v0.32.5
+
+  - name: keycloak-identity-config
+    path: ../
+    ref: dev
+
+  - name: core-slim-dev
+    path: ../uds-core/build/
+    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
+    ref: 0.18.0
+    overrides:
+      keycloak:
+        keycloak:
+          variables:
+            - name: KEYCLOAK_CONFIG_IMAGE
+              description: "The keycloak config image to deploy plugin and initial setup configuration"
+              path: configImage
+      istio-admin-gateway:
+        uds-istio-config:
+          variables:
+            - name: ADMIN_TLS_CACERT
+              description: "The CA cert for the tenant gateway (must be base64 encoded)"
+              path: tls.cacert
+      istio-tenant-gateway:
+        uds-istio-config:
+          variables:
+            - name: TENANT_TLS_CACERT
+              description: "The CA cert for the tenant gateway (must be base64 encoded)"
+              path: tls.cacert

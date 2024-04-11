@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@fc12e3a773580020a1d63e254525eab0f8b99fc8
+        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.10.3
 
       - name: Test building the docker image
         run: uds run dev-build
@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@fc12e3a773580020a1d63e254525eab0f8b99fc8
+        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.10.3
 
       - name: Test building a zarf package
         run: uds run build-zarf-pkg
@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@fc12e3a773580020a1d63e254525eab0f8b99fc8
+        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.10.3
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -67,3 +67,37 @@ jobs:
 
       - name: Plugin Unit Tests
         run: mvn -B package --file src/plugin/pom.xml
+
+  uds_core_base_integration:
+    runs-on: ubuntu-latest
+    name: UDS Core + Identity Config smoke test with base realm.json
+    permissions:
+      pull-requests: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Environment setup
+        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.10.3
+
+      - name: Test building the docker image
+        run: uds run uds-core-smoke-test
+
+  uds_core_cypress_integration:
+    runs-on: ubuntu-latest
+    name: UDS Core + Identity Config cypress integration tests
+    permissions:
+      pull-requests: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Environment setup
+        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.10.3
+
+      - name: Test building the docker image
+        run: uds run uds-core-integration-tests

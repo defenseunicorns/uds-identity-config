@@ -4,16 +4,22 @@ variables:
     # x-release-please-start-version
     default: "0.3.6"
     # x-release-please-end
+
   - name: IMAGE_NAME
     description: "The repository + name for the published image"
     default: "ghcr.io/defenseunicorns/uds/identity-config"
+
+  - name: CORE_VERSION
+    description: UDS Core Version for Releases and Clone
+    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
+    default: "0.18.0"
 
 tasks:
   - name: build-and-publish
     description: "Build and publish the multi-arch image"
     actions:
       - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} src
-  
+
   - name: build-zarf-pkg
     description: "Build the custom docker image and the zarf package for transporting it"
     actions:
@@ -23,7 +29,7 @@ tasks:
   - name: dev-build
     description: "Build the image locally for dev"
     actions:
-      - cmd: docker build src -t uds-core-config:keycloak
+      - cmd: docker build src -t uds-core-config:keycloak --no-cache
 
   - name: dev-update-image
     description: "Build the image and import locally into k3d"
@@ -53,7 +59,10 @@ tasks:
     actions:
       # This is written to a file rather than printed because it is a massive value to copy out of the terminal
       - cmd: |
-          docker run --rm --entrypoint sh ${IMAGE_NAME}:${VERSION} -c "cat /home/nonroot/authorized_certs.pem | base64 -w 0" > cacert.b64
+          cat <<EOF > tls_cacert.yaml
+          tls:
+            cacert: "$(docker run --rm --entrypoint sh uds-core-config:keycloak -c 'cat /home/nonroot/authorized_certs.pem | base64 -w 0')"
+          EOF
           echo "Base64 encoded CA Cert value is in cacert.b64, this can be passed to your Istio tenant gateway for Keycloak OPTIONAL_MUTUAL"
 
   - name: debug-istio-traffic
@@ -68,7 +77,59 @@ tasks:
       - cmd: |
           openssl genrsa -out test.pem 2048
           openssl genrsa -out ca.pem 2048
-          openssl req -x509 -new -nodes -key ca.pem -sha256 -days 1825 -out ca.crt -subj "/C=US/O=U.S. Government/OU=DoD/OU=PKI/CN=DOD ID CA-59 FAKE TEST"
-          openssl req -new -key test.pem -out test.csr -config csr.conf -subj "/C=US/ST=Colorado/L=Colorado Springs/O=Defense Unicorns/CN=uds.dev"
-          openssl x509 -req -in test.csr -CA ca.crt -CAkey ca.pem -CAcreateserial -out test.cer -days 365 -extensions v3_ext -extfile csr.conf
-          zip src/authorized_certs ca.crt ca.pem test.cer test.csr test.pem
+          openssl req -x509 -new -nodes -key ca.pem -sha256 -days 1825 -out ca.cer -subj "/C=US/O=U.S. Government/OU=DoD/OU=PKI/CN=DOD ID CA-59 FAKE TEST"
+          openssl req -new -key test.pem -out test.csr -config src/csr.conf -batch
+          openssl x509 -req -in test.csr -CA ca.cer -CAkey ca.pem -CAcreateserial -out test.cer -days 365 -extensions v3_ext -extfile src/csr.conf
+          openssl pkcs12 -export -out test.pfx -inkey test.pem -in test.cer -certfile ca.cer -passout pass:
+          zip src/authorized_certs ca.cer
+
+  - name: uds-core-gateway-cacert
+    description: "Copy cacert values into istio gateways"
+    actions:
+      - cmd: |
+          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-tenant.yaml src/test/cypress/certs/tls_cacert.yaml
+          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-admin.yaml src/test/cypress/certs/tls_cacert.yaml
+
+  - name: uds-core-smoke-test
+    description: "UDS Core + Identity Config smoke test with base realm.json"
+    actions:
+      - task: dev-build
+      - task: clone-core
+      - task: build-deploy-custom-slim
+
+  - name: uds-core-integration-tests
+    description: "UDS Core + Identity Config Integration Testing"
+    actions:
+      - description: Build identity config image
+        cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" --build-arg REALM_FILE="test/cypress/realm.json" -t uds-core-config:keycloak --no-cache src
+
+      - task: clone-core
+
+      - description: Copy cacert value into uds-core istio gateways
+        task: uds-core-gateway-cacert
+
+      - task: build-deploy-custom-slim
+
+      - description: Run integration cypress tests
+        task: cypress-tests
+
+  - name: clone-core
+    description: "Clone UDS Core for integration testing"
+    actions:
+      - cmd: rm -rf uds-core/
+      - cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+
+  - name: build-deploy-custom-slim
+    description: "Build/Deploy custom slim dev bundle for integration testing"
+    actions:
+      - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak
+      - cmd: cd uds-core && uds run create:slim-dev-package
+      - cmd: uds create bundles --confirm
+      - cmd: uds deploy bundles/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-slim-dev.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm
+
+  - name: cypress-tests
+    description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
+    actions:
+      - cmd: |
+          npm --prefix src/test/cypress install
+          npm --prefix src/test/cypress run cy.run
