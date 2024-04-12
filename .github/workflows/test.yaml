@@ -67,3 +67,37 @@ jobs:
 
       - name: Plugin Unit Tests
         run: mvn -B package --file src/plugin/pom.xml
+
+  uds_core_base_integration:
+    runs-on: ubuntu-latest
+    name: UDS Core + Identity Config smoke test with base realm.json
+    permissions:
+      pull-requests: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Environment setup
+        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.3.10
+
+      - name: Test building the docker image
+        run: uds run uds-core-smoke-test
+
+  uds_core_cypress_integration:
+    runs-on: ubuntu-latest
+    name: UDS Core + Identity Config cypress integration tests
+    permissions:
+      pull-requests: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Environment setup
+        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.3.10
+
+      - name: Test building the docker image
+        run: uds run uds-core-integration-tests
