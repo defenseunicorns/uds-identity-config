@@ -60,7 +60,7 @@ jobs:
         uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.3.10
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4
         with:
           java-version: '17'
           distribution: 'temurin'
