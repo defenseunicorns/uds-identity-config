@@ -1,7 +1,5 @@
 package com.defenseunicorns.uds.keycloak.plugin;
 
-import org.apache.commons.io.FilenameUtils;
-import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.keycloak.authentication.FormContext;
 import org.keycloak.http.HttpRequest;
 import org.junit.Before;
@@ -22,7 +20,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.yaml.snakeyaml.Yaml;
 
 import com.defenseunicorns.uds.keycloak.plugin.utils.CommonConfig;
 import com.defenseunicorns.uds.keycloak.plugin.utils.NewObjectProvider;
@@ -33,7 +30,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -42,12 +41,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ Yaml.class, FileInputStream.class, File.class,
-        CommonConfig.class, FilenameUtils.class, NewObjectProvider.class,
-        X509Tools.class,
-})
+@PrepareForTest({ FileInputStream.class, File.class, CommonConfig.class, NewObjectProvider.class,
+        X509Tools.class })
 @PowerMockIgnore("javax.management.*")
 class RegistrationValidation2Test {
 
@@ -80,7 +76,8 @@ class RegistrationValidation2Test {
     @Mock
     GroupProvider groupProvider;
 
-    public RegistrationValidation2Test() {}
+    public RegistrationValidation2Test() {
+    }
 
     @Before
     public void setupMockBehavior() throws Exception {
@@ -137,10 +134,11 @@ class RegistrationValidation2Test {
         PowerMockito.when(validationContext.getUser()).thenReturn(userModelDefaultMethodsImpl);
         PowerMockito.when(validationContext.getRealm()).thenReturn(realmModel);
 
-        MultivaluedMapImpl<String, String> formData = new MultivaluedMapImpl<>();
-        formData.add(Validation.FIELD_EMAIL, "test.user@test.bad");
-
-        PowerMockito.when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(formData);
+        // Populate form data
+        Map<String, List<String>> formDataMap = new HashMap<>();
+        formDataMap.put(Validation.FIELD_EMAIL, Collections.singletonList("test.user@test.bad"));
+    
+        PowerMockito.when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
 
         RegistrationValidation registrationValidation = new RegistrationValidation();
         registrationValidation.success(validationContext);
@@ -148,19 +146,22 @@ class RegistrationValidation2Test {
 
     @Test
     public void testSuccessNoX509() throws GeneralSecurityException {
-
-        // force no cert
+        // Force no certificate
         PowerMockito.when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(null);
-
+    
+        // Mock user and realm
         UserModelDefaultMethodsImpl userModelDefaultMethodsImpl = new UserModelDefaultMethodsImpl();
         PowerMockito.when(validationContext.getUser()).thenReturn(userModelDefaultMethodsImpl);
         PowerMockito.when(validationContext.getRealm()).thenReturn(realmModel);
-
-        MultivaluedMapImpl<String, String> formData = new MultivaluedMapImpl<>();
-        formData.add(Validation.FIELD_EMAIL, "test.user@test.bad");
-
-        PowerMockito.when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(formData);
-
+    
+        // Populate form data
+        Map<String, List<String>> formDataMap = new HashMap<>();
+        formDataMap.put(Validation.FIELD_EMAIL, Collections.singletonList("test.user@test.bad"));
+    
+        // Mock the behavior to return the populated form data
+        PowerMockito.when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
+    
+        // Call the method under test
         RegistrationValidation registrationValidation = new RegistrationValidation();
         registrationValidation.success(validationContext);
     }

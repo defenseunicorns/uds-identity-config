@@ -45,6 +45,24 @@
     "quickLoginCheckMilliSeconds": 1000,
     "maxDeltaTimeSeconds": 43200,
     "failureFactor": 5,
+    "users": [
+        {
+            "id": "123",
+            "username": "testing_user",
+            "enabled": "true",
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "testingpassword!!"
+                }
+            ],
+            "firstName": "Testing",
+            "lastName": "User",
+            "email": "testinguser@gmail.com",
+            "emailVerified": true,
+            "realmRoles": ["default-roles-uds"]
+        }
+    ],
     "roles": {
         "realm": [
             {
@@ -1340,16 +1358,6 @@
                     }
                 }
             ]
-        },
-        {
-            "id": "52fa0872-8912-4096-a124-da2c077b5539",
-            "name": "openid",
-            "description": "OpenID Connect built-in scope: openid",
-            "protocol": "openid-connect",
-            "attributes": {
-              "include.in.token.scope": "true",
-              "display.on.consent.screen": "true"
-            }
         }
     ],
     "defaultDefaultClientScopes": [
@@ -1358,8 +1366,7 @@
         "email",
         "roles",
         "web-origins",
-        "acr",
-        "openid"
+        "acr"
     ],
     "defaultOptionalClientScopes": [
         "offline_access",
@@ -1628,16 +1635,16 @@
                     "authenticator": "auth-x509-client-username-form",
                     "authenticatorFlow": false,
                     "requirement": "ALTERNATIVE",
-                    "priority": 1,
+                    "priority": 0,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticatorFlow": true,
+                    "authenticator": "auth-username-password-form",
+                    "authenticatorFlow": false,
                     "requirement": "ALTERNATIVE",
-                    "priority": 2,
-                    "autheticatorFlow": true,
-                    "flowAlias": "MFA Login",
+                    "priority": 1,
+                    "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }
             ]
@@ -2403,7 +2410,7 @@
                 "x509-cert-auth.crl-relative-path": "crl.pem",
                 "x509-cert-auth.crldp-checking-enabled": "false",
                 "x509-cert-auth.mapping-source-selection": "Subject's Alternative Name otherName (UPN)",
-                "x509-cert-auth.ocsp-checking-enabled": "true"
+                "x509-cert-auth.ocsp-checking-enabled": "false"
             }
         },
         {
@@ -2433,7 +2440,7 @@
             "alias": "CONFIGURE_TOTP",
             "name": "Configure OTP",
             "providerId": "CONFIGURE_TOTP",
-            "enabled": true,
+            "enabled": false,
             "defaultAction": false,
             "priority": 20,
             "config": {}
@@ -2460,7 +2467,7 @@
             "alias": "VERIFY_EMAIL",
             "name": "Verify Email",
             "providerId": "VERIFY_EMAIL",
-            "enabled": true,
+            "enabled": false,
             "defaultAction": true,
             "priority": 50,
             "config": {}

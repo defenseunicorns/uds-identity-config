@@ -33,16 +33,38 @@
                     <div id="form-buttons" class="form-group">
                         <input type="hidden" id="id-hidden-input" name="credentialId"
                             <#if auth.selectedCredential?has_content>value="${auth.selectedCredential}"
-            </#if>/>
-            <input tabindex="4"
-                class="btn btn-primary btn-block"
-                name="login" id="kc-login" type="submit" value="${msg("doLogIn")}" />
+                            </#if>/>
+                        <input tabindex="4" class="btn btn-primary btn-block"
+                            name="login" id="kc-login" type="submit" value="${msg("doLogIn")}" />
+                    </div>
+                </form>
+            </#if>
+            <#if realm.password && social.providers??>
+                <div id="kc-social-providers" class="kc-social-section kc-social-gray">
+                    <hr/>
+                    <h2>${msg("identity-provider-login-label")}</h2>
+
+                    <ul class="social-ul kc-social-links <#if social.providers?size gt 3>pf-l-grid kc-social-grid</#if>">
+                        <#list social.providers as p>
+                            <li>
+                                <a id="social-${p.alias}" class="pf-c-button pf-m-control pf-m-block kc-social-item kc-social-gray <#if social.providers?size gt 3>pf-l-grid__item</#if>"
+                                        type="button" href="${p.loginUrl}">
+                                    <#if p.iconClasses?has_content>
+                                        <i class="kc-social-provider-logo kc-social-gray ${p.iconClasses!}" aria-hidden="true"></i>
+                                        <span class="kc-social-provider-name kc-social-icon-text">${p.displayName!}</span>
+                                    <#else>
+                                        <span class="kc-social-provider-name">${p.displayName!}</span>
+                                    </#if>
+                                </a>
+                            </li>
+                        </#list>
+                    </ul>
+                    <hr/>
+                </div>
+            </#if>
+            <div class="footer-text">
+                No account? <a href="${url.registrationUrl}">Click here</a> to register now.<br>
             </div>
-            </form>
-        </#if>
-        <div class="footer-text">
-            No account? <a href="${url.registrationUrl}">Click here</a> to register now.<br>
-        </div>
         </#if>
     </@layout.registrationLayout>
     <script>
