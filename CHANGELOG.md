@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.4.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.6...v0.4.0) (2024-04-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* depend on keycloak 24
+
+### Features
+
+* cypress integration tests ([#42](https://github.com/defenseunicorns/uds-identity-config/issues/42)) ([12ea0cc](https://github.com/defenseunicorns/uds-identity-config/commit/12ea0ccb0e410f6cc35a2b158bf01dd60f39fa96))
+* depend on keycloak 24 ([ed91427](https://github.com/defenseunicorns/uds-identity-config/commit/ed914270395bdce2cd0320a9abacb0501d871309))
+* plugin unit tests ([#33](https://github.com/defenseunicorns/uds-identity-config/issues/33)) ([47651d9](https://github.com/defenseunicorns/uds-identity-config/commit/47651d9192cfbaff88a024a6598f1e1bcc989fcd))
+* zarf file ([#39](https://github.com/defenseunicorns/uds-identity-config/issues/39)) ([3cc2ee7](https://github.com/defenseunicorns/uds-identity-config/commit/3cc2ee7c065c4acbd6447d0b5ea506300e85fbf3))
+
+
+### Bug Fixes
+
+* create default openid client scope ([#43](https://github.com/defenseunicorns/uds-identity-config/issues/43)) ([c604d15](https://github.com/defenseunicorns/uds-identity-config/commit/c604d156abb2ddb24bca40747607cb65c3bf5d6e))
+
+
+### Miscellaneous
+
+* please release config ([#54](https://github.com/defenseunicorns/uds-identity-config/issues/54)) ([b0cab96](https://github.com/defenseunicorns/uds-identity-config/commit/b0cab962a77de56eab6593c21fa526d0248ae63c))
+* update codeowners ([#46](https://github.com/defenseunicorns/uds-identity-config/issues/46)) ([bade26d](https://github.com/defenseunicorns/uds-identity-config/commit/bade26dab6f626e10ff6f994c64bab8344ccc534))
+
 ## [0.3.6](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.5...v0.3.6) (2024-03-18)
 
 
