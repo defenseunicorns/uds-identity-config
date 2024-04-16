@@ -82,7 +82,7 @@ jobs:
       - name: Environment setup
         uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.10.3
 
-      - name: Test building the docker image
+      - name: Smoke Tests
         run: uds run uds-core-smoke-test
 
   uds_core_cypress_integration:
@@ -99,5 +99,5 @@ jobs:
       - name: Environment setup
         uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.10.3
 
-      - name: Test building the docker image
+      - name: Cypress Integration Tests
         run: uds run uds-core-integration-tests
