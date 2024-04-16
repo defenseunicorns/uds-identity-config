@@ -15,7 +15,4 @@ cp -fvur theme/* /opt/keycloak/themes/theme/
 cp -fvu *.jar /opt/keycloak/providers/
 cp -fvu certs/* /opt/keycloak/conf/truststores
 
-# For keycloak 23
-cp -fvu truststore.jks /opt/keycloak/conf/truststore.jks
-
 echo "Sync complete"

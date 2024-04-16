@@ -23,12 +23,6 @@ done
 # Combine all certs into a single file, excluding email and software certs
 find /tmp/authorized_certs -type f  -iname '*.cer' -a ! -regex "${CA_REGEX_EXCLUSION_FILTER}" -printf "\n" -exec cat {} \; > ${X509_CA_BUNDLE}
 
-# Keycloak 23
-# Create a truststore and import the certs
-JKS_TRUSTSTORE_PATH="$(pwd)/truststore.jks"
-# Using the Keycloak default because we are only storing public certs
-TRUSTSTORE_PASSWORD="password"
-
 # Keycloak 24 and later
 CERT_DIR="$(pwd)/certs"
 mkdir -p $CERT_DIR
@@ -41,17 +35,7 @@ for CERT_FILE in crt-*; do
   if openssl x509 -checkend 0 -noout -in $CERT_FILE &> /dev/null; then
     echo "Adding $CERT_FILE to truststore"
     cp "${CERT_FILE}" "${CERT_DIR}"
-
-    keytool -import -noprompt -keystore "${JKS_TRUSTSTORE_PATH}" -file "${CERT_FILE}" -storepass "${TRUSTSTORE_PASSWORD}" -alias "service-${CERT_FILE}" >& /dev/null
   fi
 done
 
 popd >& /dev/null
-
-keytool -list -keystore $JKS_TRUSTSTORE_PATH -storepass "${TRUSTSTORE_PASSWORD}"
-if [ $? == 0 ]; then
-  echo "Truststore validated"
-else
-  echo "ERROR: Reading truststore"
-  exit 1
-fi
