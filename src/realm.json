@@ -1358,8 +1358,7 @@
         "email",
         "roles",
         "web-origins",
-        "acr",
-        "openid"
+        "acr"
     ],
     "defaultOptionalClientScopes": [
         "offline_access",
@@ -1469,6 +1468,9 @@
                 "config": {
                     "allow-default-scopes": [
                         "true"
+                    ],
+                    "allowed-client-scopes": [
+                        "openid"
                     ]
                 }
             },
