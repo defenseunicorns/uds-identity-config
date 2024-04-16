@@ -1358,6 +1358,16 @@
                     }
                 }
             ]
+        },
+        {
+            "id": "52fa0872-8912-4096-a124-da2c077b5539",
+            "name": "openid",
+            "description": "OpenID Connect built-in scope: openid",
+            "protocol": "openid-connect",
+            "attributes": {
+              "include.in.token.scope": "true",
+              "display.on.consent.screen": "true"
+            }
         }
     ],
     "defaultDefaultClientScopes": [
@@ -1476,6 +1486,9 @@
                 "config": {
                     "allow-default-scopes": [
                         "true"
+                    ],
+                    "allowed-client-scopes": [
+                        "openid"
                     ]
                 }
             },
