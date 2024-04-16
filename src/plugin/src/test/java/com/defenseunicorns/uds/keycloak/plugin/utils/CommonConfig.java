@@ -1,24 +1,21 @@
 package com.defenseunicorns.uds.keycloak.plugin.utils;
 
-import org.apache.commons.io.FilenameUtils;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.RealmModel;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.lang.System.exit;
 import static org.keycloak.models.utils.KeycloakModelUtils.findGroupByPath;
 import org.keycloak.models.KeycloakSession;
 
-
+/**
+ * This class is used for mocking yaml configs, most methods here will have mocked returns 
+ * throughout the plugin unit tests.
+ */
 public final class CommonConfig {
 
     /**
@@ -40,7 +37,7 @@ public final class CommonConfig {
 
     private CommonConfig(final KeycloakSession session, final RealmModel realm) {
 
-        config = loadConfigFile();
+        config = new YAMLConfig();
 
         autoJoinGroupX509 = convertPathsToGroupModels(session, realm, config.getX509().getAutoJoinGroup());
         noEmailMatchAutoJoinGroup = convertPathsToGroupModels(session, realm, config.getNoEmailMatchAutoJoinGroup());
@@ -63,29 +60,7 @@ public final class CommonConfig {
      * @return CommonConfig
      */
     public static CommonConfig getInstance(final KeycloakSession session, final RealmModel realm) {
-        if (instance == null) {
-            instance = new CommonConfig(session, realm);
-        }
-
         return instance;
-    }
-
-    private YAMLConfig loadConfigFile() {
-        String configFilePath = FilenameUtils.normalize(System.getenv("CUSTOM_REGISTRATION_CONFIG"));
-        File file = NewObjectProvider.getFile(configFilePath);
-        YAMLConfig yamlConfig;
-
-        try (
-                FileInputStream fileInputStream = NewObjectProvider.getFileInputStream(file);
-            ) {
-            Yaml yaml = NewObjectProvider.getYaml();
-            yamlConfig = yaml.load(fileInputStream);
-        } catch (IOException e) {
-            exit(1);
-            return null;
-        }
-
-        return yamlConfig;
     }
 
     private List<GroupModel> convertPathsToGroupModels(
