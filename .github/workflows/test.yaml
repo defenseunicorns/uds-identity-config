@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.3.10
+        uses: defenseunicorns/uds-common/.github/actions/setup@0a1622c9ff2298722b9e47563236ac56d1a93a56 # v0.3.11
 
       - name: Test building the docker image
         run: uds run dev-build
@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.3.10
+        uses: defenseunicorns/uds-common/.github/actions/setup@0a1622c9ff2298722b9e47563236ac56d1a93a56 # v0.3.11
 
       - name: Test building a zarf package
         run: uds run build-zarf-pkg
@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.3.10
+        uses: defenseunicorns/uds-common/.github/actions/setup@0a1622c9ff2298722b9e47563236ac56d1a93a56 # v0.3.11
 
       - name: Set up JDK 17
         uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4
@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.3.10
+        uses: defenseunicorns/uds-common/.github/actions/setup@0a1622c9ff2298722b9e47563236ac56d1a93a56 # v0.3.11
 
       - name: Test building the docker image
         run: uds run uds-core-smoke-test
@@ -97,7 +97,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@5e4414dc25302739063bb58aa96b8afef5be9851 # v0.3.10
+        uses: defenseunicorns/uds-common/.github/actions/setup@0a1622c9ff2298722b9e47563236ac56d1a93a56 # v0.3.11
 
       - name: Test building the docker image
         run: uds run uds-core-integration-tests
