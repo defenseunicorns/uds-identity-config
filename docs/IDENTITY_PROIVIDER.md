@@ -52,7 +52,7 @@ Example of using a secret for supplying the configuration values.
           "displayName": "Google SSO",
           "internalId": "698ce16e-b026-43d5-8c8c-7977a2659a1c",
           "providerId": "oidc",
-          "enabled": "${UDS_GOOGLE_SSO_ENABLED}",
+          "enabled": "${realm_googleIdpEnabled}",
           "updateProfileFirstLoginMode": "on",
           "trustEmail": true,
           "storeToken": false,
@@ -70,13 +70,13 @@ Example of using a secret for supplying the configuration values.
             "loginHint": "false",
             "clientAuthMethod": "client_secret_post",
             "syncMode": "IMPORT",
-            "clientSecret": "${UDS_GOOGLE_SSO_CLIENT_SECRET}",
+            "clientSecret": "${realm_googleIdpClientSecret}",
             "allowedClockSkew": "0",
             "defaultScope": "openid profile email",
             "userInfoUrl": "https://openidconnect.googleapis.com/v1/userinfo",
             "validateSignature": "true",
             "hideOnLoginPage": "false",
-            "clientId": "${UDS_GOOGLE_SSO_CLIENT_ID}",
+            "clientId": "${realm_googleIdpClientId}",
             "uiLocales": "false",
             "disableNonce": "false",
             "useJwksUrl": "true",
@@ -97,29 +97,33 @@ Example of using a secret for supplying the configuration values.
    1. `uds-core/src/keycloak/chart/templates/secret-kc-realm.yaml`
 
         ```
-        apiVersion: v1
-        kind: Secret
-        metadata:
-        name: {{ include "keycloak.fullname" . }}-realm-env
-        namespace: {{ .Release.Namespace }}  
-        labels:
-            {{- include "keycloak.labels" . | nindent 4 }}
-        type: Opaque
-        data:
-        UDS_GOOGLE_SSO_ENABLED: {{ .Values.google.sso.enabled | toString | b64enc }}
-        UDS_GOOGLE_SSO_CLIENT_ID: {{ .Values.google.sso.client_id | b64enc }}
-        UDS_GOOGLE_SSO_CLIENT_SECRET: {{ .Values.google.sso.client_secret | b64enc }}
+            apiVersion: v1
+            kind: Secret
+            metadata:
+            name: {{ include "keycloak.fullname" . }}-realm-env
+            namespace: {{ .Release.Namespace }}  
+            labels:
+                {{- include "keycloak.labels" . | nindent 4 }}
+            type: Opaque
+            data:
+            {{- range $key, $value := .Values.realmInitEnv }}
+            {{- if eq (typeOf $value) "bool" }}
+            {{ $key }}: {{ toString $value | b64enc }}
+            {{- else }}
+            {{ $key }}: {{ $value | b64enc }}
+            {{- end }}
+            {{- end }}
         ```
 
    2. `uds-core/src/keycloak/chart/values.yaml`
 
         ```
-        # Google SSO Values
-        google:
-        sso:
-            enabled: "false"
-            client_id: ""
-            client_secret: ""
+        # UDS Identity Config Environment Variables
+        realmInitEnv:
+            realm_googleIdpEnabled: false
+            # Other UDS Identity Config fields that will be used in the realm.json initalization of keycloak
+            # realm_googleIdpClientId: ""
+            # realm_googleIdpClientSecret: ""
         ```
         * This defines the default values to be used by the IDP, if left unchanged a Google SSO IDP will be created however it will not work as it is disabled and has no client details provided.
 
@@ -144,15 +148,15 @@ Example of using a secret for supplying the configuration values.
                         path: configImage
                     - name: GOOGLE_SSO_ENABLED
                         description: "Enable Google SSO IDP"
-                        path: google.sso.enabled
+                        path: realmInitEnv.realm_googleIdpEnabled
                         default: "true"
                     - name: GOOGLE_SSO_CLIENT_ID
                         description: "Set Google SSO Client ID"
-                        path: google.sso.client_id
+                        path: realmInitEnv.realm_googleIdpClientId
                         default: "{fill in value here}"
                     - name: GOOGLE_SSO_CLIENT_Secret
                         description: "Set Google SSO Client Secret"
-                        path: google.sso.client_secret
+                        path: realmInitEnv.realm_googleIdpClientSecret
                         default: "{fill in value here}"
         ```
 
