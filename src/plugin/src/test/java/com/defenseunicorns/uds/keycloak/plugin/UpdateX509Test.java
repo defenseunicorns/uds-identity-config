@@ -1,6 +1,5 @@
 package com.defenseunicorns.uds.keycloak.plugin;
-import org.apache.commons.io.FilenameUtils;
-import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
+
 import org.keycloak.http.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +27,7 @@ import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +40,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ FilenameUtils.class, NewObjectProvider.class, X509Tools.class, CommonConfig.class})
+@PrepareForTest({ NewObjectProvider.class, X509Tools.class, CommonConfig.class})
 //@PowerMockIgnore("javax.management.*")
 @PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.ssl.*", "org.slf4j.*", "javax.parsers.*", "ch.qos.logback.*", "jdk.xml.internal.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 //@PowerMockIgnore("jdk.internal.reflect.*")
@@ -234,10 +234,10 @@ class UpdateX509Test {
     public void testProcessActionCancel() throws Exception {
         setupX509Mocks();
 
-        MultivaluedMapImpl<String, String> formData = new MultivaluedMapImpl<>();
-        formData.add("cancel", "");
+        Map<String, List<String>> formDataMap = new HashMap<>();
+        formDataMap.put("cancel", Collections.singletonList(""));
 
-        PowerMockito.when(requiredActionContext.getHttpRequest().getDecodedFormParameters()).thenReturn(formData);
+        PowerMockito.when(requiredActionContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
         PowerMockito.when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
 
         UpdateX509 updateX509 = new UpdateX509();
@@ -249,10 +249,9 @@ class UpdateX509Test {
     public void testProcessAction() throws Exception {
         setupX509Mocks();
 
-        // CONDITION 1
-        MultivaluedMapImpl<String, String> formData = new MultivaluedMapImpl<>();
+        Map<String, List<String>> formDataMap = new HashMap<>();
 
-        PowerMockito.when(requiredActionContext.getHttpRequest().getDecodedFormParameters()).thenReturn(formData);
+        PowerMockito.when(requiredActionContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
         PowerMockito.when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
         PowerMockito.when(requiredActionContext.getUser()).thenReturn(userModel);
 

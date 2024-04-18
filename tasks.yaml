@@ -2,7 +2,7 @@ variables:
   - name: VERSION
     description: "The image tag"
     # x-release-please-start-version
-    default: "0.3.6"
+    default: "0.4.0"
     # x-release-please-end
 
   - name: IMAGE_NAME
@@ -12,7 +12,8 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "0.19.0"
+    # default: "v0.19.0"
+    default: "main"
 
 tasks:
   - name: build-and-publish
@@ -117,7 +118,7 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core/
-      - cmd: git clone --branch v${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"

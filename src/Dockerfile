@@ -52,7 +52,7 @@ COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
 
 # Copy the DOD Unclass PEM and truststore for Istio & Keycloak Auth
 COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
-COPY --chown=nonroot --from=truststore /home/build/truststore.jks .
+COPY --chown=nonroot --from=truststore /home/build/certs ./certs
 
 # The realm.json is loaded into Keycloak on startup only if the realm does not exist
 ARG REALM_FILE=realm.json
