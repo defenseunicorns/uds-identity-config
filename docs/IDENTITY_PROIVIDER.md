@@ -97,22 +97,22 @@ Example of using a secret for supplying the configuration values.
    1. `uds-core/src/keycloak/chart/templates/secret-kc-realm.yaml`
 
         ```
-            apiVersion: v1
-            kind: Secret
-            metadata:
-            name: {{ include "keycloak.fullname" . }}-realm-env
-            namespace: {{ .Release.Namespace }}  
-            labels:
-                {{- include "keycloak.labels" . | nindent 4 }}
-            type: Opaque
-            data:
-            {{- range $key, $value := .Values.realmInitEnv }}
-            {{- if eq (typeOf $value) "bool" }}
-            {{ $key }}: {{ toString $value | b64enc }}
-            {{- else }}
-            {{ $key }}: {{ $value | b64enc }}
-            {{- end }}
-            {{- end }}
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: {{ include "keycloak.fullname" . }}-realm-env
+          namespace: {{ .Release.Namespace }}  
+          labels:
+            {{- include "keycloak.labels" . | nindent 4 }}
+        type: Opaque
+        data:
+          {{- range $key, $value := .Values.realmInitEnv }}
+          {{- if eq (typeOf $value) "bool" }}
+          realm_{{ $key }}: {{ toString $value | b64enc }}
+          {{- else }}
+          realm_{{ $key }}: {{ $value | b64enc }}
+          {{- end }}
+          {{- end }}
         ```
 
    2. `uds-core/src/keycloak/chart/values.yaml`
@@ -136,29 +136,33 @@ Example of using a secret for supplying the configuration values.
         ```
 
 ## Override default SSO values
+
+>[!TIP]
+> Additional information about this in the [CUSTOMIZE.md](./CUSTOMIZE.md#override-default-realm)
+
 `uds-identity-config/bundles/uds-bundle.yaml`
 
-        ```
-            overrides:
-            keycloak:
-                keycloak:
-                variables:
-                    - name: KEYCLOAK_CONFIG_IMAGE
-                        description: "The keycloak config image to deploy plugin and initial setup configuration"
-                        path: configImage
-                    - name: GOOGLE_SSO_ENABLED
-                        description: "Enable Google SSO IDP"
-                        path: realmInitEnv.realm_googleIdpEnabled
-                        default: "true"
-                    - name: GOOGLE_SSO_CLIENT_ID
-                        description: "Set Google SSO Client ID"
-                        path: realmInitEnv.realm_googleIdpClientId
-                        default: "{fill in value here}"
-                    - name: GOOGLE_SSO_CLIENT_Secret
-                        description: "Set Google SSO Client Secret"
-                        path: realmInitEnv.realm_googleIdpClientSecret
-                        default: "{fill in value here}"
-        ```
+```
+    overrides:
+      keycloak:
+        keycloak:
+          variables:
+            - name: KEYCLOAK_CONFIG_IMAGE
+              description: "The keycloak config image to deploy plugin and initial setup configuration"
+              path: configImage
+            - name: GOOGLE_SSO_ENABLED
+              description: "Enable Google SSO IDP"
+              path: realmInitEnv.googleIdpEnabled
+              default: true
+            - name: GOOGLE_SSO_CLIENT_ID
+              description: "Set Google SSO Client ID"
+              path: realmInitEnv.googleIdpClientId
+              default: "{fill in value here}"
+            - name: GOOGLE_SSO_CLIENT_Secret
+              description: "Set Google SSO Client Secret"
+              path: realmInitEnv.googleIdpClientSecret
+              default: "{fill in value here}"
+```
 
 
 ## Manually Setup Google Cloud Project with Keycloak

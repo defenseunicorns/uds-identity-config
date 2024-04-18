@@ -75,6 +75,8 @@ The `UDS Identity` realm is defined in the realm.json found in [src/realm.json](
 > [!CAUTION]
 > Be aware that changing values in the realm may also need be to updated throughout the configuration of Keycloak and Authservice in `uds-core`. For example, changing the realm name will break a few different things within Keycloak unless those values are changed in `uds-core` as well.
 
+In addition environment variables can be configured through uds-core + bundle overrides. These environment variables will be created with a prefix `realm_`. Additional context can be found in [IDENTITY_PROVIDER.md](./IDENTITY_PROIVIDER.md#override-default-sso-values).
+
 See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
 
 ## Customize Truststore
