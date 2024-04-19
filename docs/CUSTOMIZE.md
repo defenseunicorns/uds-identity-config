@@ -68,16 +68,35 @@ Once that cluster is up and healthy and after making theme changes:
    ```
 2. View the changes in the browser
 
-## Override Default Realm
+## Customizing Realm
 
 The `UDS Identity` realm is defined in the realm.json found in [src/realm.json](../src/realm.json). This can be modified and will require a new `uds-identity-config` image for `uds-core`. 
 
 > [!CAUTION]
 > Be aware that changing values in the realm may also need be to updated throughout the configuration of Keycloak and Authservice in `uds-core`. For example, changing the realm name will break a few different things within Keycloak unless those values are changed in `uds-core` as well.
 
-In addition environment variables can be configured through uds-core + bundle overrides. These environment variables will be created with a prefix `realm_`. Additional context can be found in [IDENTITY_PROVIDER.md](./IDENTITY_PROIVIDER.md#override-default-sso-values).
-
 See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
+
+### Templated Realm Values
+> Keycloak supports using environment variables within the realm configuration, see [docs](https://www.keycloak.org/server/importExport).
+> 
+> In the uds-core keycloak [values.yaml](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml), the `realmInitEnv` defines set of environment variables that can be used to configure the realm.
+> 
+> These environment variables will be created with a prefix `REALM_` to avoid collisions with keycloak environment variables. If necessary to add additional template variables within the realm.json must be prefixed with `REALM_`. 
+> 
+> For example, this bundle override would set the necessary configuration for a google idp to be enabled:
+>
+>      overrides:
+>        keycloak:
+>          keycloak:
+>            values:
+>              - path: realmInitEnv
+>                value:
+>                  GOOGLE_IDP_ENABLED: true
+>                  GOOGLE_IDP_CLIENTID: <fill in value here>
+>                  GOOGLE_IDP_CLIENT_SECRET: <fill in value here>
+>
+>   These environment variables can be found in the [realm.json](../src/realm.json) `identityProviders` section.
 
 ## Customize Truststore
 The default truststore is configured in a [script](../src/truststore/ca-to-jks.sh) and excuted in the [Dockerfile](../src/Dockerfile). There is a few different ways the script could be customized. 
