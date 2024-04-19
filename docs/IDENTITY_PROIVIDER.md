@@ -52,7 +52,7 @@ Example of using a secret for supplying the configuration values.
           "displayName": "Google SSO",
           "internalId": "698ce16e-b026-43d5-8c8c-7977a2659a1c",
           "providerId": "oidc",
-          "enabled": "${realm_googleIdpEnabled}",
+          "enabled": "${REALM_GOOGLE_IDP_ENABLED}",
           "updateProfileFirstLoginMode": "on",
           "trustEmail": true,
           "storeToken": false,
@@ -70,13 +70,13 @@ Example of using a secret for supplying the configuration values.
             "loginHint": "false",
             "clientAuthMethod": "client_secret_post",
             "syncMode": "IMPORT",
-            "clientSecret": "${realm_googleIdpClientSecret}",
+            "clientSecret": "${REALM_GOOGLE_IDP_CLIENT_SECRET}",
             "allowedClockSkew": "0",
             "defaultScope": "openid profile email",
             "userInfoUrl": "https://openidconnect.googleapis.com/v1/userinfo",
             "validateSignature": "true",
             "hideOnLoginPage": "false",
-            "clientId": "${realm_googleIdpClientId}",
+            "clientId": "${REALM_GOOGLE_IDP_CLIENTID}",
             "uiLocales": "false",
             "disableNonce": "false",
             "useJwksUrl": "true",
@@ -91,7 +91,7 @@ Example of using a secret for supplying the configuration values.
         }
     ],
     ```
-    * note the `${UDS_GOOGLE_SSO_CLIENT_ID}`, `${UDS_GOOGLE_SSO_ENABLED}`, and `${UDS_GOOGLE_SSO_CLEINT_SECRET}` pieces that are provided by uds-core environment variables
+    * note the `${REALM_GOOGLE_IDP_ENABLED}`, `${REALM_GOOGLE_IDP_CLIENT_SECRET}`, and `${REALM_GOOGLE_IDP_CLIENTID}` pieces that are provided by uds-core environment variables
 
 2. Update `uds-core` 
    1. `uds-core/src/keycloak/chart/templates/secret-kc-realm.yaml`
@@ -108,9 +108,9 @@ Example of using a secret for supplying the configuration values.
         data:
           {{- range $key, $value := .Values.realmInitEnv }}
           {{- if eq (typeOf $value) "bool" }}
-          realm_{{ $key }}: {{ toString $value | b64enc }}
+          REALM_{{ $key }}: {{ toString $value | b64enc }}
           {{- else }}
-          realm_{{ $key }}: {{ $value | b64enc }}
+          REALM_{{ $key }}: {{ $value | b64enc }}
           {{- end }}
           {{- end }}
         ```
@@ -118,12 +118,12 @@ Example of using a secret for supplying the configuration values.
    2. `uds-core/src/keycloak/chart/values.yaml`
 
         ```
-        # UDS Identity Config Environment Variables
+        # UDS Identity Config Environment Variables. More info here: https://github.com/defenseunicorns/uds-identity-config/blob/main/docs/CUSTOMIZE.md#override-default-realm
         realmInitEnv:
-            realm_googleIdpEnabled: false
-            # Other UDS Identity Config fields that will be used in the realm.json initalization of keycloak
-            # realm_googleIdpClientId: ""
-            # realm_googleIdpClientSecret: ""
+          GOOGLE_IDP_ENABLED: false
+          # Other UDS Identity Config fields that will be used in the realm.json initalization of keycloak
+          # GOOGLE_IDP_CLIENTID: ""
+          # GOOGLE_IDP_CLIENT_SECRET: ""
         ```
         * This defines the default values to be used by the IDP, if left unchanged a Google SSO IDP will be created however it will not work as it is disabled and has no client details provided.
 
@@ -152,15 +152,15 @@ Example of using a secret for supplying the configuration values.
               path: configImage
             - name: GOOGLE_SSO_ENABLED
               description: "Enable Google SSO IDP"
-              path: realmInitEnv.googleIdpEnabled
+              path: realmInitEnv.REALM_GOOGLE_IDP_ENABLED
               default: true
             - name: GOOGLE_SSO_CLIENT_ID
               description: "Set Google SSO Client ID"
-              path: realmInitEnv.googleIdpClientId
+              path: realmInitEnv.REALM_GOOGLE_IDP_CLIENTID
               default: "{fill in value here}"
             - name: GOOGLE_SSO_CLIENT_Secret
               description: "Set Google SSO Client Secret"
-              path: realmInitEnv.googleIdpClientSecret
+              path: realmInitEnv.REALM_GOOGLE_IDP_CLIENT_SECRET
               default: "{fill in value here}"
 ```
 
