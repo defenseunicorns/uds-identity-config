@@ -146,24 +146,17 @@ Example of using a secret for supplying the configuration values.
     overrides:
       keycloak:
         keycloak:
+          values:
+            - path: realmInitEnv
+              value:
+                  GOOGLE_IDP_ENABLED: true
+                  GOOGLE_IDP_CLIENTID: <fill in value here>
+                  GOOGLE_IDP_CLIENT_SECRET: <fill in value here>
           variables:
             - name: KEYCLOAK_CONFIG_IMAGE
               description: "The keycloak config image to deploy plugin and initial setup configuration"
               path: configImage
-            - name: GOOGLE_SSO_ENABLED
-              description: "Enable Google SSO IDP"
-              path: realmInitEnv.REALM_GOOGLE_IDP_ENABLED
-              default: true
-            - name: GOOGLE_SSO_CLIENT_ID
-              description: "Set Google SSO Client ID"
-              path: realmInitEnv.REALM_GOOGLE_IDP_CLIENTID
-              default: "{fill in value here}"
-            - name: GOOGLE_SSO_CLIENT_Secret
-              description: "Set Google SSO Client Secret"
-              path: realmInitEnv.REALM_GOOGLE_IDP_CLIENT_SECRET
-              default: "{fill in value here}"
 ```
-
 
 ## Manually Setup Google Cloud Project with Keycloak
 
