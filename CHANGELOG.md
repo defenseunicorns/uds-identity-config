@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.4.0...v0.4.1) (2024-04-19)
+
+
+### Features
+
+* added mappers to realm ([53f2660](https://github.com/defenseunicorns/uds-identity-config/commit/53f2660bc2a9a5b920dbe0e20cd90bf9ed07eb1d))
+* optional idp configuration ([#58](https://github.com/defenseunicorns/uds-identity-config/issues/58)) ([70324df](https://github.com/defenseunicorns/uds-identity-config/commit/70324df2f26c456669c30da56b8b65c02da22a02))
+
+
+### Miscellaneous
+
+* update to integration test against main uds-core ([#59](https://github.com/defenseunicorns/uds-identity-config/issues/59)) ([9244b6b](https://github.com/defenseunicorns/uds-identity-config/commit/9244b6bffcf9856f445cdeccab30f1ac4d7151b9))
+
 ## [0.4.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.3.6...v0.4.0) (2024-04-16)
 
 
