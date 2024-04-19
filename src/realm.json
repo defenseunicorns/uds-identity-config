@@ -1275,6 +1275,177 @@
             ]
         },
         {
+          "id": "463c56b8-d219-4706-bacd-03eea5ac24be",
+          "name": "mapper-saml-username-name",
+          "description": "",
+          "protocol": "saml",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "5ba3ae16-8b93-476f-8f12-342bed47fd8e",
+              "name": "Name",
+              "protocol": "saml",
+              "protocolMapper": "saml-user-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "user.attribute": "Username",
+                "attribute.nameformat": "Basic",
+                "attribute.name": "name"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a9967f77-178b-4cbe-aff7-e6ec2e88e55a",
+          "name": "mapper-saml-username-login",
+          "description": "",
+          "protocol": "saml",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "d17fb80b-2b84-4ccd-b4d7-b054236c6d5e",
+              "name": "Name",
+              "protocol": "saml",
+              "protocolMapper": "saml-user-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "user.attribute": "Username",
+                "attribute.nameformat": "Basic",
+                "attribute.name": "login"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a49616d1-4e40-41c0-8e75-e202893d59e2",
+          "name": "mapper-saml-email-email",
+          "description": "",
+          "protocol": "saml",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "79726f6a-48bc-4918-a522-88f819be6694",
+              "name": "Name",
+              "protocol": "saml",
+              "protocolMapper": "saml-user-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "user.attribute": "Email",
+                "attribute.nameformat": "Basic",
+                "attribute.name": "email"
+              }
+            }
+          ]
+        },
+        {
+          "id": "14bc33e6-545f-4df7-a9c4-7d05b1b12a89",
+          "name": "mapper-oidc-username-username",
+          "description": "",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "dedc069c-3446-46ea-beb8-da851a0b0a65",
+              "name": "username",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-usermodel-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "introspection.token.claim": "false",
+                "userinfo.token.claim": "true",
+                "user.attribute": "username",
+                "id.token.claim": "false",
+                "lightweight.claim": "false",
+                "access.token.claim": "false",
+                "claim.name": "username",
+                "jsonType.label": "String"
+              }
+            }
+          ]
+        },
+        {
+          "id": "80675602-8135-4421-b42c-a0635e7cb0a8",
+          "name": "mapper-oidc-mattermostid-id",
+          "description": "",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "46f8d6b6-17dc-4463-95c0-7a770d507067",
+              "name": "mattermostid",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-usermodel-attribute-mapper",
+              "consentRequired": false,
+              "config": {
+                "introspection.token.claim": "false",
+                "userinfo.token.claim": "true",
+                "user.attribute": "mattermostid",
+                "id.token.claim": "false",
+                "lightweight.claim": "false",
+                "access.token.claim": "false",
+                "claim.name": "id",
+                "jsonType.label": "long"
+              }
+            }
+          ]
+        },
+        {
+          "id": "22244009-5342-4e37-a924-7d3398985585",
+          "name": "mapper-oidc-email-email",
+          "description": "",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "fc709f43-c2b7-4373-88a3-1a5b6b368155",
+              "name": "email",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-usermodel-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "introspection.token.claim": "false",
+                "userinfo.token.claim": "true",
+                "user.attribute": "email",
+                "id.token.claim": "false",
+                "lightweight.claim": "false",
+                "access.token.claim": "false",
+                "claim.name": "email",
+                "jsonType.label": "String"
+              }
+            }
+          ]
+        },
+        {
             "id": "770edec1-8367-40cc-834c-ee2ef116cb0a",
             "name": "offline_access",
             "description": "OpenID Connect built-in scope: offline_access",
@@ -1513,7 +1684,13 @@
                         "true"
                     ],
                     "allowed-client-scopes": [
-                        "openid"
+                        "openid",
+                        "mapper-saml-username-name",
+                        "mapper-saml-email-email",
+                        "mapper-saml-username-login",
+                        "mapper-oidc-username-username",
+                        "mapper-oidc-mattermostid-id",
+                        "mapper-oidc-email-email"                     
                     ]
                 }
             },
