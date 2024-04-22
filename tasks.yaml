@@ -12,8 +12,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    # default: "v0.19.0"
-    default: "main"
+    default: "v0.20.0"
 
 tasks:
   - name: build-and-publish
@@ -123,10 +122,10 @@ tasks:
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
     actions:
-      - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak
+      - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
       - cmd: cd uds-core && uds run create:slim-dev-package
-      - cmd: uds create bundles --confirm
-      - cmd: uds deploy bundles/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-slim-dev.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm
+      - cmd: uds create bundles --confirm --no-tea --no-progress
+      - cmd: uds deploy bundles/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-slim-dev.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-tea --no-progress
 
   - name: cypress-tests
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
