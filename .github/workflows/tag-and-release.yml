@@ -52,4 +52,4 @@ jobs:
           password: ${{ github.token }}
 
       - name: Build and Publish
-        run: uds run build-and-publish
+        run: uds run build-and-publish --no-progress
