@@ -21,8 +21,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.defenseunicorns.uds.keycloak.plugin.utils.CommonConfig;
-import com.defenseunicorns.uds.keycloak.plugin.utils.NewObjectProvider;
 import com.defenseunicorns.uds.keycloak.plugin.utils.UserModelDefaultMethodsImpl;
 import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
 
@@ -42,8 +40,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ FileInputStream.class, File.class, CommonConfig.class, NewObjectProvider.class,
-        X509Tools.class })
+@PrepareForTest({ FileInputStream.class, File.class, X509Tools.class })
 @PowerMockIgnore("javax.management.*")
 class RegistrationValidation2Test {
 

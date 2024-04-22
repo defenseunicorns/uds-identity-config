@@ -53,7 +53,7 @@ tasks:
     actions:
       - cmd: |
           cd src/plugin
-          mvn surefire-report:report | egrep ".*"
+          mvn clean verify | egrep ".*"
 
   - name: cacert
     description: "Get the CA cert value for the Istio Gateway"

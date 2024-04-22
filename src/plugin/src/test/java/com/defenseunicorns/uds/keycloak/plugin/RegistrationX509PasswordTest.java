@@ -25,7 +25,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.defenseunicorns.uds.keycloak.plugin.utils.NewObjectProvider;
 import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
 
 import jakarta.ws.rs.core.MultivaluedHashMap;
@@ -45,7 +44,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ NewObjectProvider.class, X509Tools.class })
+@PrepareForTest({ X509Tools.class })
 @PowerMockIgnore("javax.management.*")
 class RegistrationX509PasswordTest {
 
