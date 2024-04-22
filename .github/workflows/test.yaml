@@ -43,7 +43,7 @@ jobs:
         uses: defenseunicorns/uds-common/.github/actions/setup@a6fba9c0084319325d70816a3481aec0979649fa # v0.4.0
 
       - name: Test building a zarf package
-        run: uds run build-zarf-pkg
+        run: uds run build-zarf-pkg --no-progress
 
   plugin_unit_tests:
     runs-on: ubuntu-latest
