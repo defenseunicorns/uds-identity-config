@@ -2713,6 +2713,15 @@
             "defaultAction": false,
             "priority": 1001,
             "config": {}
+        },
+        {
+            "alias": "CUSTOM_USER_ATTRIBUTES",
+            "name": "Custom User Attributes",
+            "providerId": "CUSTOM_USER_ATTRIBUTES",
+            "enabled": true,
+            "defaultAction": true,
+            "priority": 1,
+            "config": {}
         }
     ],
     "browserFlow": "UDS Authentication",

@@ -15,10 +15,7 @@ import org.keycloak.models.utils.FormMessage;
 import org.keycloak.services.messages.Messages;
 import org.keycloak.services.validation.Validation;
 
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class RegistrationValidation extends RegistrationUserCreation {
@@ -49,40 +46,12 @@ public class RegistrationValidation extends RegistrationUserCreation {
         }
     }
 
-    /**
-     * Add a custom user attribute (mattermostid) to enable direct mattermost <>
-     * keycloak auth on mattermost teams edition.
-     *
-     * @param formData The user registration form data
-     * @param user     the Keycloak user object
-     */
-    private static void generateUniqueStringIdForMattermost(final MultivaluedMap<String, String> formData,
-            final UserModel user) {
-
-        String email = formData.getFirst(Validation.FIELD_EMAIL);
-
-        byte[] encodedEmail;
-        int emailByteTotal = 0;
-        Date today = new Date();
-
-        encodedEmail = email.getBytes(StandardCharsets.US_ASCII);
-        for (byte b : encodedEmail) {
-            emailByteTotal += b;
-        }
-
-        SimpleDateFormat formatDate = new SimpleDateFormat("yyDHmsS");
-
-        user.setSingleAttribute("mattermostid", formatDate.format(today) + emailByteTotal);
-    }
-
     @Override
     public void success(final FormContext context) {
         UserModel user = context.getUser();
         RealmModel realm = context.getRealm();
-        MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
         String x509Username = X509Tools.getX509Username(context);
 
-        generateUniqueStringIdForMattermost(formData, user);
         processX509UserAttribute(realm, user, x509Username);
         bindRequiredActions(user, x509Username);
     }
