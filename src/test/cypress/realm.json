@@ -1401,7 +1401,7 @@
     "eventsExpiration": 1800,
     "eventsListeners": [
         "jboss-logging",
-        "custom-event-listener"
+        "custom-registration-listener"
     ],
     "enabledEventTypes": [
         "SEND_RESET_PASSWORD",
@@ -2554,15 +2554,6 @@
             "enabled": true,
             "defaultAction": false,
             "priority": 1001,
-            "config": {}
-        },
-        {
-            "alias": "CUSTOM_USER_ATTRIBUTES",
-            "name": "Custom User Attributes",
-            "providerId": "CUSTOM_USER_ATTRIBUTES",
-            "enabled": false,
-            "defaultAction": false,
-            "priority": 1,
             "config": {}
         }
     ],

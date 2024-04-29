@@ -14,21 +14,21 @@ public class CustomEventListenerProviderFactory implements EventListenerProvider
 
     @Override
     public void init(Config.Scope scope) {
-
+        // no implementation needed
     }
 
     @Override
     public void postInit(KeycloakSessionFactory keycloakSessionFactory) {
-
+        // no implementation needed
     }
 
     @Override
     public void close() {
-
+        // no implementation needed
     }
 
     @Override
     public String getId() {
-        return "custom-event-listener";
+        return "custom-registration-listener";
     }
 }
