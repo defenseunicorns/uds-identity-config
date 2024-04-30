@@ -31,7 +31,9 @@ public class CustomEventListenerProvider implements EventListenerProvider {
             RealmModel realm = this.model.getRealm(event.getRealmId());
             UserModel newRegisteredUser = this.session.users().getUserById(realm, event.getUserId());
 
-            generateMattermostId(newRegisteredUser);
+            if(!newRegisteredUser.getAttributes().containsKey(Common.USER_MATTERMOST_ID_ATTR)) {
+                generateMattermostId(newRegisteredUser);
+            }
         }
     }
 
@@ -66,7 +68,7 @@ public class CustomEventListenerProvider implements EventListenerProvider {
     
             SimpleDateFormat formatDate = new SimpleDateFormat("yyDHmsS");
     
-            user.setSingleAttribute("mattermostid", formatDate.format(today) + emailByteTotal);
+            user.setSingleAttribute(Common.USER_MATTERMOST_ID_ATTR, formatDate.format(today) + emailByteTotal);
         }
     }
 }

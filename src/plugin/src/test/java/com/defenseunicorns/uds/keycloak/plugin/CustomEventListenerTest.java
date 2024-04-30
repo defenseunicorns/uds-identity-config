@@ -74,13 +74,13 @@ public class CustomEventListenerTest {
         eventListenerProvider.onEvent(event);
 
         // Verify that generateMattermostId method is called
-        verify(userModel, times(1)).setSingleAttribute(eq("mattermostid"), anyString());
+        verify(userModel, times(1)).setSingleAttribute(eq(Common.USER_MATTERMOST_ID_ATTR), anyString());
 
         // Verify that the user has more than one attribute
         assert(userModel.getAttributes().size() > 1);
 
         // Verify that one of the attributes is "mattermostid"
-        assert(userModel.getAttributes().containsKey("mattermostid"));
+        assert(userModel.getAttributes().containsKey(Common.USER_MATTERMOST_ID_ATTR));
     }
 
     @Test
@@ -95,10 +95,10 @@ public class CustomEventListenerTest {
         eventListenerProvider.onEvent(event);
 
         // Verify that generateMattermostId method is called
-        verify(userModel, times(1)).setSingleAttribute(eq("mattermostid"), anyString());
+        verify(userModel, times(1)).setSingleAttribute(eq(Common.USER_MATTERMOST_ID_ATTR), anyString());
 
         // Verify that one of the attributes is "mattermostid"
-        assert(!userModel.getAttributes().containsKey("mattermostid"));
+        assert(!userModel.getAttributes().containsKey(Common.USER_MATTERMOST_ID_ATTR));
     }
 
     @Test
@@ -110,9 +110,9 @@ public class CustomEventListenerTest {
         eventListenerProvider.onEvent(event);
 
         // Verify that generateMattermostId method is called
-        verify(userModel, times(0)).setSingleAttribute(eq("mattermostid"), anyString());
+        verify(userModel, times(0)).setSingleAttribute(eq(Common.USER_MATTERMOST_ID_ATTR), anyString());
         
         // Verify user doesnt have attribute "mattermostid"
-        assert(!userModel.getAttributes().containsKey("mattermostid"));
+        assert(!userModel.getAttributes().containsKey(Common.USER_MATTERMOST_ID_ATTR));
     }
 }
