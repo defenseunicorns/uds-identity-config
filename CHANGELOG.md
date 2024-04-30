@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.4.1...v0.4.2) (2024-04-30)
+
+
+### Bug Fixes
+
+* custom attribute plugin ([#65](https://github.com/defenseunicorns/uds-identity-config/issues/65)) ([9c6c974](https://github.com/defenseunicorns/uds-identity-config/commit/9c6c9743ed8d4a97dac311b5f09e935d40d6af77))
+
+
+### Miscellaneous
+
+* **deps:** update actions/checkout action to v4.1.3 ([#25](https://github.com/defenseunicorns/uds-identity-config/issues/25)) ([e26f541](https://github.com/defenseunicorns/uds-identity-config/commit/e26f5413c2ffd749a17e612299722b6a6fa64b8c))
+* **deps:** update actions/checkout action to v4.1.4 ([#66](https://github.com/defenseunicorns/uds-identity-config/issues/66)) ([267641d](https://github.com/defenseunicorns/uds-identity-config/commit/267641d3acf28ec9a4958a1479d0c82bda623fdd))
+* **deps:** update dependency @commitlint/cli to v19.3.0 ([#64](https://github.com/defenseunicorns/uds-identity-config/issues/64)) ([66ae563](https://github.com/defenseunicorns/uds-identity-config/commit/66ae5635c099c50cf9b6da91f31f9e46311e8acb))
+* **deps:** update docker image ghcr.io/defenseunicorns/packages/init to v0.33.1 ([#67](https://github.com/defenseunicorns/uds-identity-config/issues/67)) ([1e7f108](https://github.com/defenseunicorns/uds-identity-config/commit/1e7f10852e9c5cede497ad66ee1a29d4c0f1330d))
+* renovate fixes ([#47](https://github.com/defenseunicorns/uds-identity-config/issues/47)) ([b6ab9e0](https://github.com/defenseunicorns/uds-identity-config/commit/b6ab9e05b7629ab525c091bd482179b57ef25460))
+
 ## [0.4.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.4.0...v0.4.1) (2024-04-19)
 
 
