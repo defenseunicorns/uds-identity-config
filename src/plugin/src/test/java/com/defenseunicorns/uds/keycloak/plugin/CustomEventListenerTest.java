@@ -11,7 +11,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.defenseunicorns.uds.keycloak.plugin.utils.NewObjectProvider;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
@@ -23,7 +22,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ FileInputStream.class, File.class, X509Tools.class, NewObjectProvider.class })
+@PrepareForTest({ FileInputStream.class, File.class, X509Tools.class })
 @PowerMockIgnore("javax.management.*")
 public class CustomEventListenerTest {
     

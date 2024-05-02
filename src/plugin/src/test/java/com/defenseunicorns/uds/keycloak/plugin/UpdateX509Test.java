@@ -21,8 +21,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.defenseunicorns.uds.keycloak.plugin.utils.CommonConfig;
-import com.defenseunicorns.uds.keycloak.plugin.utils.NewObjectProvider;
 import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
 
 import java.security.cert.X509Certificate;
@@ -40,7 +38,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ NewObjectProvider.class, X509Tools.class, CommonConfig.class})
+@PrepareForTest({ X509Tools.class })
 //@PowerMockIgnore("javax.management.*")
 @PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.ssl.*", "org.slf4j.*", "javax.parsers.*", "ch.qos.logback.*", "jdk.xml.internal.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 //@PowerMockIgnore("jdk.internal.reflect.*")
@@ -126,10 +124,6 @@ class UpdateX509Test {
     public void testEvaluateTriggersCondition1() throws Exception {
         mockStatic(X509Tools.class);
         PowerMockito.when(X509Tools.getX509Username(eq(requiredActionContext))).thenReturn("something");
-
-        mockStatic(CommonConfig.class);
-        CommonConfig commonConfig = PowerMockito.mock(CommonConfig.class);
-        PowerMockito.when(CommonConfig.getInstance(eq(keycloakSession), eq(realmModel))).thenReturn(commonConfig);
 
         PowerMockito.when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
         PowerMockito.when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn("authNote");
@@ -243,8 +237,7 @@ class UpdateX509Test {
         UpdateX509 updateX509 = new UpdateX509();
         updateX509.processAction(requiredActionContext);
     }
-    
-    @SuppressWarnings("unchecked")
+
     @Test
     public void testProcessAction() throws Exception {
         setupX509Mocks();
@@ -261,12 +254,6 @@ class UpdateX509Test {
         // CONDITION 2
         mockStatic(X509Tools.class);
         PowerMockito.when(X509Tools.getX509Username(eq(requiredActionContext))).thenReturn("something");
-
-        mockStatic(CommonConfig.class);
-        CommonConfig commonConfig = PowerMockito.mock(CommonConfig.class);
-        PowerMockito.when(CommonConfig.getInstance(eq(keycloakSession), eq(realmModel))).thenReturn(commonConfig);
-        PowerMockito.when(commonConfig.getUserIdentityAttribute()).thenReturn("an attribute");
-        PowerMockito.when(commonConfig.getAutoJoinGroupX509()).thenReturn(PowerMockito.mock(Stream.class));
 
         updateX509.processAction(requiredActionContext);
     }
