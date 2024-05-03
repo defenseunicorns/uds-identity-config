@@ -1,9 +1,7 @@
 # Integration Testing For UDS Identity Config + UDS Core
-
 [Cypress Web Flow/Integration Testing Docs](https://docs.cypress.io/guides/overview/why-cypress)
 
 ## Implemented Tests
-
 | Test Name (link) | Test Description |
 |------------------|------------------|
 | [Login Existing User](../src/test/cypress/e2e/login.cy.ts) | Login in existing user that is created in the testing [realm.json](../src/test/cypress/realm.json) |
@@ -28,7 +26,6 @@ Task explanation:
   - Run cypress tests against deployed cluster
 
 ## Updating Cypress Certs
-
 Cypress testing requires that a ca.cer be created and put into an authorized_certs.zip, done by using the `regenerate-test-pki` uds task, which is then utilized by the [Dockerfile](../src/Dockerfile). Once a docker image has been created another command is used for pulling that cacert, uds task `cacert`, from the image using it's value to configure uds-core's gateways, `uds-core-gateway-cacert` uds task . Eventually cypress will require a [pfx cert](../src/test/cypress/cypress.config.ts) for its CAC testing. 
 
 Our cypress testing utilizes [static certs](../src/test/cypress/certs/) that are created and saved to limit the need for constantly rebuilding and importing those certs.
