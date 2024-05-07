@@ -1277,7 +1277,7 @@
         {
           "id": "463c56b8-d219-4706-bacd-03eea5ac24be",
           "name": "mapper-saml-username-name",
-          "description": "",
+          "description": "Includes a protocol mapper to map the 'Username' user property to the SAML 'name' attribute.",
           "protocol": "saml",
           "attributes": {
             "include.in.token.scope": "false",
@@ -1303,7 +1303,7 @@
         {
           "id": "a9967f77-178b-4cbe-aff7-e6ec2e88e55a",
           "name": "mapper-saml-username-login",
-          "description": "",
+          "description": "Includes a protocol mapper to map the 'Username' user property to the SAML 'login' attribute.",
           "protocol": "saml",
           "attributes": {
             "include.in.token.scope": "false",
@@ -1329,7 +1329,7 @@
         {
           "id": "a49616d1-4e40-41c0-8e75-e202893d59e2",
           "name": "mapper-saml-email-email",
-          "description": "",
+          "description": "Includes a protocol mapper to map the 'Email' user property to the SAML 'email' attribute.",
           "protocol": "saml",
           "attributes": {
             "include.in.token.scope": "false",
@@ -1355,7 +1355,7 @@
         {
           "id": "c35be8d3-be77-4c0e-a082-e7c75b1c113d",
           "name": "mapper-saml-firstname-first_name",
-          "description": "",
+          "description": "Includes a protocol mapper to map the 'FirstName' user property to the SAML 'first_name' attribute.",
           "protocol": "saml",
           "attributes": {
             "include.in.token.scope": "false",
@@ -1382,7 +1382,7 @@
         {
           "id": "cc86dcea-6f78-457e-bf45-fa0724ae584a",
           "name": "mapper-saml-lastname-last_name",
-          "description": "",
+          "description": "Includes a protocol mapper to map the 'LastName' user property to the SAML 'last_name' attribute.",
           "protocol": "saml",
           "attributes": {
             "include.in.token.scope": "false",
@@ -1407,36 +1407,9 @@
           ]
         },
         {
-          "id": "ec56ff87-eedc-4de6-9af2-35f4cd1b0344",
-          "name": "mapper-saml-rolelist-roles",
-          "description": "",
-          "protocol": "saml",
-          "attributes": {
-            "include.in.token.scope": "false",
-            "display.on.consent.screen": "true",
-            "gui.order": "",
-            "consent.screen.text": ""
-          },
-          "protocolMappers": [
-            {
-              "id": "c38f1eca-c709-409a-8dba-aca12903ee3d",
-              "name": "mapper-saml-rolelist-roles",
-              "protocol": "saml",
-              "protocolMapper": "saml-role-list-mapper",
-              "consentRequired": false,
-              "config": {
-                "single": "true",
-                "attribute.nameformat": "Basic",
-                "friendly.name": "Roles",
-                "attribute.name": "roles"
-              }
-            }
-          ]
-        },
-        {
           "id": "5cc78c57-364a-44b8-8990-cde82ace3fe1",
           "name": "mapper-saml-grouplist-groups",
-          "description": "",
+          "description": "Includes a protocol mapper to map the user's assigned groups to the SAML 'Groups' attribute.",
           "protocol": "saml",
           "attributes": {
             "include.in.token.scope": "false",
@@ -1464,7 +1437,7 @@
         {
           "id": "14bc33e6-545f-4df7-a9c4-7d05b1b12a89",
           "name": "mapper-oidc-username-username",
-          "description": "",
+          "description": "Includes a protocol mapper to map the 'username' user property to the token 'username' claim.",
           "protocol": "openid-connect",
           "attributes": {
             "include.in.token.scope": "false",
@@ -1495,7 +1468,7 @@
         {
           "id": "80675602-8135-4421-b42c-a0635e7cb0a8",
           "name": "mapper-oidc-mattermostid-id",
-          "description": "",
+          "description": "Includes a protocol mapper to map the 'mattermostid' user attribute to the token 'id' claim.",
           "protocol": "openid-connect",
           "attributes": {
             "include.in.token.scope": "false",
@@ -1526,7 +1499,7 @@
         {
           "id": "22244009-5342-4e37-a924-7d3398985585",
           "name": "mapper-oidc-email-email",
-          "description": "",
+          "description": "Includes a protocol mapper to map the 'email' user attribute to the token 'email' claim.",
           "protocol": "openid-connect",
           "attributes": {
             "include.in.token.scope": "false",
@@ -1800,7 +1773,6 @@
                         "mapper-saml-username-login",
                         "mapper-saml-firstname-first_name",
                         "mapper-saml-lastname-last_name",
-                        "mapper-saml-rolelist-roles",
                         "mapper-saml-grouplist-groups",
                         "mapper-oidc-username-username",
                         "mapper-oidc-mattermostid-id",
