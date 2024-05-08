@@ -93,11 +93,12 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 >            - path: realmInitEnv
 >              value:
 >                  GOOGLE_IDP_ENABLED: true
->                  GOOGLE_IDP_ENTITY_ID: <fill in value here>
->                  GOOGLE_IDP_SSO_SERVICE_URL: <fill in value here>
+>                  GOOGLE_IDP_ID: <fill in value here>
 >                  GOOGLE_IDP_SIGNING_CERT: <fill in value here>
 >                  GOOGLE_IDP_NAME_ID_FORMAT: <fill in value here>
 >                  GOOGLE_IDP_CORE_ENTITY_ID: <fill in value here>
+>                  GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
+>                  GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
 >
 >   These environment variables can be found in the [realm.json](../src/realm.json) `identityProviders` section.
 
