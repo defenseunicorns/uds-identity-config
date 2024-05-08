@@ -1726,11 +1726,11 @@
             "postBindingLogout": "false",
             "postBindingResponse": "true",
             "backchannelSupported": "false",
-            "idpEntityId": "${REALM_GOOGLE_IDP_ENTITY_ID}",
+            "idpEntityId": "https://accounts.google.com/o/saml2?idpid=${REALM_GOOGLE_IDP_ID}",
             "loginHint": "false",
             "allowCreate": "true",
             "enabledFromMetadata": "true",
-            "singleSignOnServiceUrl": "${REALM_GOOGLE_IDP_SSO_SERVICE_URL}",
+            "singleSignOnServiceUrl": "https://accounts.google.com/o/saml2/idp?idpid=${REALM_GOOGLE_IDP_ID}",
             "wantAuthnRequestsSigned": "false",
             "allowedClockSkew": "0",
             "validateSignature": "false",
@@ -1752,17 +1752,17 @@
       ],
       "identityProviderMappers": [
         {
-            "id": "24c62f1a-9da4-4758-bc97-3310e04ea73b",
-            "name": "Email Mapper",
-            "identityProviderAlias": "saml",
-            "identityProviderMapper": "saml-user-attribute-idp-mapper",
-            "config": {
-              "syncMode": "INHERIT",
-              "user.attribute": "email",
-              "attribute.friendly.name": "email",
-              "attribute.name.format": "ATTRIBUTE_FORMAT_BASIC",
-              "attribute.name": "email"
-            }
+          "id": "24c62f1a-9da4-4758-bc97-3310e04ea73b",
+          "name": "Email Mapper",
+          "identityProviderAlias": "saml",
+          "identityProviderMapper": "saml-user-attribute-idp-mapper",
+          "config": {
+            "syncMode": "INHERIT",
+            "user.attribute": "email",
+            "attribute.friendly.name": "email",
+            "attribute.name.format": "ATTRIBUTE_FORMAT_BASIC",
+            "attribute.name": "email"
+          }
         },
         {
           "id": "ae4f9a94-5e70-4eb2-be9f-752b7401f98e",
@@ -1771,7 +1771,7 @@
           "identityProviderMapper": "saml-advanced-group-idp-mapper",
           "config": {
             "syncMode": "INHERIT",
-            "attributes": "[{\"key\":\"groups\",\"value\":\"Test UDS Group 1\"}]",
+            "attributes": "[{\"key\":\"groups\",\"value\":\"${REALM_GOOGLE_IDP_ADMIN_GROUP}\"}]",
             "group": "/UDS Core/Admin"
           }
         },
@@ -1782,7 +1782,7 @@
           "identityProviderMapper": "saml-advanced-group-idp-mapper",
           "config": {
             "syncMode": "INHERIT",
-            "attributes": "[{\"key\":\"groups\",\"value\":\"Test UDS Group 2\"}]",
+            "attributes": "[{\"key\":\"groups\",\"value\":\"${REALM_GOOGLE_IDP_AUDITOR_GROUP}\"}]",
             "group": "/UDS Core/Auditor"
           }
         },
