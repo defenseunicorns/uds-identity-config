@@ -1752,6 +1752,19 @@
       ],
       "identityProviderMappers": [
         {
+            "id": "24c62f1a-9da4-4758-bc97-3310e04ea73b",
+            "name": "Email Mapper",
+            "identityProviderAlias": "saml",
+            "identityProviderMapper": "saml-user-attribute-idp-mapper",
+            "config": {
+              "syncMode": "INHERIT",
+              "user.attribute": "email",
+              "attribute.friendly.name": "email",
+              "attribute.name.format": "ATTRIBUTE_FORMAT_BASIC",
+              "attribute.name": "email"
+            }
+        },
+        {
           "id": "ae4f9a94-5e70-4eb2-be9f-752b7401f98e",
           "name": "Admin Group Mapper",
           "identityProviderAlias": "saml",
