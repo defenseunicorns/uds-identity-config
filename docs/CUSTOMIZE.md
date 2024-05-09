@@ -81,15 +81,19 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 > 
 > For example, this bundle override would set the necessary configuration for a google idp to be enabled:
 >
->      overrides:
+>     overrides:
+>      keycloak:
 >        keycloak:
->          keycloak:
->            values:
->              - path: realmInitEnv
->                value:
+>          values:
+>            - path: realmInitEnv
+>              value:
 >                  GOOGLE_IDP_ENABLED: true
->                  GOOGLE_IDP_CLIENTID: <fill in value here>
->                  GOOGLE_IDP_CLIENT_SECRET: <fill in value here>
+>                  GOOGLE_IDP_ID: <fill in value here>
+>                  GOOGLE_IDP_SIGNING_CERT: <fill in value here>
+>                  GOOGLE_IDP_NAME_ID_FORMAT: <fill in value here>
+>                  GOOGLE_IDP_CORE_ENTITY_ID: <fill in value here>
+>                  GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
+>                  GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
 >
 >   These environment variables can be found in the [realm.json](../src/realm.json) `identityProviders` section.
 
