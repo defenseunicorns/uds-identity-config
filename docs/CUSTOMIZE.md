@@ -1,5 +1,4 @@
 # Customizing uds-identity-config
-
 These docs are intended for demonstrating how to customize the uds-core Identity (Keycloak) deployment by updating/changing the config image.  
 
 * [Add additional jars (supported)](./CUSTOMIZE.md#add-additional-jars)
@@ -9,7 +8,6 @@ These docs are intended for demonstrating how to customize the uds-core Identity
 * [Disabling the UDS plugin (experimental)](./CUSTOMIZE.md#replace--disable-custom-plugin).
 
 ## Testing custom image in UDS Core
-
 ### Build a new image 
 ```bash
 # create a dev image uds-core-config:keycloak
@@ -25,7 +23,6 @@ The custom image reference will need to be update in a few places in the `uds-co
 * Update [zarf.yaml](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/zarf.yaml#L24) to include updated image 
 * Specify `configImage` in Keycloak [values.yaml](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L10)
 * If the truststore has been updated, see [gateway configuration instructions](./CUSTOMIZE.md#configure-istio-gateways-cacert-in-uds-core)
-
 
 ### Deploy UDS Core
 ```bash
@@ -47,7 +44,6 @@ See [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-ud
 Once `uds-core` has sucessfully deployed with your new image, viewing the Keycloak pod can provide insight into a successful deployment or not. Also describing the Keycloak pod, should display your new image being pulled instead of the default image defined [here](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L10) in the events section.
 
 ## Customize Theme
-
 #### Official Theming Docs
 
 - [Official Keycloak Theme Docs](https://www.keycloak.org/docs/latest/server_development/#_themes)
@@ -69,7 +65,6 @@ Once that cluster is up and healthy and after making theme changes:
 2. View the changes in the browser
 
 ## Customizing Realm
-
 The `UDS Identity` realm is defined in the realm.json found in [src/realm.json](../src/realm.json). This can be modified and will require a new `uds-identity-config` image for `uds-core`. 
 
 > [!CAUTION]
@@ -86,15 +81,19 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 > 
 > For example, this bundle override would set the necessary configuration for a google idp to be enabled:
 >
->      overrides:
+>     overrides:
+>      keycloak:
 >        keycloak:
->          keycloak:
->            values:
->              - path: realmInitEnv
->                value:
+>          values:
+>            - path: realmInitEnv
+>              value:
 >                  GOOGLE_IDP_ENABLED: true
->                  GOOGLE_IDP_CLIENTID: <fill in value here>
->                  GOOGLE_IDP_CLIENT_SECRET: <fill in value here>
+>                  GOOGLE_IDP_ID: <fill in value here>
+>                  GOOGLE_IDP_SIGNING_CERT: <fill in value here>
+>                  GOOGLE_IDP_NAME_ID_FORMAT: <fill in value here>
+>                  GOOGLE_IDP_CORE_ENTITY_ID: <fill in value here>
+>                  GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
+>                  GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
 >
 >   These environment variables can be found in the [realm.json](../src/realm.json) `identityProviders` section.
 
@@ -109,7 +108,6 @@ The default truststore is configured in a [script](../src/truststore/ca-to-jks.s
 Utilizing the [`regenerate-test-pki` task](../tasks.yaml), you can create a test `authorized_certs.zip` to use for the truststore. 
 
 To use the `regenerate-test-pki` task:
-
 
 * Create `csr.conf`
    ```
@@ -178,7 +176,6 @@ uds run -f src/keycloak/tasks.yaml dev-cacert
 See [Testing custom image in UDS Core](../CUSTOMIZE.md#testing-custom-image-in-uds-core)
 
 #### Verify Istio Gateway configuration
-
 ```bash
 # Verify the "Acceptable client certificate CA names"
 openssl s_client -connect sso.uds.dev:443
@@ -193,12 +190,15 @@ openssl s_client -connect sso.uds.dev:443
 
 The plugin provides the auth flows that keycloak uses for x509 (CAC) authentication as well as some of the surrounding registration flows.
 
-#### Developing
+One nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](../src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID. 
 
+> [!WARNING]
+> When creating a user via ADMIN API or ADMIN UI, the 'REGISTER' event is not triggered, resulting in no Mattermost ID attribute generation. This will need to be done manually via click ops or the api. An example of how the attribute can be set via api can be seen [here](https://github.com/defenseunicorns/uds-common/blob/b2e8b25930c953ef893e7c787fe350f0d8679ee2/tasks/setup.yaml#L46).
+
+#### Developing
 See [PLUGIN.md](./PLUGIN.md).
 
 #### Configuration
-
 In addition, modify the realm for keycloak, otherwise the realm will require plugin capabilities for registering and authenticating users. In the current [realm.json](../src/realm.json) there is a few sections specifically using the plugin capabilities. Here is the following changes necessary:
 - Remove all of the `UDS ...` authenticationFlows:
    - `UDS Authentication`
@@ -223,7 +223,6 @@ In addition, modify the realm for keycloak, otherwise the realm will require plu
    - `"resetCredentialsFlow": "reset credentials"`
 
 #### Disabling
-
 If desired the Plugin can be removed from the identity-config image by commenting out these lines in the [Dockerfile](../src/Dockerfile):
 
 ```
@@ -234,7 +233,6 @@ RUN mvn clean package
 ```
 
 #### Building New Image with Updates
-
 Once satisfied with changes and tested that they work, see [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
 
 
