@@ -1711,10 +1711,10 @@
     "adminEventsDetailsEnabled": true,
     "identityProviders": [
         {
-          "alias": "oidc",
+          "alias": "saml",
           "displayName": "Google SSO",
-          "internalId": "698ce16e-b026-43d5-8c8c-7977a2659a1c",
-          "providerId": "oidc",
+          "internalId": "1538a301-8427-46d2-b59f-203f2f76e573",
+          "providerId": "saml",
           "enabled": "${REALM_GOOGLE_IDP_ENABLED}",
           "updateProfileFirstLoginMode": "on",
           "trustEmail": true,
@@ -1723,37 +1723,94 @@
           "authenticateByDefault": false,
           "linkOnly": false,
           "config": {
-            "tokenUrl": "https://oauth2.googleapis.com/token",
-            "acceptsPromptNoneForwardFromClient": "false",
-            "jwksUrl": "https://www.googleapis.com/oauth2/v3/certs",
-            "isAccessTokenJWT": "false",
-            "filteredByClaim": "false",
+            "postBindingLogout": "false",
+            "postBindingResponse": "true",
             "backchannelSupported": "false",
-            "issuer": "https://accounts.google.com",
+            "idpEntityId": "https://accounts.google.com/o/saml2?idpid=${REALM_GOOGLE_IDP_ID}",
             "loginHint": "false",
-            "clientAuthMethod": "client_secret_post",
-            "syncMode": "IMPORT",
-            "clientSecret": "${REALM_GOOGLE_IDP_CLIENT_SECRET}",
+            "allowCreate": "true",
+            "enabledFromMetadata": "true",
+            "singleSignOnServiceUrl": "https://accounts.google.com/o/saml2/idp?idpid=${REALM_GOOGLE_IDP_ID}",
+            "wantAuthnRequestsSigned": "false",
             "allowedClockSkew": "0",
-            "defaultScope": "openid profile email",
-            "userInfoUrl": "https://openidconnect.googleapis.com/v1/userinfo",
-            "validateSignature": "true",
-            "hideOnLoginPage": "false",
-            "clientId": "${REALM_GOOGLE_IDP_CLIENTID}",
-            "uiLocales": "false",
-            "disableNonce": "false",
-            "useJwksUrl": "true",
+            "validateSignature": "false",
+            "signingCertificate": "${REALM_GOOGLE_IDP_SIGNING_CERT}",
+            "nameIDPolicyFormat": "${REALM_GOOGLE_IDP_NAME_ID_FORMAT}",
+            "entityId": "${REALM_GOOGLE_IDP_CORE_ENTITY_ID}",
+            "signSpMetadata": "false",
+            "wantAssertionsEncrypted": "false",
             "sendClientIdOnLogout": "false",
-            "pkceEnabled": "false",
-            "metadataDescriptorUrl": "https://accounts.google.com/.well-known/openid-configuration",
-            "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth",
-            "disableUserInfo": "false",
+            "wantAssertionsSigned": "false",
             "sendIdTokenOnLogout": "true",
-            "passMaxAge": "false"
+            "postBindingAuthnRequest": "true",
+            "forceAuthn": "false",
+            "attributeConsumingServiceIndex": "0",
+            "addExtensionsElementWithKeyInfo": "false",
+            "principalType": "Subject NameID"
           }
         }
-    ],
-    "identityProviderMappers": [],
+      ],
+      "identityProviderMappers": [
+        {
+          "id": "24c62f1a-9da4-4758-bc97-3310e04ea73b",
+          "name": "Email Mapper",
+          "identityProviderAlias": "saml",
+          "identityProviderMapper": "saml-user-attribute-idp-mapper",
+          "config": {
+            "syncMode": "INHERIT",
+            "user.attribute": "email",
+            "attribute.friendly.name": "email",
+            "attribute.name.format": "ATTRIBUTE_FORMAT_BASIC",
+            "attribute.name": "email"
+          }
+        },
+        {
+          "id": "ae4f9a94-5e70-4eb2-be9f-752b7401f98e",
+          "name": "Admin Group Mapper",
+          "identityProviderAlias": "saml",
+          "identityProviderMapper": "saml-advanced-group-idp-mapper",
+          "config": {
+            "syncMode": "INHERIT",
+            "attributes": "[{\"key\":\"groups\",\"value\":\"${REALM_GOOGLE_IDP_ADMIN_GROUP}\"}]",
+            "group": "/UDS Core/Admin"
+          }
+        },
+        {
+          "id": "ea435551-17dc-4096-8a26-e4585b48dbfa",
+          "name": "Auditor Group Mapper",
+          "identityProviderAlias": "saml",
+          "identityProviderMapper": "saml-advanced-group-idp-mapper",
+          "config": {
+            "syncMode": "INHERIT",
+            "attributes": "[{\"key\":\"groups\",\"value\":\"${REALM_GOOGLE_IDP_AUDITOR_GROUP}\"}]",
+            "group": "/UDS Core/Auditor"
+          }
+        },
+        {
+          "id": "9492c99f-6d42-4127-9b29-4230b69f17b0",
+          "name": "firstName Mapper",
+          "identityProviderAlias": "saml",
+          "identityProviderMapper": "saml-user-attribute-idp-mapper",
+          "config": {
+            "syncMode": "INHERIT",
+            "user.attribute": "firstName",
+            "attribute.name.format": "ATTRIBUTE_FORMAT_BASIC",
+            "attribute.name": "firstName"
+          }
+        },
+        {
+          "id": "affcb9cd-e27d-459f-8d69-c2b16ba5e5f7",
+          "name": "lastName Mapper",
+          "identityProviderAlias": "saml",
+          "identityProviderMapper": "saml-user-attribute-idp-mapper",
+          "config": {
+            "syncMode": "INHERIT",
+            "user.attribute": "lastName",
+            "attribute.name.format": "ATTRIBUTE_FORMAT_BASIC",
+            "attribute.name": "lastName"
+          }
+        }
+      ],
     "components": {
         "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy": [
             {
