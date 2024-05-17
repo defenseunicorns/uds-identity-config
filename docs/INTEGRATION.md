@@ -1,5 +1,5 @@
 ---
-title: Identity Config Integration Testing
+title: Integration Testing
 type: docs
 weight: 3
 ---

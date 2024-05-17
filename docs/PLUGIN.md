@@ -1,5 +1,5 @@
 ---
-title: Identity Config Plugin
+title: Plugin
 type: docs
 weight: 2
 ---

@@ -1,5 +1,5 @@
 ---
-title: Identity Config Customization
+title: Customization
 type: docs
 weight: 1
 ---
