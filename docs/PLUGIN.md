@@ -1,3 +1,9 @@
+---
+title: Identity Config Plugin
+type: docs
+weight: 2
+---
+
 # Plugin Development
 The plugin provides the auth flows that keycloak uses for x509 (CAC) authentication as well as some of the surrounding registration flows.
 

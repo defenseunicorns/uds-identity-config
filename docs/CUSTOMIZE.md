@@ -1,3 +1,9 @@
+---
+title: Identity Config Customization
+type: docs
+weight: 1
+---
+
 # Customizing uds-identity-config
 These docs are intended for demonstrating how to customize the uds-core Identity (Keycloak) deployment by updating/changing the config image.  
 
