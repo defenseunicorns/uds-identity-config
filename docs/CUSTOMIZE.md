@@ -174,7 +174,7 @@ uds run -f src/keycloak/tasks.yaml dev-cacert
 ```
 
 #### Deploy UDS Core with new uds-identity-config
-See [Testing custom image in UDS Core](../CUSTOMIZE.md#testing-custom-image-in-uds-core)
+See [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core)
 
 #### Verify Istio Gateway configuration
 ```bash
