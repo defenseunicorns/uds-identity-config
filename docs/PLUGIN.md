@@ -4,7 +4,6 @@ type: docs
 weight: 2
 ---
 
-# Plugin Development
 The plugin provides the auth flows that keycloak uses for x509 (CAC) authentication as well as some of the surrounding registration flows.
 
 One nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](../src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID. 
