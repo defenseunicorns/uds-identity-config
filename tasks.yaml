@@ -12,7 +12,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.21.1"
+    default: "v0.22.0"
 
 tasks:
   - name: build-and-publish
