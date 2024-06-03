@@ -94,6 +94,9 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 >                  GOOGLE_IDP_CORE_ENTITY_ID: <fill in value here>
 >                  GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
 >                  GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
+>                  EMAIL_VERIFICATION_ENABLED: <fill in value here>
+>                  OTP_ENABLED: <fill in value here>
+>                  TERMS_AND_CONDITIONS_ENABLED: <fill in value here>
 >
 >   These environment variables can be found in the [realm.json](../src/realm.json) `identityProviders` section.
 

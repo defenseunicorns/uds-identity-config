@@ -2516,7 +2516,7 @@
                 "x509-cert-auth.canonical-dn-enabled": "false",
                 "x509-cert-auth.mapper-selection.user-attribute-name": "usercertificate",
                 "x509-cert-auth.serialnumber-hex-enabled": "false",
-                "x509-cert-auth.ocsp-fail-open": "false",
+                "x509-cert-auth.ocsp-fail-open": "$(REALM_X509_OCSP_FAIL_OPEN)",
                 "x509-cert-auth.regular-expression": "(.*?)(?:$)",
                 "x509-cert-auth.certificate-policy-mode": "All",
                 "x509-cert-auth.timestamp-validation-enabled": "true",
@@ -2545,7 +2545,7 @@
             "alias": "TERMS_AND_CONDITIONS",
             "name": "Terms and Conditions",
             "providerId": "TERMS_AND_CONDITIONS",
-            "enabled": false,
+            "enabled": "${REALM_TERMS_AND_CONDITIONS_ENABLED}",
             "defaultAction": true,
             "priority": 10,
             "config": {}
@@ -2554,7 +2554,7 @@
             "alias": "CONFIGURE_TOTP",
             "name": "Configure OTP",
             "providerId": "CONFIGURE_TOTP",
-            "enabled": false,
+            "enabled": "${REALM_OTP_ENABLED}",
             "defaultAction": false,
             "priority": 20,
             "config": {}
@@ -2581,7 +2581,7 @@
             "alias": "VERIFY_EMAIL",
             "name": "Verify Email",
             "providerId": "VERIFY_EMAIL",
-            "enabled": false,
+            "enabled": "${REALM_EMAIL_VERIFICATION_ENABLED}",
             "defaultAction": true,
             "priority": 50,
             "config": {}
