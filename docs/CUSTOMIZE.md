@@ -79,7 +79,7 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 > 
 > These environment variables will be created with a prefix `REALM_` to avoid collisions with keycloak environment variables. If necessary to add additional template variables within the realm.json must be prefixed with `REALM_`. 
 > 
-> For example, this bundle override would set the necessary configuration for a google idp to be enabled:
+> For example, this bundle override contains all the available overrides:
 >
 >     overrides:
 >      keycloak:
@@ -97,6 +97,7 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 >                  EMAIL_VERIFICATION_ENABLED: <fill in value here>
 >                  OTP_ENABLED: <fill in value here>
 >                  TERMS_AND_CONDITIONS_ENABLED: <fill in value here>
+>                  PASSWORD_POLICY: <fill in value here>
 >
 >   These environment variables can be found in the [realm.json](../src/realm.json) `identityProviders` section.
 
