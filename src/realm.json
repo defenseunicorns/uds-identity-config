@@ -39,6 +39,7 @@
     "editUsernameAllowed": false,
     "bruteForceProtected": true,
     "permanentLockout": true,
+    "maxTemporaryLockouts": 0,
     "maxFailureWaitSeconds": 900,
     "minimumQuickLoginWaitSeconds": 60,
     "waitIncrementSeconds": 60,
@@ -1911,6 +1912,20 @@
                     "priority": [
                         "100"
                     ]
+                }
+            },
+            {
+                "id": "df923c3c-a0ef-457c-b66c-f2c623c87586",
+                "name": "fallback-HS512",
+                "providerId": "hmac-generated",
+                "subComponents": {},
+                "config": {
+                  "priority": [
+                    "-100"
+                  ],
+                  "algorithm": [
+                    "HS512"
+                  ]
                 }
             },
             {
