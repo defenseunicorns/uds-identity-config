@@ -98,6 +98,7 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 >                  OTP_ENABLED: <fill in value here>
 >                  TERMS_AND_CONDITIONS_ENABLED: <fill in value here>
 >                  PASSWORD_POLICY: <fill in value here>
+>                  X509_OCSP_FAIL_OPEN: <fill in value here>
 >
 >   These environment variables can be found in the [realm.json](../src/realm.json) `identityProviders` section.
 
