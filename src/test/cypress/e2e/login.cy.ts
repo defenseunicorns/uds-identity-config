@@ -7,7 +7,7 @@ describe("Login Flow", () => {
       firstName: "Testing",
       lastName: "User",
       username: "testing_user",
-      password: "testingpassword!!",
+      password: "testingpassword1!!",
     };
 
     cy.loginUser(formData.username, formData.password);
@@ -24,7 +24,7 @@ describe("Login Flow", () => {
   it("Invalid User Creds", () => {
     const formData: RegistrationFormData = {
       username: "testing_user",
-      password: "PrettyUnicorns!!",
+      password: "PrettyUnicorns1!!",
     };
 
     cy.loginUser(formData.username, formData.password);

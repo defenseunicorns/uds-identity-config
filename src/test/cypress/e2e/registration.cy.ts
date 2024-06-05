@@ -74,7 +74,7 @@ describe("Registration Tests", () => {
       organization: "Defense Unicorns",
       username: "testing_user",
       email: "testinguser@gmail.com",
-      password: "PrettyUnicorns!!",
+      password: "PrettyUnicorns1!!",
       affiliation: "Contractor",
       payGrade: "N/A",
     };
@@ -93,7 +93,7 @@ describe("Registration Tests", () => {
       organization: "Defense Unicorns",
       username: "new_user",
       email: "newuser@gmail.com",
-      password: "Pretty!!",
+      password: "Pretty1!!",
       affiliation: "Contractor",
       payGrade: "N/A",
     };
@@ -113,7 +113,7 @@ describe("Registration Tests", () => {
       organization: "Defense Unicorns",
       username: "new_user",
       email: "newuser@gmail.com",
-      password: "PrettyUnicorns",
+      password: "PrettyUnicorns1",
       affiliation: "Contractor",
       payGrade: "N/A",
     };
