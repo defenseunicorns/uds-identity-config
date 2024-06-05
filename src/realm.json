@@ -1747,7 +1747,8 @@
             "forceAuthn": "false",
             "attributeConsumingServiceIndex": "0",
             "addExtensionsElementWithKeyInfo": "false",
-            "principalType": "Subject NameID"
+            "principalType": "Subject NameID",
+            "syncMode": "FORCE"
           }
         }
       ],
