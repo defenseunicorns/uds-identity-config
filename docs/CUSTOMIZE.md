@@ -1,11 +1,10 @@
-# Customizing uds-identity-config
-These docs are intended for demonstrating how to customize the uds-core Identity (Keycloak) deployment by updating/changing the config image.  
+---
+title: Customization
+type: docs
+weight: 1
+---
 
-* [Add additional jars (supported)](./CUSTOMIZE.md#add-additional-jars)
-* [Customizing the theme  (supported)](./CUSTOMIZE.md#customize-theme)
-* [Customizing the truststore (supported)](./CUSTOMIZE.md#customize-truststore)
-* [Changing the realm values (supported)](./CUSTOMIZE.md#override-default-realm)
-* [Disabling the UDS plugin (experimental)](./CUSTOMIZE.md#replace--disable-custom-plugin).
+These docs are intended for demonstrating how to customize the uds-core Identity (Keycloak) deployment by updating/changing the config image.  
 
 ## Testing custom image in UDS Core
 ### Build a new image 
@@ -35,7 +34,7 @@ See [UDS Core](https://github.com/defenseunicorns/uds-core/blob/main/README.md) 
 # Customizations
 ## Add additional jars
 
-Adding additional jars to Keycloak's deployment is as simple as adding that jar to the [src/extra-jars directory](../src/extra-jars/).
+Adding additional jars to Keycloak's deployment is as simple as adding that jar to the [src/extra-jars directory](https://github.com/defenseunicorns/uds-identity-config/tree/main/src/extra-jars).
 
 Adding new jars will require building a new identity-config image for [uds-core](https://github.com/defenseunicorns/uds-core).
 
@@ -49,7 +48,7 @@ Once `uds-core` has sucessfully deployed with your new image, viewing the Keyclo
 - [Official Keycloak Theme Docs](https://www.keycloak.org/docs/latest/server_development/#_themes)
 - [Official Keycloak Theme Github](https://github.com/keycloak/keycloak/tree/b066c59a83c99d757d501d8f5e6061372706d24d/themes/src/main/resources/theme)
 
-Changes can be made to the [src/theme](../src/theme) directory. At this time only Account and Login themes are included, but could be changed to include email, admin, and welcome themes as well.
+Changes can be made to the [src/theme](https://github.com/defenseunicorns/uds-identity-config/tree/main/src/theme) directory. At this time only Account and Login themes are included, but could be changed to include email, admin, and welcome themes as well.
 
 #### Testing Changes
 To test the `identity-config` theme changes, a local running Keycloak instance is required.
@@ -65,10 +64,11 @@ Once that cluster is up and healthy and after making theme changes:
 2. View the changes in the browser
 
 ## Customizing Realm
-The `UDS Identity` realm is defined in the realm.json found in [src/realm.json](../src/realm.json). This can be modified and will require a new `uds-identity-config` image for `uds-core`. 
+The `UDS Identity` realm is defined in the realm.json found in [src/realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json). This can be modified and will require a new `uds-identity-config` image for `uds-core`. 
 
-> [!CAUTION]
-> Be aware that changing values in the realm may also need be to updated throughout the configuration of Keycloak and Authservice in `uds-core`. For example, changing the realm name will break a few different things within Keycloak unless those values are changed in `uds-core` as well.
+{{% alert-note %}}
+Be aware that changing values in the realm may also need be to updated throughout the configuration of Keycloak and Authservice in `uds-core`. For example, changing the realm name will break a few different things within Keycloak unless those values are changed in `uds-core` as well.
+{{% /alert-note %}}
 
 See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
 
@@ -95,17 +95,17 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 >                  GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
 >                  GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
 >
->   These environment variables can be found in the [realm.json](../src/realm.json) `identityProviders` section.
+>   These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json) `identityProviders` section.
 
 ## Customize Truststore
-The default truststore is configured in a [script](../src/truststore/ca-to-jks.sh) and excuted in the [Dockerfile](../src/Dockerfile). There is a few different ways the script could be customized. 
+The default truststore is configured in a [script](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/truststore/ca-to-jks.sh) and excuted in the [Dockerfile](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/Dockerfile). There is a few different ways the script could be customized. 
 
-- [Change where the DoD CA zip file are pulled from.](../src/Dockerfile#L31), defualting to DOD UNCLASS certs but could be updated for local or another source.
-- [Change the Regex Exclusion Filter](../src/Dockerfile#30), used by the ca-to-jks script to exclude certain certs from being added to the final truststore.
-- [Change the truststore password](../src/truststore/ca-to-jks.sh#L29)
+- [Change where the DoD CA zip file are pulled from.](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/Dockerfile#L31), defualting to DOD UNCLASS certs but could be updated for local or another source.
+- [Change the Regex Exclusion Filter](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/Dockerfile#30), used by the ca-to-jks script to exclude certain certs from being added to the final truststore.
+- [Change the truststore password](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/truststore/ca-to-jks.sh#L29)
 
 #### Build test `authorized_certs.zip`
-Utilizing the [`regenerate-test-pki` task](../tasks.yaml), you can create a test `authorized_certs.zip` to use for the truststore. 
+Utilizing the [`regenerate-test-pki` task](https://github.com/defenseunicorns/uds-identity-config/blob/main/tasks.yaml), you can create a test `authorized_certs.zip` to use for the truststore. 
 
 To use the `regenerate-test-pki` task:
 
@@ -146,7 +146,7 @@ To use the `regenerate-test-pki` task:
    ```
 
 #### Update Dockerfile and build image
-Update `CA_ZIP_URL` in [Dockerfile](.../src/Dockerfile) to refer to the generated `authorized_certs.zip`
+Update `CA_ZIP_URL` in [Dockerfile](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/Dockerfile) to refer to the generated `authorized_certs.zip`
 
 ```
 ARG CA_ZIP_URL=authorized_certs.zip
@@ -158,8 +158,9 @@ Build config image
 uds run dev-build
 ```
 
->[!TIP]
-> If you're getting errors from the ca-to-jks.sh script, verify your zip folder is in the correct directory.
+{{% alert-note %}}
+If you're getting errors from the ca-to-jks.sh script, verify your zip folder is in the correct directory.
+{{% /alert-note %}}
 
 #### Configure Istio Gateways CACERT in UDS Core
 ```bash
@@ -173,7 +174,7 @@ uds run -f src/keycloak/tasks.yaml dev-cacert
 ```
 
 #### Deploy UDS Core with new uds-identity-config
-See [Testing custom image in UDS Core](../CUSTOMIZE.md#testing-custom-image-in-uds-core)
+See [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core)
 
 #### Verify Istio Gateway configuration
 ```bash
@@ -182,24 +183,27 @@ openssl s_client -connect sso.uds.dev:443
 ```
 
 ## Custom Plugin
-> [!IMPORTANT]
-> This isn't recommended, however can be achieved if necessary
+{{% alert-note %}}
+This isn't recommended, however can be achieved if necessary
+{{% /alert-note %}}
 
-> [!TIP]
-> Making these changes iteratively and importing into Keycloak to create a new realm can help to alleviate typo's and mis-configurations. This is also the quickest solution for testing without having to create,build,deploy with new images each time.
+{{% alert-note %}}
+Making these changes iteratively and importing into Keycloak to create a new realm can help to alleviate typo's and mis-configurations. This is also the quickest solution for testing without having to create,build,deploy with new images each time.
+{{% /alert-note %}}
 
 The plugin provides the auth flows that keycloak uses for x509 (CAC) authentication as well as some of the surrounding registration flows.
 
-One nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](../src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID. 
+One nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID. 
 
-> [!WARNING]
-> When creating a user via ADMIN API or ADMIN UI, the 'REGISTER' event is not triggered, resulting in no Mattermost ID attribute generation. This will need to be done manually via click ops or the api. An example of how the attribute can be set via api can be seen [here](https://github.com/defenseunicorns/uds-common/blob/b2e8b25930c953ef893e7c787fe350f0d8679ee2/tasks/setup.yaml#L46).
+{{% alert-note %}}
+When creating a user via ADMIN API or ADMIN UI, the 'REGISTER' event is not triggered, resulting in no Mattermost ID attribute generation. This will need to be done manually via click ops or the api. An example of how the attribute can be set via api can be seen [here](https://github.com/defenseunicorns/uds-common/blob/b2e8b25930c953ef893e7c787fe350f0d8679ee2/tasks/setup.yaml#L46).
+{{% /alert-note %}}
 
 #### Developing
 See [PLUGIN.md](./PLUGIN.md).
 
 #### Configuration
-In addition, modify the realm for keycloak, otherwise the realm will require plugin capabilities for registering and authenticating users. In the current [realm.json](../src/realm.json) there is a few sections specifically using the plugin capabilities. Here is the following changes necessary:
+In addition, modify the realm for keycloak, otherwise the realm will require plugin capabilities for registering and authenticating users. In the current [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json) there is a few sections specifically using the plugin capabilities. Here is the following changes necessary:
 - Remove all of the `UDS ...` authenticationFlows:
    - `UDS Authentication`
    - `UDS Authentication Browser - Conditional OTP`
@@ -223,7 +227,7 @@ In addition, modify the realm for keycloak, otherwise the realm will require plu
    - `"resetCredentialsFlow": "reset credentials"`
 
 #### Disabling
-If desired the Plugin can be removed from the identity-config image by commenting out these lines in the [Dockerfile](../src/Dockerfile):
+If desired the Plugin can be removed from the identity-config image by commenting out these lines in the [Dockerfile](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/Dockerfile):
 
 ```
 COPY plugin/pom.xml .
