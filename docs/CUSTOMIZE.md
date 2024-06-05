@@ -76,7 +76,7 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 > Keycloak supports using environment variables within the realm configuration, see [docs](https://www.keycloak.org/server/importExport).
 >
 > These environment variables have default values set in the realm.json that uses the following syntax:
-> ```json
+> ```
 >  ${REALM_GOOGLE_IDP_ENABLED:false}
 > ```
 > 
