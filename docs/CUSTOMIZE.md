@@ -74,8 +74,13 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 
 ### Templated Realm Values
 > Keycloak supports using environment variables within the realm configuration, see [docs](https://www.keycloak.org/server/importExport).
+>
+> These environment variables have default values set in the realm.json that uses the following syntax:
+> ```json
+>  ${REALM_GOOGLE_IDP_ENABLED:false}
+> ```
 > 
-> In the uds-core keycloak [values.yaml](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml), the `realmInitEnv` defines set of environment variables that can be used to configure the realm.
+> In the uds-core keycloak [values.yaml](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml), the `realmInitEnv` defines set of environment variables that can be used to configure the realm different from default values.
 > 
 > These environment variables will be created with a prefix `REALM_` to avoid collisions with keycloak environment variables. If necessary to add additional template variables within the realm.json must be prefixed with `REALM_`. 
 > 
@@ -94,11 +99,11 @@ See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-i
 >                  GOOGLE_IDP_CORE_ENTITY_ID: <fill in value here>
 >                  GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
 >                  GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
->                  EMAIL_VERIFICATION_ENABLED: <fill in value here>
->                  OTP_ENABLED: <fill in value here>
->                  TERMS_AND_CONDITIONS_ENABLED: <fill in value here>
+>                  EMAIL_VERIFICATION_ENABLED: true
+>                  OTP_ENABLED: true
+>                  TERMS_AND_CONDITIONS_ENABLED: true
 >                  PASSWORD_POLICY: <fill in value here>
->                  X509_OCSP_FAIL_OPEN: <fill in value here>
+>                  X509_OCSP_FAIL_OPEN: true
 >
 >   These environment variables can be found in the [realm.json](../src/realm.json) `identityProviders` section.
 

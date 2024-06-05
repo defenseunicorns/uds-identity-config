@@ -456,7 +456,7 @@
     "requiredCredentials": [
         "password"
     ],
-    "passwordPolicy": "${REALM_PASSWORD_POLICY}",
+    "passwordPolicy": "${REALM_PASSWORD_POLICY}:hashAlgorithm(pbkdf2-sha256) and forceExpiredPasswordChange(90) and specialChars(2) and passwordHistory(5) and length(12) and notUsername(undefined)",
     "otpPolicyType": "totp",
     "otpPolicyAlgorithm": "HmacSHA1",
     "otpPolicyInitialCounter": 0,
@@ -1481,7 +1481,7 @@
           "displayName": "Google SSO",
           "internalId": "1538a301-8427-46d2-b59f-203f2f76e573",
           "providerId": "saml",
-          "enabled": "${REALM_GOOGLE_IDP_ENABLED}",
+          "enabled": "${REALM_GOOGLE_IDP_ENABLED:false}",
           "updateProfileFirstLoginMode": "on",
           "trustEmail": true,
           "storeToken": false,
@@ -2531,7 +2531,7 @@
                 "x509-cert-auth.canonical-dn-enabled": "false",
                 "x509-cert-auth.mapper-selection.user-attribute-name": "usercertificate",
                 "x509-cert-auth.serialnumber-hex-enabled": "false",
-                "x509-cert-auth.ocsp-fail-open": "$(REALM_X509_OCSP_FAIL_OPEN)",
+                "x509-cert-auth.ocsp-fail-open": "${REALM_X509_OCSP_FAIL_OPEN:false}",
                 "x509-cert-auth.regular-expression": "(.*?)(?:$)",
                 "x509-cert-auth.certificate-policy-mode": "All",
                 "x509-cert-auth.timestamp-validation-enabled": "true",
@@ -2560,7 +2560,7 @@
             "alias": "TERMS_AND_CONDITIONS",
             "name": "Terms and Conditions",
             "providerId": "TERMS_AND_CONDITIONS",
-            "enabled": "${REALM_TERMS_AND_CONDITIONS_ENABLED}",
+            "enabled": "${REALM_TERMS_AND_CONDITIONS_ENABLED:false}",
             "defaultAction": true,
             "priority": 10,
             "config": {}
@@ -2569,7 +2569,7 @@
             "alias": "CONFIGURE_TOTP",
             "name": "Configure OTP",
             "providerId": "CONFIGURE_TOTP",
-            "enabled": "${REALM_OTP_ENABLED}",
+            "enabled": "${REALM_OTP_ENABLED:false}",
             "defaultAction": false,
             "priority": 20,
             "config": {}
@@ -2596,7 +2596,7 @@
             "alias": "VERIFY_EMAIL",
             "name": "Verify Email",
             "providerId": "VERIFY_EMAIL",
-            "enabled": "${REALM_EMAIL_VERIFICATION_ENABLED}",
+            "enabled": "${REALM_EMAIL_VERIFICATION_ENABLED:false}",
             "defaultAction": true,
             "priority": 50,
             "config": {}
