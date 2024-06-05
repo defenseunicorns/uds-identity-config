@@ -438,7 +438,7 @@
     "requiredCredentials": [
         "password"
     ],
-    "passwordPolicy": "${REALM_PASSWORD_POLICY}:hashAlgorithm(pbkdf2-sha256) and forceExpiredPasswordChange(90) and specialChars(2) and passwordHistory(5) and length(12) and notUsername(undefined)",
+    "passwordPolicy": "${REALM_PASSWORD_POLICY:hashAlgorithm(pbkdf2-sha256) and forceExpiredPasswordChange(90) and specialChars(2) and passwordHistory(5) and length(12) and notUsername(undefined)}",
     "otpPolicyType": "totp",
     "otpPolicyAlgorithm": "HmacSHA1",
     "otpPolicyInitialCounter": 0,
