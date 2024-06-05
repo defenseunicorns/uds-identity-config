@@ -2570,7 +2570,7 @@
             "alias": "CONFIGURE_TOTP",
             "name": "Configure OTP",
             "providerId": "CONFIGURE_TOTP",
-            "enabled": "${REALM_OTP_ENABLED:false}",
+            "enabled": "${REALM_OTP_ENABLED:true}",
             "defaultAction": false,
             "priority": 20,
             "config": {}
