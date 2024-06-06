@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.5](https://github.com/defenseunicorns/uds-identity-config/compare/v0.4.4...v0.4.5) (2024-06-06)
+
+
+### Bug Fixes
+
+* force sync to ensure copy occurs ([#98](https://github.com/defenseunicorns/uds-identity-config/issues/98)) ([d0cc071](https://github.com/defenseunicorns/uds-identity-config/commit/d0cc071cadd36a98aadb11d997edbe75393ba19a))
+
 ## [0.4.4](https://github.com/defenseunicorns/uds-identity-config/compare/v0.4.3...v0.4.4) (2024-06-05)
 
 
