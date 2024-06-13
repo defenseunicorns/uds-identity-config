@@ -117,20 +117,26 @@ public final class X509Tools {
             return null;
         }
 
-        DEROctetString oct = (DEROctetString) (new ASN1InputStream(new ByteArrayInputStream(extPolicyBytes)).readObject());
-        ASN1Sequence seq = (ASN1Sequence) new ASN1InputStream(new ByteArrayInputStream(oct.getOctets())).readObject();
+        // Use try-with-resources to ensure streams are closed
+        try (ASN1InputStream asn1InputStream = new ASN1InputStream(new ByteArrayInputStream(extPolicyBytes))) {
+            DEROctetString oct = (DEROctetString) asn1InputStream.readObject();
 
-        if (seq.size() <= (certificatePolicyPos)) {
-            return null;
+            try (ASN1InputStream seqInputStream = new ASN1InputStream(new ByteArrayInputStream(oct.getOctets()))) {
+                ASN1Sequence seq = (ASN1Sequence) seqInputStream.readObject();
+
+                if (seq.size() <= certificatePolicyPos) {
+                    return null;
+                }
+
+                CertificatePolicies certificatePolicies = new CertificatePolicies(PolicyInformation.getInstance(seq.getObjectAt(certificatePolicyPos)));
+                if (certificatePolicies.getPolicyInformation().length <= policyIdentifierPos) {
+                    return null;
+                }
+
+                PolicyInformation[] policyInformation = certificatePolicies.getPolicyInformation();
+                return policyInformation[policyIdentifierPos].getPolicyIdentifier().getId();
+            }
         }
-
-        CertificatePolicies certificatePolicies = new CertificatePolicies(PolicyInformation.getInstance(seq.getObjectAt(certificatePolicyPos)));
-        if (certificatePolicies.getPolicyInformation().length <= policyIdentifierPos) {
-            return null;
-        }
-
-        PolicyInformation[] policyInformation = certificatePolicies.getPolicyInformation();
-        return policyInformation[policyIdentifierPos].getPolicyIdentifier().getId();
     }
 
     /**

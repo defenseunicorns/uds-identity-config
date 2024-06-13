@@ -295,6 +295,11 @@ public class ValidationUtils {
                     public UserLoginFailureProvider loginFailures() {
                         return null;
                     }
+                    @Override
+                    public boolean isClosed() {
+                        // TODO Auto-generated method stub
+                        throw new UnsupportedOperationException("Unimplemented method 'isClosed'");
+                    }
 
                 };
             }
