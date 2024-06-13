@@ -1723,6 +1723,7 @@
           "addReadTokenRoleOnCreate": false,
           "authenticateByDefault": false,
           "linkOnly": false,
+          "postBrokerLoginFlowAlias": "Authorization",
           "config": {
             "postBindingLogout": "false",
             "postBindingResponse": "true",
@@ -2250,13 +2251,41 @@
                 {
                     "authenticatorFlow": true,
                     "requirement": "REQUIRED",
-                    "priority": 31,
+                    "priority": 0,
                     "autheticatorFlow": true,
                     "flowAlias": "Authentication",
                     "userSetupAllowed": false
-                }
+                },
+                {
+                    "authenticatorFlow": true,
+                    "requirement": "REQUIRED",
+                    "priority": 1,
+                    "flowAlias": "Authorization",
+                    "userSetupAllowed": false,
+                    "autheticatorFlow": true
+                  }
+          
             ]
         },
+        {
+            "id": "7d53187d-13f4-4ec6-ade0-20b7d88d9aa4",
+            "alias": "Authorization",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": true,
+            "builtIn": false,
+            "authenticationExecutions": [
+              {
+                "authenticator": "uds-group-restriction",
+                "authenticatorFlow": false,
+                "requirement": "REQUIRED",
+                "priority": 0,
+                "userSetupAllowed": false,
+                "autheticatorFlow": false
+              }
+            ]
+          },
+      
         {
             "id": "5603fb4e-050a-48d5-9ffc-14fa0bba25e8",
             "alias": "UDS Authentication Browser - Conditional OTP",
