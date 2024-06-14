@@ -51,12 +51,10 @@ public class RequireGroupAuthenticator implements Authenticator {
         // Check for a valid match
         if (groupName.length() > 0) {
             LOGGER.infof("%s %s client has group attribute %s", logPrefix, client.getName(), groupName);
-            Optional<GroupModel> foundGroup = realm.getGroupsStream()
-                .filter(group -> group.getName().equals(groupName))
-                .findFirst();
+            Optional<GroupModel> foundGroup = getGroupByName(groupName, realm);
 
             if (foundGroup.isPresent()) {
-                checkIfUserIsAuthorized(context, realm, user, logPrefix, foundGroup.get().getId());
+                checkIfUserIsAuthorized(context, realm, user, logPrefix, foundGroup.get());
             } else {
                 LOGGER.warnf("%s Groups attribute (%s) failed to find matching group for %s client - the group does not exist in realm.", logPrefix, groupName, client.getName());
                 // This failure (group not existing) is surfaced the same to the user as if the user is not a member of the group
@@ -65,8 +63,15 @@ public class RequireGroupAuthenticator implements Authenticator {
                 context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             }
         } else {
-            LOGGER.warnf("%s No groups detected for %s client", logPrefix, client.getName());
+            LOGGER.infof("%s No groups detected for %s client", logPrefix, client.getName());
+            success(context, user);
         }
+    }
+
+    private Optional<GroupModel> getGroupByName(final String groupName, final RealmModel realm) {
+        return realm.getGroupsStream()
+            .filter(group -> group.getName().equals(groupName))
+            .findFirst();
     }
 
     private void checkIfUserIsAuthorized(
@@ -74,17 +79,11 @@ public class RequireGroupAuthenticator implements Authenticator {
         final RealmModel realm,
         final UserModel user,
         final String logPrefix,
-        final String groupId) {
-
-        GroupModel group = null;
-
-        if (realm != null) {
-            group = realm.getGroupById(groupId);
-        }
+        final GroupModel group) {
 
         // Must be a valid environment name
-        if (groupId == null || group == null) {
-            LOGGER.warnf("%s invalid group {}", logPrefix, groupId);
+        if (group == null) {
+            LOGGER.warnf("%s invalid group {}", logPrefix);
             context.failure(AuthenticationFlowError.CLIENT_DISABLED);
         } else {
             // Check if the user is a member of the specified group
