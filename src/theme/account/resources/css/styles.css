@@ -58,6 +58,7 @@ body {
   text-align: left;
   border: 1px solid rgba(255, 255, 255, 0.25);
   margin: 20px;
+  z-index: auto;
 }
 
 .pf-v5-c-card {
