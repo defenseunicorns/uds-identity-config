@@ -46,10 +46,9 @@ public class RequireGroupAuthenticator implements Authenticator {
 
         }
         LOGGER.infof("%s client %s / %s", logPrefix, clientId, client.getName());
-        LOGGER.infof("%s %s client has group attribute %s", logPrefix, client.getName(), groupName);
 
         // Check for a valid match
-        if (groupName.length() > 0) {
+        if (groupName != null && groupName.length() > 0) {
             LOGGER.infof("%s %s client has group attribute %s", logPrefix, client.getName(), groupName);
             Optional<GroupModel> foundGroup = getGroupByName(groupName, realm);
 
@@ -59,7 +58,6 @@ public class RequireGroupAuthenticator implements Authenticator {
                 LOGGER.warnf("%s Groups attribute (%s) failed to find matching group for %s client - the group does not exist in realm.", logPrefix, groupName, client.getName());
                 // This failure (group not existing) is surfaced the same to the user as if the user is not a member of the group
                 // Perhaps should be separate error
-                LOGGER.warnf("test adding a line");
                 context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             }
         } else {
