@@ -43,7 +43,6 @@ public class RequireGroupAuthenticator implements Authenticator {
             LOGGER.infof("%s user %s / %s", logPrefix, user.getId(), user.getUsername());
         } else {
             LOGGER.warnf("%s invalid user", logPrefix);
-
         }
         LOGGER.infof("%s client %s / %s", logPrefix, clientId, client.getName());
 
@@ -79,19 +78,13 @@ public class RequireGroupAuthenticator implements Authenticator {
         final String logPrefix,
         final GroupModel group) {
 
-        // Must be a valid environment name
-        if (group == null) {
-            LOGGER.warnf("%s invalid group {}", logPrefix);
-            context.failure(AuthenticationFlowError.CLIENT_DISABLED);
+        // Check if the user is a member of the specified group
+        if (isMemberOfGroup(realm, user, group, logPrefix)) {
+            LOGGER.infof("%s matched authorized group", logPrefix);
+            success(context, user);
         } else {
-            // Check if the user is a member of the specified group
-            if (isMemberOfGroup(realm, user, group, logPrefix)) {
-                LOGGER.infof("%s matched authorized group", logPrefix);
-                success(context, user);
-            } else {
-                LOGGER.warnf("%s failed authorized group match", logPrefix);
-                context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-            }
+            LOGGER.warnf("%s failed authorized group match", logPrefix);
+            context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
         }
     }
 
