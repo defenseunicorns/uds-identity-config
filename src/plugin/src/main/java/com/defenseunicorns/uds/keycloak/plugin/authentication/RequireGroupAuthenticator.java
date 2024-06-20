@@ -14,6 +14,8 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.sessions.AuthenticationSessionModel;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Simple {@link Authenticator} that checks of a user is member of a given {@link GroupModel Group}.
@@ -36,27 +38,52 @@ public class RequireGroupAuthenticator implements Authenticator {
         AuthenticationSessionModel authenticationSession = context.getAuthenticationSession();
         ClientModel client = authenticationSession.getClient();
         String clientId = client.getClientId();
-        String groupName = client.getAttribute("groups");
         String logPrefix = "UDS_GROUP_PROTECTION_AUTHENTICATE_" + authenticationSession.getParentSession().getId();
-
+    
+        String groupsAttribute = client.getAttribute("uds.core.groups");
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode groupsNode = null;
+    
         if (user != null) {
             LOGGER.infof("%s user %s / %s", logPrefix, user.getId(), user.getUsername());
         } else {
             LOGGER.warnf("%s invalid user", logPrefix);
+            context.failure(AuthenticationFlowError.INVALID_USER);
         }
         LOGGER.infof("%s client %s / %s", logPrefix, clientId, client.getName());
-
-        // Check for a valid match
-        if (groupName != null && groupName.length() > 0) {
-            LOGGER.infof("%s %s client has group attribute %s", logPrefix, client.getName(), groupName);
-            Optional<GroupModel> foundGroup = getGroupByName(groupName, realm);
-
-            if (foundGroup.isPresent()) {
-                checkIfUserIsAuthorized(context, realm, user, logPrefix, foundGroup.get());
+    
+        if (groupsAttribute != null && !groupsAttribute.isEmpty()) {
+            try {
+                groupsNode = objectMapper.readTree(groupsAttribute).path("anyOf");
+            } catch (Exception e) {
+                LOGGER.errorf("%s Failed to parse groups JSON: %s", logPrefix, e.getMessage());
+                context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+                return;
+            }
+    
+            if (groupsNode.isArray() && groupsNode.size() > 0) {
+                LOGGER.infof("%s %s client has group attribute %s", logPrefix, client.getName(), groupsNode.toString());
+                
+                // limit the number of log statements from for loop
+                boolean foundGroup = false;
+    
+                for (JsonNode groupNode : groupsNode) {
+                    String groupName = groupNode.asText();
+                    Optional<GroupModel> group = getGroupByName(groupName, realm);
+    
+                    if (group.isPresent()) {
+                        checkIfUserIsAuthorized(context, realm, user, logPrefix, group.get());
+                        foundGroup = true;
+                        break;
+                    }
+                }
+    
+                if (!foundGroup) {
+                    LOGGER.warnf("%s Groups attribute (%s) failed to find any matching group for %s client - the groups do not exist in realm.", logPrefix, groupsNode.toString(), client.getName());
+                    context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+                }
             } else {
-                LOGGER.warnf("%s Groups attribute (%s) failed to find matching group for %s client - the group does not exist in realm.", logPrefix, groupName, client.getName());
-                // This failure (group not existing) is surfaced the same to the user as if the user is not a member of the group
-                // Perhaps should be separate error
+                LOGGER.warnf("%s Groups attribute for %s client does not contain a valid anyOf array", logPrefix, client.getName());
                 context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             }
         } else {
@@ -97,12 +124,6 @@ public class RequireGroupAuthenticator implements Authenticator {
         final UserModel user,
         final GroupModel group,
         final String logPrefix) {
-
-        // No one likes null pointers
-        if (realm == null || user == null || group == null) {
-            LOGGER.warnf("%s realm, group or user null", logPrefix);
-            return false;
-        }
 
         String groupList = user.getGroupsStream()
                 .map(GroupModel::getId)

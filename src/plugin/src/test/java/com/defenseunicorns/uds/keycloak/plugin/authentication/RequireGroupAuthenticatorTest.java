@@ -10,94 +10,135 @@ import org.keycloak.models.GroupModel;
 import org.keycloak.models.GroupProvider;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.models.KeycloakSession;
 import org.keycloak.sessions.AuthenticationSessionModel;
 import org.keycloak.sessions.RootAuthenticationSessionModel;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Stream;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static com.defenseunicorns.uds.keycloak.plugin.utils.Utils.setupFileMocks;
 
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ FileInputStream.class, File.class })
-@PowerMockIgnore("javax.management.*")
+@RunWith(MockitoJUnitRunner.class)
 public class RequireGroupAuthenticatorTest {
 
-    private RequireGroupAuthenticator subject;
+    @InjectMocks
+    private RequireGroupAuthenticator authenticator;
+
+    @Mock
     private AuthenticationFlowContext context;
+
+    @Mock
     private RealmModel realm;
+
+    @Mock
     private UserModel user;
+
+    @Mock
     private GroupModel group;
-    private KeycloakSession session;
+
+    @Mock
     private AuthenticationSessionModel authenticationSession;
+
+    @Mock
     private RootAuthenticationSessionModel parentAuthenticationSession;
+
+    @Mock
     private ClientModel client;
+
+    @Mock
     private GroupProvider groupProvider;
 
     @Before
-    public void setup() throws Exception {
-
-        setupFileMocks();
-
-        subject = new RequireGroupAuthenticator();
-
-        context = mock(AuthenticationFlowContext.class);
-        realm = mock(RealmModel.class);
-        user = mock(UserModel.class);
-        group = mock(GroupModel.class);
-        session = mock(KeycloakSession.class);
-        authenticationSession = mock(AuthenticationSessionModel.class);
-        parentAuthenticationSession = mock(RootAuthenticationSessionModel.class);
-        client = mock(ClientModel.class);
-        groupProvider = mock(GroupProvider.class);
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
 
         when(context.getRealm()).thenReturn(realm);
         when(context.getUser()).thenReturn(user);
-        when(context.getSession()).thenReturn(session);
         when(context.getAuthenticationSession()).thenReturn(authenticationSession);
         when(authenticationSession.getClient()).thenReturn(client);
         when(authenticationSession.getParentSession()).thenReturn(parentAuthenticationSession);
-        when(parentAuthenticationSession.getId()).thenReturn("bleh");
-        when(realm.getGroupById(anyString())).thenReturn(group);
-        when(session.groups()).thenReturn(groupProvider);
+        when(parentAuthenticationSession.getId()).thenReturn("test-session-id");
 
+        when(group.getName()).thenReturn("httpbin");
+        when(realm.getGroupsStream()).thenReturn(Stream.of(group));
     }
 
     @Test
-    public void testShouldRejectUnknownGroups() {
-        when(client.getClientId()).thenReturn("random-bad-client");
-        when(client.getAttribute("groups")).thenReturn("httpbin");
-        subject.authenticate(context);
+    public void testShouldRejectUnknownGroups() throws Exception {
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"unknown-group\"]}");
+
+        authenticator.authenticate(context);
+
         verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
     }
 
     @Test
-    public void testShouldRejectNonGroupMembers() {
-        List<GroupModel> groupList = new ArrayList<>(); 
-        group.setName("httpbin");
-        groupList.add(group);
-
-        when(client.getClientId()).thenReturn("random-bad-client");
-        when(client.getAttribute("groups")).thenReturn("httpbin");
+    public void testShouldRejectNonGroupMembers() throws Exception {
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"httpbin\"]}");
         when(group.getName()).thenReturn("httpbin");
-        subject.authenticate(context);
+        when(user.isMemberOf(group)).thenReturn(false); // User is not a member of the group
+
+        authenticator.authenticate(context);
+
         verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
     }
 
     @Test
     public void testShouldAcceptEmptyGroups() {
-        when(client.getClientId()).thenReturn("random-bad-client");
-        when(client.getAttribute("groups")).thenReturn("");
-        subject.authenticate(context);
+        when(client.getAttribute("uds.core.groups")).thenReturn(""); // Empty groups attribute
+
+        authenticator.authenticate(context);
+
         verify(context).success();
+    }
+
+    @Test
+    public void testShouldAcceptUserInGroup() throws Exception {
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"httpbin\"]}");
+        when(group.getName()).thenReturn("httpbin");
+        when(user.isMemberOf(group)).thenReturn(true); // User is a member of the group
+
+        authenticator.authenticate(context);
+
+        verify(context).success();
+    }
+
+    @Test
+    public void testShouldRejectNullUser() {
+        when(context.getUser()).thenReturn(null); // Simulating null user
+
+        authenticator.authenticate(context);
+
+        verify(context).failure(AuthenticationFlowError.INVALID_USER);
+    }
+
+    @Test
+    public void testShouldRejectFailedJsonParse() {
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [invalid-json]}"); // Invalid JSON
+
+        authenticator.authenticate(context);
+
+        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+    }
+
+    @Test
+    public void testShouldRejectNoGroupsArray() {
+        when(client.getAttribute("uds.core.groups")).thenReturn("{}"); // JSON without 'anyOf' array
+
+        authenticator.authenticate(context);
+
+        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+    }
+
+    @Test
+    public void testShouldRejectMemberGroupNull() {
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [null]}"); // JSON with null group
+
+        authenticator.authenticate(context);
+
+        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
     }
 }
