@@ -11,6 +11,7 @@
 | [Duplicate User Registration](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/registration.cy.ts) | User cannot register more than once |
 | [Password check for special characters](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/registration.cy.ts) | User registration requires password special characters |
 | [Password check for length](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/registration.cy.ts) | User registration requires password length check |
+| [Group Authorization](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/group-authz.cy.ts) | Grafana is deployed to required admin group to authorize |
 
 ## Cypress Testing
 Using uds-cli task [`uds-core-integration-tests`](https://github.com/defenseunicorns/uds-identity-config/blob/main/tasks.yaml). 

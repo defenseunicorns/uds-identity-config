@@ -110,6 +110,12 @@ tasks:
 
       - task: build-deploy-custom-slim
 
+      - description: Deploy grafana for testing group authz
+        cmd: |
+          cd uds-core
+          UDS_PKG=grafana uds run create-single-package
+          uds zarf package deploy build/zarf-package-uds-core-grafana-amd64.tar.zst --confirm --no-progress
+
       - description: Run integration cypress tests
         task: cypress-tests
 
