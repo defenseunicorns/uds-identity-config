@@ -111,26 +111,31 @@ public final class X509Tools {
      * @return String
      */
     public static String getCertificatePolicyId(final X509Certificate cert, final int certificatePolicyPos, final int policyIdentifierPos) throws IOException {
-
         byte[] extPolicyBytes = cert.getExtensionValue(Common.CERTIFICATE_POLICY_OID);
         if (extPolicyBytes == null) {
             return null;
         }
-
-        DEROctetString oct = (DEROctetString) (new ASN1InputStream(new ByteArrayInputStream(extPolicyBytes)).readObject());
-        ASN1Sequence seq = (ASN1Sequence) new ASN1InputStream(new ByteArrayInputStream(oct.getOctets())).readObject();
-
-        if (seq.size() <= (certificatePolicyPos)) {
-            return null;
+    
+        // Use try-with-resources to ensure streams are closed
+        try (ASN1InputStream asn1InputStream = new ASN1InputStream(new ByteArrayInputStream(extPolicyBytes))) {
+            DEROctetString oct = (DEROctetString) asn1InputStream.readObject();
+    
+            try (ASN1InputStream seqInputStream = new ASN1InputStream(new ByteArrayInputStream(oct.getOctets()))) {
+                ASN1Sequence seq = (ASN1Sequence) seqInputStream.readObject();
+    
+                if (seq.size() <= certificatePolicyPos) {
+                    return null;
+                }
+    
+                CertificatePolicies certificatePolicies = new CertificatePolicies(PolicyInformation.getInstance(seq.getObjectAt(certificatePolicyPos)));
+                if (certificatePolicies.getPolicyInformation().length <= policyIdentifierPos) {
+                    return null;
+                }
+    
+                PolicyInformation[] policyInformation = certificatePolicies.getPolicyInformation();
+                return policyInformation[policyIdentifierPos].getPolicyIdentifier().getId();
+            }
         }
-
-        CertificatePolicies certificatePolicies = new CertificatePolicies(PolicyInformation.getInstance(seq.getObjectAt(certificatePolicyPos)));
-        if (certificatePolicies.getPolicyInformation().length <= policyIdentifierPos) {
-            return null;
-        }
-
-        PolicyInformation[] policyInformation = certificatePolicies.getPolicyInformation();
-        return policyInformation[policyIdentifierPos].getPolicyIdentifier().getId();
     }
 
     /**
