@@ -61,7 +61,25 @@
             "lastName": "User",
             "email": "testinguser@gmail.com",
             "emailVerified": true,
-            "realmRoles": ["default-roles-uds"]
+            "realmRoles": ["default-roles-uds"],
+            "groups": ["/UDS Core/Auditor"]
+        },
+        {
+            "id": "123456",
+            "username": "testing_admin",
+            "enabled": "true",
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "testingpassword1!!"
+                }
+            ],
+            "firstName": "Testing",
+            "lastName": "Admin",
+            "email": "testingadmin@gmail.com",
+            "emailVerified": true,
+            "realmRoles": ["default-roles-uds"],
+            "groups": ["/UDS Core/Admin"]
         }
     ],
     "roles": {
@@ -1488,6 +1506,7 @@
           "addReadTokenRoleOnCreate": false,
           "authenticateByDefault": false,
           "linkOnly": false,
+          "postBrokerLoginFlowAlias": "Authorization",
           "config": {
             "postBindingLogout": "false",
             "postBindingResponse": "true",
@@ -2006,10 +2025,36 @@
                 {
                     "authenticatorFlow": true,
                     "requirement": "REQUIRED",
-                    "priority": 31,
+                    "priority": 0,
                     "autheticatorFlow": true,
                     "flowAlias": "Authentication",
                     "userSetupAllowed": false
+                },
+                {
+                    "authenticatorFlow": true,
+                    "requirement": "REQUIRED",
+                    "priority": 1,
+                    "flowAlias": "Authorization",
+                    "userSetupAllowed": false,
+                    "autheticatorFlow": true
+                }
+            ]
+        },
+        {
+            "id": "7d53187d-13f4-4ec6-ade0-20b7d88d9aa4",
+            "alias": "Authorization",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": true,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticator": "uds-group-restriction",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 0,
+                    "userSetupAllowed": false,
+                    "autheticatorFlow": false
                 }
             ]
         },
