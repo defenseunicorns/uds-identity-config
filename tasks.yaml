@@ -110,11 +110,15 @@ tasks:
 
       - task: build-deploy-custom-slim
 
-      - description: Deploy grafana for testing group authz
+      - description: Deploy grafana for group authz
         cmd: |
           cd uds-core
           UDS_PKG=grafana uds run create-single-package
           uds zarf package deploy build/zarf-package-uds-core-grafana-amd64.tar.zst --confirm --no-progress
+
+      - description: Configure grafana to require group Admin
+        cmd: | 
+          kubectl patch package grafana -n grafana --type='json' -p='[{"op": "add", "path": "/spec/sso/0/groups", "value": {"anyOf": ["Admin"]}}]'
 
       - description: Run integration cypress tests
         task: cypress-tests
