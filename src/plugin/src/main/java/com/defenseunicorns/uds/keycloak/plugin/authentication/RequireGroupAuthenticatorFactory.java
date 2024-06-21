@@ -16,7 +16,7 @@ public class RequireGroupAuthenticatorFactory implements AuthenticatorFactory {
     /**
      * provider id variable.
      */
-    public static final String PROVIDER_ID = "p1-group-restriction";
+    public static final String PROVIDER_ID = "uds-group-restriction";
     /**
      * group authenticator variable.
      */
@@ -64,7 +64,7 @@ public class RequireGroupAuthenticatorFactory implements AuthenticatorFactory {
      */
     @Override
     public String getDisplayType() {
-        return "Platform One Group Authentication Validation";
+        return "UDS Operator Group Authentication Validation";
     }
 
     /**
@@ -116,4 +116,3 @@ public class RequireGroupAuthenticatorFactory implements AuthenticatorFactory {
         return new ArrayList<>();
     }
 }
-
