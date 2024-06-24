@@ -6,13 +6,14 @@ weight: 2
 
 The plugin provides the auth flows that keycloak uses for x509 (CAC) authentication as well as some of the surrounding registration flows.
 
-One nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID. 
+One nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID.
 
 {{% alert-note %}}
 When creating a user via ADMIN API or ADMIN UI, the `REGISTER` event is not triggered, resulting in no Mattermost ID attribute generation. This will need to be done manually via click ops or the api. An example of how the attribute can be set via api can be seen [here](https://github.com/defenseunicorns/uds-common/blob/b2e8b25930c953ef893e7c787fe350f0d8679ee2/tasks/setup.yaml#L46).
 {{% /alert-note %}}
 
 ## Requirements
+
 Working on the plugin requires JDK17+ and Maven 3.5+.
 
 ```bash
@@ -24,11 +25,13 @@ mvn -version
 ```
 
 ## Plugin Testing with Keycloak
+
 After making changes to the plugin code and verifying that unit tests are passing ( and hopefully writing some more ), test against Keycloak.
 
 See the `New uds-identity-config Image` section in the [CUSTOMIZE.md](./CUSTOMIZE.md#new-uds-identity-config-image) for building, publishing, and using the new image with `uds-core`.
 
 ## Plugin Unit Testing / Code Coverage
+
 The maven surefire and jacoco plugins are configured in the [pom.xml](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/pom.xml).
 
 {{% alert-note %}}
@@ -50,6 +53,7 @@ Some important commands that can be used when developing/testing on the plugin:
 | `mvn clean verify` | Clean project, run tests, and generate both surefire and jacoco reports |
 
 ### Viewing the Test Reports
+
 ```bash
 # maven command from src/plugin directory
 mvn clean verify
