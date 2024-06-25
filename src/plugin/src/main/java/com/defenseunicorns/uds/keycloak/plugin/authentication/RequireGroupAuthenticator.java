@@ -1,5 +1,7 @@
 package com.defenseunicorns.uds.keycloak.plugin.authentication;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
@@ -24,7 +26,8 @@ public class RequireGroupAuthenticator implements Authenticator {
     public void authenticate(final AuthenticationFlowContext context) {
         UserModel user = context.getUser();
         if (user == null) {
-            logAndFail(context, "Invalid user", AuthenticationFlowError.INVALID_USER);
+            LOGGER.warn("Invalid user");
+            context.failure(AuthenticationFlowError.INVALID_USER);
             return;
         }
 
@@ -39,34 +42,24 @@ public class RequireGroupAuthenticator implements Authenticator {
 
         JsonNode groupsNode = parseGroupsAttribute(groupsAttribute);
         if (groupsNode == null) {
-            logAndFail(context, "Failed to parse groups JSON", AuthenticationFlowError.INVALID_CLIENT_SESSION);
+            LOGGER.warn("Failed to parse groups JSON");
+            context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             return;
         }
 
-        handleGroupAuthentication(context, user, groupsNode);
-    }
-
-    private JsonNode parseGroupsAttribute(String groupsAttribute) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readTree(groupsAttribute).path("anyOf");
-        } catch (Exception e) {
-            LOGGER.errorf("Failed to parse groups JSON: %s", e.getMessage());
-            return null;
-        }
-    }
-
-    private void handleGroupAuthentication(AuthenticationFlowContext context, UserModel user, JsonNode groupsNode) {
-        if (!groupsNode.isArray() || groupsNode.size() == 0) {
-            logAndFail(context, "Groups attribute does not contain a valid anyOf array", AuthenticationFlowError.INVALID_CLIENT_SESSION);
+        if (groupsNode.size() == 0) {
+            LOGGER.warn("Groups attribute does not contain a valid anyOf array");
+            context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             return;
         }
 
         RealmModel realm = context.getRealm();
         boolean foundGroup = false;
+        List<String> requiredGroups = new ArrayList<>();
 
         for (JsonNode groupNode : groupsNode) {
             String groupName = groupNode.asText();
+            requiredGroups.add(groupName);
             Optional<GroupModel> group = getGroupByPath(groupName, realm);
 
             if (group.isPresent()) {
@@ -74,16 +67,27 @@ public class RequireGroupAuthenticator implements Authenticator {
                     LOGGER.infof("User %s is authorized for group %s", user.getUsername(), groupName);
                     context.success();
                     return;
-                } else {
-                    foundGroup = true;
                 }
+                foundGroup = true;
             }
         }
 
         if (foundGroup) {
-            logAndFail(context, "User is not a member of the required group(s)", AuthenticationFlowError.INVALID_CLIENT_SESSION);
-        } else {
-            logAndFail(context, "Required group(s) do not exist in realm", AuthenticationFlowError.INVALID_CLIENT_SESSION);
+            LOGGER.warn("User is not a member of the required group(s)");
+            context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+            return;
+        }
+        LOGGER.warnf("Required group(s) %s do not exist in realm", requiredGroups);
+        context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+    }
+
+    private JsonNode parseGroupsAttribute(String groupsAttribute) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return  objectMapper.readValue(groupsAttribute, Groups.class).path("anyOf");
+        } catch (Exception e) {
+            LOGGER.errorf("Failed to parse groups JSON: %s", e.getMessage());
+            return null;
         }
     }
 
@@ -108,11 +112,6 @@ public class RequireGroupAuthenticator implements Authenticator {
             .anyMatch(userGroup -> buildGroupPath(userGroup).equals(buildGroupPath(group)));
     }
 
-    private void logAndFail(AuthenticationFlowContext context, String message, AuthenticationFlowError error) {
-        LOGGER.warn(message);
-        context.failure(error);
-    }
-
     @Override
     public void action(final AuthenticationFlowContext authenticationFlowContext) {
         // no implementation needed here
@@ -120,7 +119,7 @@ public class RequireGroupAuthenticator implements Authenticator {
 
     @Override
     public boolean requiresUser() {
-        return false;
+        return true;
     }
 
     @Override

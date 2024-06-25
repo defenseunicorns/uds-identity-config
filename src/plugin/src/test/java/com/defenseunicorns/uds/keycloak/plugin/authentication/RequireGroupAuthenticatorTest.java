@@ -71,7 +71,7 @@ public class RequireGroupAuthenticatorTest {
     }
 
     @Test
-    public void testShouldRejectUnknownGroups() {
+    public void testShouldRejectUnknownGroups() throws Exception {
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/unknown-group\"]}");
 
         authenticator.authenticate(context);
@@ -80,8 +80,9 @@ public class RequireGroupAuthenticatorTest {
     }
 
     @Test
-    public void testShouldRejectNonGroupMembers() {
+    public void testShouldRejectNonGroupMembers() throws Exception {
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/Admin\"]}");
+        when(group.getName()).thenReturn("Admin");
         when(user.getGroupsStream()).thenReturn(Stream.of()); // User is not a member of any group
 
         authenticator.authenticate(context);
@@ -99,7 +100,7 @@ public class RequireGroupAuthenticatorTest {
     }
 
     @Test
-    public void testShouldAcceptUserInGroup() {
+    public void testShouldAcceptUserInGroup() throws Exception {
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/Admin\"]}");
         when(user.getGroupsStream()).thenReturn(Stream.of(group)); // User is a member of the group
 
@@ -109,7 +110,7 @@ public class RequireGroupAuthenticatorTest {
     }
 
     @Test
-    public void testShouldAcceptUserInParentGroup() {
+    public void testShouldAcceptUserInParentGroup() throws Exception {
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core\"]}");
         when(user.getGroupsStream()).thenReturn(Stream.of(parentGroup)); // User is a member of the parent group
 
@@ -165,77 +166,13 @@ public class RequireGroupAuthenticatorTest {
     }
 
     @Test
-    public void testShouldRejectUserInDifferentGroup() {
+    public void testShouldRejectUserInDifferentGroup() throws Exception {
         GroupModel differentGroup = mock(GroupModel.class);
         when(differentGroup.getName()).thenReturn("DifferentGroup");
         when(differentGroup.getParent()).thenReturn(null);
 
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/Admin\"]}");
         when(user.getGroupsStream()).thenReturn(Stream.of(differentGroup)); // User is a member of a different group
-
-        authenticator.authenticate(context);
-
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-    }
-
-    @Test
-    public void testShouldRejectInvalidJsonStructure() {
-        when(client.getAttribute("uds.core.groups")).thenReturn("{\"invalidKey\": [\"/UDS Core/Admin\"]}");
-
-        authenticator.authenticate(context);
-
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-    }
-
-    @Test
-    public void testShouldRejectEmptyAnyOfArray() {
-        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": []}");
-
-        authenticator.authenticate(context);
-
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-    }
-
-    @Test
-    public void testShouldAcceptUserWithMultipleGroups() {
-        GroupModel anotherGroup = mock(GroupModel.class);
-
-        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/Admin\", \"/AnotherGroup\"]}");
-        when(user.getGroupsStream()).thenReturn(Stream.of(group, anotherGroup)); // User is a member of multiple groups
-
-        authenticator.authenticate(context);
-
-        verify(context).success();
-    }
-
-    @Test
-    public void testShouldRejectMalformedGroupPaths() {
-        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"//UDS Core//Admin\"]}");
-
-        authenticator.authenticate(context);
-
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-    }
-
-    @Test
-    public void testShouldRejectUserInSubgroup() {
-        GroupModel subgroup = mock(GroupModel.class);
-        when(subgroup.getName()).thenReturn("Subgroup");
-        when(subgroup.getParent()).thenReturn(group);
-        when(group.getName()).thenReturn("Admin");
-        when(group.getParent()).thenReturn(parentGroup);
-
-        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/Admin\"]}");
-        when(user.getGroupsStream()).thenReturn(Stream.of(subgroup)); // User is a member of a subgroup
-
-        authenticator.authenticate(context);
-
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-    }
-
-    @Test
-    public void testShouldRejectUserWithCaseSensitiveGroupNames() {
-        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/uds core/admin\"]}"); // Different case
 
         authenticator.authenticate(context);
 

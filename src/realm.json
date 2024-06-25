@@ -2328,6 +2328,14 @@
                     "autheticatorFlow": true,
                     "flowAlias": "UDS registration form",
                     "userSetupAllowed": false
+                },
+                {
+                    "authenticatorFlow": true,
+                    "requirement": "REQUIRED",
+                    "priority": 20,
+                    "flowAlias": "Authorization",
+                    "userSetupAllowed": false,
+                    "autheticatorFlow": true
                 }
             ]
         },
