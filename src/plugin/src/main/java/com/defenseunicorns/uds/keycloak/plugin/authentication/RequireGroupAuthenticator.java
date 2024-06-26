@@ -12,7 +12,6 @@ import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -40,8 +39,8 @@ public class RequireGroupAuthenticator implements Authenticator {
             return;
         }
 
-        JsonNode groupsNode = parseGroupsAttribute(groupsAttribute);
-        if (groupsNode == null) {
+        Groups groups = parseGroupsAttribute(groupsAttribute);
+        if (groups == null) {
             LOGGER.warn("Failed to parse groups JSON");
             context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             return;
@@ -51,8 +50,7 @@ public class RequireGroupAuthenticator implements Authenticator {
         boolean foundGroup = false;
         List<String> requiredGroups = new ArrayList<>();
 
-        for (JsonNode groupNode : groupsNode) {
-            String groupName = groupNode.asText();
+        for (String groupName : groups.anyOf) {
             requiredGroups.add(groupName);
             Optional<GroupModel> group = getGroupByPath(groupName, realm);
 
@@ -75,11 +73,11 @@ public class RequireGroupAuthenticator implements Authenticator {
         context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
     }
 
-    private JsonNode parseGroupsAttribute(String groupsAttribute) {
+    private Groups parseGroupsAttribute(String groupsAttribute) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            JsonNode groups = objectMapper.readValue(groupsAttribute, Groups.class).path("anyOf");
-            if(groups.size() == 0) {
+            Groups groups = objectMapper.readValue(groupsAttribute, Groups.class);
+            if(groups.anyOf.length == 0) {
                 LOGGER.errorf("Groups attribute does not contain a valid anyOf array");
                 return null;
             }
