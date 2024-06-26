@@ -102,26 +102,25 @@ tasks:
     actions:
       - description: Build identity config image
         cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" --build-arg REALM_FILE="test/cypress/realm.json" -t uds-core-config:keycloak --no-cache src
-
       - task: clone-core
-
-      - description: Copy cacert value into uds-core istio gateways
-        task: uds-core-gateway-cacert
-
+      - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
+      - task: grafana-group-auth-build-deploy
+      - task: cypress-tests
 
-      - description: Deploy grafana for group authz
-        cmd: |
+  - name: grafana-group-auth-build-deploy
+    description: Configure existing uds-core/grafana package for group authz, build, deploy grafana
+    actions:
+      - cmd: |
+          sed -i '/^\s*sso:/,/^\s*-\s*name:/ { 
+            /groups:/d
+            /^\s*-\s*name:/a \ \ \ \ \ \ groups:\n\ \ \ \ \ \ \ \ anyOf:\n\ \ \ \ \ \ \ \ \ - \/UDS Core\/Admin
+          }' uds-core/src/grafana/chart/templates/uds-package.yaml
+
+      - cmd: |
           cd uds-core
           UDS_PKG=grafana uds run create-single-package
           uds zarf package deploy build/zarf-package-uds-core-grafana-amd64.tar.zst --confirm --no-progress
-
-      - description: Configure grafana to require group Admin
-        cmd: | 
-          kubectl patch package grafana -n grafana --type='json' -p='[{"op": "add", "path": "/spec/sso/0/groups", "value": {"anyOf": ["Admin"]}}]'
-
-      - description: Run integration cypress tests
-        task: cypress-tests
 
   - name: clone-core
     description: "Clone UDS Core for integration testing"
