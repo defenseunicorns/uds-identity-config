@@ -1,8 +1,8 @@
 package com.defenseunicorns.uds.keycloak.plugin.authentication;
 
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
@@ -12,126 +12,103 @@ import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.sessions.AuthenticationSessionModel;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Simple {@link Authenticator} that checks of a user is member of a given {@link GroupModel Group}.
+ * Simple {@link Authenticator} that checks if a user is a member of a given {@link GroupModel Group}.
  */
 public class RequireGroupAuthenticator implements Authenticator {
 
-    /**
-     * Logger variable.
-     */
     private static final Logger LOGGER = Logger.getLogger(RequireGroupAuthenticator.class.getName());
 
-    /**
-     * This implementation is not intended to be overridden.
-     */
     @Override
     public void authenticate(final AuthenticationFlowContext context) {
+        UserModel user = context.getUser();
+        if (user == null) {
+            LOGGER.warn("Invalid user");
+            context.failure(AuthenticationFlowError.INVALID_USER);
+            return;
+        }
+
+        ClientModel client = context.getAuthenticationSession().getClient();
+        String groupsAttribute = client.getAttribute("uds.core.groups");
+
+        if (groupsAttribute == null || groupsAttribute.isEmpty()) {
+            LOGGER.infof("No groups detected for client %s", client.getName());
+            context.success();
+            return;
+        }
+
+        JsonNode groupsNode = parseGroupsAttribute(groupsAttribute);
+        if (groupsNode == null) {
+            LOGGER.warn("Failed to parse groups JSON");
+            context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+            return;
+        }
 
         RealmModel realm = context.getRealm();
-        UserModel user = context.getUser();
-        AuthenticationSessionModel authenticationSession = context.getAuthenticationSession();
-        ClientModel client = authenticationSession.getClient();
-        String clientId = client.getClientId();
-        String logPrefix = "UDS_GROUP_PROTECTION_AUTHENTICATE_" + authenticationSession.getParentSession().getId();
-    
-        String groupsAttribute = client.getAttribute("uds.core.groups");
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode groupsNode = null;
-    
-        if (user != null) {
-            LOGGER.infof("%s user %s / %s", logPrefix, user.getId(), user.getUsername());
-        } else {
-            LOGGER.warnf("%s invalid user", logPrefix);
-            context.failure(AuthenticationFlowError.INVALID_USER);
+        boolean foundGroup = false;
+        List<String> requiredGroups = new ArrayList<>();
+
+        for (JsonNode groupNode : groupsNode) {
+            String groupName = groupNode.asText();
+            requiredGroups.add(groupName);
+            Optional<GroupModel> group = getGroupByPath(groupName, realm);
+
+            if (group.isPresent()) {
+                if (isMemberOfExactGroup(user, group.get())) {
+                    LOGGER.infof("User %s is authorized for group %s", user.getUsername(), groupName);
+                    context.success();
+                    return;
+                }
+                foundGroup = true;
+            }
         }
-        LOGGER.infof("%s client %s / %s", logPrefix, clientId, client.getName());
-    
-        if (groupsAttribute != null && !groupsAttribute.isEmpty()) {
-            try {
-                groupsNode = objectMapper.readTree(groupsAttribute).path("anyOf");
-            } catch (Exception e) {
-                LOGGER.errorf("%s Failed to parse groups JSON: %s", logPrefix, e.getMessage());
-                context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-                return;
+
+        if (foundGroup) {
+            LOGGER.warn("User is not a member of the required group(s)");
+            context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+            return;
+        }
+        LOGGER.warnf("Required group(s) %s do not exist in realm", requiredGroups);
+        context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+    }
+
+    private JsonNode parseGroupsAttribute(String groupsAttribute) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode groups = objectMapper.readValue(groupsAttribute, Groups.class).path("anyOf");
+            if(groups.size() == 0) {
+                LOGGER.errorf("Groups attribute does not contain a valid anyOf array");
+                return null;
             }
-    
-            if (groupsNode.isArray() && groupsNode.size() > 0) {
-                LOGGER.infof("%s %s client has group attribute %s", logPrefix, client.getName(), groupsNode.toString());
-                
-                // limit the number of log statements from for loop
-                boolean foundGroup = false;
-    
-                for (JsonNode groupNode : groupsNode) {
-                    String groupName = groupNode.asText();
-                    Optional<GroupModel> group = getGroupByName(groupName, realm);
-    
-                    if (group.isPresent()) {
-                        checkIfUserIsAuthorized(context, realm, user, logPrefix, group.get());
-                        foundGroup = true;
-                        break;
-                    }
-                }
-    
-                if (!foundGroup) {
-                    LOGGER.warnf("%s Groups attribute (%s) failed to find any matching group for %s client - the groups do not exist in realm.", logPrefix, groupsNode.toString(), client.getName());
-                    context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-                }
-            } else {
-                LOGGER.warnf("%s Groups attribute for %s client does not contain a valid anyOf array", logPrefix, client.getName());
-                context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-            }
-        } else {
-            LOGGER.infof("%s No groups detected for %s client", logPrefix, client.getName());
-            success(context, user);
+            return  groups;
+        } catch (Exception e) {
+            LOGGER.errorf("Failed to parse groups JSON: %s", e.getMessage());
+            return null;
         }
     }
 
-    private Optional<GroupModel> getGroupByName(final String groupName, final RealmModel realm) {
+    private Optional<GroupModel> getGroupByPath(final String groupPath, final RealmModel realm) {
         return realm.getGroupsStream()
-            .filter(group -> group.getName().equals(groupName))
+            .filter(group -> buildGroupPath(group).equals(groupPath))
             .findFirst();
     }
 
-    private void checkIfUserIsAuthorized(
-        final AuthenticationFlowContext context,
-        final RealmModel realm,
-        final UserModel user,
-        final String logPrefix,
-        final GroupModel group) {
-
-        // Check if the user is a member of the specified group
-        if (isMemberOfGroup(realm, user, group, logPrefix)) {
-            LOGGER.infof("%s matched authorized group", logPrefix);
-            success(context, user);
-        } else {
-            LOGGER.warnf("%s failed authorized group match", logPrefix);
-            context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+    private String buildGroupPath(GroupModel group) {
+        StringBuilder path = new StringBuilder();
+        GroupModel currentGroup = group;
+        while (currentGroup != null) {
+            path.insert(0, "/" + currentGroup.getName());
+            currentGroup = currentGroup.getParent();
         }
+        return path.toString();
     }
 
-    private void success(final AuthenticationFlowContext context, final UserModel user) {
-        context.success();
-    }
-
-    private boolean isMemberOfGroup(
-        final RealmModel realm,
-        final UserModel user,
-        final GroupModel group,
-        final String logPrefix) {
-
-        String groupList = user.getGroupsStream()
-                .map(GroupModel::getId)
-                .collect(Collectors.joining(","));
-
-        LOGGER.infof("%s user groups %s", logPrefix, groupList);
-
-        return user.isMemberOf(group);
+    private boolean isMemberOfExactGroup(UserModel user, GroupModel group) {
+        return user.getGroupsStream()
+            .anyMatch(userGroup -> buildGroupPath(userGroup).equals(buildGroupPath(group)));
     }
 
     @Override
@@ -139,17 +116,11 @@ public class RequireGroupAuthenticator implements Authenticator {
         // no implementation needed here
     }
 
-    /**
-     * This implementation is not intended to be overridden.
-     */
     @Override
     public boolean requiresUser() {
-        return false;
+        return true;
     }
 
-    /**
-     * This implementation is not intended to be overridden.
-     */
     @Override
     public boolean configuredFor(
         final KeycloakSession keycloakSession,

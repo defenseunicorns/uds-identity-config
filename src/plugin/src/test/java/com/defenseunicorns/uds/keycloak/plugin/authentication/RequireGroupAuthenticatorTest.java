@@ -40,6 +40,9 @@ public class RequireGroupAuthenticatorTest {
     private GroupModel group;
 
     @Mock
+    private GroupModel parentGroup;
+
+    @Mock
     private AuthenticationSessionModel authenticationSession;
 
     @Mock
@@ -59,16 +62,17 @@ public class RequireGroupAuthenticatorTest {
         when(context.getUser()).thenReturn(user);
         when(context.getAuthenticationSession()).thenReturn(authenticationSession);
         when(authenticationSession.getClient()).thenReturn(client);
-        when(authenticationSession.getParentSession()).thenReturn(parentAuthenticationSession);
-        when(parentAuthenticationSession.getId()).thenReturn("test-session-id");
 
-        when(group.getName()).thenReturn("httpbin");
-        when(realm.getGroupsStream()).thenReturn(Stream.of(group));
+        when(group.getName()).thenReturn("Admin");
+        when(group.getParent()).thenReturn(parentGroup);
+        when(parentGroup.getName()).thenReturn("UDS Core");
+
+        when(realm.getGroupsStream()).thenReturn(Stream.of(group, parentGroup));
     }
 
     @Test
     public void testShouldRejectUnknownGroups() throws Exception {
-        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"unknown-group\"]}");
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/unknown-group\"]}");
 
         authenticator.authenticate(context);
 
@@ -77,9 +81,9 @@ public class RequireGroupAuthenticatorTest {
 
     @Test
     public void testShouldRejectNonGroupMembers() throws Exception {
-        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"httpbin\"]}");
-        when(group.getName()).thenReturn("httpbin");
-        when(user.isMemberOf(group)).thenReturn(false); // User is not a member of the group
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/Admin\"]}");
+        when(group.getName()).thenReturn("Admin");
+        when(user.getGroupsStream()).thenReturn(Stream.of()); // User is not a member of any group
 
         authenticator.authenticate(context);
 
@@ -87,7 +91,7 @@ public class RequireGroupAuthenticatorTest {
     }
 
     @Test
-    public void testShouldAcceptEmptyGroups() {
+    public void testShouldAcceptEmptyGroupsAttribute() {
         when(client.getAttribute("uds.core.groups")).thenReturn(""); // Empty groups attribute
 
         authenticator.authenticate(context);
@@ -97,13 +101,32 @@ public class RequireGroupAuthenticatorTest {
 
     @Test
     public void testShouldAcceptUserInGroup() throws Exception {
-        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"httpbin\"]}");
-        when(group.getName()).thenReturn("httpbin");
-        when(user.isMemberOf(group)).thenReturn(true); // User is a member of the group
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/Admin\"]}");
+        when(user.getGroupsStream()).thenReturn(Stream.of(group)); // User is a member of the group
 
         authenticator.authenticate(context);
 
         verify(context).success();
+    }
+
+    @Test
+    public void testShouldAcceptUserInParentGroup() throws Exception {
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core\"]}");
+        when(user.getGroupsStream()).thenReturn(Stream.of(parentGroup)); // User is a member of the parent group
+
+        authenticator.authenticate(context);
+
+        verify(context).success();
+    }
+
+    @Test
+    public void testShouldRejectUserNotInParentGroup() {
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core\"]}");
+        when(user.getGroupsStream()).thenReturn(Stream.of(group)); // User is a member of the admin group
+
+        authenticator.authenticate(context);
+
+        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
     }
 
     @Test
@@ -134,8 +157,22 @@ public class RequireGroupAuthenticatorTest {
     }
 
     @Test
-    public void testShouldRejectMemberGroupNull() {
+    public void testShouldRejectNullGroupInAnyOf() {
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [null]}"); // JSON with null group
+
+        authenticator.authenticate(context);
+
+        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+    }
+
+    @Test
+    public void testShouldRejectUserInDifferentGroup() throws Exception {
+        GroupModel differentGroup = mock(GroupModel.class);
+        when(differentGroup.getName()).thenReturn("DifferentGroup");
+        when(differentGroup.getParent()).thenReturn(null);
+
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/Admin\"]}");
+        when(user.getGroupsStream()).thenReturn(Stream.of(differentGroup)); // User is a member of a different group
 
         authenticator.authenticate(context);
 
