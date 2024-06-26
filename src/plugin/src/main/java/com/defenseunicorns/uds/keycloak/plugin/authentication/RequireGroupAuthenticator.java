@@ -47,12 +47,6 @@ public class RequireGroupAuthenticator implements Authenticator {
             return;
         }
 
-        if (groupsNode.size() == 0) {
-            LOGGER.warn("Groups attribute does not contain a valid anyOf array");
-            context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-            return;
-        }
-
         RealmModel realm = context.getRealm();
         boolean foundGroup = false;
         List<String> requiredGroups = new ArrayList<>();
@@ -84,7 +78,12 @@ public class RequireGroupAuthenticator implements Authenticator {
     private JsonNode parseGroupsAttribute(String groupsAttribute) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            return  objectMapper.readValue(groupsAttribute, Groups.class).path("anyOf");
+            JsonNode groups = objectMapper.readValue(groupsAttribute, Groups.class).path("anyOf");
+            if(groups.size() == 0) {
+                LOGGER.errorf("Groups attribute does not contain a valid anyOf array");
+                return null;
+            }
+            return  groups;
         } catch (Exception e) {
             LOGGER.errorf("Failed to parse groups JSON: %s", e.getMessage());
             return null;
