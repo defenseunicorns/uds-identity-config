@@ -2370,6 +2370,14 @@
                     "priority": 30,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
+                },
+                {
+                    "authenticatorFlow": true,
+                    "requirement": "REQUIRED",
+                    "priority": 40,
+                    "flowAlias": "Authorization",
+                    "userSetupAllowed": false,
+                    "autheticatorFlow": true
                 }
             ]
         },
