@@ -1723,7 +1723,7 @@
           "addReadTokenRoleOnCreate": false,
           "authenticateByDefault": false,
           "linkOnly": false,
-          "postBrokerLoginFlowAlias": "Authorization",
+          "postBrokerLoginFlowAlias": "Group Protection Authorization",
           "config": {
             "postBindingLogout": "false",
             "postBindingResponse": "true",
@@ -2268,7 +2268,7 @@
         },
         {
             "id": "7d53187d-13f4-4ec6-ade0-20b7d88d9aa4",
-            "alias": "Authorization",
+            "alias": "Group Protection Authorization",
             "description": "",
             "providerId": "basic-flow",
             "topLevel": true,
