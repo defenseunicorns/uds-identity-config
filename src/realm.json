@@ -2257,14 +2257,13 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticatorFlow": true,
+                    "authenticator": "uds-group-restriction",
+                    "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 1,
-                    "flowAlias": "Authorization",
                     "userSetupAllowed": false,
-                    "autheticatorFlow": true
-                  }
-          
+                    "autheticatorFlow": false
+                }
             ]
         },
         {
@@ -2330,13 +2329,13 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticatorFlow": true,
+                    "authenticator": "uds-group-restriction",
+                    "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 20,
-                    "flowAlias": "Authorization",
                     "userSetupAllowed": false,
-                    "autheticatorFlow": true
-                }
+                    "autheticatorFlow": false
+                  }
             ]
         },
         {
@@ -2372,13 +2371,13 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticatorFlow": true,
+                    "authenticator": "uds-group-restriction",
+                    "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 40,
-                    "flowAlias": "Authorization",
                     "userSetupAllowed": false,
-                    "autheticatorFlow": true
-                }
+                    "autheticatorFlow": false
+                  }
             ]
         },
         {

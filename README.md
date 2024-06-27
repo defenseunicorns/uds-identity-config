@@ -31,15 +31,12 @@ If the default realm, plugin, theme, truststore, or jars do not provide enough f
 
 This version upgrade brings in a new Authentication Flow for group authorization.
 
-If upgrading without a full redeploy of identity-config the following steps will be necessary to create and use group authorization:
+If upgrading without a full redeploy of keycloak the following steps will be necessary to create and use group authorization:
 1. In keycloak admin portal, in `UDS` realm, navigate to `Authentication` sidebar tab
 2. In `Authentication` tab add the `Authorization` flow to `UDS Authentication`, `UDS Registration`, `UDS Reset Credentials`
-   1. In each `Authentication` flow, `Add sub-flow`
-      1. `Name` -> `Authorization`
-      2. `Create`
-   2. Select the plus sign to `Add step` into the `Authorization` sub-flow
-      1. `Add` the `UDS Operator Group Authentication Validation`
-   * Make sure the `Authorization` flow is added at the base level and at the end of each `Authentication` flow
+   1. In each `Authentication` flow
+      1. `Add step` -> `UDS Operator Group Authentication Validation`
+      * Make sure that the step is at the base level and bottom of the Authentication flow
 3. Finally if using `SAML` IDP
    1. In the `Authentication` tab
       1. `Create Flow`
