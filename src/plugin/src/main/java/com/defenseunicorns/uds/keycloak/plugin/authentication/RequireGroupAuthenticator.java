@@ -74,11 +74,11 @@ public class RequireGroupAuthenticator implements Authenticator {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Groups groups = objectMapper.readValue(groupsAttribute, Groups.class);
-            if(groups.anyOf.length == 0) {
+            if (groups.anyOf.length == 0) {
                 LOGGER.errorf("Groups attribute does not contain a valid anyOf array");
                 return null;
             }
-            return  groups;
+            return groups;
         } catch (Exception e) {
             LOGGER.errorf("Failed to parse groups JSON: %s", e.getMessage());
             return null;
