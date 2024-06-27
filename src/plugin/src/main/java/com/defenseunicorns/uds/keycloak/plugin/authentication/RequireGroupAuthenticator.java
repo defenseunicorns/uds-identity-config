@@ -95,7 +95,12 @@ public class RequireGroupAuthenticator implements Authenticator {
         StringBuilder path = new StringBuilder();
         GroupModel currentGroup = group;
         while (currentGroup != null) {
-            path.insert(0, "/" + currentGroup.getName());
+            String groupName = currentGroup.getName();
+            if (groupName.contains("/")) {
+                LOGGER.errorf("Group name '%s' contains a slash", groupName);
+                throw new IllegalArgumentException("Group names cannot contain slashes");
+            }
+            path.insert(0, "/" + groupName);
             currentGroup = currentGroup.getParent();
         }
         return path.toString();

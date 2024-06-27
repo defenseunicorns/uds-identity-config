@@ -178,4 +178,15 @@ public class RequireGroupAuthenticatorTest {
 
         verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testShouldThrowExceptionForInvalidGroupName() {
+        GroupModel invalidGroup = mock(GroupModel.class);
+        when(invalidGroup.getName()).thenReturn("Invalid/Group");
+
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"Invalid/Group\"]}");
+        when(realm.getGroupsStream()).thenReturn(Stream.of(invalidGroup));
+        
+        authenticator.authenticate(context);
+    }
 }
