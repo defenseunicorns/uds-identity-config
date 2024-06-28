@@ -23,3 +23,28 @@ This repo builds the UDS Identity (Keycloak) Config image used by UDS Identity. 
 ## Customizing UDS Identity Config
 
 If the default realm, plugin, theme, truststore, or jars do not provide enough functionality ( or provide too much functionality ), take a look at the [CUSTOMIZE.md](./docs/CUSTOMIZE.md) docs for making changes to the identity config.
+
+
+## Upgrading Identity Config
+
+### From v0.4.5 to v0.5.0
+
+This version upgrade brings in a new Authentication Flow for group authorization.
+
+If upgrading without a full redeploy of keycloak the following steps will be necessary to create and use group authorization:
+1. In keycloak admin portal, in `UDS` realm, navigate to `Authentication` sidebar tab
+2. In `Authentication` tab add the `Authorization` flow to `UDS Authentication`, `UDS Registration`, `UDS Reset Credentials`
+   1. In each `Authentication` flow
+      1. `Add step` -> `UDS Operator Group Authentication Validation`
+      * Make sure that the step is at the base level and bottom of the Authentication flow
+3. Finally if using `SAML` IDP
+   1. In the `Authentication` tab
+      1. `Create Flow`
+      2. `Name` -> `Authorization`
+      3. `Description` -> `UDS Operator Group Authentication Validation`
+      4. `Basic Flow`
+      5. `Create`
+      6. `Add execution`
+      7. `Add` the `UDS Operator Group Authentication Validation`
+   2. In the `Identity Providers` tab, select the `SAML` Provider
+      1. Add the `Authorization` flow to the `Post login flow` in the `Advanced settings` section

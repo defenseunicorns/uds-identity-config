@@ -1723,7 +1723,7 @@
           "addReadTokenRoleOnCreate": false,
           "authenticateByDefault": false,
           "linkOnly": false,
-          "postBrokerLoginFlowAlias": "Authorization",
+          "postBrokerLoginFlowAlias": "Group Protection Authorization",
           "config": {
             "postBindingLogout": "false",
             "postBindingResponse": "true",
@@ -2257,19 +2257,18 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticatorFlow": true,
+                    "authenticator": "uds-group-restriction",
+                    "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 1,
-                    "flowAlias": "Authorization",
                     "userSetupAllowed": false,
-                    "autheticatorFlow": true
-                  }
-          
+                    "autheticatorFlow": false
+                }
             ]
         },
         {
             "id": "7d53187d-13f4-4ec6-ade0-20b7d88d9aa4",
-            "alias": "Authorization",
+            "alias": "Group Protection Authorization",
             "description": "",
             "providerId": "basic-flow",
             "topLevel": true,
@@ -2328,7 +2327,15 @@
                     "autheticatorFlow": true,
                     "flowAlias": "UDS registration form",
                     "userSetupAllowed": false
-                }
+                },
+                {
+                    "authenticator": "uds-group-restriction",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 20,
+                    "userSetupAllowed": false,
+                    "autheticatorFlow": false
+                  }
             ]
         },
         {
@@ -2362,7 +2369,15 @@
                     "priority": 30,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
-                }
+                },
+                {
+                    "authenticator": "uds-group-restriction",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 40,
+                    "userSetupAllowed": false,
+                    "autheticatorFlow": false
+                  }
             ]
         },
         {

@@ -1,7 +1,7 @@
 package com.defenseunicorns.uds.keycloak.plugin.authentication;
 
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.Arrays;
 import java.util.Optional;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
@@ -12,7 +12,6 @@ import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -40,8 +39,8 @@ public class RequireGroupAuthenticator implements Authenticator {
             return;
         }
 
-        JsonNode groupsNode = parseGroupsAttribute(groupsAttribute);
-        if (groupsNode == null) {
+        Groups groups = parseGroupsAttribute(groupsAttribute);
+        if (groups == null) {
             LOGGER.warn("Failed to parse groups JSON");
             context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             return;
@@ -49,11 +48,8 @@ public class RequireGroupAuthenticator implements Authenticator {
 
         RealmModel realm = context.getRealm();
         boolean foundGroup = false;
-        List<String> requiredGroups = new ArrayList<>();
 
-        for (JsonNode groupNode : groupsNode) {
-            String groupName = groupNode.asText();
-            requiredGroups.add(groupName);
+        for (String groupName : groups.anyOf) {
             Optional<GroupModel> group = getGroupByPath(groupName, realm);
 
             if (group.isPresent()) {
@@ -71,19 +67,20 @@ public class RequireGroupAuthenticator implements Authenticator {
             context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             return;
         }
-        LOGGER.warnf("Required group(s) %s do not exist in realm", requiredGroups);
+
+        LOGGER.warnf("Required group(s) %s do not exist in realm", Arrays.toString(groups.anyOf));
         context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
     }
 
-    private JsonNode parseGroupsAttribute(String groupsAttribute) {
+    private Groups parseGroupsAttribute(String groupsAttribute) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            JsonNode groups = objectMapper.readValue(groupsAttribute, Groups.class).path("anyOf");
-            if(groups.size() == 0) {
+            Groups groups = objectMapper.readValue(groupsAttribute, Groups.class);
+            if (groups.anyOf.length == 0) {
                 LOGGER.errorf("Groups attribute does not contain a valid anyOf array");
                 return null;
             }
-            return  groups;
+            return groups;
         } catch (Exception e) {
             LOGGER.errorf("Failed to parse groups JSON: %s", e.getMessage());
             return null;
@@ -100,7 +97,13 @@ public class RequireGroupAuthenticator implements Authenticator {
         StringBuilder path = new StringBuilder();
         GroupModel currentGroup = group;
         while (currentGroup != null) {
-            path.insert(0, "/" + currentGroup.getName());
+            String groupName = currentGroup.getName();
+            //  disallow slashes in group names to protect against Keycloak allowing unescaped slashes in group names until https://github.com/defenseunicorns/uds-identity-config/issues/118
+            if (groupName.contains("/")) {
+                LOGGER.errorf("Group name '%s' contains a slash", groupName);
+                throw new IllegalArgumentException("Group names cannot contain slashes");
+            }
+            path.insert(0, "/" + groupName);
             currentGroup = currentGroup.getParent();
         }
         return path.toString();
