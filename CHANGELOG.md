@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.4.6](https://github.com/defenseunicorns/uds-identity-config/compare/v0.4.5...v0.4.6) (2024-06-28)
+## [0.5.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.4.5...v0.5.0) (2024-06-28)
 
 
 ### Features
