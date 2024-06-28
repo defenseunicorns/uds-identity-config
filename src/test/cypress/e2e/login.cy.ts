@@ -10,6 +10,7 @@ describe("Login Flow", () => {
       password: "testingpassword1!!",
     };
 
+    cy.loginPage();
     cy.loginUser(formData.username, formData.password);
 
     // skip the DoD PKI Detected Pop Up
@@ -27,6 +28,7 @@ describe("Login Flow", () => {
       password: "PrettyUnicorns1!!",
     };
 
+    cy.loginPage();
     cy.loginUser(formData.username, formData.password);
 
     // user doesn't exist or password is incorrect

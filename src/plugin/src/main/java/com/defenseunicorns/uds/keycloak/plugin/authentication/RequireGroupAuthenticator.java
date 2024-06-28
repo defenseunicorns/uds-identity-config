@@ -1,5 +1,6 @@
 package com.defenseunicorns.uds.keycloak.plugin.authentication;
 
+
 import java.util.Arrays;
 import java.util.Optional;
 import org.jboss.logging.Logger;
@@ -66,6 +67,7 @@ public class RequireGroupAuthenticator implements Authenticator {
             context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             return;
         }
+
         LOGGER.warnf("Required group(s) %s do not exist in realm", Arrays.toString(groups.anyOf));
         context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
     }
