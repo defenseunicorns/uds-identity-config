@@ -38,9 +38,7 @@ ${msg("loginTitle",(realm.displayName!''))}
                 <div class="card">
                     <div class="card-header branding row">
                         <div class="col-sm-5 p-0">
-                            <#if client?? && client.description?has_content>
-                                <img src="${client.description}"/>
-                            <#else>
+                            <#if client??>
                                 <img src="${url.resourcesPath}/img/uds-logo.svg"/>
                             </#if>
                         </div>
