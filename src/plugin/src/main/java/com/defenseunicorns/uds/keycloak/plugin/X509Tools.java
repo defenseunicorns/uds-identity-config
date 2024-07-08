@@ -213,4 +213,24 @@ public final class X509Tools {
         }
         return null;
     }
+
+    /**
+     * Get x509 subject DN from form context.
+     *
+     * @param context a Keycloak form context
+     * @return String
+     */
+    public static String getX509SubjectDN(final FormContext context) {
+        if (context.getSession() == null || context.getHttpRequest() == null || context.getSession().getProvider(X509ClientCertificateLookup.class) == null) {
+            return null;
+        }
+
+        try {
+            X509Certificate[] certs = context.getSession().getProvider(X509ClientCertificateLookup.class).getCertificateChain(context.getHttpRequest());
+            return certs[0].getSubjectX500Principal().getName();
+        } catch (GeneralSecurityException e) {
+            LOG.error(e.getMessage());
+        }
+        return null;
+    }
 }

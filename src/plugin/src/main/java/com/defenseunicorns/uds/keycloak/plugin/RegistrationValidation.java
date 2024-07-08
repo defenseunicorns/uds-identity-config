@@ -62,6 +62,11 @@ public class RegistrationValidation extends RegistrationUserCreation {
         if (x509Username != null) {
             form.setAttribute("cacIdentity", x509Username);
         }
+
+        String subjectDN = X509Tools.getX509SubjectDN(context);
+        if (subjectDN != null) {
+            form.setAttribute("cacSubjectDN", subjectDN);
+        }
     }
 
     @Override
