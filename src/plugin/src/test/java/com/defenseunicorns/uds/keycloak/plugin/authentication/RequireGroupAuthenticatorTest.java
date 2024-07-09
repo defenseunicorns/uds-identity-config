@@ -37,7 +37,10 @@ public class RequireGroupAuthenticatorTest {
     private UserModel user;
 
     @Mock
-    private GroupModel group;
+    private GroupModel adminGroup;
+
+    @Mock
+    private GroupModel auditorGroup;
 
     @Mock
     private GroupModel parentGroup;
@@ -63,11 +66,11 @@ public class RequireGroupAuthenticatorTest {
         when(context.getAuthenticationSession()).thenReturn(authenticationSession);
         when(authenticationSession.getClient()).thenReturn(client);
 
-        when(group.getName()).thenReturn("Admin");
-        when(group.getParent()).thenReturn(parentGroup);
+        when(adminGroup.getName()).thenReturn("Admin");
+        when(adminGroup.getParent()).thenReturn(parentGroup);
         when(parentGroup.getName()).thenReturn("UDS Core");
 
-        when(realm.getGroupsStream()).thenReturn(Stream.of(group, parentGroup));
+        when(realm.getGroupsStream()).thenReturn(Stream.of(adminGroup, parentGroup));
     }
 
     @Test
@@ -82,7 +85,7 @@ public class RequireGroupAuthenticatorTest {
     @Test
     public void testShouldRejectNonGroupMembers() throws Exception {
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/Admin\"]}");
-        when(group.getName()).thenReturn("Admin");
+        when(adminGroup.getName()).thenReturn("Admin");
         when(user.getGroupsStream()).thenReturn(Stream.of()); // User is not a member of any group
 
         authenticator.authenticate(context);
@@ -102,7 +105,7 @@ public class RequireGroupAuthenticatorTest {
     @Test
     public void testShouldAcceptUserInGroup() throws Exception {
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core/Admin\"]}");
-        when(user.getGroupsStream()).thenReturn(Stream.of(group)); // User is a member of the group
+        when(user.getGroupsStream()).thenReturn(Stream.of(adminGroup)); // User is a member of the group
 
         authenticator.authenticate(context);
 
@@ -122,7 +125,7 @@ public class RequireGroupAuthenticatorTest {
     @Test
     public void testShouldRejectUserNotInParentGroup() {
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"/UDS Core\"]}");
-        when(user.getGroupsStream()).thenReturn(Stream.of(group)); // User is a member of the admin group
+        when(user.getGroupsStream()).thenReturn(Stream.of(adminGroup)); // User is a member of the admin group
 
         authenticator.authenticate(context);
 
@@ -149,7 +152,7 @@ public class RequireGroupAuthenticatorTest {
 
     @Test
     public void testShouldRejectNoGroupsArray() {
-        when(client.getAttribute("uds.core.groups")).thenReturn("{}"); // JSON without 'anyOf' array
+        when(client.getAttribute("uds.core.groups")).thenReturn("{}"); // JSON without 'anyOf' or 'allOf' array
 
         authenticator.authenticate(context);
 
@@ -188,5 +191,30 @@ public class RequireGroupAuthenticatorTest {
         when(realm.getGroupsStream()).thenReturn(Stream.of(invalidGroup));
         
         authenticator.authenticate(context);
+    }
+
+    @Test
+    public void testShouldRejectUserNotInAllRequiredGroups() throws Exception {
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"allOf\": [\"/UDS Core/Admin\", \"/UDS Core/Auditor\"]}");
+        when(user.getGroupsStream()).thenReturn(Stream.of(adminGroup)); // User is a member of the Admin group only
+
+        authenticator.authenticate(context);
+
+        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+    }
+
+    @Test
+    public void testShouldAcceptUserInAllRequiredGroups() throws Exception {
+        when(auditorGroup.getName()).thenReturn("Auditor");
+        when(auditorGroup.getParent()).thenReturn(parentGroup);
+
+        when(realm.getGroupsStream()).thenReturn(Stream.of(adminGroup, auditorGroup, parentGroup));
+
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"allOf\": [\"/UDS Core/Admin\", \"/UDS Core/Auditor\"]}");
+        when(user.getGroupsStream()).thenReturn(Stream.of(adminGroup, auditorGroup)); // User is a member of all required groups
+
+        authenticator.authenticate(context);
+
+        verify(context).success();
     }
 }

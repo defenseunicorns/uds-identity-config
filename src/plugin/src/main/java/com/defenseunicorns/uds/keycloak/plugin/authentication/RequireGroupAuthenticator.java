@@ -1,7 +1,8 @@
 package com.defenseunicorns.uds.keycloak.plugin.authentication;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
@@ -40,42 +41,31 @@ public class RequireGroupAuthenticator implements Authenticator {
 
         Groups groups = parseGroupsAttribute(groupsAttribute);
         if (groups == null) {
-            LOGGER.warn("Failed to parse groups JSON");
+            LOGGER.warn("Failed to parse groups JSON or no valid groups defined");
             context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             return;
         }
 
         RealmModel realm = context.getRealm();
-        boolean foundGroup = false;
+        List<GroupModel> realmGroups = realm.getGroupsStream().collect(Collectors.toList());
+        List<GroupModel> userGroups = user.getGroupsStream().collect(Collectors.toList());
 
-        for (String groupName : groups.anyOf) {
-            Optional<GroupModel> group = getGroupByPath(groupName, realm);
-
-            if (group.isPresent()) {
-                if (isMemberOfExactGroup(user, group.get())) {
-                    LOGGER.infof("User %s is authorized for group %s", user.getUsername(), groupName);
-                    context.success();
-                    return;
-                }
-                foundGroup = true;
-            }
-        }
-
-        if (foundGroup) {
-            LOGGER.warn("User is not a member of the required group(s)");
+        if (!isMemberOfAnyOfGroups(userGroups, realmGroups, groups.anyOf) || !isMemberOfAllOfGroups(userGroups, realmGroups, groups.allOf)) {
             context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
             return;
         }
-        LOGGER.warnf("Required group(s) %s do not exist in realm", Arrays.toString(groups.anyOf));
-        context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+
+        LOGGER.infof("User %s is authorized", user.getUsername());
+        context.success();
     }
 
     private Groups parseGroupsAttribute(String groupsAttribute) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Groups groups = objectMapper.readValue(groupsAttribute, Groups.class);
-            if (groups.anyOf.length == 0) {
-                LOGGER.errorf("Groups attribute does not contain a valid anyOf array");
+            if ((groups.anyOf == null || groups.anyOf.length == 0) && 
+                (groups.allOf == null || groups.allOf.length == 0)) {
+                LOGGER.errorf("Groups attribute does not contain a valid anyOf or allOf array");
                 return null;
             }
             return groups;
@@ -85,8 +75,37 @@ public class RequireGroupAuthenticator implements Authenticator {
         }
     }
 
-    private Optional<GroupModel> getGroupByPath(final String groupPath, final RealmModel realm) {
-        return realm.getGroupsStream()
+    private boolean isMemberOfAnyOfGroups(List<GroupModel> userGroups, List<GroupModel> realmGroups, String[] anyOfGroups) {
+        if (anyOfGroups != null) {
+            for (String groupName : anyOfGroups) {
+                Optional<GroupModel> group = getGroupByPath(groupName, realmGroups);
+
+                if (group.isPresent() && isMemberOfExactGroup(userGroups, group.get())) {
+                    return true;
+                }
+            }
+            LOGGER.warn("User is not a member of any required anyOf groups");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isMemberOfAllOfGroups(List<GroupModel> userGroups, List<GroupModel> realmGroups, String[] allOfGroups) {
+        if (allOfGroups != null) {
+            for (String groupName : allOfGroups) {
+                Optional<GroupModel> group = getGroupByPath(groupName, realmGroups);
+
+                if (group.isEmpty() || !isMemberOfExactGroup(userGroups, group.get())) {
+                    LOGGER.warn("User is not a member of all required allOf groups");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private Optional<GroupModel> getGroupByPath(final String groupPath, final List<GroupModel> allGroups) {
+        return allGroups.stream()
             .filter(group -> buildGroupPath(group).equals(groupPath))
             .findFirst();
     }
@@ -107,8 +126,8 @@ public class RequireGroupAuthenticator implements Authenticator {
         return path.toString();
     }
 
-    private boolean isMemberOfExactGroup(UserModel user, GroupModel group) {
-        return user.getGroupsStream()
+    private boolean isMemberOfExactGroup(List<GroupModel> userGroupsList, GroupModel group) {
+        return userGroupsList.stream()
             .anyMatch(userGroup -> buildGroupPath(userGroup).equals(buildGroupPath(group)));
     }
 

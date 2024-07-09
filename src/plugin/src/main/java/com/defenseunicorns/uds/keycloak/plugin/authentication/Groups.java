@@ -5,4 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Groups {
     @JsonProperty("anyOf")
     public String[] anyOf;
+
+    @JsonProperty("allOf")
+    public String[] allOf;
 }
