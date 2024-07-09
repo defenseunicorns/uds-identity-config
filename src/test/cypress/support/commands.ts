@@ -80,7 +80,7 @@ Cypress.Commands.add("loginUser", (username: string, password: string) => {
 });
 
 /**
- * Navigate to grafana ULR and verify redirected to sso.uds.dev
+ * Navigate to grafana URL and verify redirected to sso.uds.dev
  */
 Cypress.Commands.add("accessGrafana", () => {
 
