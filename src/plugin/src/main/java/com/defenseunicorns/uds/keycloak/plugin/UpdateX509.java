@@ -54,6 +54,13 @@ public class UpdateX509 implements RequiredActionProvider, RequiredActionFactory
         formData.add("username", context.getUser() != null ? context.getUser().getUsername() : "unknown user");
         formData.add("  ", X509Tools.getX509Username(context));
         formData.add("isUserEnabled", "true");
+
+        // add subjectDN for when Keycloak default subjectDN fails
+        String subjectDN = X509Tools.getX509SubjectDN(context);
+        if (subjectDN != null) {
+            formData.add("cacSubjectDN", subjectDN);
+        }
+
         context.form().setFormData(formData);
 
         Response challenge = context.form().createX509ConfirmPage();
