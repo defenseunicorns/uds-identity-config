@@ -6,7 +6,9 @@ weight: 2
 
 The plugin provides the auth flows that keycloak uses for x509 (CAC) authentication as well as some of the surrounding registration flows.
 
-One nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID.
+One of the plugin capabilities is [group authentication](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/authentication/RequireGroupAuthenticator.java). This capability allows for defining a keycloak group membership that is required to access an application. There is [an e2e test](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/group-authz.cy.ts) that demonstrates grafana being deployed and requiring that users accessing its dashboard be members of the `/UDS Core/Admin` group. There is [additional documentation](https://github.com/defenseunicorns/uds-core/blob/v0.23.0/docs/configuration/uds-operator.md?plain=1#L23-L26) for configuring an application for group authentication in uds-core.
+
+Another nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID.
 
 {{% alert-note %}}
 When creating a user via ADMIN API or ADMIN UI, the `REGISTER` event is not triggered, resulting in no Mattermost ID attribute generation. This will need to be done manually via click ops or the api. An example of how the attribute can be set via api can be seen [here](https://github.com/defenseunicorns/uds-common/blob/b2e8b25930c953ef893e7c787fe350f0d8679ee2/tasks/setup.yaml#L46).
