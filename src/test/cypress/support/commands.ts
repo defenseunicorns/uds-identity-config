@@ -71,8 +71,6 @@ Cypress.Commands.add("registrationPage", (formData: RegistrationFormData) => {
  * Supply the login page user creds and attempt to login
  */
 Cypress.Commands.add("loginUser", (username: string, password: string) => {
-  cy.loginPage();
-
   // fill in user creds
   cy.get("#username").should("be.visible").type(username);
   cy.get("#password").should("be.visible").type(password);
@@ -80,3 +78,31 @@ Cypress.Commands.add("loginUser", (username: string, password: string) => {
   // click login button
   cy.get("#kc-login").should("be.visible").click();
 });
+
+/**
+ * Navigate to grafana URL and verify redirected to sso.uds.dev
+ */
+Cypress.Commands.add("accessGrafana", () => {
+
+  cy.visit('https://grafana.admin.uds.dev');
+  // Assert that the URL is redirected to the SSO URL
+  cy.url().should('include', 'https://sso.uds.dev');
+
+  cy.avoidX509();
+
+  // Verify login page via existence of button
+  cy.get('input[name="login"][type="submit"]').should("be.visible");
+
+});
+
+/**
+ * Avoid the x509 pop up when necessary ( ex not testing with x509 cert )
+ */
+Cypress.Commands.add("avoidX509", () => {
+  // Check if the cancel button is present and click it if it is
+  cy.get('body').then($body => {
+    if ($body.find('input#kc-cancel').length > 0) {
+      cy.get('input#kc-cancel').click();
+    }
+  });
+})
