@@ -111,7 +111,10 @@ public class RegistrationValidation extends RegistrationUserCreation {
                 "user.attributes.affiliation",
                 "user.attributes.rank",
                 "user.attributes.organization",
-                "user.attributes.location"
+                "user.attributes.location",
+                "user.attributes.notes",
+                "password-confirm",
+                "password"
         );
 
         // Check for unexpected fields
