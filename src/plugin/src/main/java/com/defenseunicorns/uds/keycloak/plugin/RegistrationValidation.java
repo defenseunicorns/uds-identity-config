@@ -108,13 +108,13 @@ public class RegistrationValidation extends RegistrationUserCreation {
                 Validation.FIELD_EMAIL,
                 RegistrationPage.FIELD_FIRST_NAME,
                 RegistrationPage.FIELD_LAST_NAME,
+                RegistrationPage.FIELD_PASSWORD,
+                RegistrationPage.FIELD_PASSWORD_CONFIRM,
                 "user.attributes.affiliation",
                 "user.attributes.rank",
                 "user.attributes.organization",
                 "user.attributes.location",
-                "user.attributes.notes",
-                "password-confirm",
-                "password"
+                "user.attributes.notes"
         );
 
         // Check for unexpected fields
