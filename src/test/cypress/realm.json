@@ -9,7 +9,7 @@
     "refreshTokenMaxReuse": 0,
     "accessTokenLifespan": 300,
     "accessTokenLifespanForImplicitFlow": 900,
-    "ssoSessionIdleTimeout": 1800,
+    "ssoSessionIdleTimeout": 600,
     "ssoSessionMaxLifespan": 36000,
     "ssoSessionIdleTimeoutRememberMe": 0,
     "ssoSessionMaxLifespanRememberMe": 0,
@@ -45,7 +45,7 @@
     "waitIncrementSeconds": 60,
     "quickLoginCheckMilliSeconds": 1000,
     "maxDeltaTimeSeconds": 43200,
-    "failureFactor": 5,
+    "failureFactor": 3,
     "users": [
         {
             "id": "123",
@@ -54,7 +54,7 @@
             "credentials": [
                 {
                     "type": "password",
-                    "value": "testingpassword1!!"
+                    "value": "Testingpassword1!!"
                 }
             ],
             "firstName": "Testing",
@@ -71,7 +71,7 @@
             "credentials": [
                 {
                     "type": "password",
-                    "value": "testingpassword1!!"
+                    "value": "Testingpassword1!!"
                 }
             ],
             "firstName": "Testing",
@@ -474,7 +474,7 @@
     "requiredCredentials": [
         "password"
     ],
-    "passwordPolicy": "${REALM_PASSWORD_POLICY:hashAlgorithm(pbkdf2-sha256) and forceExpiredPasswordChange(90) and specialChars(2) and passwordHistory(5) and length(12) and notUsername(undefined)}",
+    "passwordPolicy": "${REALM_PASSWORD_POLICY:hashAlgorithm(pbkdf2-sha256) and forceExpiredPasswordChange(60) and specialChars(2) and digits(1) and lowerCase(1) and upperCase(1) and passwordHistory(5) and length(15) and notUsername(undefined)}",
     "otpPolicyType": "totp",
     "otpPolicyAlgorithm": "HmacSHA1",
     "otpPolicyInitialCounter": 0,
