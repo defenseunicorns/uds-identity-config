@@ -17,6 +17,7 @@ import org.keycloak.services.validation.Validation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class RegistrationValidation extends RegistrationUserCreation {
 
@@ -100,6 +101,28 @@ public class RegistrationValidation extends RegistrationUserCreation {
         String email = formData.getFirst(Validation.FIELD_EMAIL);
 
         String eventError = Errors.INVALID_REGISTRATION;
+
+        // Expected form fields
+        Set<String> expectedFields = Set.of(
+                Validation.FIELD_USERNAME,
+                Validation.FIELD_EMAIL,
+                RegistrationPage.FIELD_FIRST_NAME,
+                RegistrationPage.FIELD_LAST_NAME,
+                RegistrationPage.FIELD_PASSWORD,
+                RegistrationPage.FIELD_PASSWORD_CONFIRM,
+                "user.attributes.affiliation",
+                "user.attributes.rank",
+                "user.attributes.organization",
+                "user.attributes.location",
+                "user.attributes.notes"
+        );
+
+        // Check for unexpected fields
+        for (String key : formData.keySet()) {
+            if (!expectedFields.contains(key)) {
+                errors.add(new FormMessage("UnexpectedField", "Unexpected form field: " + key));
+            }
+        }
 
         // Require a username
         if (Validation.isBlank(username)) {
