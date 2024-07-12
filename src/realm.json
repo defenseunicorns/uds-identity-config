@@ -2355,18 +2355,10 @@
                     "userSetupAllowed": false
                 },
                 {
-                  "authenticator": "auth-otp-form",
-                  "authenticatorFlow": false,
-                  "requirement": "REQUIRED",
-                  "priority": 20,
-                  "autheticatorFlow": false,
-                  "userSetupAllowed": false
-                },
-                {
                     "authenticator": "reset-credential-email",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
-                    "priority": 30,
+                    "priority": 20,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 },
@@ -2374,7 +2366,7 @@
                     "authenticator": "reset-password",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
-                    "priority": 40,
+                    "priority": 30,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 },
@@ -2382,7 +2374,7 @@
                     "authenticator": "uds-group-restriction",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
-                    "priority": 41,
+                    "priority": 40,
                     "userSetupAllowed": false,
                     "autheticatorFlow": false
                   }
