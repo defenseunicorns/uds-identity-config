@@ -2150,7 +2150,7 @@
                     "priority": 40,
                     "userSetupAllowed": false,
                     "autheticatorFlow": false
-                  }
+                }
             ]
         },
         {
