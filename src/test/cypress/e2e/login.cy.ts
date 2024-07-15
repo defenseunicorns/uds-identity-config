@@ -7,7 +7,7 @@ describe("Login Flow", () => {
       firstName: "Testing",
       lastName: "User",
       username: "testing_user",
-      password: "testingpassword1!!",
+      password: "Testingpassword1!!",
     };
 
     cy.loginPage();
