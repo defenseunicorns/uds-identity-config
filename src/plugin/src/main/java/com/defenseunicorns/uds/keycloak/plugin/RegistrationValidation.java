@@ -101,7 +101,6 @@ public class RegistrationValidation extends RegistrationUserCreation {
 
         String eventError = Errors.INVALID_REGISTRATION;
 
-
         // Require a username
         if (Validation.isBlank(username)) {
             errors.add(new FormMessage(Validation.FIELD_USERNAME, Messages.MISSING_USERNAME));

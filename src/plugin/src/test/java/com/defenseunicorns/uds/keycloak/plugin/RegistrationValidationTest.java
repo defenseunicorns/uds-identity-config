@@ -69,6 +69,71 @@ public class RegistrationValidationTest {
     }
 
     @Test
+    public void testUnexpectedFormField() {
+        String[] errorEvent = new String[1];
+        List<FormMessage> errors = new ArrayList<>();
+        Map<String, List<String>> valueMap = new HashMap<>();
+        
+        // Populate the valueMap with test data
+        valueMap.put("firstName", List.of("Jone"));
+        valueMap.put("lastName", List.of("Doe"));
+        valueMap.put("username", List.of("tester"));
+        valueMap.put("user.attributes.affiliation", List.of("AF"));
+        valueMap.put("user.attributes.rank", List.of("E2"));
+        valueMap.put("user.attributes.organization", List.of("Com"));
+        valueMap.put("user.attributes.location", List.of("42"));
+        valueMap.put("email", List.of("test@gmail.com"));
+
+        // Unexpected Form Field
+        valueMap.put("unexpectedField", List.of("fake_value"));
+
+        // Set up your test context
+        ValidationContext context = ValidationUtils.setupVariables(errorEvent, errors, valueMap);
+        RegistrationValidation validation = new RegistrationValidation();
+        validation.validate(context);
+
+        // Assert that there is an error for the UnexpectedFormField
+        Assert.assertEquals(1, errors.size());
+        Assert.assertEquals(Errors.INVALID_REGISTRATION, errorEvent[0]);
+        Set<String> errorFields = errors.stream().map(FormMessage::getField).collect(Collectors.toSet());
+        Set<String> expectedErrorFields = new HashSet<>(List.of("UnexpectedField"));
+        Assert.assertEquals(expectedErrorFields, errorFields);
+    }
+
+    @Test
+    public void testMultipleUnexpectedFormField() {
+        String[] errorEvent = new String[1];
+        List<FormMessage> errors = new ArrayList<>();
+        Map<String, List<String>> valueMap = new HashMap<>();
+        
+        // Populate the valueMap with test data
+        valueMap.put("firstName", List.of("Jone"));
+        valueMap.put("lastName", List.of("Doe"));
+        valueMap.put("username", List.of("tester"));
+        valueMap.put("user.attributes.affiliation", List.of("AF"));
+        valueMap.put("user.attributes.rank", List.of("E2"));
+        valueMap.put("user.attributes.organization", List.of("Com"));
+        valueMap.put("user.attributes.location", List.of("42"));
+        valueMap.put("email", List.of("test@gmail.com"));
+
+        // Unexpected Form Field
+        valueMap.put("unexpectedField", List.of("fake_value"));
+        valueMap.put("user.attributes.someotherfield", List.of("some_other_fake_value"));
+
+        // Set up your test context
+        ValidationContext context = ValidationUtils.setupVariables(errorEvent, errors, valueMap);
+        RegistrationValidation validation = new RegistrationValidation();
+        validation.validate(context);
+
+        // Assert that there is an error for the UnexpectedFormField
+        Assert.assertEquals(2, errors.size());
+        Assert.assertEquals(Errors.INVALID_REGISTRATION, errorEvent[0]);
+        Set<String> errorFields = errors.stream().map(FormMessage::getField).collect(Collectors.toSet());
+        Set<String> expectedErrorFields = new HashSet<>(List.of("UnexpectedField"));
+        Assert.assertEquals(expectedErrorFields, errorFields);
+    }
+
+    @Test
     public void testEmailValidation() {
         String[] errorEvent = new String[1];
         List<FormMessage> errors = new ArrayList<>();
