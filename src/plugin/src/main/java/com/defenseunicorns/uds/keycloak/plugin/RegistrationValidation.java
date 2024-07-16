@@ -120,18 +120,18 @@ public class RegistrationValidation extends RegistrationUserCreation {
         }
 
         // Require a DoD affiliation
-        if (Validation.isBlank(formData.getFirst("user.attributes.affiliation"))) {
-            errors.add(new FormMessage("user.attributes.affiliation", "Please specify your organization affiliation."));
+        if (Validation.isBlank(formData.getFirst("affiliation"))) {
+            errors.add(new FormMessage("affiliation", "Please specify your organization affiliation."));
         }
 
         // Require a rank
-        if (Validation.isBlank(formData.getFirst("user.attributes.rank"))) {
-            errors.add(new FormMessage("user.attributes.rank", "Please specify your rank or choose n/a."));
+        if (Validation.isBlank(formData.getFirst("rank"))) {
+            errors.add(new FormMessage("rank", "Please specify your rank or choose n/a."));
         }
 
         // Require an organization
-        if (Validation.isBlank(formData.getFirst("user.attributes.organization"))) {
-            errors.add(new FormMessage("user.attributes.organization", "Please specify your organization."));
+        if (Validation.isBlank(formData.getFirst("organization"))) {
+            errors.add(new FormMessage("organization", "Please specify your organization."));
         }
 
         // Check if a X509 was used to authenticate and if it's already registered

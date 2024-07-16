@@ -50,9 +50,9 @@ public class RegistrationValidationTest {
         valueMap.put("firstName", new ArrayList<>());
         valueMap.put("lastName", new ArrayList<>());
         valueMap.put("username", new ArrayList<>());
-        valueMap.put("user.attributes.affiliation", new ArrayList<>());
-        valueMap.put("user.attributes.rank", new ArrayList<>());
-        valueMap.put("user.attributes.organization", new ArrayList<>());
+        valueMap.put("affiliation", new ArrayList<>());
+        valueMap.put("rank", new ArrayList<>());
+        valueMap.put("organization", new ArrayList<>());
         valueMap.put("email", new ArrayList<>());
 
         // Set up your test context
@@ -63,7 +63,7 @@ public class RegistrationValidationTest {
         // Assertions
         Assert.assertEquals(Errors.INVALID_REGISTRATION, errorEvent[0]);
         Set<String> errorFields = errors.stream().map(FormMessage::getField).collect(Collectors.toSet());
-        Set<String> expectedErrorFields = new HashSet<>(List.of("firstName", "lastName", "username", "user.attributes.affiliation", "user.attributes.rank", "user.attributes.organization", "email"));
+        Set<String> expectedErrorFields = new HashSet<>(List.of("firstName", "lastName", "username", "affiliation", "rank", "organization", "email"));
         Assert.assertEquals(expectedErrorFields, errorFields);
         Assert.assertEquals(7, errors.size());
     }
@@ -78,10 +78,10 @@ public class RegistrationValidationTest {
         valueMap.put("firstName", List.of("Jone"));
         valueMap.put("lastName", List.of("Doe"));
         valueMap.put("username", List.of("tester"));
-        valueMap.put("user.attributes.affiliation", List.of("AF"));
-        valueMap.put("user.attributes.rank", List.of("E2"));
-        valueMap.put("user.attributes.organization", List.of("Com"));
-        valueMap.put("user.attributes.location", List.of("42"));
+        valueMap.put("affiliation", List.of("AF"));
+        valueMap.put("rank", List.of("E2"));
+        valueMap.put("organization", List.of("Com"));
+        valueMap.put("location", List.of("42"));
         valueMap.put("email", List.of("test@gmail.com"));
 
         // Set up your test context
@@ -117,10 +117,10 @@ public class RegistrationValidationTest {
         valueMap.put("firstName", List.of("Jone"));
         valueMap.put("lastName", List.of("Doe"));
         valueMap.put("username", List.of("tester"));
-        valueMap.put("user.attributes.affiliation", List.of("AF"));
-        valueMap.put("user.attributes.rank", List.of("E2"));
-        valueMap.put("user.attributes.organization", List.of("Com"));
-        valueMap.put("user.attributes.location", List.of("42"));
+        valueMap.put("affiliation", List.of("AF"));
+        valueMap.put("rank", List.of("E2"));
+        valueMap.put("organization", List.of("Com"));
+        valueMap.put("location", List.of("42"));
         valueMap.put("email", List.of("test@gmail.com"));
 
         // Set up your test context
