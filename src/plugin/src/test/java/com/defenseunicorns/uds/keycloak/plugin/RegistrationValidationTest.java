@@ -178,9 +178,15 @@ public class RegistrationValidationTest {
         RegistrationValidation subject = new RegistrationValidation();
         FormContext context = mock(FormContext.class);
         LoginFormsProvider form = mock(LoginFormsProvider.class);
+
+        // Mock the X509Tools to return a non-null value for getX509SubjectDN
+        PowerMockito.mockStatic(X509Tools.class);
+        when(X509Tools.getX509SubjectDN(any(FormContext.class))).thenReturn("subjectDN");
+
         subject.buildPage(context, form);
 
-        verify(form).setAttribute("cacIdentity", "thing");
+        // Verify that the setAttribute method was called with the expected arguments
+        verify(form).setAttribute("cacSubjectDN", "subjectDN");
     }
 
     @Test
