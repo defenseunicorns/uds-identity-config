@@ -50,7 +50,7 @@ ${msg("loginTitle",(realm.displayName!''))}
                                     </h2>
                                 <#else>
                                     <h2 class="client-unique-name">
-                                        ${client.name?no_esc}
+                                        ${kcSanitize(client.name)?no_esc}
                                     </h2>
                                 </#if>
                             <#else>

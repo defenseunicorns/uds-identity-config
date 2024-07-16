@@ -61,10 +61,15 @@
       "updateTypes": ["patch"],
       "labels": ["renovate/helm-release", "dependency/patch"]
     },
-    {   
+    {
       "description": "Group Github Actions and vscode/settings.json updates.",
       "matchPaths": [".github/**", ".vscode/settings.json"],
       "groupName": "GHA-DEPS"
+    },
+    {
+      "description": "Group updates in src/plugin files into plugin-deps group.",
+      "matchPaths": ["src/plugin/pom.xml"],
+      "groupName": "plugin-deps"
     }
   ],
   "regexManagers":[
@@ -75,6 +80,6 @@
       ],
       "versioningTemplate": "semver-coerced",
       "datasourceTemplate": "github-tags"
-    }  
+    }
   ]
 }
