@@ -4,7 +4,7 @@ describe('Group Authorization', () => {
   it('Grafana Admin User - Success', () => {
     const formData: RegistrationFormData = {
       username: "testing_admin",
-      password: "testingpassword1!!",
+      password: "Testingpassword1!!",
     };
 
     // navigate to grafana dashboard
@@ -23,7 +23,7 @@ describe('Group Authorization', () => {
   it('Grafana Auditor User - Failure', () => {
     const formData: RegistrationFormData = {
       username: "testing_user",
-      password: "testingpassword1!!",
+      password: "Testingpassword1!!",
     };
 
     // navigate to grafana dashboard

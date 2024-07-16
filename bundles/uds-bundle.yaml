@@ -8,12 +8,12 @@ packages:
   - name: uds-k3d-dev
     repository: ghcr.io/defenseunicorns/packages/uds-k3d
     # renovate: datasource=github-tags depName=defenseunicorns/uds-k3d versioning=semver
-    ref: 0.7.0
+    ref: 0.8.0
 
   - name: init
     repository: ghcr.io/defenseunicorns/packages/init
     # renovate: datasource=github-tags depName=defenseunicorns/zarf versioning=semver
-    ref: v0.34.0
+    ref: v0.36.0
 
   - name: keycloak-identity-config
     path: ../
@@ -22,7 +22,7 @@ packages:
   - name: core-slim-dev
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.23.0
+    ref: 0.24.0
     overrides:
       keycloak:
         keycloak:
