@@ -63,9 +63,9 @@ public class RegistrationValidationTest {
         // Assertions
         Assert.assertEquals(Errors.INVALID_REGISTRATION, errorEvent[0]);
         Set<String> errorFields = errors.stream().map(FormMessage::getField).collect(Collectors.toSet());
-        Set<String> expectedErrorFields = new HashSet<>(List.of("firstName", "lastName", "username", "email"));
+        Set<String> expectedErrorFields = new HashSet<>(List.of("firstName", "lastName", "username", "user.attributes.affiliation", "user.attributes.rank", "user.attributes.organization", "email"));
         Assert.assertEquals(expectedErrorFields, errorFields);
-        Assert.assertEquals(4, errors.size());
+        Assert.assertEquals(7, errors.size());
     }
 
     @Test
