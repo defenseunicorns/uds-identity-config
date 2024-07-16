@@ -12,7 +12,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.22.2"
+    default: "v0.24.0"
 
 tasks:
   - name: build-and-publish
@@ -102,16 +102,25 @@ tasks:
     actions:
       - description: Build identity config image
         cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" --build-arg REALM_FILE="test/cypress/realm.json" -t uds-core-config:keycloak --no-cache src
-
       - task: clone-core
-
-      - description: Copy cacert value into uds-core istio gateways
-        task: uds-core-gateway-cacert
-
+      - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
+      - task: grafana-group-auth-build-deploy
+      - task: cypress-tests
 
-      - description: Run integration cypress tests
-        task: cypress-tests
+  - name: grafana-group-auth-build-deploy
+    description: Configure existing uds-core/grafana package for group authz, build, deploy grafana
+    actions:
+      - cmd: |
+          sed -i '/^\s*sso:/,/^\s*-\s*name:/ { 
+            /groups:/d
+            /^\s*-\s*name:/a \ \ \ \ \ \ groups:\n\ \ \ \ \ \ \ \ anyOf:\n\ \ \ \ \ \ \ \ \ - \/UDS Core\/Admin
+          }' uds-core/src/grafana/chart/templates/uds-package.yaml
+
+      - cmd: |
+          cd uds-core
+          UDS_PKG=grafana uds run create-single-package
+          uds zarf package deploy build/zarf-package-uds-core-grafana-amd64.tar.zst --confirm --no-progress
 
   - name: clone-core
     description: "Clone UDS Core for integration testing"

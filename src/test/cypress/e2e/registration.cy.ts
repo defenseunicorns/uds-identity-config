@@ -101,7 +101,7 @@ describe("Registration Tests", () => {
     cy.registrationPage(formData);
 
     // password isn't long enough
-    cy.contains("span.message-details", "Invalid password: minimum length 12.").should(
+    cy.contains("span.message-details", "Invalid password: minimum length 15.").should(
       "be.visible",
     );
   });
