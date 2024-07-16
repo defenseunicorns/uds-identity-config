@@ -35,7 +35,7 @@ public class RequireGroupAuthenticator implements Authenticator {
 
         if (groupsAttribute == null || groupsAttribute.isEmpty()) {
             LOGGER.infof("No groups detected for client %s", client.getName());
-            context.success();
+            success(context, user);
             return;
         }
 
@@ -55,7 +55,7 @@ public class RequireGroupAuthenticator implements Authenticator {
             if (group.isPresent()) {
                 if (isMemberOfExactGroup(user, group.get())) {
                     LOGGER.infof("User %s is authorized for group %s", user.getUsername(), groupName);
-                    context.success();
+                    success(context, user);
                     return;
                 }
                 foundGroup = true;
@@ -107,6 +107,11 @@ public class RequireGroupAuthenticator implements Authenticator {
             currentGroup = currentGroup.getParent();
         }
         return path.toString();
+    }
+
+    private void success(final AuthenticationFlowContext context, final UserModel user) {
+        user.addRequiredAction("TERMS_AND_CONDITIONS");
+        context.success();
     }
 
     private boolean isMemberOfExactGroup(UserModel user, GroupModel group) {
