@@ -255,7 +255,9 @@ public final class X509Tools {
 
                 try {
                     X509Certificate[] certs = provider.getCertificateChain(httpRequest);
-                    return certs[0].getSubjectX500Principal().getName();
+                    if (certs != null && certs.length > 0) {
+                        return certs[0].getSubjectX500Principal().getName();
+                    }
                 } catch (GeneralSecurityException e) {
                     LOG.error(e.getMessage());
                 }
