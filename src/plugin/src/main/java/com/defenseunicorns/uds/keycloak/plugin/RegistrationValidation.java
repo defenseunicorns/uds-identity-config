@@ -17,7 +17,6 @@ import org.keycloak.services.validation.Validation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class RegistrationValidation extends RegistrationUserCreation {
 
@@ -59,9 +58,9 @@ public class RegistrationValidation extends RegistrationUserCreation {
 
     @Override
     public void buildPage(final FormContext context, final LoginFormsProvider form) {
-        String x509Username = X509Tools.getX509Username(context);
-        if (x509Username != null) {
-            form.setAttribute("cacIdentity", x509Username);
+        String subjectDN = X509Tools.getX509SubjectDN(context);
+        if (subjectDN != null) {
+            form.setAttribute("cacSubjectDN", subjectDN);
         }
     }
 
@@ -102,28 +101,6 @@ public class RegistrationValidation extends RegistrationUserCreation {
 
         String eventError = Errors.INVALID_REGISTRATION;
 
-        // Expected form fields
-        Set<String> expectedFields = Set.of(
-                Validation.FIELD_USERNAME,
-                Validation.FIELD_EMAIL,
-                RegistrationPage.FIELD_FIRST_NAME,
-                RegistrationPage.FIELD_LAST_NAME,
-                RegistrationPage.FIELD_PASSWORD,
-                RegistrationPage.FIELD_PASSWORD_CONFIRM,
-                "user.attributes.affiliation",
-                "user.attributes.rank",
-                "user.attributes.organization",
-                "user.attributes.location",
-                "user.attributes.notes"
-        );
-
-        // Check for unexpected fields
-        for (String key : formData.keySet()) {
-            if (!expectedFields.contains(key)) {
-                errors.add(new FormMessage("UnexpectedField", "Unexpected form field: " + key));
-            }
-        }
-
         // Require a username
         if (Validation.isBlank(username)) {
             errors.add(new FormMessage(Validation.FIELD_USERNAME, Messages.MISSING_USERNAME));
@@ -143,18 +120,18 @@ public class RegistrationValidation extends RegistrationUserCreation {
         }
 
         // Require a DoD affiliation
-        if (Validation.isBlank(formData.getFirst("user.attributes.affiliation"))) {
-            errors.add(new FormMessage("user.attributes.affiliation", "Please specify your organization affiliation."));
+        if (Validation.isBlank(formData.getFirst("affiliation"))) {
+            errors.add(new FormMessage("affiliation", "Please specify your organization affiliation."));
         }
 
         // Require a rank
-        if (Validation.isBlank(formData.getFirst("user.attributes.rank"))) {
-            errors.add(new FormMessage("user.attributes.rank", "Please specify your rank or choose n/a."));
+        if (Validation.isBlank(formData.getFirst("rank"))) {
+            errors.add(new FormMessage("rank", "Please specify your rank or choose n/a."));
         }
 
         // Require an organization
-        if (Validation.isBlank(formData.getFirst("user.attributes.organization"))) {
-            errors.add(new FormMessage("user.attributes.organization", "Please specify your organization."));
+        if (Validation.isBlank(formData.getFirst("organization"))) {
+            errors.add(new FormMessage("organization", "Please specify your organization."));
         }
 
         // Check if a X509 was used to authenticate and if it's already registered

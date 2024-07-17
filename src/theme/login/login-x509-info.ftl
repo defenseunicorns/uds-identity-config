@@ -9,10 +9,15 @@
                             <p id="certificate_subjectDN" class="">
                                 ${(x509.formData.subjectDN!"")}
                             </p>
-                            <#else>
-                                <p id="certificate_subjectDN" class="">
-                                    ${msg("noCertificate")}
-                                </p>
+                        <#-- Properly display subjectDN on initial registration -->
+                        <#elseif x509.formData.cacSubjectDN??>
+                            <p id="certificate_subjectDN" class="">
+                                ${(x509.formData.cacSubjectDN!"")}
+                            </p>
+                        <#else>
+                            <p id="certificate_subjectDN" class="">
+                                ${msg("noCertificate")}
+                            </p>
                         </#if>
                     </div>
                 </div>
