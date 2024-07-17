@@ -25,19 +25,19 @@
                         <li>This IS includes security measures (e.g., authentication and access controls) to protect USG
                             interests--not for your personal benefit or privacy.
                         </li>
-                        <li>NOTICE: There is the potential that information presented and exported from the Platform One
+                        <li>NOTICE: There is the potential that information presented and exported from the UDS Platform
                             contains FOUO or Controlled Unclassified Information (CUI). It is the responsibility of all
-                            users to ensure information extracted from Platform One is appropriately marked and properly
+                            users to ensure information extracted from UDS Platform is appropriately marked and properly
                             safeguarded. If you are not sure of the safeguards necessary for the information, contact your
                             functional lead or Information Security Officer.
                         </li>
-                        <li>As a user of this IS, you may have access to USG’s Platform One. Third-party software publishers
+                        <li>As a user of this IS, you may have access to USG’s UDS Platform. Third-party software publishers
                             (“Vendors”) provide proprietary software, applications, and/or source code (including any proprietary
                             data made available through such third-party software) (collectively, “Third-Party Software”) to the USG
                             solely in order for the USG to harden such Third-Party Software and make such hardened versions of the
-                            Third Party Software available to users of Platform One. In the event you use the IS
-                            (including Platform One) to access, download, execute, display and/or otherwise use (collectively, “Use”)
-                            such Third-Party Software, by Using the IS (including Platform One) and/or such Third-Party Software,
+                            Third Party Software available to users of UDS Platform. In the event you use the IS
+                            (including UDS Platform) to access, download, execute, display and/or otherwise use (collectively, “Use”)
+                            such Third-Party Software, by Using the IS (including UDS Platform) and/or such Third-Party Software,
                             you, on behalf of your organization, hereby agree that all Use of such Third-Party Software is governed by
                             the Vendor’s end user license agreement (“Vendor EULA”), which may be enforced directly by Vendor and/or USG.
                             If you do not agree to the entirety of the applicable vendor eula, you are prohibited from using all or any
