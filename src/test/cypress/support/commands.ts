@@ -53,8 +53,8 @@ Cypress.Commands.add("registrationPage", (formData: RegistrationFormData) => {
   }
 
   // Fill Registration form Drop-downs
-  cy.get("#user\\.attributes\\.affiliation").should("be.visible").select(formData.affiliation);
-  cy.get("#user\\.attributes\\.rank").should("be.visible").select(formData.payGrade);
+  cy.get("#affiliation").should("be.visible").select(formData.affiliation);
+  cy.get("#rank").should("be.visible").select(formData.payGrade);
 
   // bypass human confidence check by filling the access request notes textarea
   cy.get("body")
