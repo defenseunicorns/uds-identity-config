@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-    <@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm'); section>
+    <@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm', 'affiliation', 'rank', 'organization', 'notes'); section>
         <#if section="form">
             <form action="/chuck-norris-calendar-goes-straight-from-march-31st-to-april-2nd-because-no-one-fools-chuck-norris"
                 id="unicorn-registration-form" method="post">
@@ -38,9 +38,9 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-6 form-group ${messagesPerField.printIfExists('user.attributes.affiliation','has-error')}">
-                        <label for="user.attributes.affiliation" class="form-label">Affiliation</label>
-                        <select id="user.attributes.affiliation" name="user.attributes.affiliation" class="form-control">
+                    <div class="col-lg-6 form-group ${messagesPerField.printIfExists('affiliation','has-error')}">
+                        <label for="affiliation" class="form-label">Affiliation</label>
+                        <select id="affiliation" name="affiliation" class="form-control">
                             <option selected disabled hidden>Select your org</option>
                             <optgroup label="US Government">
                                 <option>US Air Force</option>
@@ -67,15 +67,15 @@
                                 <option>Other</option>
                             </optgroup>
                         </select>
-                        <#if messagesPerField.existsError('user.attributes.affiliation')>
+                        <#if messagesPerField.existsError('affiliation')>
                             <span class="message-details" aria-live="polite">
-                                ${kcSanitize(messagesPerField.get('user.attributes.affiliation'))?no_esc}
+                                ${kcSanitize(messagesPerField.get('affiliation'))?no_esc}
                             </span>
                         </#if>
                     </div>
-                    <div class="col-lg-6 form-group ${messagesPerField.printIfExists('user.attributes.rank','has-error')}">
-                        <label for="user.attributes.rank" class="form-label">Pay Grade</label>
-                        <select id="user.attributes.rank" name="user.attributes.rank" class="form-control">
+                    <div class="col-lg-6 form-group ${messagesPerField.printIfExists('rank','has-error')}">
+                        <label for="rank" class="form-label">Pay Grade</label>
+                        <select id="rank" name="rank" class="form-control">
                             <option selected disabled hidden>Select your rank</option>
                             <optgroup label="Enlisted">
                                 <option>E-1</option>
@@ -127,27 +127,27 @@
                             </optgroup>
                             <option>N/A</option>
                         </select>
-                        <#if messagesPerField.existsError('user.attributes.rank')>
+                        <#if messagesPerField.existsError('rank')>
                             <span class="message-details" aria-live="polite">
-                                ${kcSanitize(messagesPerField.get('user.attributes.rank'))?no_esc}
+                                ${kcSanitize(messagesPerField.get('rank'))?no_esc}
                             </span>
                         </#if>
                     </div>
                 </div>
-                <div class="form-group ${messagesPerField.printIfExists('user.attributes.organization','has-error')}">
-                    <label for="user.attributes.organization" class="form-label">Unit, Organization or Company Name</label>
-                    <input id="user.attributes.organization" class="form-control" name="user.attributes.organization" type="text"
-                        value="${(register.formData['user.attributes.organization']!'')}" autocomplete="company" />
-                    <#if messagesPerField.existsError('user.attributes.organization')>
+                <div class="form-group ${messagesPerField.printIfExists('organization','has-error')}">
+                    <label for="organization" class="form-label">Unit, Organization or Company Name</label>
+                    <input id="organization" class="form-control" name="organization" type="text"
+                        value="${(register.formData['organization']!'')}" autocomplete="company" />
+                    <#if messagesPerField.existsError('organization')>
                         <span class="message-details" aria-live="polite">
-                            ${kcSanitize(messagesPerField.get('user.attributes.organization'))?no_esc}
+                            ${kcSanitize(messagesPerField.get('organization'))?no_esc}
                         </span>
                     </#if>
                 </div>
                 <div class="location-input">
                     <div class="form-group">
-                        <label for="user.attributes.location" class="form-label">Location</label>
-                        <input id="user.attributes.location" class="form-control" name="user.attributes.location" tabindex="-1 type=" text" />
+                        <label for="location" class="form-label">Location</label>
+                        <input id="location" class="form-control" name="location" tabindex="-1 type=" text" />
                     </div>
                 </div>
                 <#if !realm.registrationEmailAsUsername>
@@ -177,10 +177,10 @@
                     </#if>
                 </div>
                 <div class="form-group ${messagesPerField.printIfExists('notes','has-error')}">
-                    <label for="user.attributes.notes" class="form-label ">
+                    <label for="notes" class="form-label ">
                         ${msg("accessRequest")}
                     </label>
-                    <textarea id="user.attributes.notes" class="form-control " name="user.attributes.notes"></textarea>
+                    <textarea id="notes" class="form-control " name="notes"></textarea>
                 </div>
                 <div class="form-group ${messagesPerField.printIfExists('password','has-error')}">
                     <#if cacSubjectDN??>
@@ -243,8 +243,8 @@
         </#if>
     </@layout.registrationLayout>
     <script>
-    document.getElementById('user.attributes.affiliation').value = "${(register.formData['user.attributes.affiliation']!'')}";
-    document.getElementById('user.attributes.rank').value = "${(register.formData['user.attributes.rank']!'')}";
+    document.getElementById('affiliation').value = "${(register.formData['affiliation']!'')}";
+    document.getElementById('rank').value = "${(register.formData['rank']!'')}";
     (function() {
         const threshold = 250;
         let count = 0;
@@ -269,7 +269,7 @@
                 complete = true;
                 const form = document.getElementById('unicorn-registration-form');
                 const register = document.getElementById('do-register');
-                const location = document.getElementById('user.attributes.location');
+                const location = document.getElementById('location');
                 location.value = '42';
                 footer.parentNode.removeChild(footer);
                 form.setAttribute('action', '${url.registrationAction?no_esc}');
