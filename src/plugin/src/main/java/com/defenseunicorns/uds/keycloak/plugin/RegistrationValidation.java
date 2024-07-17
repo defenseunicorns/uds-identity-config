@@ -58,9 +58,9 @@ public class RegistrationValidation extends RegistrationUserCreation {
 
     @Override
     public void buildPage(final FormContext context, final LoginFormsProvider form) {
-        String x509Username = X509Tools.getX509Username(context);
-        if (x509Username != null) {
-            form.setAttribute("cacIdentity", x509Username);
+        String subjectDN = X509Tools.getX509SubjectDN(context);
+        if (subjectDN != null) {
+            form.setAttribute("cacSubjectDN", subjectDN);
         }
     }
 

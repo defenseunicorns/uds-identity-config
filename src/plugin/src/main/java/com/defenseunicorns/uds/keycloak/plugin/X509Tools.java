@@ -213,4 +213,56 @@ public final class X509Tools {
         }
         return null;
     }
+
+    /**
+     * Get x509 subject DN from form context.
+     *
+     * @param context a Keycloak form context
+     * @return String
+     */
+    public static String getX509SubjectDN(final FormContext context) {
+        if (context.getSession() == null || context.getHttpRequest() == null || context.getSession().getProvider(X509ClientCertificateLookup.class) == null) {
+            return null;
+        }
+
+        return getX509SubjectDN(context.getSession(), context.getHttpRequest(), context.getSession().getProvider(X509ClientCertificateLookup.class));
+    }
+
+        /**
+     * Get x509 subject DN from form context.
+     *
+     * @param context a Keycloak form context
+     * @return String
+     */
+    public static String getX509SubjectDN(RequiredActionContext context) {
+        if (context.getSession() == null || context.getHttpRequest() == null || context.getSession().getProvider(X509ClientCertificateLookup.class) == null) {
+            return null;
+        }
+
+        return getX509SubjectDN(context.getSession(), context.getHttpRequest(), context.getSession().getProvider(X509ClientCertificateLookup.class));
+    }
+
+    /**
+     * Get x509 subject DN from form context.
+     *
+     * @param Keycloak form keycloak session
+     * @param Keycloak form context http request
+     * @param Keycloak form keycloak session provider certificate lookup
+     * @return String
+     */
+    public static String getX509SubjectDN(KeycloakSession session, HttpRequest httpRequest,
+            X509ClientCertificateLookup provider) {
+
+                try {
+                    X509Certificate[] certs = provider.getCertificateChain(httpRequest);
+                    if (certs != null && certs.length > 0) {
+                        return certs[0].getSubjectX500Principal().getName();
+                    }
+                } catch (GeneralSecurityException e) {
+                    LOG.error(e.getMessage());
+                }
+                return null;
+    }
+
+
 }

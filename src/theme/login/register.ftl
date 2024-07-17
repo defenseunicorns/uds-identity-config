@@ -3,11 +3,11 @@
         <#if section="form">
             <form action="/chuck-norris-calendar-goes-straight-from-march-31st-to-april-2nd-because-no-one-fools-chuck-norris"
                 id="unicorn-registration-form" method="post">
-                <#if cacIdentity??>
+                <#if cacSubjectDN??>
                     <div class="alert alert-info cac-info">
                         <h2>DoD PKI User Registration</h2>
                         <p>
-                            ${cacIdentity}
+                            ${cacSubjectDN}
                         </p>
                     </div>
                 </#if>
@@ -183,7 +183,7 @@
                     <textarea id="notes" class="form-control " name="notes"></textarea>
                 </div>
                 <div class="form-group ${messagesPerField.printIfExists('password','has-error')}">
-                    <#if cacIdentity??>
+                    <#if cacSubjectDN??>
                         <div class="alert alert-info cac-info text-white">
                             ${msg("passwordCacMessage1")}
                             <span class="note-important">
