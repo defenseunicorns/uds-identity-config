@@ -1413,7 +1413,18 @@
         "xXSSProtection": "1; mode=block",
         "strictTransportSecurity": "max-age=31536000; includeSubDomains"
     },
-    "smtpServer": {},
+    "smtpServer": {
+        "replyToDisplayName": "",
+        "starttls": "false",
+        "auth": "",
+        "port": "1025",
+        "replyTo": "reply@uds.dev",
+        "host": "smtp-server-app.smtp-server-app.svc.cluster.local",
+        "from": "info@uds.dev",
+        "fromDisplayName": "",
+        "envelopeFrom": "",
+        "ssl": "false"
+    },
     "loginTheme": "theme",
     "accountTheme": "theme",
     "eventsEnabled": true,
@@ -1506,7 +1517,7 @@
           "addReadTokenRoleOnCreate": false,
           "authenticateByDefault": false,
           "linkOnly": false,
-          "postBrokerLoginFlowAlias": "Group Protection Authorization",
+          "postBrokerLoginFlowAlias": "SSO First Broker Login",
           "config": {
             "postBindingLogout": "false",
             "postBindingResponse": "true",
@@ -1963,6 +1974,32 @@
             ]
         },
         {
+            "id": "f4f6571e-5913-4faa-8265-2f3cedd77a45",
+            "alias": "MFA",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": false,
+            "builtIn": false,
+            "authenticationExecutions": [
+              {
+                "authenticator": "conditional-user-configured",
+                "authenticatorFlow": false,
+                "requirement": "REQUIRED",
+                "priority": 0,
+                "autheticatorFlow": false,
+                "userSetupAllowed": false
+              },
+              {
+                "authenticator": "auth-otp-form",
+                "authenticatorFlow": false,
+                "requirement": "REQUIRED",
+                "priority": 1,
+                "autheticatorFlow": false,
+                "userSetupAllowed": false
+              }
+            ]
+        },
+        {
             "id": "cdf1be21-4140-4652-9d68-3b60742cc8ad",
             "alias": "MFA Login",
             "description": "",
@@ -2022,22 +2059,30 @@
             "topLevel": true,
             "builtIn": false,
             "authenticationExecutions": [
-                {
-                    "authenticatorFlow": true,
-                    "requirement": "REQUIRED",
-                    "priority": 0,
-                    "autheticatorFlow": true,
-                    "flowAlias": "Authentication",
-                    "userSetupAllowed": false
-                },
-                {
-                    "authenticator": "uds-group-restriction",
-                    "authenticatorFlow": false,
-                    "requirement": "REQUIRED",
-                    "priority": 2,
-                    "userSetupAllowed": false,
-                    "autheticatorFlow": false
-                }
+              {
+                "authenticatorFlow": true,
+                "requirement": "REQUIRED",
+                "priority": 0,
+                "autheticatorFlow": true,
+                "flowAlias": "Authentication",
+                "userSetupAllowed": false
+              },
+              {
+                "authenticatorFlow": true,
+                "requirement": "CONDITIONAL",
+                "priority": 2,
+                "autheticatorFlow": true,
+                "flowAlias": "MFA",
+                "userSetupAllowed": false
+              },
+              {
+                "authenticator": "uds-group-restriction",
+                "authenticatorFlow": false,
+                "requirement": "REQUIRED",
+                "priority": 3,
+                "autheticatorFlow": false,
+                "userSetupAllowed": false
+              }
             ]
         },
         {
@@ -2136,7 +2181,7 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticator": "reset-password",
+                    "authenticator": "auth-otp-form",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 30,
@@ -2144,12 +2189,20 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticator": "uds-group-restriction",
+                    "authenticator": "reset-password",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 40,
-                    "userSetupAllowed": false,
-                    "autheticatorFlow": false
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "uds-group-restriction",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 50,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
                 }
             ]
         },
@@ -2576,6 +2629,32 @@
                     "userSetupAllowed": false
                 }
             ]
+        },
+        {
+          "id": "aecd724b-2ba3-420b-8541-96635b185fad",
+          "alias": "SSO First Broker Login",
+          "description": "",
+          "providerId": "basic-flow",
+          "topLevel": true,
+          "builtIn": false,
+          "authenticationExecutions": [
+            {
+              "authenticator": "auth-otp-form",
+              "authenticatorFlow": false,
+              "requirement": "REQUIRED",
+              "priority": 0,
+              "autheticatorFlow": false,
+              "userSetupAllowed": false
+            },
+            {
+              "authenticator": "uds-group-restriction",
+              "authenticatorFlow": false,
+              "requirement": "REQUIRED",
+              "priority": 1,
+              "autheticatorFlow": false,
+              "userSetupAllowed": false
+            }
+          ]
         }
     ],
     "authenticatorConfig": [

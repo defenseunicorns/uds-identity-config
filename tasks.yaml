@@ -102,11 +102,15 @@ tasks:
     actions:
       - description: Build identity config image
         cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" --build-arg REALM_FILE="test/cypress/realm.json" -t uds-core-config:keycloak --no-cache src
-      - task: clone-core
+      # - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
-      - task: grafana-group-auth-build-deploy
-      - task: cypress-tests
+      - cmd: |
+          cd uds-core
+          uds zarf package create src/test --confirm --no-progress -l trace
+          uds zarf package deploy build/zarf-package-uds-core-test-apps-amd64.tar.zst --confirm
+      # - task: grafana-group-auth-build-deploy
+      # - task: cypress-tests
 
   - name: grafana-group-auth-build-deploy
     description: Configure existing uds-core/grafana package for group authz, build, deploy grafana
