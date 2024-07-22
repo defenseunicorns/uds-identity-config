@@ -1517,7 +1517,7 @@
           "addReadTokenRoleOnCreate": false,
           "authenticateByDefault": false,
           "linkOnly": false,
-          "postBrokerLoginFlowAlias": "SSO First Broker Login",
+          "postBrokerLoginFlowAlias": "Group Protection Authorization",
           "config": {
             "postBindingLogout": "false",
             "postBindingResponse": "true",

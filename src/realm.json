@@ -1836,7 +1836,7 @@
                         "mapper-saml-grouplist-groups",
                         "mapper-oidc-username-username",
                         "mapper-oidc-mattermostid-id",
-                        "mapper-oidc-email-email"                     
+                        "mapper-oidc-email-email"
                     ]
                 }
             },
