@@ -43,8 +43,14 @@ If upgrading without a full redeploy of keycloak the following changes will be n
       1. select the `JSON Editor` tab
       2. Copy and Paste the value of [the User Attribute Definition from the realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.1/src/realm.json#L1891)
       3. `Save`
-2. The [`register.ftl`](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.1/src/theme/login/register.ftl) theme file will need to be updated to correspond to the correct Managed attributes of the realm.json
-   1. You'll need to replace the existing register.ftl file found in keycloak at `/opt/keycloak/themes/theme/login/register.ftl` with the new [register.ftl](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.1/src/theme/login/register.ftl)
+2. Incorporate STIG password rules, in accordance with these two hardening guides:
+   * [Elasticsearch 8.0 Application Server](https://github.com/user-attachments/files/16178987/Elasticsearch.8.0.Hardening.Guide.Application.Server.SRG.V3R1.pdf)
+   * [Elasticsearch 8.0 Central Log Server](https://github.com/user-attachments/files/16178988/Elasticsearch.8.0.Hardening.Guide.Central.Log.Server.SRG.V2R1.pdf)
+   * Changes:
+     1. Passwords expire in 60 days
+     2. Passwords complexity: 2 special characters, 1 digit, 1 lowercase, 1 uppercase, and 15 character minimum length
+     3. IDP session idle timeout is now 10 minutes
+     4. Maximum login attempts is now 3
 </details>
 
 <details>
