@@ -26,9 +26,29 @@ If the default realm, plugin, theme, truststore, or jars do not provide enough f
 
 
 ## Upgrading Identity Config
+<details open>
+<summary><b>From v0.5.0 to v0.5.1</b></summary>
 
-### From v0.4.5 to v0.5.0
+This version upgrade utilizes built in Keycloak functionality for User Managed Attributes.
 
+> [!IMPORTANT]  
+> User managed attributes are only available in Keycloak 24+
+
+If upgrading without a full redeploy of keycloak the following changes will be needed:
+1. The `realm.json` will need to be updated to contain the correct User Managed Attributes definition, [User Managed Attributes Configuration](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.1/src/realm.json#L1884-L1895). The following steps can be used to do this with clickops:
+   1. In `Realm Settings` tab and on the `General` page
+      1. toggle off `User-managed access`
+      2. `Unmanaged Attributes` set to `Only administrators can write`
+   2. On `User profile` page
+      1. select the `JSON Editor` tab
+      2. Copy and Paste the value of [the User Attribute Definition from the realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.1/src/realm.json#L1891)
+      3. `Save`
+2. The [`register.ftl`](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.1/src/theme/login/register.ftl) theme file will need to be updated to correspond to the correct Managed attributes of the realm.json
+   1. You'll need to replace the existing register.ftl file found in keycloak at `/opt/keycloak/themes/theme/login/register.ftl` with the new [register.ftl](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.1/src/theme/login/register.ftl)
+</details>
+
+<details>
+<summary><b>From v0.4.5 to v0.5.0</b></summary>
 This version upgrade brings in a new Authentication Flow for group authorization.
 
 If upgrading without a full redeploy of keycloak the following steps will be necessary to create and use group authorization:
@@ -48,3 +68,4 @@ If upgrading without a full redeploy of keycloak the following steps will be nec
       7. `Add` the `UDS Operator Group Authentication Validation`
    2. In the `Identity Providers` tab, select the `SAML` Provider
       1. Add the `Authorization` flow to the `Post login flow` in the `Advanced settings` section
+</details>
