@@ -1430,8 +1430,8 @@
     "eventsEnabled": true,
     "eventsExpiration": 1800,
     "eventsListeners": [
-        "jboss-logging",
-        "custom-registration-listener"
+        "custom-registration-listener",
+        "jboss-logging"
     ],
     "enabledEventTypes": [
         "SEND_RESET_PASSWORD",
@@ -1517,7 +1517,7 @@
           "addReadTokenRoleOnCreate": false,
           "authenticateByDefault": false,
           "linkOnly": false,
-          "postBrokerLoginFlowAlias": "Group Protection Authorization",
+          "postBrokerLoginFlowAlias": "MFA and Group Validation",
           "config": {
             "postBindingLogout": "false",
             "postBindingResponse": "true",
@@ -1974,58 +1974,6 @@
             ]
         },
         {
-            "id": "f4f6571e-5913-4faa-8265-2f3cedd77a45",
-            "alias": "MFA",
-            "description": "",
-            "providerId": "basic-flow",
-            "topLevel": false,
-            "builtIn": false,
-            "authenticationExecutions": [
-              {
-                "authenticator": "conditional-user-configured",
-                "authenticatorFlow": false,
-                "requirement": "REQUIRED",
-                "priority": 0,
-                "autheticatorFlow": false,
-                "userSetupAllowed": false
-              },
-              {
-                "authenticator": "auth-otp-form",
-                "authenticatorFlow": false,
-                "requirement": "REQUIRED",
-                "priority": 1,
-                "autheticatorFlow": false,
-                "userSetupAllowed": false
-              }
-            ]
-        },
-        {
-            "id": "cdf1be21-4140-4652-9d68-3b60742cc8ad",
-            "alias": "MFA Login",
-            "description": "",
-            "providerId": "basic-flow",
-            "topLevel": false,
-            "builtIn": false,
-            "authenticationExecutions": [
-                {
-                    "authenticator": "auth-username-password-form",
-                    "authenticatorFlow": false,
-                    "requirement": "REQUIRED",
-                    "priority": 0,
-                    "autheticatorFlow": false,
-                    "userSetupAllowed": false
-                },
-                {
-                    "authenticatorFlow": true,
-                    "requirement": "REQUIRED",
-                    "priority": 1,
-                    "autheticatorFlow": true,
-                    "flowAlias": "Conditional OTP",
-                    "userSetupAllowed": false
-                }
-            ]
-        },
-        {
             "id": "459c187e-eb0f-4f2e-8e15-0c0b245a406e",
             "alias": "Reset - Conditional OTP",
             "description": "Flow to determine if the OTP should be reset or not. Set to REQUIRED to force.",
@@ -2068,11 +2016,11 @@
                 "userSetupAllowed": false
               },
               {
-                "authenticatorFlow": true,
-                "requirement": "CONDITIONAL",
+                "authenticator": "auth-otp-form",
+                "authenticatorFlow": false,
+                "requirement": "REQUIRED",
                 "priority": 2,
-                "autheticatorFlow": true,
-                "flowAlias": "MFA",
+                "autheticatorFlow": false,
                 "userSetupAllowed": false
               },
               {
@@ -2083,24 +2031,6 @@
                 "autheticatorFlow": false,
                 "userSetupAllowed": false
               }
-            ]
-        },
-        {
-            "id": "7d53187d-13f4-4ec6-ade0-20b7d88d9aa4",
-            "alias": "Group Protection Authorization",
-            "description": "",
-            "providerId": "basic-flow",
-            "topLevel": true,
-            "builtIn": false,
-            "authenticationExecutions": [
-                {
-                    "authenticator": "uds-group-restriction",
-                    "authenticatorFlow": false,
-                    "requirement": "REQUIRED",
-                    "priority": 0,
-                    "userSetupAllowed": false,
-                    "autheticatorFlow": false
-                }
             ]
         },
         {
@@ -2147,10 +2077,18 @@
                     "userSetupAllowed": false
                 },
                 {
+                  "authenticator": "auth-otp-form",
+                  "authenticatorFlow": false,
+                  "requirement": "REQUIRED",
+                  "priority": 20,
+                  "autheticatorFlow": false,
+                  "userSetupAllowed": false
+                },
+                {
                     "authenticator": "uds-group-restriction",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
-                    "priority": 20,
+                    "priority": 30,
                     "userSetupAllowed": false,
                     "autheticatorFlow": false
                 }
@@ -2632,7 +2570,7 @@
         },
         {
           "id": "aecd724b-2ba3-420b-8541-96635b185fad",
-          "alias": "SSO First Broker Login",
+          "alias": "MFA and Group Validation",
           "description": "",
           "providerId": "basic-flow",
           "topLevel": true,
@@ -2711,7 +2649,7 @@
             "name": "Configure OTP",
             "providerId": "CONFIGURE_TOTP",
             "enabled": "${REALM_OTP_ENABLED:true}",
-            "defaultAction": false,
+            "defaultAction": true,
             "priority": 20,
             "config": {}
         },
