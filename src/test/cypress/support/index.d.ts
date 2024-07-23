@@ -8,10 +8,18 @@ declare namespace Cypress {
 
     loginUser(username: string, password: string): Chainable;
 
-    registrationPage(formData: any): Chainable;
+    registrationPage(): Chainable;
+
+    registerUser(formData: any): Chainable;
 
     accessGrafana(): Chainable;
 
     avoidX509(): Chainable;
+
+    setupOTP(username: string): Chainable;
+
+    enterOTP(username: string): Chainable;
+
+    verifyUserAccountPage(formData: any): Chainable;
   }
 }

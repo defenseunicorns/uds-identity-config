@@ -1,4 +1,6 @@
 import { RegistrationFormData } from "./types";
+import { BrowserMultiFormatReader } from '@zxing/browser';
+import { authenticator } from 'otplib';
 
 /**
  * Navigate to the login page and verifying it's exsistence
@@ -17,25 +19,32 @@ Cypress.Commands.add("loginPage", () => {
 });
 
 /**
+ * Supply the login page user creds and attempt to login
+ */
+Cypress.Commands.add("loginUser", (username: string, password: string) => {
+  // fill in user creds
+  cy.get("#username").should("be.visible").type(username);
+  cy.get("#password").should("be.visible").type(password);
+
+  // click login button
+  cy.get("#kc-login").should("be.visible").click();
+});
+
+/**
  * Navigate to the registration page, supply form data, and attempt to register user
  */
-Cypress.Commands.add("registrationPage", (formData: RegistrationFormData) => {
-  cy.loginPage();
+Cypress.Commands.add("registrationPage", () => {
+    // go to registration page
+    cy.loginPage();
 
-  // if the dod pki login page is present then we need to click a different button to get to the registration page
-  cy.contains("h2", "DoD PKI Detected").then($header => {
-    if ($header.length > 0 && $header.text().trim() === "DoD PKI Detected") {
-      // If the header is present, click the "Ignore" button to get to the registration page
-      cy.get("#kc-cancel").should("be.visible").click();
-    }
-  });
+    // Verify the presence of the registration link and then click
+    cy.contains(".footer-text a", "Click here").should("be.visible").click();
+});
 
-  // Verify the presence of the registration link and then click
-  cy.contains(".footer-text a", "Click here").should("be.visible").click();
-
-  // Verify client cert has been loaded properly by this header being present
-  cy.contains("h2", "DoD PKI User Registration").should("be.visible");
-
+/**
+ * Register new User
+ */
+Cypress.Commands.add("registerUser", (formData: RegistrationFormData) => {
   // Fill Registration form inputs
   cy.get("label").contains("First name").next("input").type(formData.firstName);
   cy.get("label").contains("Last name").next("input").type(formData.lastName);
@@ -68,18 +77,6 @@ Cypress.Commands.add("registrationPage", (formData: RegistrationFormData) => {
 });
 
 /**
- * Supply the login page user creds and attempt to login
- */
-Cypress.Commands.add("loginUser", (username: string, password: string) => {
-  // fill in user creds
-  cy.get("#username").should("be.visible").type(username);
-  cy.get("#password").should("be.visible").type(password);
-
-  // click login button
-  cy.get("#kc-login").should("be.visible").click();
-});
-
-/**
  * Navigate to grafana URL and verify redirected to sso.uds.dev
  */
 Cypress.Commands.add("accessGrafana", () => {
@@ -100,9 +97,76 @@ Cypress.Commands.add("accessGrafana", () => {
  */
 Cypress.Commands.add("avoidX509", () => {
   // Check if the cancel button is present and click it if it is
-  cy.get('body').then($body => {
-    if ($body.find('input#kc-cancel').length > 0) {
-      cy.get('input#kc-cancel').click();
+  if(Cypress.env('X509_CERT')){
+    cy.get('body').then($body => {
+      if ($body.find('input#kc-cancel').length > 0) {
+        cy.get('input#kc-cancel').click();
+      }
+    });
+  }
+});
+
+/**
+ * Setup OTP after registration
+ */
+Cypress.Commands.add("setupOTP", (username) => {
+  // Verify on OTP page
+  cy.get('#alert-error').should('be.visible').and('contain', 'You need to set up multi-factor authentication (MFA) to activate your account.');
+
+  // Capture QR code image URL
+  cy.get('img#kc-totp-secret-qr-code').then($img => {
+    const img = $img[0] as HTMLImageElement;
+    const image = new Image();
+    image.width = img.width;
+    image.height = img.height;
+    image.src = img.src;
+    image.crossOrigin = 'Anonymous';
+    return image;
+  })
+  .then(image => {
+    const reader = new BrowserMultiFormatReader();
+    return reader.decodeFromImageElement(image[0])
+  })
+  .then(result => {
+    // Extract the secret from the text object
+    const text = result.getText();
+    const secretMatch = text.match(/secret=([A-Z2-7]+=*)/);
+    if (secretMatch) {
+      const secret = secretMatch[1];
+
+      // Set environment variable and generate OTP
+      Cypress.env(`${username}_OTP_SECRET`, secret);
+      const otp = authenticator.generate(secret);
+
+      // Enter the OTP in the form and submit
+      cy.get('#totp').type(otp);
+      cy.get('#saveTOTPBtn').click();
+    } else {
+      cy.log('Secret not found in the text.');
     }
   });
-})
+});
+
+/**
+ * Enter Users OTP
+ */
+Cypress.Commands.add("enterOTP", (username) => {
+  // Retrieve users OTP secret
+  const otpSecret = Cypress.env(`${username}_OTP_SECRET`);
+
+  // Generate OTP
+  const otp = authenticator.generate(otpSecret);
+
+  // Enter OTP
+  cy.get('input#otp').type(otp);
+  cy.get('input#kc-login').click();
+});
+
+/**
+ * Verify on User Account Page
+ */
+Cypress.Commands.add("verifyUserAccountPage", (formData) => {
+  cy.get("#landingLoggedInUser")
+  .should("be.visible")
+  .and("contain", formData.firstName + " " + formData.lastName);
+});

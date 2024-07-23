@@ -1,25 +1,18 @@
 import { defineConfig } from "cypress";
 
 module.exports = defineConfig({
-  clientCertificates: [
-    {
-      url: "https://sso.uds.dev/**",
-      ca: [],
-      certs: [
-        {
-          pfx: "certs/test.pfx",
-          passphrase: "certs/pfx_passphrase.txt",
-        },
-      ],
-    },
-  ],
+  clientCertificates: [],
+
+  env: {
+    X509_CERT: false,
+  },
 
   e2e: {
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
     retries: 3,
-    specPattern: "e2e/**/*.cy.ts",
+    specPattern: "e2e/noX509/**/*.cy.ts", // Pattern for tests that do not require the cert
     supportFolder: "support/",
     supportFile: "support/e2e.ts",
     screenshotOnRunFailure: false,
