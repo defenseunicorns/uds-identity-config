@@ -6,9 +6,32 @@ weight: 3
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
-## v0.5.0 to v0.5.1
+## v0.5.1 to v0.6.0
 
 <details open>
+<summary>Upgrade Details</summary>
+
+This version upgrade implements MFA everywhere. This means anytime a user is registered ( by any means: x509, SSO, username/password ) they will be required to setup MFA or upon next login.
+
+If a user is attempting to access a Group Restricted application without MFA setup, the Group Authorization plugin will block that user from being able to setup MFA as well as accessing that application.
+
+If upgrading without a full redeploy of keycloak the following changes will be needed:
+1. The `realm.json` has changed drastically in this upgrade when it comes to the Keycloak Authentication flows. The following steps can be used to do this with clickops:
+   1. In `Authentication` `Flows` update each of the following:
+
+      1. `UDS Authentication` : `Add Step` = `OTP Form` after the `Authentication` but before the `UDS Operator Group Authentication Validation` steps. Make sure the `OTP Form` is `Required`
+
+      2. `UDS Registration` : `Add Step` = `OTP Form` after the `UDS Registration Form` but before the `UDS Operator Group Authentication Validation` steps. Make sure the `OTP Form` is `Required`
+
+      3. `UDS Reset Credentials` : `Add Step` = `OTP Form` after the `Reset Password` but before the `UDS Operator Group Authentication Validation` steps. Make sure the `OTP Form` is `Required`
+
+   2. In `Authentication` `Required Actions` make sure `Configre OTP` is `Enabled` `On` and `Set as default action` is `On` as well
+
+</details>
+
+## v0.5.0 to v0.5.1
+
+<details>
 <summary>Upgrade Details</summary>
 
 This version upgrade utilizes built in Keycloak functionality for User Managed Attributes.
