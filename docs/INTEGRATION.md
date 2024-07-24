@@ -6,7 +6,7 @@ Integration tests are split into two categories:
 * Username / Password and Group Authentication testing
 * X509 Testing
 
-This is necessary for avoiding conflicting tests when an X509 cert is present, by seperating the two we can test the usecases in an environment that is more realistic.
+This is necessary for avoiding conflicting tests when an X509 cert is present, by seperating the two we can test the usecases in an environment that is more realistic and reliable.
 
 ## File Structure / Explanation
 
@@ -14,12 +14,12 @@ All integration testing files are found in the `src/test/cypress` directory.
 
 There is two config files that modify the environment for testing between X509 and Username/Password. These config files use the `specPattern` to define the test files the config is relavant to.
 
-If in the `src/test/cypress` directory, `npm` command can be used to run these tests against a deployed cluster.
+If in the `src/test/cypress` directory, `npm` commands can be used to run these tests against a deployed cluster.
   * `npm run cy.open.x509` : Open Cypress UI and run X509 tests
-  * `npm run cy.open.noX509` : Open Cypress UI and run Username / Password tests
+  * `npm run cy.open.noX509` : Open Cypress UI and run Username / Password and Group Auth tests
   * `npm run cy.run.x509` : Run Cypress X509 tests from terminal
-  * `npm run cy.run.noX509` : Run Cypress Username / Password tests from terminal
-  * `npm run cy.run` : Run both Cypress X509 and Username / Password tests from terminal
+  * `npm run cy.run.noX509` : Run Cypress Username / Password and Group Auth tests from terminal
+  * `npm run cy.run` : Run both Cypress X509 and Username / Password and Group Auth tests from terminal
 
 ## Cypress Testing
 
