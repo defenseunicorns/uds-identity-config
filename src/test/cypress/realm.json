@@ -1288,6 +1288,36 @@
             ]
         },
         {
+            "id": "1962f32a-2c09-4ce0-8677-6f6776768d24",
+            "name": "bare-groups",
+            "description": "A client scope providing only the simplified, non-hierarchical group names.",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "true",
+                "gui.order": "",
+                "consent.screen.text": "Please use this scope only if you understand the implications of excluding full path information from group data."
+            },
+            "protocolMappers": [
+                {
+                    "id": "62009bb0-75d1-46a8-b207-f39a0c3c0e2d",
+                    "name": "bare_groups",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-group-membership-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "full.path": "false",
+                        "introspection.token.claim": "true",
+                        "userinfo.token.claim": "true",
+                        "id.token.claim": "true",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "true",
+                        "claim.name": "bare_groups"
+                    }
+                }
+            ]
+        },
+        {
             "id": "80bca4fb-c991-4f47-b941-90033d417619",
             "name": "web-origins",
             "description": "OpenID Connect scope for add allowed web origins to the access token",
@@ -1401,7 +1431,8 @@
         "offline_access",
         "address",
         "phone",
-        "microprofile-jwt"
+        "microprofile-jwt",
+        "bare-groups"
     ],
     "browserSecurityHeaders": {
         "contentSecurityPolicyReportOnly": "",
@@ -1610,7 +1641,17 @@
                         "true"
                     ],
                     "allowed-client-scopes": [
-                        "openid"
+                        "openid",
+                        "bare-groups",
+                        "mapper-saml-username-name",
+                        "mapper-saml-email-email",
+                        "mapper-saml-username-login",
+                        "mapper-saml-firstname-first_name",
+                        "mapper-saml-lastname-last_name",
+                        "mapper-saml-grouplist-groups",
+                        "mapper-oidc-username-username",
+                        "mapper-oidc-mattermostid-id",
+                        "mapper-oidc-email-email"
                     ]
                 }
             },
