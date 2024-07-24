@@ -15,6 +15,8 @@ This version upgrade implements MFA everywhere. This means anytime a user is reg
 
 If a user is attempting to access a Group Restricted application without MFA setup, the Group Authorization plugin will block that user from being able to setup MFA as well as accessing that application.
 
+![MFA Flow Diagram](https://github.com/defenseunicorns/uds-identity-config/blob/main/docs/.images/v0.6.0-mfa-flows.png?raw=true)
+
 If upgrading without a full redeploy of keycloak the following changes will be needed:
 1. The `realm.json` has changed drastically in this upgrade when it comes to the Keycloak Authentication flows. The following steps can be used to do this with clickops:
    1. In `Authentication` `Flows` update each of the following:
