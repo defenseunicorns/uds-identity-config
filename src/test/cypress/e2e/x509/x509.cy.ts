@@ -12,7 +12,7 @@ describe("x509 Tests", () => {
         payGrade: "N/A",
     };
 
-    it("Register New User", () => {
+    it("Register New User - Success", () => {
         // go to registration page
         cy.loginPage();
         cy.avoidX509();
@@ -32,7 +32,7 @@ describe("x509 Tests", () => {
         cy.verifyUserAccountPage(formData);
     });
 
-    it("User New Login", () => {
+    it("Login New User - Success", () => {
         // login user
         cy.loginPage();
 

@@ -32,9 +32,6 @@ describe('Group Authorization', () => {
     // login user
     cy.loginUser(formData.username, formData.password);
 
-    // setup OTP for registered user
-    // cy.setupOTP(formData.username);
-
     // Assert that the user couldn't access the grafana dashboard
     cy.url().should('include', 'https://sso.uds.dev');
     cy.contains('p.instruction', 'Your account has not been granted access to this application group yet.').should('be.visible');

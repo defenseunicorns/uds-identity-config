@@ -2,18 +2,24 @@
 
 [Cypress Web Flow/Integration Testing Docs](https://docs.cypress.io/guides/overview/why-cypress)
 
-## Implemented Tests
+Integration tests are split into two categories:
+* Username / Password and Group Authentication testing
+* X509 Testing
 
-| Test Name (link) | Test Description |
-|------------------|------------------|
-| [Login Existing User](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/login.cy.ts) | Login in existing user that is created in the testing [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/realm.json) |
-| [Login Nonexistant User / Incorrect creds](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/login.cy.ts) | User cannot login / authenticate with incorrect creds or without account |
-| [Successfuly CAC Registration](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/registration.cy.ts) | New user can successfully register with CAC |
-| [CAC User Login](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/registration.cy.ts) | New user can successfully login with CAC |
-| [Duplicate User Registration](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/registration.cy.ts) | User cannot register more than once |
-| [Password check for special characters](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/registration.cy.ts) | User registration requires password special characters |
-| [Password check for length](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/registration.cy.ts) | User registration requires password length check |
-| [Group Authorization](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/group-authz.cy.ts) | Grafana is deployed to required admin group to authorize |
+This is necessary for avoiding conflicting tests when an X509 cert is present, by seperating the two we can test the usecases in an environment that is more realistic.
+
+## File Structure / Explanation
+
+All integration testing files are found in the `src/test/cypress` directory.
+
+There is two config files that modify the environment for testing between X509 and Username/Password. These config files use the `specPattern` to define the test files the config is relavant to.
+
+If in the `src/test/cypress` directory, `npm` command can be used to run these tests against a deployed cluster.
+  * `npm run cy.open.x509` : Open Cypress UI and run X509 tests
+  * `npm run cy.open.noX509` : Open Cypress UI and run Username / Password tests
+  * `npm run cy.run.x509` : Run Cypress X509 tests from terminal
+  * `npm run cy.run.noX509` : Run Cypress Username / Password tests from terminal
+  * `npm run cy.run` : Run both Cypress X509 and Username / Password tests from terminal
 
 ## Cypress Testing
 
@@ -43,3 +49,37 @@ Follow these steps to update the certs for cypress:
 3. Run `uds run cacert` to extract cacert from docker image for the tls_cacert.yaml file
 4. Copy the authorized_certs.zip, test.pfx, and tls_cacert.yaml into the [certs directory](https://github.com/defenseunicorns/uds-identity-config/tree/main/src/test/cypress/certs)
    - `mv test.pfx tls_cacert.yaml src/authorized_certs.zip src/cypress/certs/`
+
+## Implemented Tests
+
+### X509 Integration Tests
+
+**[X509 Cypress Config](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/cypress.config.x509.ts)**
+
+| Name | Description |
+|------|-------------|
+| [Register New User - Success](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/x509/x509.cy.ts) | Use X509 Cert to register new user |
+| [Login New User - Success](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/x509/x509.cy.ts) | Login with the newly created user |
+
+### Username / Password Integration Tests
+
+**[Username / Password Cypress Config](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/cypress.config.noX509.ts)**
+
+| Name | Description |
+|------|-------------|
+| [User Registration - Success](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/username-password.cy.ts) | Register user with Username / Password form |
+| [User Login - Success](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/username-password.cy.ts) | Login newly created user |
+| [Invalid Password Login - Failure](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/username-password.cy.ts) | Fail authentication due to incorrect credentials |
+| [Invalid Duplicate User - Failue](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/username-password.cy.ts) | Fail registration because user already exists |
+| [Invalid Password Length - Failue](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/username-password.cy.ts) | Fail registration because password doesn't meet 15 character requirement |
+| [Invalid Password Complexity ( Special Characters ) - Failure](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/username-password.cy.ts) | Fail registration because password doesn't meet 2 special characters requirement |
+| [Invalid Password Complexity ( Digits ) - Failure](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/username-password.cy.ts) | Fail registration because password doesn't meet 1 digit requirement |
+| [Invalid Password Complexity ( Uppercase ) - Failure](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/username-password.cy.ts) | Fail registration because password doesn't meet 1 uppercase character requirement |
+| [Invalid Password Complexity ( Lowercase ) - Failure](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/username-password.cy.ts) | Fail registration because password doesn't meet 1 lowercase character requirement |
+
+### UDS Group Authorization Integration Tests
+
+| Name | Description |
+|------|-------------|
+| [Grafana Admin User - Success ](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/group-authz.cy.ts) | Admin users should have access to custom Grafana deployment |
+| [Grafana Auditor User - Failure ](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/test/cypress/e2e/noX509/group-authz.cy.ts) | Auditor users should **not** have access to custom Grafana deployment |

@@ -12,7 +12,7 @@ describe("Username / Password Tests", () => {
     payGrade: "N/A",
   };
 
-  it("User Registration", () => {
+  it("User Registration - Success", () => {
     // go to registration page
     cy.registrationPage();
 
@@ -25,7 +25,7 @@ describe("Username / Password Tests", () => {
     cy.verifyUserAccountPage(formData);
   });
 
-  it("User Login", () => {
+  it("User Login - Success", () => {
     // login user
     cy.loginPage();
 
@@ -55,7 +55,7 @@ describe("Username / Password Tests", () => {
     });
   });
 
-  it("Invalid Password Login", () => {
+  it("Invalid Password Login - Failure", () => {
     cy.loginPage();
 
     cy.loginUser(formData.username, "testingPassword1!!");
@@ -64,7 +64,7 @@ describe("Username / Password Tests", () => {
     cy.contains("span", "Invalid username or password.").should("be.visible");
   });
 
-  it("Invalid Duplicate User", () => {
+  it("Invalid Duplicate User - Failue", () => {
     // go to registration page
     cy.registrationPage();
 
@@ -76,7 +76,7 @@ describe("Username / Password Tests", () => {
     cy.contains("span.message-details", "Username already exists.").should("be.visible");
   });
 
-  it("Invalid Password Length", () => {
+  it("Invalid Password Length - Failue", () => {
     const formData: RegistrationFormData = {
       firstName: "New",
       lastName: "User",
@@ -91,7 +91,7 @@ describe("Username / Password Tests", () => {
       registration(formData, "Invalid password: minimum length 15.");
   });
 
-  it("Invalid Password Complexity ( Special Characters )", () => {
+  it("Invalid Password Complexity ( Special Characters ) - Failure", () => {
     const formData: RegistrationFormData = {
       firstName: "New",
       lastName: "User",
@@ -106,7 +106,7 @@ describe("Username / Password Tests", () => {
     registration(formData, "Invalid password: must contain at least 2 special characters.");
   });
 
-  it("Invalid Password Complexity ( Digits )", () => {
+  it("Invalid Password Complexity ( Digits ) - Failure", () => {
     const formData: RegistrationFormData = {
       firstName: "New",
       lastName: "User",
@@ -121,7 +121,7 @@ describe("Username / Password Tests", () => {
     registration(formData, "Invalid password: must contain at least 1 numerical digits");
   });
 
-  it("Invalid Password Complexity ( Uppercase )", () => {
+  it("Invalid Password Complexity ( Uppercase ) - Failure", () => {
     const formData: RegistrationFormData = {
       firstName: "New",
       lastName: "User",
@@ -136,7 +136,7 @@ describe("Username / Password Tests", () => {
     registration(formData, "Invalid password: must contain at least 1 upper case characters.");
   });
 
-  it("Invalid Password Complexity ( Lowercase )", () => {
+  it("Invalid Password Complexity ( Lowercase ) - Failure", () => {
     const formData: RegistrationFormData = {
       firstName: "New",
       lastName: "User",
