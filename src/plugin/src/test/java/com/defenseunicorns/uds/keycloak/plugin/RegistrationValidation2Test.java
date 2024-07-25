@@ -134,7 +134,7 @@ class RegistrationValidation2Test {
         // Populate form data
         Map<String, List<String>> formDataMap = new HashMap<>();
         formDataMap.put(Validation.FIELD_EMAIL, Collections.singletonList("test.user@test.bad"));
-    
+
         PowerMockito.when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
 
         RegistrationValidation registrationValidation = new RegistrationValidation();
@@ -145,19 +145,19 @@ class RegistrationValidation2Test {
     public void testSuccessNoX509() throws GeneralSecurityException {
         // Force no certificate
         PowerMockito.when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(null);
-    
+
         // Mock user and realm
         UserModelDefaultMethodsImpl userModelDefaultMethodsImpl = new UserModelDefaultMethodsImpl();
         PowerMockito.when(validationContext.getUser()).thenReturn(userModelDefaultMethodsImpl);
         PowerMockito.when(validationContext.getRealm()).thenReturn(realmModel);
-    
+
         // Populate form data
         Map<String, List<String>> formDataMap = new HashMap<>();
         formDataMap.put(Validation.FIELD_EMAIL, Collections.singletonList("test.user@test.bad"));
-    
+
         // Mock the behavior to return the populated form data
         PowerMockito.when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
-    
+
         // Call the method under test
         RegistrationValidation registrationValidation = new RegistrationValidation();
         registrationValidation.success(validationContext);
