@@ -1,7 +1,9 @@
 package com.defenseunicorns.uds.keycloak.plugin;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public enum Common {
     ;
@@ -44,6 +46,11 @@ public enum Common {
      * The user mattermost id attribute
      */
     static final String USER_MATTERMOST_ID_ATTR = "mattermostid";
+
+    /**
+     * Set of clients that group protection should not apple to
+     */
+    public static final Set<String> GROUP_PROTECTION_IGNORE_CLIENTS = new HashSet<String>(Arrays.asList("account", "account-console", "broker"));
 
     /**
      * The certificate policy OID must match one of these values.
