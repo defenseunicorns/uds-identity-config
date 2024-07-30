@@ -30,7 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ FileInputStream.class, File.class, X509Tools.class })
+@PrepareForTest({ FileInputStream.class, File.class, X509Tools.class, Common.class })
 @PowerMockIgnore("javax.management.*")
 public class RegistrationValidationTest {
 
@@ -38,10 +38,13 @@ public class RegistrationValidationTest {
     public void setup() throws Exception {
         setupX509Mocks();
         setupFileMocks();
+        PowerMockito.mockStatic(Common.class);
     }
 
     @Test
-    public void testInvalidFields() {
+    public void testInvalidFields_REGISTRATION_FIELDS_ENABLED() {
+        PowerMockito.when(Common.isRegistrationFieldsEnabled()).thenReturn(true);
+
         String[] errorEvent = new String[1];
         List<FormMessage> errors = new ArrayList<>();
         Map<String, List<String>> valueMap = new HashMap<>();
@@ -63,9 +66,45 @@ public class RegistrationValidationTest {
         // Assertions
         Assert.assertEquals(Errors.INVALID_REGISTRATION, errorEvent[0]);
         Set<String> errorFields = errors.stream().map(FormMessage::getField).collect(Collectors.toSet());
-        Set<String> expectedErrorFields = new HashSet<>(List.of("firstName", "lastName", "username", "affiliation", "rank", "organization", "email"));
+        Set<String> expectedErrorFields = new HashSet<>(Arrays.asList(
+                "firstName", "lastName", "username",
+                "affiliation", "rank",
+                "organization", "email"
+        ));
         Assert.assertEquals(expectedErrorFields, errorFields);
         Assert.assertEquals(7, errors.size());
+    }
+
+    @Test
+    public void testInvalidFields_REGISTRATION_FIELDS_DISABLED() {
+        PowerMockito.when(Common.isRegistrationFieldsEnabled()).thenReturn(false);
+
+        String[] errorEvent = new String[1];
+        List<FormMessage> errors = new ArrayList<>();
+        Map<String, List<String>> valueMap = new HashMap<>();
+
+        // Populate the valueMap with test data
+        valueMap.put("firstName", new ArrayList<>());
+        valueMap.put("lastName", new ArrayList<>());
+        valueMap.put("username", new ArrayList<>());
+        valueMap.put("affiliation", new ArrayList<>());
+        valueMap.put("rank", new ArrayList<>());
+        valueMap.put("organization", new ArrayList<>());
+        valueMap.put("email", new ArrayList<>());
+
+        // Set up your test context
+        ValidationContext context = ValidationUtils.setupVariables(errorEvent, errors, valueMap);
+        RegistrationValidation validation = new RegistrationValidation();
+        validation.validate(context);
+
+        // Assertions
+        Assert.assertEquals(Errors.INVALID_REGISTRATION, errorEvent[0]);
+        Set<String> errorFields = errors.stream().map(FormMessage::getField).collect(Collectors.toSet());
+        Set<String> expectedErrorFields = new HashSet<>(Arrays.asList(
+                "firstName", "lastName", "username", "email"
+        ));
+        Assert.assertEquals(expectedErrorFields, errorFields);
+        Assert.assertEquals(4, errors.size());
     }
 
     @Test

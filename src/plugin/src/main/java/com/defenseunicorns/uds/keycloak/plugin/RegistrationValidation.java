@@ -58,6 +58,7 @@ public class RegistrationValidation extends RegistrationUserCreation {
 
     @Override
     public void buildPage(final FormContext context, final LoginFormsProvider form) {
+        form.setAttribute("registrationFields", Common.REGISTRATION_FIELDS_ENABLED);
         String subjectDN = X509Tools.getX509SubjectDN(context);
         if (subjectDN != null) {
             form.setAttribute("cacSubjectDN", subjectDN);
@@ -120,17 +121,17 @@ public class RegistrationValidation extends RegistrationUserCreation {
         }
 
         // Require a DoD affiliation
-        if (Validation.isBlank(formData.getFirst("affiliation"))) {
+        if (Common.isRegistrationFieldsEnabled() && Validation.isBlank(formData.getFirst("affiliation"))) {
             errors.add(new FormMessage("affiliation", "Please specify your organization affiliation."));
         }
 
         // Require a rank
-        if (Validation.isBlank(formData.getFirst("rank"))) {
+        if (Common.isRegistrationFieldsEnabled() && Validation.isBlank(formData.getFirst("rank"))) {
             errors.add(new FormMessage("rank", "Please specify your rank or choose n/a."));
         }
 
         // Require an organization
-        if (Validation.isBlank(formData.getFirst("organization"))) {
+        if (Common.isRegistrationFieldsEnabled() && Validation.isBlank(formData.getFirst("organization"))) {
             errors.add(new FormMessage("organization", "Please specify your organization."));
         }
 

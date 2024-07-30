@@ -7,6 +7,19 @@ public enum Common {
     ;
 
     /**
+     * Enable additional registration fields ( affiliation, rank, organization )
+     */
+    public static final Boolean REGISTRATION_FIELDS_ENABLED = false;
+
+    /**
+     * Helper method for testing purposes
+     * @return REGISTRATION_FIELDS_ENABLED
+     */
+    public static Boolean isRegistrationFieldsEnabled() {
+        return REGISTRATION_FIELDS_ENABLED;
+    }
+
+    /**
      * get user by email constant.
      */
     static final String EMAIL = "email";

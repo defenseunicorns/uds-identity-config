@@ -37,113 +37,115 @@
                         </#if>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-6 form-group ${messagesPerField.printIfExists('affiliation','has-error')}">
-                        <label for="affiliation" class="form-label">Affiliation</label>
-                        <select id="affiliation" name="affiliation" class="form-control">
-                            <option selected disabled hidden>Select your org</option>
-                            <optgroup label="US Government">
-                                <option>US Air Force</option>
-                                <option>US Air Force Reserve</option>
-                                <option>US Air National Guard</option>
-                                <option>US Army</option>
-                                <option>US Army Reserve</option>
-                                <option>US Army National Guard</option>
-                                <option>US Coast Guard</option>
-                                <option>US Coast Guard Reserve</option>
-                                <option>US Marine Corps</option>
-                                <option>US Marine Corps Reserve</option>
-                                <option>US Navy</option>
-                                <option>US Navy Reserve</option>
-                                <option>US Space Force</option>
-                                <option>Dept of Defense</option>
-                                <option>Federal Government</option>
-                                <option>Other</option>
-                            </optgroup>
-                            <optgroup label="Contractor">
-                                <option>A&AS</option>
-                                <option>Contractor</option>
-                                <option>FFRDC</option>
-                                <option>Other</option>
-                            </optgroup>
-                        </select>
-                        <#if messagesPerField.existsError('affiliation')>
+                <#if registrationFields>
+                    <div class="row">
+                        <div class="col-lg-6 form-group ${messagesPerField.printIfExists('affiliation','has-error')}">
+                            <label for="affiliation" class="form-label">Affiliation</label>
+                            <select id="affiliation" name="affiliation" class="form-control">
+                                <option selected disabled hidden>Select your org</option>
+                                <optgroup label="US Government">
+                                    <option>US Air Force</option>
+                                    <option>US Air Force Reserve</option>
+                                    <option>US Air National Guard</option>
+                                    <option>US Army</option>
+                                    <option>US Army Reserve</option>
+                                    <option>US Army National Guard</option>
+                                    <option>US Coast Guard</option>
+                                    <option>US Coast Guard Reserve</option>
+                                    <option>US Marine Corps</option>
+                                    <option>US Marine Corps Reserve</option>
+                                    <option>US Navy</option>
+                                    <option>US Navy Reserve</option>
+                                    <option>US Space Force</option>
+                                    <option>Dept of Defense</option>
+                                    <option>Federal Government</option>
+                                    <option>Other</option>
+                                </optgroup>
+                                <optgroup label="Contractor">
+                                    <option>A&AS</option>
+                                    <option>Contractor</option>
+                                    <option>FFRDC</option>
+                                    <option>Other</option>
+                                </optgroup>
+                            </select>
+                            <#if messagesPerField.existsError('affiliation')>
+                                <span class="message-details" aria-live="polite">
+                                    ${kcSanitize(messagesPerField.get('affiliation'))?no_esc}
+                                </span>
+                            </#if>
+                        </div>
+                        <div class="col-lg-6 form-group ${messagesPerField.printIfExists('rank','has-error')}">
+                            <label for="rank" class="form-label">Pay Grade</label>
+                            <select id="rank" name="rank" class="form-control">
+                                <option selected disabled hidden>Select your rank</option>
+                                <optgroup label="Enlisted">
+                                    <option>E-1</option>
+                                    <option>E-2</option>
+                                    <option>E-3</option>
+                                    <option>E-4</option>
+                                    <option>E-5</option>
+                                    <option>E-6</option>
+                                    <option>E-7</option>
+                                    <option>E-8</option>
+                                    <option>E-9</option>
+                                </optgroup>
+                                <optgroup label="Warrant Officer">
+                                    <option>W-1</option>
+                                    <option>W-2</option>
+                                    <option>W-3</option>
+                                    <option>W-4</option>
+                                    <option>W-5</option>
+                                </optgroup>
+                                <optgroup label="Officer">
+                                    <option>O-1</option>
+                                    <option>O-2</option>
+                                    <option>O-3</option>
+                                    <option>O-4</option>
+                                    <option>O-5</option>
+                                    <option>O-6</option>
+                                    <option>O-7</option>
+                                    <option>O-8</option>
+                                    <option>O-9</option>
+                                    <option>O-10</option>
+                                </optgroup>
+                                <optgroup label="Civil Service">
+                                    <option>GS-1</option>
+                                    <option>GS-2</option>
+                                    <option>GS-3</option>
+                                    <option>GS-4</option>
+                                    <option>GS-5</option>
+                                    <option>GS-6</option>
+                                    <option>GS-7</option>
+                                    <option>GS-8</option>
+                                    <option>GS-9</option>
+                                    <option>GS-10</option>
+                                    <option>GS-11</option>
+                                    <option>GS-12</option>
+                                    <option>GS-13</option>
+                                    <option>GS-14</option>
+                                    <option>GS-15</option>
+                                    <option>SES</option>
+                                </optgroup>
+                                <option>N/A</option>
+                            </select>
+                            <#if messagesPerField.existsError('rank')>
+                                <span class="message-details" aria-live="polite">
+                                    ${kcSanitize(messagesPerField.get('rank'))?no_esc}
+                                </span>
+                            </#if>
+                        </div>
+                    </div>
+                    <div class="form-group ${messagesPerField.printIfExists('organization','has-error')}">
+                        <label for="organization" class="form-label">Unit, Organization or Company Name</label>
+                        <input id="organization" class="form-control" name="organization" type="text"
+                            value="${(register.formData['organization']!'')}" autocomplete="company" />
+                        <#if messagesPerField.existsError('organization')>
                             <span class="message-details" aria-live="polite">
-                                ${kcSanitize(messagesPerField.get('affiliation'))?no_esc}
+                                ${kcSanitize(messagesPerField.get('organization'))?no_esc}
                             </span>
                         </#if>
                     </div>
-                    <div class="col-lg-6 form-group ${messagesPerField.printIfExists('rank','has-error')}">
-                        <label for="rank" class="form-label">Pay Grade</label>
-                        <select id="rank" name="rank" class="form-control">
-                            <option selected disabled hidden>Select your rank</option>
-                            <optgroup label="Enlisted">
-                                <option>E-1</option>
-                                <option>E-2</option>
-                                <option>E-3</option>
-                                <option>E-4</option>
-                                <option>E-5</option>
-                                <option>E-6</option>
-                                <option>E-7</option>
-                                <option>E-8</option>
-                                <option>E-9</option>
-                            </optgroup>
-                            <optgroup label="Warrant Officer">
-                                <option>W-1</option>
-                                <option>W-2</option>
-                                <option>W-3</option>
-                                <option>W-4</option>
-                                <option>W-5</option>
-                            </optgroup>
-                            <optgroup label="Officer">
-                                <option>O-1</option>
-                                <option>O-2</option>
-                                <option>O-3</option>
-                                <option>O-4</option>
-                                <option>O-5</option>
-                                <option>O-6</option>
-                                <option>O-7</option>
-                                <option>O-8</option>
-                                <option>O-9</option>
-                                <option>O-10</option>
-                            </optgroup>
-                            <optgroup label="Civil Service">
-                                <option>GS-1</option>
-                                <option>GS-2</option>
-                                <option>GS-3</option>
-                                <option>GS-4</option>
-                                <option>GS-5</option>
-                                <option>GS-6</option>
-                                <option>GS-7</option>
-                                <option>GS-8</option>
-                                <option>GS-9</option>
-                                <option>GS-10</option>
-                                <option>GS-11</option>
-                                <option>GS-12</option>
-                                <option>GS-13</option>
-                                <option>GS-14</option>
-                                <option>GS-15</option>
-                                <option>SES</option>
-                            </optgroup>
-                            <option>N/A</option>
-                        </select>
-                        <#if messagesPerField.existsError('rank')>
-                            <span class="message-details" aria-live="polite">
-                                ${kcSanitize(messagesPerField.get('rank'))?no_esc}
-                            </span>
-                        </#if>
-                    </div>
-                </div>
-                <div class="form-group ${messagesPerField.printIfExists('organization','has-error')}">
-                    <label for="organization" class="form-label">Unit, Organization or Company Name</label>
-                    <input id="organization" class="form-control" name="organization" type="text"
-                        value="${(register.formData['organization']!'')}" autocomplete="company" />
-                    <#if messagesPerField.existsError('organization')>
-                        <span class="message-details" aria-live="polite">
-                            ${kcSanitize(messagesPerField.get('organization'))?no_esc}
-                        </span>
-                    </#if>
-                </div>
+                </#if>
                 <div class="location-input">
                     <div class="form-group">
                         <label for="location" class="form-label">Location</label>
@@ -243,8 +245,10 @@
         </#if>
     </@layout.registrationLayout>
     <script>
-    document.getElementById('affiliation').value = "${(register.formData['affiliation']!'')}";
-    document.getElementById('rank').value = "${(register.formData['rank']!'')}";
+    <#if registrationFields>
+        document.getElementById('affiliation').value = "${(register.formData['affiliation']!'')}";
+        document.getElementById('rank').value = "${(register.formData['rank']!'')}";
+    </#if>
     (function() {
         const threshold = 250;
         let count = 0;
