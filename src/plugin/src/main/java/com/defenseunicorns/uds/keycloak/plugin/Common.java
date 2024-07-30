@@ -43,7 +43,7 @@ public enum Common {
     /**
      * The user mattermost id attribute
      */
-    static final String USER_MATTERMOST_ID_ATTR = "mattermostid";
+    public static final String USER_MATTERMOST_ID_ATTR = "mattermostid";
 
     /**
      * The certificate policy OID must match one of these values.
