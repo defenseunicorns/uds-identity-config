@@ -1,6 +1,5 @@
 package com.defenseunicorns.uds.keycloak.plugin.authentication;
 
-
 import java.util.Arrays;
 import java.util.Optional;
 import org.jboss.logging.Logger;
@@ -12,6 +11,7 @@ import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
+import com.defenseunicorns.uds.keycloak.plugin.Common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -31,6 +31,13 @@ public class RequireGroupAuthenticator implements Authenticator {
         }
 
         ClientModel client = context.getAuthenticationSession().getClient();
+
+        // if client is in ignore list, automatic success and finish
+        if(Common.GROUP_PROTECTION_IGNORE_CLIENTS.contains(client.getClientId())){
+            context.success();
+            return;
+        }
+
         String groupsAttribute = client.getAttribute("uds.core.groups");
 
         if (groupsAttribute == null || groupsAttribute.isEmpty()) {
