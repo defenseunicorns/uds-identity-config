@@ -186,7 +186,16 @@ public class RequireGroupAuthenticatorTest {
 
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"Invalid/Group\"]}");
         when(realm.getGroupsStream()).thenReturn(Stream.of(invalidGroup));
-        
+
         authenticator.authenticate(context);
+    }
+
+    @Test
+    public void testShouldAcceptClientInIgnoreList() {
+        when(client.getClientId()).thenReturn("account-console");
+
+        authenticator.authenticate(context);
+
+        verify(context).success();
     }
 }
