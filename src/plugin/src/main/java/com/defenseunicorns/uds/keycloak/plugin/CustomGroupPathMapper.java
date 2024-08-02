@@ -21,7 +21,7 @@ public class CustomGroupPathMapper extends AbstractOIDCProtocolMapper implements
 
     public static final String PROVIDER_ID = "bare-group-path-mapper";
     private static final String GROUPS_CLAIM = "groups";
-    private static final String BARE_GROUPS_CLAIM = "bare_groups";
+    private static final String BARE_GROUPS_CLAIM = "bare-groups";
 
     @Override
     public String getDisplayCategory() {
