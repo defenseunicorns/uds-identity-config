@@ -27,8 +27,6 @@ This doc contains important information for upgrading uds-identity-config versio
       - Click `Allowed Client Scopes`
       - Add `bare-groups` to the list of `Allowed Client Scopes`
       - Click `Save` 
-
-
 </details>
 
 ## v0.5.0 to v0.5.1
