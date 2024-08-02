@@ -19,13 +19,13 @@ public class JSONLogEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void onEvent(Event event) {
-        JsonNode jsonMessage = convertEventToJson(event);
+        JsonNode jsonMessage = convertUserEvent(event);
         System.out.println(jsonMessage);
     }
 
     @Override
     public void onEvent(AdminEvent adminEvent, boolean includeRepresentation) {
-        JsonNode jsonMessage = convertAdminEventToJson(adminEvent);
+        JsonNode jsonMessage = convertAdminEvent(adminEvent);
         System.out.println(jsonMessage);
     }
 
@@ -34,10 +34,15 @@ public class JSONLogEventListenerProvider implements EventListenerProvider {
         // Clean up resources if needed
     }
 
-    private JsonNode convertEventToJson(Event event) {
-        // Convert the Event to an ObjectNode
-        ObjectNode originalJsonMessage = objectMapper.valueToTree(event);
+    private JsonNode convertAdminEvent(AdminEvent adminEvent) {
+        return convertEventToJson(objectMapper.valueToTree(adminEvent), "ADMIN");
+    }
 
+    private JsonNode convertUserEvent(Event event) {
+        return convertEventToJson(objectMapper.valueToTree(event), "USER");
+    }
+
+    private JsonNode convertEventToJson(JsonNode originalJsonMessage, String eventType) {
         // Extract the "time" value
         long timeMillis = originalJsonMessage.has("time") ? originalJsonMessage.get("time").asLong() : 0;
 
@@ -53,6 +58,7 @@ public class JSONLogEventListenerProvider implements EventListenerProvider {
         // Add fields in the desired order
         jsonMessage.put("timestamp", formattedTime);
         jsonMessage.put("loggerName", "uds.keycloak.plugin.eventListeners.JSONLogEventListenerProvider");
+        jsonMessage.put("eventType", eventType);
 
         Iterator<Entry<String, JsonNode>> fields = originalJsonMessage.fields();
         while (fields.hasNext()) {
@@ -61,10 +67,6 @@ public class JSONLogEventListenerProvider implements EventListenerProvider {
         }
 
         return jsonMessage;
-    }
-
-    private JsonNode convertAdminEventToJson(AdminEvent adminEvent) {
-        return objectMapper.valueToTree(adminEvent);
     }
 
 }

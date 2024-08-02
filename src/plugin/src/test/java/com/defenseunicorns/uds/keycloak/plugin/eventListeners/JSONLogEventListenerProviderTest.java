@@ -50,11 +50,11 @@ public class JSONLogEventListenerProviderTest {
         event.setType(EventType.LOGIN);
         event.setUserId("test-user");
 
-        // Use reflection to call the private convertEventToJson method
-        Method convertEventToJsonMethod = JSONLogEventListenerProvider.class.getDeclaredMethod("convertEventToJson", Event.class);
-        convertEventToJsonMethod.setAccessible(true);
+        // Use reflection to call the private convertUserEvent method
+        Method convertUserEventMethod = JSONLogEventListenerProvider.class.getDeclaredMethod("convertUserEvent", Event.class);
+        convertUserEventMethod.setAccessible(true);
         ObjectMapper objectMapper = new ObjectMapper();
-        String expectedJson = objectMapper.writeValueAsString(convertEventToJsonMethod.invoke(provider, event));
+        String expectedJson = objectMapper.writeValueAsString(convertUserEventMethod.invoke(provider, event));
 
         provider.onEvent(event);
 
@@ -70,11 +70,11 @@ public class JSONLogEventListenerProviderTest {
         adminEvent.setOperationType(OperationType.CREATE);
         adminEvent.setAuthDetails(new AuthDetails());
 
-        // Use reflection to call the private convertAdminEventToJson method
-        Method convertAdminEventToJsonMethod = JSONLogEventListenerProvider.class.getDeclaredMethod("convertAdminEventToJson", AdminEvent.class);
-        convertAdminEventToJsonMethod.setAccessible(true);
+        // Use reflection to call the private convertAdminEvent method
+        Method convertAdminEventMethod = JSONLogEventListenerProvider.class.getDeclaredMethod("convertAdminEvent", AdminEvent.class);
+        convertAdminEventMethod.setAccessible(true);
         ObjectMapper objectMapper = new ObjectMapper();
-        String expectedJson = objectMapper.writeValueAsString(convertAdminEventToJsonMethod.invoke(provider, adminEvent));
+        String expectedJson = objectMapper.writeValueAsString(convertAdminEventMethod.invoke(provider, adminEvent));
 
         provider.onEvent(adminEvent, true);
 
