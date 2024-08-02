@@ -1387,6 +1387,35 @@
               "include.in.token.scope": "true",
               "display.on.consent.screen": "true"
             }
+        },
+        {
+            "id": "1962f32a-2c09-4ce0-8677-6f6776768d24",
+            "name": "bare-groups",
+            "description": "A client scope providing groups without leading slash",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "true",
+                "consent.screen.text": "Please use this scope only if you understand the implications of excluding the leading slash from group data."
+            },
+            "protocolMappers": [
+                {
+                    "id": "62009bb0-75d1-46a8-b207-f39a0c3c0e2d",
+                    "name": "bare groups",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "bare-group-path-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "full.path": "true",
+                        "introspection.token.claim": "true",
+                        "userinfo.token.claim": "true",
+                        "multivalued": "true",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "bare-groups"
+                    }
+                }
+            ]
         }
     ],
     "defaultDefaultClientScopes": [
@@ -1401,7 +1430,8 @@
         "offline_access",
         "address",
         "phone",
-        "microprofile-jwt"
+        "microprofile-jwt",
+        "bare-groups"
     ],
     "browserSecurityHeaders": {
         "contentSecurityPolicyReportOnly": "",
@@ -1419,8 +1449,8 @@
     "eventsEnabled": true,
     "eventsExpiration": 1800,
     "eventsListeners": [
-        "jboss-logging",
-        "custom-registration-listener"
+        "jsonlog-event-listener",
+        "registration-event-listener"
     ],
     "enabledEventTypes": [
         "SEND_RESET_PASSWORD",
@@ -1610,7 +1640,8 @@
                         "true"
                     ],
                     "allowed-client-scopes": [
-                        "openid"
+                        "openid",
+                        "bare-groups"
                     ]
                 }
             },
