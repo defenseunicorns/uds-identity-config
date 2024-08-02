@@ -11,9 +11,9 @@ packages:
     ref: 0.8.0
 
   - name: init
-    repository: ghcr.io/defenseunicorns/packages/init
-    # renovate: datasource=github-tags depName=defenseunicorns/zarf versioning=semver
-    ref: v0.36.1
+    repository: ghcr.io/zarf-dev/packages/init
+    # renovate: datasource=github-tags depName=zarf-dev/zarf versioning=semver
+    ref: v0.37.0
 
   - name: keycloak-identity-config
     path: ../
