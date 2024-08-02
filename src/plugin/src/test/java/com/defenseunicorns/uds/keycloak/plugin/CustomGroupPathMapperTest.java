@@ -57,7 +57,7 @@ public class CustomGroupPathMapperTest {
         mapper.setClaim(token, mappingModel, userSession, keycloakSession, clientSessionCtx);
 
         List<String> expected = List.of("group1", "group2/subgroup");
-        assertEquals(expected, token.getOtherClaims().get("bare_groups"));
+        assertEquals(expected, token.getOtherClaims().get("bare-groups"));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class CustomGroupPathMapperTest {
         mapper.setClaim(token, mappingModel, userSession, keycloakSession, clientSessionCtx);
 
         List<String> expected = List.of("group1", "group2/subgroup");
-        assertEquals(expected, token.getOtherClaims().get("bare_groups"));
+        assertEquals(expected, token.getOtherClaims().get("bare-groups"));
     }
 
     @Test
@@ -78,13 +78,13 @@ public class CustomGroupPathMapperTest {
 
         mapper.setClaim(token, mappingModel, userSession, keycloakSession, clientSessionCtx);
 
-        assertNull(token.getOtherClaims().get("bare_groups"));
+        assertNull(token.getOtherClaims().get("bare-groups"));
     }
 
     @Test
     public void testSetClaim_noGroupsClaim() {
         mapper.setClaim(token, mappingModel, userSession, keycloakSession, clientSessionCtx);
 
-        assertNull(token.getOtherClaims().get("bare_groups"));
+        assertNull(token.getOtherClaims().get("bare-groups"));
     }
 }
