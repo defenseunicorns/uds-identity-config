@@ -45,7 +45,7 @@ public enum Common {
     /**
      * The user mattermost id attribute
      */
-    static final String USER_MATTERMOST_ID_ATTR = "mattermostid";
+    public static final String USER_MATTERMOST_ID_ATTR = "mattermostid";
 
     /**
      * Set of clients that group protection should not apple to

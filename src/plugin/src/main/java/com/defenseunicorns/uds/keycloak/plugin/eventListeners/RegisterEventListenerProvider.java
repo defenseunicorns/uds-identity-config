@@ -1,4 +1,4 @@
-package com.defenseunicorns.uds.keycloak.plugin;
+package com.defenseunicorns.uds.keycloak.plugin.eventListeners;
 
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -13,12 +13,14 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.RealmProvider;
 import org.keycloak.models.UserModel;
 
-public class CustomEventListenerProvider implements EventListenerProvider {
+import com.defenseunicorns.uds.keycloak.plugin.Common;
+
+public class RegisterEventListenerProvider implements EventListenerProvider {
 
     private final KeycloakSession session;
     private final RealmProvider model;
 
-    public CustomEventListenerProvider(KeycloakSession session) {
+    public RegisterEventListenerProvider(KeycloakSession session) {
         this.session = session;
         this.model = session.realms();
     }
@@ -60,14 +62,14 @@ public class CustomEventListenerProvider implements EventListenerProvider {
             byte[] encodedEmail;
             int emailByteTotal = 0;
             Date today = new Date();
-    
+
             encodedEmail = email.getBytes(StandardCharsets.US_ASCII);
             for (byte b : encodedEmail) {
                 emailByteTotal += b;
             }
-    
+
             SimpleDateFormat formatDate = new SimpleDateFormat("yyDHmsS");
-    
+
             user.setSingleAttribute(Common.USER_MATTERMOST_ID_ATTR, formatDate.format(today) + emailByteTotal);
         }
     }

@@ -1,1 +1,2 @@
-com.defenseunicorns.uds.keycloak.plugin.CustomEventListenerProviderFactory
+com.defenseunicorns.uds.keycloak.plugin.eventListeners.RegisterEventListenerProviderFactory
+com.defenseunicorns.uds.keycloak.plugin.eventListeners.JSONLogEventListenerProviderFactory

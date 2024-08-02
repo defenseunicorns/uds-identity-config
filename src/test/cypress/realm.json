@@ -1449,8 +1449,8 @@
     "eventsEnabled": true,
     "eventsExpiration": 1800,
     "eventsListeners": [
-        "jboss-logging",
-        "custom-registration-listener"
+        "jsonlog-event-listener",
+        "registration-event-listener"
     ],
     "enabledEventTypes": [
         "SEND_RESET_PASSWORD",
