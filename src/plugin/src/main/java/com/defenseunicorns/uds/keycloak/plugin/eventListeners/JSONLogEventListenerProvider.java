@@ -53,7 +53,6 @@ public class JSONLogEventListenerProvider implements EventListenerProvider {
         // Add fields in the desired order
         jsonMessage.put("timestamp", formattedTime);
         jsonMessage.put("loggerName", "uds.keycloak.plugin.eventListeners.JSONLogEventListenerProvider");
-        jsonMessage.put("level", "DEBUG");
 
         Iterator<Entry<String, JsonNode>> fields = originalJsonMessage.fields();
         while (fields.hasNext()) {
