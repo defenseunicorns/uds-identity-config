@@ -1418,30 +1418,22 @@
             ]
         },
         {
-            "id": "0f21d1e5-5f81-4b45-9464-63f3be8c4099",
+            "id": "fa4b3a43-7a51-449c-9937-c992f582dd1d",
             "name": "aws-groups",
-            "description": "OpenID Connect custom scope for formatting user groups for AWS",
-            "protocol": "openid-connect",
+            "description": "SAML custom scope for formatting user groups for AWS",
+            "protocol": "saml",
             "attributes": {
                 "include.in.token.scope": "false",
                 "display.on.consent.screen": "true"
             },
             "protocolMappers": [
                 {
-                    "id": "22e6f8bf-3397-468e-874c-d81e29afbd78",
-                    "name": "aws groups",
-                    "protocol": "openid-connect",
-                    "protocolMapper": "aws-group-mapper",
+                    "id": "a87cb1d0-214b-4e92-8b93-562efb69f36d",
+                    "name": "aws-groups",
+                    "protocol": "saml",
+                    "protocolMapper": "aws-saml-group-mapper",
                     "consentRequired": false,
-                    "config": {
-                        "full.path": "true",
-                        "introspection.token.claim": "true",
-                        "userinfo.token.claim": "true",
-                        "multivalued": "true",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
-                        "claim.name": "aws-groups"
-                    }
+                    "config": {}
                 }
             ]
         }

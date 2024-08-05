@@ -1,2 +1,2 @@
 com.defenseunicorns.uds.keycloak.plugin.CustomGroupPathMapper
-com.defenseunicorns.uds.keycloak.plugin.CustomAWSGroupMapper
+com.defenseunicorns.uds.keycloak.plugin.CustomAWSSAMLGroupMapper
