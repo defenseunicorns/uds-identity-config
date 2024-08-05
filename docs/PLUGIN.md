@@ -1,18 +1,29 @@
 ---
-title: Plugin
+title: Plugins
 type: docs
 weight: 2
 ---
 
-The plugin provides the auth flows that keycloak uses for x509 (CAC) authentication as well as some of the surrounding registration flows.
+Keycloak plugins provide additional custom logic to our Keycloak deployment. Below is a table of the current implemented plugins and how to interact with them.
 
-One of the plugin capabilities is [group authentication](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/authentication/RequireGroupAuthenticator.java). This capability allows for defining a keycloak group membership that is required to access an application. There is [an e2e test](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/group-authz.cy.ts) that demonstrates grafana being deployed and requiring that users accessing its dashboard be members of the `/UDS Core/Admin` group. There is [additional documentation](https://github.com/defenseunicorns/uds-core/blob/v0.23.0/docs/configuration/uds-operator.md?plain=1#L23-L26) for configuring an application for group authentication in uds-core.
+## Current Plugins
+| Name | Description |
+|------|-------------|
+| [Group Authentication](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/authentication/RequireGroupAuthenticator.java) | Define Keycloak group membership that is required to access an application. [Additional documentation](https://github.com/defenseunicorns/uds-core/blob/v0.23.0/docs/configuration/uds-operator.md?plain=1#L23-L26) and [E2E test](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/test/cypress/e2e/group-authz.cy.ts).|
+| [Register Event Listener](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/eventListeners/RegisterEventListenerProvider.java) | Registration Event Listener to generate a unique id for each user that will be used as a `mattermostId`. [E2E test](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/test/cypress/e2e/registration.cy.ts#L49-L61). See Warnings below regarding this implementation. |
+| [JSON Log Event Listener](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/eventListeners/JSONLogEventListenerProvider.java) | JSON Log Event listener converts Keycloak event logs into json strings for ease of use in Logging applications like Grafana. |
+| [User Group Path Mapper](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomGroupPathMapper.java) | Some application break when using a forward slash in the group naming, this mapper removes the leading slash and creates a new `groups` claim called `bare-groups`. See Warnings below regarding the use of this plugin. |
+| [User AWS Group Mapper](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.3/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomAWSGroupMapper.java) | Amazon AppStream applications expect a specific group claim format when using Keycloak to pass authentication. This mapper converts the existing `groups` claim into a new claim `aws-groups` that resembles the necessary groups string. |
 
-Another nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID.
+### Warnings
 
 {{% alert-note %}}
 When creating a user via ADMIN API or ADMIN UI, the `REGISTER` event is not triggered, resulting in no Mattermost ID attribute generation. This will need to be done manually via click ops or the api. An example of how the attribute can be set via api can be seen [here](https://github.com/defenseunicorns/uds-common/blob/b2e8b25930c953ef893e7c787fe350f0d8679ee2/tasks/setup.yaml#L46).
 {{% /alert-note %}}
+
+{{% alert-caution %}}
+Please use this scope only if you understand the implications of excluding full path information from group data. It is highly important to not use the `bare-groups` claim for protecting an application due to security vulnerabilities.
+{{% /alert-caution %}}
 
 ## Requirements
 
