@@ -1414,8 +1414,8 @@
         "strictTransportSecurity": "max-age=31536000; includeSubDomains"
     },
     "smtpServer": {},
-    "loginTheme": "keycloak",
-    "accountTheme": "keycloak.v3",
+    "loginTheme": "theme",
+    "accountTheme": "theme",
     "eventsEnabled": true,
     "eventsExpiration": 1800,
     "eventsListeners": [
