@@ -1416,6 +1416,34 @@
                     }
                 }
             ]
+        },
+        {
+            "id": "0f21d1e5-5f81-4b45-9464-63f3be8c4099",
+            "name": "aws-groups",
+            "description": "OpenID Connect custom scope for formatting user groups for AWS",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "false",
+                "display.on.consent.screen": "true"
+            },
+            "protocolMappers": [
+                {
+                    "id": "22e6f8bf-3397-468e-874c-d81e29afbd78",
+                    "name": "aws groups",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "aws-group-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "full.path": "true",
+                        "introspection.token.claim": "true",
+                        "userinfo.token.claim": "true",
+                        "multivalued": "true",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "aws-groups"
+                    }
+                }
+            ]
         }
     ],
     "defaultDefaultClientScopes": [
@@ -1431,7 +1459,8 @@
         "address",
         "phone",
         "microprofile-jwt",
-        "bare-groups"
+        "bare-groups",
+        "aws-groups"
     ],
     "browserSecurityHeaders": {
         "contentSecurityPolicyReportOnly": "",
@@ -1641,7 +1670,8 @@
                     ],
                     "allowed-client-scopes": [
                         "openid",
-                        "bare-groups"
+                        "bare-groups",
+                        "aws-groups"
                     ]
                 }
             },

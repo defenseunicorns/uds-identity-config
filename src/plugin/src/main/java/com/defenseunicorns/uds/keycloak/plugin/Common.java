@@ -53,6 +53,11 @@ public enum Common {
     public static final Set<String> GROUP_PROTECTION_IGNORE_CLIENTS = new HashSet<String>(Arrays.asList("account", "account-console", "broker"));
 
     /**
+     * The Keycloak groups claim name
+     */
+    public static final String GROUPS_CLAIM = "groups";
+
+    /**
      * The certificate policy OID must match one of these values.
      */
     static final List<String> REQUIRED_CERT_POLICIES = Arrays.asList(
