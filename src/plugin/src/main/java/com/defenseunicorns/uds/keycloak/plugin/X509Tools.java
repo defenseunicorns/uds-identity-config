@@ -18,6 +18,8 @@ import org.keycloak.models.UserModel;
 import org.keycloak.services.x509.X509ClientCertificateLookup;
 import org.keycloak.sessions.AuthenticationSessionModel;
 
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -39,7 +41,7 @@ public final class X509Tools {
         LOG.infof("{} X509 ID: {}", logPrefix, username);
 
         if (username != null) {
-            Stream<UserModel> users = session.users().searchForUserByUserAttributeStream(realm, Common.USER_ID_ATTRIBUTE, username);
+            Stream<UserModel> users = session.users().searchForUserByUserAttributeStream(realm, Common.USER_X509_ID_ATTRIBUTE, username);
             return users != null && users.findAny().isPresent();
         }
         return false;
@@ -115,23 +117,23 @@ public final class X509Tools {
         if (extPolicyBytes == null) {
             return null;
         }
-    
+
         // Use try-with-resources to ensure streams are closed
         try (ASN1InputStream asn1InputStream = new ASN1InputStream(new ByteArrayInputStream(extPolicyBytes))) {
             DEROctetString oct = (DEROctetString) asn1InputStream.readObject();
-    
+
             try (ASN1InputStream seqInputStream = new ASN1InputStream(new ByteArrayInputStream(oct.getOctets()))) {
                 ASN1Sequence seq = (ASN1Sequence) seqInputStream.readObject();
-    
+
                 if (seq.size() <= certificatePolicyPos) {
                     return null;
                 }
-    
+
                 CertificatePolicies certificatePolicies = new CertificatePolicies(PolicyInformation.getInstance(seq.getObjectAt(certificatePolicyPos)));
                 if (certificatePolicies.getPolicyInformation().length <= policyIdentifierPos) {
                     return null;
                 }
-    
+
                 PolicyInformation[] policyInformation = certificatePolicies.getPolicyInformation();
                 return policyInformation[policyIdentifierPos].getPolicyIdentifier().getId();
             }
@@ -264,5 +266,54 @@ public final class X509Tools {
                 return null;
     }
 
+    /**
+     * Extract the User's Common Name (CN) from the subject DN of the x509 certificate.
+     *
+     * @param context a Keycloak form context
+     * @return String representing the User's CN, or null if not found
+     */
+    public static String getX509CommonName(final FormContext context) {
+        return getX509CommonName(context.getSession(), context.getHttpRequest());
+    }
 
+    /**
+     * Extract the User's Common Name (CN) from the subject DN of the x509 certificate.
+     *
+     * @param context a Keycloak required action context
+     * @return String representing the User's CN, or null if not found
+     */
+    public static String getX509CommonName(final RequiredActionContext context) {
+        return getX509CommonName(context.getSession(), context.getHttpRequest());
+    }
+
+    /**
+     * Extract the User's Common Name (CN) from the subject DN of the x509 certificate.
+     *
+     * @param session the Keycloak session
+     * @param httpRequest the HttpRequest
+     * @return String representing the User's CN, or null if not found
+     */
+    public static String getX509CommonName(final KeycloakSession session, final HttpRequest httpRequest) {
+        try {
+            X509ClientCertificateLookup provider = session.getProvider(X509ClientCertificateLookup.class);
+            if (provider == null) {
+                return null;
+            }
+
+            X509Certificate[] certs = provider.getCertificateChain(httpRequest);
+            if (certs != null && certs.length > 0) {
+                String subjectDN = certs[0].getSubjectX500Principal().getName();
+                LdapName ldapDN = new LdapName(subjectDN);
+                for (Rdn rdn : ldapDN.getRdns()) {
+                    if ("CN".equalsIgnoreCase(rdn.getType())) {
+                        // Here, we assume the CN field represents the user's common name
+                        return rdn.getValue().toString();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Error extracting user's CN from subject DN: " + e.getMessage());
+        }
+        return null;
+    }
 }
