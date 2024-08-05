@@ -5,7 +5,12 @@
                 <div class="form-group">
                     <div class="alert alert-info cac-info">
                         <h2>DoD PKI Detected</h2>
-                        <#if x509.formData.cacSubjectDN??>
+                        <#if x509.formData.subjectDN??>
+                            <p id="certificate_subjectDN" class="">
+                                ${(x509.formData.subjectDN!"")}
+                            </p>
+                        <#-- Properly display subjectDN on initial registration -->
+                        <#elseif x509.formData.cacSubjectDN??>
                             <p id="certificate_subjectDN" class="">
                                 ${(x509.formData.cacSubjectDN!"")}
                             </p>
