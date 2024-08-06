@@ -33,7 +33,7 @@ public class Utils {
 
     public static void setupFileMocks() throws Exception {
         final String fileContent = "x509:\n" +
-                "  userIdentityAttribute: \"usercertificate\"\n" +
+                "  userIdentityAttribute: \"usercertificateIdentity\"\n" +
                 "  userActive509Attribute: \"activecac\"\n" +
                 "  autoJoinGroup:\n" +
                 "    - \"/test-group\"\n" +
