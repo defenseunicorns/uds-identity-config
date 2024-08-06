@@ -6,6 +6,33 @@ weight: 3
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
+## v0.5.1 to v0.5.2
+
+<details open>
+<summary>Upgrade Details</summary>
+
+* An custom Keycloak event logger that replaces the default event logger is [included in this release](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/realm.json#L1669), if you wish to enable manually as part of an upgrade do the following (in the `Unicorn Delivery Service` realm):
+  - Click on the `Realm Settings` > `Events` and add `jsonlog-event-listener`.
+  - Remove the built in `jboss-logging` event listener.
+  - Click `Save`
+* The custom registration event listener was [renamed](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/realm.json#L1670) from `custom-registration-listener` to `registration-event-listener`. To manually update this event listener (in the `Unicorn Delivery Service` realm):
+  - Click on the `Realm Settings` > `Events` and add `registration-event-listener`.
+  - Remove `custom-registration-listener`.
+  - Click `Save`
+* An additional scope (`bare-groups`) was included in the uds [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/realm.json#L1608-L1636). To add this scope manually do the following (in the `Unicorn Delivery Service` realm):
+   - Click on `Client Scopes` > `Create client scope`.
+   - Name the scope `bare-groups`, and configure it  to be to be
+      - Type: `Optional`
+      - Include in token scope: `On`
+   - Click `Save`
+   - Click `Mappers` > `Create a new mapper`
+   - Select `Custom Group Path Mapper` and name it `bare groups`
+   - To enable this scope to be added as a `defaultClientScope` for your clients, navigate to the top level `Clients` > `Client registration` tab.
+      - Click `Allowed Client Scopes`
+      - Add `bare-groups` to the list of `Allowed Client Scopes`
+      - Click `Save`
+</details>
+
 ## v0.5.0 to v0.5.1
 
 <details open>
