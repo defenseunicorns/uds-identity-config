@@ -1640,7 +1640,7 @@
             "description": "SAML custom scope for formatting user groups for AWS",
             "protocol": "saml",
             "attributes": {
-                "include.in.token.scope": "false",
+                "include.in.token.scope": "true",
                 "display.on.consent.screen": "true"
             },
             "protocolMappers": [
@@ -1649,8 +1649,7 @@
                     "name": "aws-groups",
                     "protocol": "saml",
                     "protocolMapper": "aws-saml-group-mapper",
-                    "consentRequired": false,
-                    "config": {}
+                    "consentRequired": false
                 }
             ]
         }
