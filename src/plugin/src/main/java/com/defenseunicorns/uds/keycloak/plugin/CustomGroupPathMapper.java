@@ -20,6 +20,7 @@ public class CustomGroupPathMapper extends AbstractOIDCProtocolMapper implements
         OIDCIDTokenMapper, UserInfoTokenMapper {
 
     public static final String PROVIDER_ID = "bare-group-path-mapper";
+    private static final String GROUPS_CLAIM = "groups";
     private static final String BARE_GROUPS_CLAIM = "bare-groups";
 
     @Override
@@ -53,8 +54,8 @@ public class CustomGroupPathMapper extends AbstractOIDCProtocolMapper implements
                             ClientSessionContext clientSessionCtx) {
 
         Map<String, Object> otherClaims = token.getOtherClaims();
-        if (otherClaims != null && otherClaims.containsKey(Common.GROUPS_CLAIM)) {
-            Object groupsObj = otherClaims.get(Common.GROUPS_CLAIM);
+        if (otherClaims != null && otherClaims.containsKey(GROUPS_CLAIM)) {
+            Object groupsObj = otherClaims.get(GROUPS_CLAIM);
 
             if (groupsObj instanceof List) {
                 List<?> groupsList = (List<?>) groupsObj;
