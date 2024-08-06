@@ -22,7 +22,7 @@ packages:
   - name: core-slim-dev
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.24.1
+    ref: 0.25.0
     overrides:
       keycloak:
         keycloak:
