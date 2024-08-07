@@ -5,13 +5,17 @@ import org.junit.Test;
 import org.keycloak.models.AuthenticatedClientSessionModel;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.ProtocolMapperModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.UserSessionModel;
+import org.keycloak.protocol.saml.mappers.AttributeStatementHelper;
 import org.mockito.Mockito;
 import org.keycloak.dom.saml.v2.assertion.AttributeStatementType;
 import org.keycloak.dom.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.keycloak.dom.saml.v2.assertion.AttributeType;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -25,6 +29,8 @@ public class CustomAWSSAMLGroupMapperTest {
     private AuthenticatedClientSessionModel mockClientSession;
     private UserModel mockUser;
     private AttributeStatementType mockAttributeStatement;
+    private ProtocolMapperModel mockMappingModel;
+    private Map<String, String> config;
 
     @Before
     public void setup() {
@@ -34,8 +40,14 @@ public class CustomAWSSAMLGroupMapperTest {
         mockClientSession = Mockito.mock(AuthenticatedClientSessionModel.class);
         mockUser = Mockito.mock(UserModel.class);
         mockAttributeStatement = Mockito.mock(AttributeStatementType.class);
+        mockMappingModel = Mockito.mock(ProtocolMapperModel.class);
 
         when(mockUserSession.getUser()).thenReturn(mockUser);
+
+        // Mock the config map and getConfig() method
+        config = new HashMap<>();
+        config.put(AttributeStatementHelper.SAML_ATTRIBUTE_NAME, "aws-groups");
+        when(mockMappingModel.getConfig()).thenReturn(config);
     }
 
     @Test
@@ -46,7 +58,7 @@ public class CustomAWSSAMLGroupMapperTest {
 
         when(mockUser.getGroupsStream()).thenReturn(Stream.of(group));
 
-        mapper.transformAttributeStatement(mockAttributeStatement, null, mockSession, mockUserSession, mockClientSession);
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel, mockSession, mockUserSession, mockClientSession);
 
         verify(mockAttributeStatement).addAttribute(argThat(attribute -> {
             ASTChoiceType choice = (ASTChoiceType) attribute;
@@ -69,7 +81,7 @@ public class CustomAWSSAMLGroupMapperTest {
 
         when(mockUser.getGroupsStream()).thenReturn(Stream.of(group1));
 
-        mapper.transformAttributeStatement(mockAttributeStatement, null, mockSession, mockUserSession, mockClientSession);
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel, mockSession, mockUserSession, mockClientSession);
 
         verify(mockAttributeStatement).addAttribute(argThat(attribute -> {
             ASTChoiceType choice = (ASTChoiceType) attribute;
@@ -92,7 +104,7 @@ public class CustomAWSSAMLGroupMapperTest {
 
         when(mockUser.getGroupsStream()).thenReturn(Stream.of(group1, group2));
 
-        mapper.transformAttributeStatement(mockAttributeStatement, null, mockSession, mockUserSession, mockClientSession);
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel, mockSession, mockUserSession, mockClientSession);
 
         verify(mockAttributeStatement).addAttribute(argThat(attribute -> {
             if (!(attribute instanceof ASTChoiceType)) {
@@ -127,7 +139,7 @@ public class CustomAWSSAMLGroupMapperTest {
 
         when(mockUser.getGroupsStream()).thenReturn(Stream.of(group1, group3));
 
-        mapper.transformAttributeStatement(mockAttributeStatement, null, mockSession, mockUserSession, mockClientSession);
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel, mockSession, mockUserSession, mockClientSession);
 
         verify(mockAttributeStatement).addAttribute(argThat(attribute -> {
             if (!(attribute instanceof ASTChoiceType)) {
@@ -149,7 +161,7 @@ public class CustomAWSSAMLGroupMapperTest {
     public void testTransformAttributeStatement_noGroups() {
         when(mockUser.getGroupsStream()).thenReturn(Stream.empty());
 
-        mapper.transformAttributeStatement(mockAttributeStatement, null, mockSession, mockUserSession, mockClientSession);
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel, mockSession, mockUserSession, mockClientSession);
 
         verify(mockAttributeStatement, never()).addAttribute(any(ASTChoiceType.class));
     }
@@ -158,7 +170,7 @@ public class CustomAWSSAMLGroupMapperTest {
     public void testTransformAttributeStatement_nullGroups() {
         when(mockUser.getGroupsStream()).thenReturn(Stream.empty());
 
-        mapper.transformAttributeStatement(mockAttributeStatement, null, mockSession, mockUserSession, mockClientSession);
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel, mockSession, mockUserSession, mockClientSession);
 
         verify(mockAttributeStatement, never()).addAttribute(any(ASTChoiceType.class));
     }

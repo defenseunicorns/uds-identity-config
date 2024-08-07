@@ -8,6 +8,7 @@ import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.protocol.saml.mappers.AbstractSAMLProtocolMapper;
+import org.keycloak.protocol.saml.mappers.AttributeStatementHelper;
 import org.keycloak.protocol.saml.mappers.SAMLAttributeStatementMapper;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.saml.common.constants.JBossSAMLURIConstants;
@@ -23,7 +24,34 @@ import java.util.stream.Collectors;
 public class CustomAWSSAMLGroupMapper extends AbstractSAMLProtocolMapper implements SAMLAttributeStatementMapper {
 
     public static final String PROVIDER_ID = "aws-saml-group-mapper";
-    private static final String AWS_GROUPS_ATTRIBUTE = "aws-groups";
+
+    private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
+
+    static {
+        ProviderConfigProperty property;
+        property = new ProviderConfigProperty();
+        property.setName(AttributeStatementHelper.SAML_ATTRIBUTE_NAME);
+        property.setLabel("Group attribute name");
+        property.setDefaultValue("member");
+        property.setHelpText("Name of the SAML attribute you want to put your groups into.  i.e. 'member', 'memberOf'.");
+        configProperties.add(property);
+        property = new ProviderConfigProperty();
+        property.setName(AttributeStatementHelper.FRIENDLY_NAME);
+        property.setLabel(AttributeStatementHelper.FRIENDLY_NAME_LABEL);
+        property.setHelpText(AttributeStatementHelper.FRIENDLY_NAME_HELP_TEXT);
+        configProperties.add(property);
+        property = new ProviderConfigProperty();
+        property.setName(AttributeStatementHelper.SAML_ATTRIBUTE_NAMEFORMAT);
+        property.setLabel("SAML Attribute NameFormat");
+        property.setHelpText("SAML Attribute NameFormat.  Can be basic, URI reference, or unspecified.");
+        List<String> types = new ArrayList<String>(3);
+        types.add(AttributeStatementHelper.BASIC);
+        types.add(AttributeStatementHelper.URI_REFERENCE);
+        types.add(AttributeStatementHelper.UNSPECIFIED);
+        property.setType(ProviderConfigProperty.LIST_TYPE);
+        property.setOptions(types);
+        configProperties.add(property);
+    }
 
     @Override
     public String getDisplayCategory() {
@@ -47,7 +75,7 @@ public class CustomAWSSAMLGroupMapper extends AbstractSAMLProtocolMapper impleme
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return new ArrayList<>();
+        return configProperties;
     }
 
     @Override
@@ -68,7 +96,7 @@ public class CustomAWSSAMLGroupMapper extends AbstractSAMLProtocolMapper impleme
             String groupsString = String.join(":", groupPaths);
 
             // Create a new SAML attribute
-            AttributeType attribute = new AttributeType(AWS_GROUPS_ATTRIBUTE);
+            AttributeType attribute = new AttributeType(mappingModel.getConfig().get(AttributeStatementHelper.SAML_ATTRIBUTE_NAME));
             attribute.setNameFormat(JBossSAMLURIConstants.ATTRIBUTE_FORMAT_BASIC.get());
             attribute.addAttributeValue(groupsString);
             attributeStatement.addAttribute(new ASTChoiceType(attribute));
