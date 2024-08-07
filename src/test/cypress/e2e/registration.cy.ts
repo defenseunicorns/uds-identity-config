@@ -16,9 +16,7 @@ describe("CAC Registration Flow", () => {
     cy.registrationPage(formData);
 
     // Verify Successful Registration and on User Account Page
-    cy.get("#landingLoggedInUser")
-      .should("be.visible")
-      .and("contain", formData.firstName + " " + formData.lastName);
+    cy.verifyLoggedIn(formData.firstName, formData.lastName);
   });
 
   it("Successfull Login of CAC Registered User", () => {
@@ -38,13 +36,8 @@ describe("CAC Registration Flow", () => {
     // Sign in using the PKI
     cy.get("#kc-login").should("be.visible").click();
 
-    // Verify Users first and last in top bar
-    cy.get("#landingLoggedInUser").should("be.visible").and("have.text", "John Doe");
-
-    // Verify that groups card is present, proving that signin was successful
-    cy.get(".pf-c-card__title .pf-u-display-flex").should("exist").and("contain", "Groups");
-    cy.get(".pf-c-card__body").should("exist");
-    cy.get("#landing-groups").should("exist");
+    // Verify Successful Registration and on User Account Page
+    cy.verifyLoggedIn(formData.firstName, formData.lastName);
 
     // intercept the request that gets users personal info and verify mattermost id exists
     cy.intercept('GET', 'https://sso.uds.dev/realms/uds/account/', (req) => {

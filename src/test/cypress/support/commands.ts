@@ -6,12 +6,6 @@ import { RegistrationFormData } from "./types";
 Cypress.Commands.add("loginPage", () => {
   cy.visit("https://sso.uds.dev");
 
-  // Verify Access to Account Management landing page
-  cy.contains("h1", "UDS Identity - My Account", { timeout: 12000 }).should("be.visible");
-
-  // click on sign in button
-  cy.get("#landingSignInButton").should("be.visible").click();
-
   // Verify login page via existence of button
   cy.get('input[name="login"][type="submit"]').should("be.visible");
 });
@@ -77,6 +71,20 @@ Cypress.Commands.add("loginUser", (username: string, password: string) => {
 
   // click login button
   cy.get("#kc-login").should("be.visible").click();
+});
+
+/**
+ * Verify User is logged into user account portal
+ */
+Cypress.Commands.add("verifyLoggedIn", (firstname: string, lastname:string) => {
+    // Verify Successful Registration and on User Account Page
+    cy.get("span.pf-c-dropdown__toggle-text")
+      .should("be.visible")
+      .and("contain", firstname + " " + lastname);
+
+    cy.get('div.pf-c-content h1[data-ouia-component-type="PF4/Title"]')
+      .should("be.visible")
+      .and("contain.text", "Personal info");
 });
 
 /**

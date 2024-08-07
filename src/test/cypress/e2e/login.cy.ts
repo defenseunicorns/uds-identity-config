@@ -17,9 +17,7 @@ describe("Login Flow", () => {
     cy.get("input#kc-cancel.btn.btn-light").click();
 
     // Verify Successful Registration and on User Account Page
-    cy.get("#landingLoggedInUser")
-      .should("be.visible")
-      .and("contain", formData.firstName + " " + formData.lastName);
+    cy.verifyLoggedIn(formData.firstName, formData.lastName);
   });
 
   it("Invalid User Creds", () => {
