@@ -1,27 +1,44 @@
 [
-
-    { "label": "personalInfo", "path": "/" },
-    {
-      "label": "accountSecurity",
-      "children": [
-        { "label": "signingIn", "path": "account-security/signing-in" },
-        { "label": "deviceActivity", "path": "account-security/device-activity" },
-        {
-          "label": "linkedAccounts",
-          "path": "account-security/linked-accounts",
-          "isVisible": "isLinkedAccountsEnabled"
-        }
-      ]
-    },
-    { "label": "applications", "path": "applications" },
-    {
-      "label": "groups",
-      "path": "groups",
-      "isVisible": "isViewGroupsEnabled"
-    },
-    {
-      "label": "resources",
-      "path": "resources",
-      "isVisible": "isMyResourcesEnabled"
-    }
+  {
+    "id": "personal-info",
+    "path": "",
+    "label": "personalInfoSidebarTitle",
+    "descriptionLabel": "personalInfoIntroMessage"
+  },
+  {
+    "id": "security",
+    "label": "accountSecuritySidebarTitle",
+    "descriptionLabel": "accountSecurityIntroMessage",
+    "children": [
+      {
+        "id": "signingin",
+        "path": "account-security/signing-in",
+        "label": "signingInSidebarTitle"
+      },
+      {
+        "id": "device-activity",
+        "path": "account-security/device-activity",
+        "label": "deviceActivitySidebarTitle"
+      },
+      {
+        "id": "linked-accounts",
+        "path": "account-security/linked-accounts",
+        "label": "linkedAccountsSidebarTitle",
+        "isVisible": "isLinkedAccountsEnabled"
+      }
+    ]
+  },
+  {
+    "id": "applications",
+    "path": "applications",
+    "label": "applications",
+    "descriptionLabel": "applicationsIntroMessage"
+  },
+  {
+    "id": "groups",
+    "path": "groups",
+    "label": "groupLabel",
+    "descriptionLabel": "groupDescriptionLabel",
+    "isVisible": "isViewGroupsEnabled"
+  }
 ]
