@@ -13,7 +13,7 @@ packages:
   - name: init
     repository: ghcr.io/zarf-dev/packages/init
     # renovate: datasource=github-tags depName=zarf-dev/zarf versioning=semver
-    ref: v0.37.0
+    ref: v0.38.0
 
   - name: keycloak-identity-config
     path: ../
