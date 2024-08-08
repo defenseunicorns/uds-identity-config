@@ -1633,6 +1633,25 @@
                     }
                 }
             ]
+        },
+        {
+            "id": "fa4b3a43-7a51-449c-9937-c992f582dd1d",
+            "name": "aws-groups",
+            "description": "SAML custom scope for formatting user groups for AWS",
+            "protocol": "saml",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "true"
+            },
+            "protocolMappers": [
+                {
+                    "id": "a87cb1d0-214b-4e92-8b93-562efb69f36d",
+                    "name": "aws-groups",
+                    "protocol": "saml",
+                    "protocolMapper": "aws-saml-group-mapper",
+                    "consentRequired": false
+                }
+            ]
         }
     ],
     "defaultDefaultClientScopes": [
@@ -1648,7 +1667,8 @@
         "address",
         "phone",
         "microprofile-jwt",
-        "bare-groups"
+        "bare-groups",
+        "aws-groups"
     ],
     "browserSecurityHeaders": {
         "contentSecurityPolicyReportOnly": "",
@@ -1859,6 +1879,7 @@
                     "allowed-client-scopes": [
                         "openid",
                         "bare-groups",
+                        "aws-groups",
                         "mapper-saml-username-name",
                         "mapper-saml-email-email",
                         "mapper-saml-username-login",
