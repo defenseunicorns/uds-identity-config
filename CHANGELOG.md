@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.6.0...v0.6.1) (2024-08-09)
+
+
+### Miscellaneous
+
+* broken link ([#193](https://github.com/defenseunicorns/uds-identity-config/issues/193)) ([6568276](https://github.com/defenseunicorns/uds-identity-config/commit/6568276743c9c6dd406d65f20b01dfaf4c3f83c9))
+
 ## [0.6.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.5.2...v0.6.0) (2024-08-08)
 
 
