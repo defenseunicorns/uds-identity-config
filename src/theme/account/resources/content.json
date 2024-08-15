@@ -1,44 +1,70 @@
 [
   {
     "id": "personal-info",
-    "path": "",
+    "path": "personal-info",
+    "icon": "pf-icon-user",
     "label": "personalInfoSidebarTitle",
-    "descriptionLabel": "personalInfoIntroMessage"
+    "descriptionLabel": "personalInfoIntroMessage",
+    "modulePath": "/content/account-page/AccountPage.js",
+    "componentName": "AccountPage"
   },
   {
     "id": "security",
+    "icon": "pf-icon-security",
     "label": "accountSecuritySidebarTitle",
     "descriptionLabel": "accountSecurityIntroMessage",
     "children": [
       {
         "id": "signingin",
-        "path": "account-security/signing-in",
-        "label": "signingInSidebarTitle"
+        "path": "security/signingin",
+        "label": "signingInSidebarTitle",
+        "modulePath": "/content/signingin-page/SigningInPage.js",
+        "componentName": "SigningInPage"
       },
       {
         "id": "device-activity",
-        "path": "account-security/device-activity",
-        "label": "deviceActivitySidebarTitle"
+        "path": "security/device-activity",
+        "label": "deviceActivitySidebarTitle",
+        "modulePath": "/content/device-activity-page/DeviceActivityPage.js",
+        "componentName": "DeviceActivityPage"
       },
       {
         "id": "linked-accounts",
-        "path": "account-security/linked-accounts",
+        "path": "security/linked-accounts",
         "label": "linkedAccountsSidebarTitle",
-        "isVisible": "isLinkedAccountsEnabled"
+        "modulePath": "/content/linked-accounts-page/LinkedAccountsPage.js",
+        "componentName": "LinkedAccountsPage",
+        "hidden": "!features.isLinkedAccountsEnabled"
       }
     ]
   },
   {
     "id": "applications",
+    "icon": "pf-icon-applications",
     "path": "applications",
     "label": "applications",
-    "descriptionLabel": "applicationsIntroMessage"
+    "descriptionLabel": "applicationsIntroMessage",
+    "modulePath": "/content/applications-page/ApplicationsPage.js",
+    "componentName": "ApplicationsPage"
   },
   {
     "id": "groups",
     "path": "groups",
+    "icon": "pf-icon-server-group",
     "label": "groupLabel",
     "descriptionLabel": "groupDescriptionLabel",
-    "isVisible": "isViewGroupsEnabled"
+    "modulePath": "/content/group-page/GroupsPage.js",
+    "componentName": "GroupsPage",
+    "hidden": "!features.isViewGroupsEnabled"
+  },
+  {
+    "id": "resources",
+    "icon": "pf-icon-repository",
+    "path": "resources",
+    "label": "resources",
+    "descriptionLabel": "resourceIntroMessage",
+    "modulePath": "/content/my-resources-page/MyResourcesPage.js",
+    "componentName": "MyResourcesPage",
+    "hidden": "!features.isMyResourcesEnabled"
   }
 ]
