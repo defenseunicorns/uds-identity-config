@@ -39,7 +39,7 @@
                     </div>
                 </form>
             </#if>
-            <#if realm.password && social.providers??>
+            <#if realm.password && social?? && social.providers?has_content>
                 <div id="kc-social-providers" class="kc-social-section kc-social-gray">
                     <hr/>
                     <h2>${msg("identity-provider-login-label")}</h2>
