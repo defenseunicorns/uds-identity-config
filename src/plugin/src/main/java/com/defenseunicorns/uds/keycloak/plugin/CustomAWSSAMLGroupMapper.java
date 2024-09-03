@@ -33,7 +33,8 @@ public class CustomAWSSAMLGroupMapper extends AbstractSAMLProtocolMapper impleme
         property.setName(AttributeStatementHelper.SAML_ATTRIBUTE_NAME);
         property.setLabel("Group attribute name");
         property.setDefaultValue("member");
-        property.setHelpText("Name of the SAML attribute you want to put your groups into.  i.e. 'member', 'memberOf'.");
+        property.setHelpText(
+                "Name of the SAML attribute you want to put your groups into.  i.e. 'member', 'memberOf'.");
         configProperties.add(property);
         property = new ProviderConfigProperty();
         property.setName(AttributeStatementHelper.FRIENDLY_NAME);
@@ -80,7 +81,7 @@ public class CustomAWSSAMLGroupMapper extends AbstractSAMLProtocolMapper impleme
 
     @Override
     public void transformAttributeStatement(AttributeStatementType attributeStatement, ProtocolMapperModel mappingModel,
-                                            KeycloakSession session, UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
+            KeycloakSession session, UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
         UserModel user = userSession.getUser();
 
         // Retrieve the user's groups
@@ -92,11 +93,20 @@ public class CustomAWSSAMLGroupMapper extends AbstractSAMLProtocolMapper impleme
                     .map(ModelToRepresentation::buildGroupPath)
                     .collect(Collectors.toList());
 
+            // Check for any group paths containing a colon
+            for (String groupPath : groupPaths) {
+                if (groupPath.contains(":")) {
+                    throw new IllegalArgumentException(
+                            "Group name contains invalid character ':'. Group name: " + groupPath);
+                }
+            }
+
             // Concatenate the group paths into a single string separated by colons
             String groupsString = String.join(":", groupPaths);
 
             // Create a new SAML attribute
-            AttributeType attribute = new AttributeType(mappingModel.getConfig().get(AttributeStatementHelper.SAML_ATTRIBUTE_NAME));
+            AttributeType attribute = new AttributeType(
+                    mappingModel.getConfig().get(AttributeStatementHelper.SAML_ATTRIBUTE_NAME));
             attribute.setNameFormat(JBossSAMLURIConstants.ATTRIBUTE_FORMAT_BASIC.get());
             attribute.addAttributeValue(groupsString);
             attributeStatement.addAttribute(new ASTChoiceType(attribute));

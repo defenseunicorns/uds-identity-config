@@ -18,7 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 public class CustomAWSSAMLGroupMapperTest {
@@ -89,6 +92,22 @@ public class CustomAWSSAMLGroupMapperTest {
 
             return attrType.getName().equals("aws-groups") && attrType.getAttributeValue().contains("/Core/Admin");
         }));
+    }
+
+   @Test
+    public void testTransformAttributeStatement_groupNameWithColonThrowsException() {
+        GroupModel group = mock(GroupModel.class);
+        when(group.getName()).thenReturn("Admin:IT");
+        when(group.getParent()).thenReturn(null);
+
+        when(mockUser.getGroupsStream()).thenReturn(Stream.of(group));
+
+        try {
+            mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel, mockSession, mockUserSession, mockClientSession);
+            fail("Expected IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Group name contains invalid character ':'. Group name: /Admin:IT", e.getMessage());
+        }
     }
 
     @Test
