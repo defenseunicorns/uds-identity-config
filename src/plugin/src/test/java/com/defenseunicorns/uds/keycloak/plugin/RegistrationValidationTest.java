@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.authentication.FormContext;
 import org.keycloak.authentication.ValidationContext;
-import org.keycloak.authentication.forms.RegistrationPage;
 import org.keycloak.events.Errors;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.*;
@@ -21,7 +20,6 @@ import com.defenseunicorns.uds.keycloak.plugin.utils.ValidationUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.defenseunicorns.uds.keycloak.plugin.utils.Utils.setupFileMocks;
 import static com.defenseunicorns.uds.keycloak.plugin.utils.Utils.setupX509Mocks;
@@ -38,73 +36,6 @@ public class RegistrationValidationTest {
     public void setup() throws Exception {
         setupX509Mocks();
         setupFileMocks();
-    }
-
-    @Test
-    public void testInvalidFields() {
-        String[] errorEvent = new String[1];
-        List<FormMessage> errors = new ArrayList<>();
-        Map<String, List<String>> valueMap = new HashMap<>();
-
-        // Populate the valueMap with test data
-        valueMap.put("firstName", new ArrayList<>());
-        valueMap.put("lastName", new ArrayList<>());
-        valueMap.put("username", new ArrayList<>());
-        valueMap.put("affiliation", new ArrayList<>());
-        valueMap.put("rank", new ArrayList<>());
-        valueMap.put("organization", new ArrayList<>());
-        valueMap.put("email", new ArrayList<>());
-
-        // Set up your test context
-        ValidationContext context = ValidationUtils.setupVariables(errorEvent, errors, valueMap);
-        RegistrationValidation validation = new RegistrationValidation();
-        validation.validate(context);
-
-        // Assertions
-        Assert.assertEquals(Errors.INVALID_REGISTRATION, errorEvent[0]);
-        Set<String> errorFields = errors.stream().map(FormMessage::getField).collect(Collectors.toSet());
-        Set<String> expectedErrorFields = new HashSet<>(List.of("firstName", "lastName", "username", "affiliation", "rank", "organization", "email"));
-        Assert.assertEquals(expectedErrorFields, errorFields);
-        Assert.assertEquals(7, errors.size());
-    }
-
-    @Test
-    public void testEmailValidation() {
-        String[] errorEvent = new String[1];
-        List<FormMessage> errors = new ArrayList<>();
-        Map<String, List<String>> valueMap = new HashMap<>();
-
-        // Populate the valueMap with test data
-        valueMap.put("firstName", List.of("Jone"));
-        valueMap.put("lastName", List.of("Doe"));
-        valueMap.put("username", List.of("tester"));
-        valueMap.put("affiliation", List.of("AF"));
-        valueMap.put("rank", List.of("E2"));
-        valueMap.put("organization", List.of("Com"));
-        valueMap.put("location", List.of("42"));
-        valueMap.put("email", List.of("test@gmail.com"));
-
-        // Set up your test context
-        ValidationContext context = ValidationUtils.setupVariables(errorEvent, errors, valueMap);
-        RegistrationValidation validation = new RegistrationValidation();
-        validation.validate(context);
-
-        // Assert the validation result for the first set of values
-        Assert.assertEquals(0, errors.size());
-
-        // Test an email address already in use
-        valueMap.put("email", List.of("test@ss.usafa.edu"));
-        errorEvent = new String[1];
-        errors = new ArrayList<>();
-        context = ValidationUtils.setupVariables(errorEvent, errors, valueMap);
-
-        validation = new RegistrationValidation();
-        validation.validate(context);
-
-        // Assert the validation result for the second set of values
-        Assert.assertEquals(Errors.EMAIL_IN_USE, errorEvent[0]);
-        Assert.assertEquals(1, errors.size());
-        Assert.assertEquals(RegistrationPage.FIELD_EMAIL, errors.get(0).getField());
     }
 
     @Test

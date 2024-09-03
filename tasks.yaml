@@ -2,7 +2,7 @@ variables:
   - name: VERSION
     description: "The image tag"
     # x-release-please-start-version
-    default: "0.5.1"
+    default: "0.6.0"
     # x-release-please-end
 
   - name: IMAGE_NAME
@@ -12,7 +12,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.24.1"
+    default: "v0.26.1"
 
 tasks:
   - name: build-and-publish

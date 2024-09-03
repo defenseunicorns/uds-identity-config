@@ -3,18 +3,13 @@ package com.defenseunicorns.uds.keycloak.plugin;
 import jakarta.ws.rs.core.MultivaluedMap;
 import org.keycloak.authentication.FormContext;
 import org.keycloak.authentication.ValidationContext;
-import org.keycloak.authentication.forms.RegistrationPage;
 import org.keycloak.authentication.forms.RegistrationUserCreation;
-import org.keycloak.events.Details;
 import org.keycloak.events.Errors;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.FormMessage;
-import org.keycloak.services.messages.Messages;
-import org.keycloak.services.validation.Validation;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,10 +34,14 @@ public class RegistrationValidation extends RegistrationUserCreation {
     }
 
     private static void processX509UserAttribute(final RealmModel realm, final UserModel user,
-            final String x509Username) {
+            final String x509Username, final String x509commonName) {
         if (x509Username != null) {
-            // Bind the X509 attribute to the user
-            user.setSingleAttribute(Common.USER_ID_ATTRIBUTE, x509Username);
+            // Bind the X509 identity attribute to the user
+            user.setSingleAttribute(Common.USER_X509_ID_ATTRIBUTE, x509Username);
+        }
+        if(x509commonName != null) {
+            // Bind the X509 Common name attribute to the user
+            user.setSingleAttribute(Common.USER_X509_CN_ATTRIBUTE, x509commonName);
         }
     }
 
@@ -51,8 +50,9 @@ public class RegistrationValidation extends RegistrationUserCreation {
         UserModel user = context.getUser();
         RealmModel realm = context.getRealm();
         String x509Username = X509Tools.getX509Username(context);
+        String x509commonName = X509Tools.getX509CommonName(context);
 
-        processX509UserAttribute(realm, user, x509Username);
+        processX509UserAttribute(realm, user, x509Username, x509commonName);
         bindRequiredActions(user, x509Username);
     }
 
@@ -96,43 +96,8 @@ public class RegistrationValidation extends RegistrationUserCreation {
 
         // Create a list to hold any errors
         List<FormMessage> errors = new ArrayList<>();
-        String username = formData.getFirst(Validation.FIELD_USERNAME);
-        String email = formData.getFirst(Validation.FIELD_EMAIL);
 
         String eventError = Errors.INVALID_REGISTRATION;
-
-        // Require a username
-        if (Validation.isBlank(username)) {
-            errors.add(new FormMessage(Validation.FIELD_USERNAME, Messages.MISSING_USERNAME));
-        }
-
-        // Username validation based on Mattermost requirements.
-        mattermostUsernameValidation(errors, username);
-
-        // Require a first name
-        if (Validation.isBlank(formData.getFirst(RegistrationPage.FIELD_FIRST_NAME))) {
-            errors.add(new FormMessage(RegistrationPage.FIELD_FIRST_NAME, Messages.MISSING_FIRST_NAME));
-        }
-
-        // Require a last name
-        if (Validation.isBlank(formData.getFirst(RegistrationPage.FIELD_LAST_NAME))) {
-            errors.add(new FormMessage(RegistrationPage.FIELD_LAST_NAME, Messages.MISSING_LAST_NAME));
-        }
-
-        // Require a DoD affiliation
-        if (Validation.isBlank(formData.getFirst("affiliation"))) {
-            errors.add(new FormMessage("affiliation", "Please specify your organization affiliation."));
-        }
-
-        // Require a rank
-        if (Validation.isBlank(formData.getFirst("rank"))) {
-            errors.add(new FormMessage("rank", "Please specify your rank or choose n/a."));
-        }
-
-        // Require an organization
-        if (Validation.isBlank(formData.getFirst("organization"))) {
-            errors.add(new FormMessage("organization", "Please specify your organization."));
-        }
 
         // Check if a X509 was used to authenticate and if it's already registered
         if (X509Tools.getX509Username(context) != null && X509Tools.isX509Registered(context)) {
@@ -140,19 +105,6 @@ public class RegistrationValidation extends RegistrationUserCreation {
             errors.add(new FormMessage(null, "Sorry, this CAC seems to already be registered."));
             context.error(Errors.INVALID_REGISTRATION);
             context.validationError(formData, errors);
-        }
-
-        if (Validation.isBlank(email) || !Validation.isEmailValid(email)) {
-            context.getEvent().detail(Details.EMAIL, email);
-            errors.add(new FormMessage(RegistrationPage.FIELD_EMAIL,
-                    "Please check your email address, it seems to be invalid"));
-        }
-
-        if (context.getSession().users().getUserByEmail(context.getRealm(), email) != null) {
-            eventError = Errors.EMAIL_IN_USE;
-            formData.remove(Common.EMAIL);
-            context.getEvent().detail(Common.EMAIL, email);
-            errors.add(new FormMessage(Common.EMAIL, Messages.EMAIL_EXISTS));
         }
 
         if (!errors.isEmpty()) {
@@ -163,31 +115,4 @@ public class RegistrationValidation extends RegistrationUserCreation {
         }
 
     }
-
-    /**
-     * Mattermost username validation to prevent incompatible usernames.
-     * 
-     * @param errors   List of form messages
-     * @param username The username to validate
-     */
-    private void mattermostUsernameValidation(final List<FormMessage> errors, final String username) {
-        if (!Validation.isBlank(username)) {
-            // May only contain alphanumeric, underscore, hyphen and period characters
-            if (!username.matches("[A-Za-z0-9-_.]+")) {
-                errors.add(new FormMessage(Validation.FIELD_USERNAME,
-                        "Username can only contain alphanumeric, underscore, hyphen and period characters."));
-            }
-
-            // Must begin with a letter
-            if (!Character.isLetter(username.charAt(0))) {
-                errors.add(new FormMessage(Validation.FIELD_USERNAME, "Username must begin with a letter."));
-            }
-
-            // Must be between 3 to 22 characters
-            if (username.length() < Common.MIN_USER_NAME_LENGTH || username.length() > Common.MAX_USER_NAME_LENGTH) {
-                errors.add(new FormMessage(Validation.FIELD_USERNAME, "Username must be between 3 to 22 characters."));
-            }
-        }
-    }
-
 }

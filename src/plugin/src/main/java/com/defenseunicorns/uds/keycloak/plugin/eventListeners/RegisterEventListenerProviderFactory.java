@@ -1,4 +1,4 @@
-package com.defenseunicorns.uds.keycloak.plugin;
+package com.defenseunicorns.uds.keycloak.plugin.eventListeners;
 
 import org.keycloak.Config;
 import org.keycloak.events.EventListenerProvider;
@@ -6,10 +6,10 @@ import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 
-public class CustomEventListenerProviderFactory implements EventListenerProviderFactory {
+public class RegisterEventListenerProviderFactory implements EventListenerProviderFactory {
     @Override
     public EventListenerProvider create(KeycloakSession keycloakSession) {
-        return new CustomEventListenerProvider(keycloakSession);
+        return new RegisterEventListenerProvider(keycloakSession);
     }
 
     @Override
@@ -29,6 +29,6 @@ public class CustomEventListenerProviderFactory implements EventListenerProvider
 
     @Override
     public String getId() {
-        return "custom-registration-listener";
+        return "registration-event-listener";
     }
 }

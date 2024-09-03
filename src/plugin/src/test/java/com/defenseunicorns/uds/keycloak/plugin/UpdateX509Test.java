@@ -137,7 +137,7 @@ class UpdateX509Test {
         Map<String, List<String>> mapSting = new HashMap<>();
         List<String> listString = new ArrayList<>();
         listString.add("some value");
-        mapSting.put("usercertificate", listString);
+        mapSting.put("usercertificateIdentity", listString);
 
         PowerMockito.when(requiredActionContext.getHttpRequest().getClientCertificateChain())
             .thenReturn(certList);
@@ -149,7 +149,7 @@ class UpdateX509Test {
 
         // create map - empty value
         mapSting = new HashMap<>();
-        mapSting.put("usercertificate", new ArrayList<>());
+        mapSting.put("usercertificateIdentity", new ArrayList<>());
 
         PowerMockito.when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn(null);
         PowerMockito.when(userModel.getAttributes()).thenReturn(mapSting);
@@ -159,7 +159,7 @@ class UpdateX509Test {
 
         // create map - null value
         mapSting = new HashMap<>();
-        mapSting.put("usercertificate", null);
+        mapSting.put("usercertificateIdentity", null);
 
         PowerMockito.when(userModel.getAttributes()).thenReturn(mapSting);
 

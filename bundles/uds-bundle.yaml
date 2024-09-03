@@ -11,9 +11,9 @@ packages:
     ref: 0.8.0
 
   - name: init
-    repository: ghcr.io/defenseunicorns/packages/init
-    # renovate: datasource=github-tags depName=defenseunicorns/zarf versioning=semver
-    ref: v0.36.1
+    repository: ghcr.io/zarf-dev/packages/init
+    # renovate: datasource=github-tags depName=zarf-dev/zarf versioning=semver
+    ref: v0.38.3
 
   - name: keycloak-identity-config
     path: ../
@@ -22,7 +22,7 @@ packages:
   - name: core-slim-dev
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.24.1
+    ref: 0.26.1
     overrides:
       keycloak:
         keycloak:

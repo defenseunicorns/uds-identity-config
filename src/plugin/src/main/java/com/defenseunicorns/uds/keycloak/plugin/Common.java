@@ -29,7 +29,13 @@ public enum Common {
      * The user id attribute tracks the Keycloak attribute that maps to the user's
      * x509 identity.
      */
-    static final String USER_ID_ATTRIBUTE = "usercertificate";
+    static final String USER_X509_ID_ATTRIBUTE = "usercertificateIdentity";
+
+    /**
+     * The user id attribute tracks the Keycloak attribute that maps to the user's
+     * x509 Common Name.
+     */
+    static final String USER_X509_CN_ATTRIBUTE = "usercertificateCN";
 
     /**
      * Ignore x509.
@@ -45,7 +51,7 @@ public enum Common {
     /**
      * The user mattermost id attribute
      */
-    static final String USER_MATTERMOST_ID_ATTR = "mattermostid";
+    public static final String USER_MATTERMOST_ID_ATTR = "mattermostid";
 
     /**
      * Set of clients that group protection should not apple to

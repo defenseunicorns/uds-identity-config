@@ -1,4 +1,4 @@
-package com.defenseunicorns.uds.keycloak.plugin;
+package com.defenseunicorns.uds.keycloak.plugin.eventListeners;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,6 +10,9 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import com.defenseunicorns.uds.keycloak.plugin.Common;
+import com.defenseunicorns.uds.keycloak.plugin.X509Tools;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,8 +27,8 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ FileInputStream.class, File.class, X509Tools.class })
 @PowerMockIgnore("javax.management.*")
-public class CustomEventListenerTest {
-    
+public class RegisterEventListenerTest {
+
     @Mock
     KeycloakSession keycloakSession;
     @Mock
@@ -40,7 +43,7 @@ public class CustomEventListenerTest {
     Event event;
     String realmId;
     String userId;
-    CustomEventListenerProvider eventListenerProvider;
+    RegisterEventListenerProvider eventListenerProvider;
 
     @Before
     public void setup() throws Exception {
@@ -64,7 +67,7 @@ public class CustomEventListenerTest {
         event.setUserId(userId);
 
         // Create instance of CustomEventListenerProvider
-        eventListenerProvider = new CustomEventListenerProvider(keycloakSession);
+        eventListenerProvider = new RegisterEventListenerProvider(keycloakSession);
     }
 
     @Test
@@ -110,7 +113,7 @@ public class CustomEventListenerTest {
 
         // Verify that generateMattermostId method is called
         verify(userModel, times(0)).setSingleAttribute(eq(Common.USER_MATTERMOST_ID_ATTR), anyString());
-        
+
         // Verify user doesnt have attribute "mattermostid"
         assert(!userModel.getAttributes().containsKey(Common.USER_MATTERMOST_ID_ATTR));
     }
