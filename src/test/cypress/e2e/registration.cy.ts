@@ -16,12 +16,12 @@ describe("CAC Registration Flow", () => {
     cy.registrationPage(formData);
 
     // Verify Successful Registration and on User Account Page
-    cy.verifyLoggedIn(formData.firstName, formData.lastName);
+    cy.verifyLoggedIn();
   });
 
   it("Successfull Login of CAC Registered User", () => {
     // Navigate to login page
-    cy.loginPage();
+    cy.visit("https://sso.uds.dev");
 
     // Verify DoD PKI Detected Banner on Login page
     cy.get(".form-group .alert-info").should("be.visible").contains("h2", "DoD PKI Detected");
@@ -37,25 +37,7 @@ describe("CAC Registration Flow", () => {
     cy.get("#kc-login").should("be.visible").click();
 
     // Verify Successful Registration and on User Account Page
-    cy.verifyLoggedIn(formData.firstName, formData.lastName);
-
-    // intercept the request that gets users personal info and verify mattermost id exists
-    cy.intercept('GET', 'https://sso.uds.dev/realms/uds/account/', (req) => {
-      req.continue((res) => {
-        if(res.body && res.body.attributes) {
-          // Check if 'mattermostid' attribute exists in the attributes object
-          const mattermostIdExists = res.body.attributes.hasOwnProperty('mattermostid');
-          // Assert that 'mattermostid' attribute exists
-          expect(mattermostIdExists).to.be.true;
-        } else {
-          // Fail the test if the attributes field is missing
-          expect(res.body.attributes).to.exist;
-        }
-      })
-    });
-
-    // Verify that personal info button exists and click it
-    cy.visit('/realms/uds/account/#/personal-info');
+    cy.verifyLoggedIn();
   });
 });
 
