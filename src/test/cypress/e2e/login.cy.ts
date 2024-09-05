@@ -13,13 +13,8 @@ describe("Login Flow", () => {
     cy.loginPage();
     cy.loginUser(formData.username, formData.password);
 
-    // skip the DoD PKI Detected Pop Up
-    cy.get("input#kc-cancel.btn.btn-light").click();
-
     // Verify Successful Registration and on User Account Page
-    cy.get("#landingLoggedInUser")
-      .should("be.visible")
-      .and("contain", formData.firstName + " " + formData.lastName);
+    cy.verifyLoggedIn();
   });
 
   it("Invalid User Creds", () => {

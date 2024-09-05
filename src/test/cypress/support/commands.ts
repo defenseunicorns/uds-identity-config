@@ -6,11 +6,8 @@ import { RegistrationFormData } from "./types";
 Cypress.Commands.add("loginPage", () => {
   cy.visit("https://sso.uds.dev");
 
-  // Verify Access to Account Management landing page
-  cy.contains("h1", "UDS Identity - My Account", { timeout: 12000 }).should("be.visible");
-
-  // click on sign in button
-  cy.get("#landingSignInButton").should("be.visible").click();
+  // skip the DoD PKI Detected Pop Up
+  cy.avoidX509();
 
   // Verify login page via existence of button
   cy.get('input[name="login"][type="submit"]').should("be.visible");
@@ -21,14 +18,6 @@ Cypress.Commands.add("loginPage", () => {
  */
 Cypress.Commands.add("registrationPage", (formData: RegistrationFormData) => {
   cy.loginPage();
-
-  // if the dod pki login page is present then we need to click a different button to get to the registration page
-  cy.contains("h2", "DoD PKI Detected").then($header => {
-    if ($header.length > 0 && $header.text().trim() === "DoD PKI Detected") {
-      // If the header is present, click the "Ignore" button to get to the registration page
-      cy.get("#kc-cancel").should("be.visible").click();
-    }
-  });
 
   // Verify the presence of the registration link and then click
   cy.contains(".footer-text a", "Click here").should("be.visible").click();
@@ -80,6 +69,23 @@ Cypress.Commands.add("loginUser", (username: string, password: string) => {
 });
 
 /**
+ * Verify User is logged into user account portal
+ */
+Cypress.Commands.add("verifyLoggedIn", () => {
+  // Intercept the GET request to verify successful login
+  cy.intercept({
+    method: 'GET',
+    url: 'https://sso.uds.dev/realms/uds/account/?userProfileMetadata=true',
+  }).as('getUserProfile');
+
+  // skip the DoD PKI Detected Pop Up
+  cy.avoidX509();
+
+  // Wait for the network request to complete with an increased timeout
+  cy.wait('@getUserProfile', { timeout: 10000 }).its('response.statusCode').should('eq', 200);
+});
+
+/**
  * Navigate to grafana URL and verify redirected to sso.uds.dev
  */
 Cypress.Commands.add("accessGrafana", () => {
@@ -100,9 +106,16 @@ Cypress.Commands.add("accessGrafana", () => {
  */
 Cypress.Commands.add("avoidX509", () => {
   // Check if the cancel button is present and click it if it is
-  cy.get('body').then($body => {
-    if ($body.find('input#kc-cancel').length > 0) {
-      cy.get('input#kc-cancel').click();
+  cy.wait(1000);
+
+  cy.document().then((doc) => {
+    const cancelButton = doc.querySelector('#kc-cancel');
+
+    if (cancelButton) {
+      cy.wrap(cancelButton)
+        .scrollIntoView()
+        .should('be.visible')
+        .click();
     }
   });
 })

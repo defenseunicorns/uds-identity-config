@@ -295,6 +295,10 @@ public class ValidationUtils {
                     public UserLoginFailureProvider loginFailures() {
                         return null;
                     }
+                    @Override
+                    public boolean isClosed() {
+                        throw new UnsupportedOperationException("Unimplemented method 'isClosed'");
+                    }
 
                 };
             }

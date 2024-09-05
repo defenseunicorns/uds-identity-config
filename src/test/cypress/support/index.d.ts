@@ -13,5 +13,7 @@ declare namespace Cypress {
     accessGrafana(): Chainable;
 
     avoidX509(): Chainable;
+
+    verifyLoggedIn(): Chainable;
   }
 }
