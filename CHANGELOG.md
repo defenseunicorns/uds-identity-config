@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.6.1...v0.6.2) (2024-09-10)
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v25.0.5 ([#212](https://github.com/defenseunicorns/uds-identity-config/issues/212)) ([d04a7bc](https://github.com/defenseunicorns/uds-identity-config/commit/d04a7bc3260cd65cd01cf5e1c2de365a595550d5))
+
+
+### Miscellaneous
+
+* **deps:** update actions/setup-java digest to 2dfa201 ([#211](https://github.com/defenseunicorns/uds-identity-config/issues/211)) ([73cf4db](https://github.com/defenseunicorns/uds-identity-config/commit/73cf4db3f6ca8ec4372764a3db8d3896ed36b9cb))
+* **deps:** update all dependencies to v0.39.0 ([#208](https://github.com/defenseunicorns/uds-identity-config/issues/208)) ([81afac0](https://github.com/defenseunicorns/uds-identity-config/commit/81afac0e179f12f095ffdee563dc8db19d61cb7a))
+* **deps:** update gha-deps to v0.15.0 ([#210](https://github.com/defenseunicorns/uds-identity-config/issues/210)) ([7498c65](https://github.com/defenseunicorns/uds-identity-config/commit/7498c6586278f2813b3bef8b83600448cd2faebe))
+
 ## [0.6.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.6.0...v0.6.1) (2024-09-05)
 
 
