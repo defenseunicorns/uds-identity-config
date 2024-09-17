@@ -1568,7 +1568,7 @@
             "singleSignOnServiceUrl": "https://accounts.google.com/o/saml2/idp?idpid=${REALM_GOOGLE_IDP_ID}",
             "wantAuthnRequestsSigned": "false",
             "allowedClockSkew": "0",
-            "validateSignature": "false",
+            "validateSignature": "true",
             "signingCertificate": "${REALM_GOOGLE_IDP_SIGNING_CERT}",
             "nameIDPolicyFormat": "${REALM_GOOGLE_IDP_NAME_ID_FORMAT}",
             "entityId": "${REALM_GOOGLE_IDP_CORE_ENTITY_ID}",
