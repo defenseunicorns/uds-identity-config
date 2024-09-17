@@ -2,6 +2,10 @@
 
 ## [0.6.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.6.2...v0.6.3) (2024-09-17)
 
+### Bug Fixes
+
+* fix: ensure premade saml idp config validates signatures ([d04a7bc](https://github.com/defenseunicorns/uds-identity-config/commit/227f942508bb37d390ebc39340a6a67e9d08cad2))
+
 
 ### Miscellaneous
 
