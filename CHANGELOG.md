@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.6.2...v0.6.3) (2024-09-17)
+
+
+### Miscellaneous
+
+* **deps:** update dependency defenseunicorns/uds-core to v0.27.0 ([#215](https://github.com/defenseunicorns/uds-identity-config/issues/215)) ([cc7774d](https://github.com/defenseunicorns/uds-identity-config/commit/cc7774dcb6ae11703c8f6a4b2a60d67da5b7f123))
+* **deps:** update gha-deps to v19.5.0 ([#213](https://github.com/defenseunicorns/uds-identity-config/issues/213)) ([bd4b1c3](https://github.com/defenseunicorns/uds-identity-config/commit/bd4b1c3df8135a6ec313cef4258e13fbca13c774))
+
 ## [0.6.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.6.1...v0.6.2) (2024-09-10)
 
 
