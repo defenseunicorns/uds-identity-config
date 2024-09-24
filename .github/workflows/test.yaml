@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@ea9db8ab9bfc4a5d87acd7d1af385aa8e44206d3 # v0.13.0
+        uses: defenseunicorns/uds-common/.github/actions/setup@e3008473beab00b12a94f9fcc7340124338d5c08 # v0.13.1
 
       - name: Test building the docker image
         run: uds run dev-build --no-progress
@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@ea9db8ab9bfc4a5d87acd7d1af385aa8e44206d3 # v0.13.0
+        uses: defenseunicorns/uds-common/.github/actions/setup@e3008473beab00b12a94f9fcc7340124338d5c08 # v0.13.1
 
       - name: Test building a zarf package
         run: uds run build-zarf-pkg --no-progress
@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@ea9db8ab9bfc4a5d87acd7d1af385aa8e44206d3 # v0.13.0
+        uses: defenseunicorns/uds-common/.github/actions/setup@e3008473beab00b12a94f9fcc7340124338d5c08 # v0.13.1
 
       - name: Set up JDK 17
         uses: actions/setup-java@2dfa2011c5b2a0f1489bf9e433881c92c1631f88 # v4
@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@ea9db8ab9bfc4a5d87acd7d1af385aa8e44206d3 # v0.13.0
+        uses: defenseunicorns/uds-common/.github/actions/setup@e3008473beab00b12a94f9fcc7340124338d5c08 # v0.13.1
 
       - name: Smoke Tests
         run: uds run uds-core-smoke-test --no-progress
@@ -97,7 +97,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Environment setup
-        uses: defenseunicorns/uds-common/.github/actions/setup@ea9db8ab9bfc4a5d87acd7d1af385aa8e44206d3 # v0.13.0
+        uses: defenseunicorns/uds-common/.github/actions/setup@e3008473beab00b12a94f9fcc7340124338d5c08 # v0.13.1
 
       - name: Cypress Integration Tests
         run: uds run uds-core-integration-tests --no-progress
