@@ -105,7 +105,6 @@ tasks:
       - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
-      - task: grafana-group-auth-build-deploy
       - task: cypress-tests
 
   - name: grafana-group-auth-build-deploy
@@ -119,8 +118,7 @@ tasks:
 
       - cmd: |
           cd uds-core
-          UDS_PKG=grafana uds run create-single-package
-          uds zarf package deploy build/zarf-package-uds-core-grafana-amd64.tar.zst --confirm --no-progress
+          uds run create:single-layer-callable --set LAYER=monitoring
 
   - name: clone-core
     description: "Clone UDS Core for integration testing"
@@ -132,9 +130,10 @@ tasks:
     description: "Build/Deploy custom slim dev bundle for integration testing"
     actions:
       - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
-      - cmd: cd uds-core && uds run create:slim-dev-package
+      - cmd: cd uds-core && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization
+      - task: grafana-group-auth-build-deploy
       - cmd: uds create bundles --confirm --no-progress
-      - cmd: uds deploy bundles/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-slim-dev.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
+      - cmd: uds deploy bundles/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
 
   - name: cypress-tests
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
