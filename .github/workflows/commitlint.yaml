@@ -36,24 +36,10 @@ jobs:
           pull_request_title: ${{ github.event.pull_request.title }}
         run: echo "$pull_request_title" | npx commitlint
 
-  license_check:
+  lint-check:
     runs-on: ubuntu-latest
-    name: Check License Headers
-    permissions:
-      pull-requests: read
-      contents: read
-
     steps:
-      - name: Github Actions Checkout
+      - name: Checkout repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
-
-      - name: Environment setup
-        uses: ./.github/actions/setup
-        with:
-          registry1Username: ${{ secrets.IRON_BANK_ROBOT_USERNAME }}
-          registry1Password: ${{ secrets.IRON_BANK_ROBOT_PASSWORD }}
-          ghToken: ${{ secrets.GITHUB_TOKEN }}
-          chainguardIdentity: ${{ secrets.CHAINGUARD_IDENTITY }}
-
-      - name: Lint for License headers
-        run: uds run license
+      - name: lint-check
+        uses: ./.github/actions/lint-check
