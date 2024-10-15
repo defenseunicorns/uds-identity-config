@@ -19,10 +19,28 @@ packages:
     path: ../
     ref: dev
 
-  - name: core-slim-dev
+  - name: core-base
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.28.0
+    ref: 0.29.0
+    overrides:
+      istio-admin-gateway:
+        uds-istio-config:
+          variables:
+            - name: ADMIN_TLS_CACERT
+              description: "The CA cert for the tenant gateway (must be base64 encoded)"
+              path: tls.cacert
+      istio-tenant-gateway:
+        uds-istio-config:
+          variables:
+            - name: TENANT_TLS_CACERT
+              description: "The CA cert for the tenant gateway (must be base64 encoded)"
+              path: tls.cacert
+
+  - name: core-identity-authorization
+    path: ../uds-core/build/
+    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
+    ref: 0.29.0
     overrides:
       keycloak:
         keycloak:
@@ -40,15 +58,8 @@ packages:
                 GOOGLE_IDP_CORE_ENTITY_ID: "https://sso.uds.dev/realms/uds"
                 GOOGLE_IDP_ADMIN_GROUP: "uds-core-dev-admin"
                 GOOGLE_IDP_AUDITOR_GROUP: "uds-core-dev-auditor"
-      istio-admin-gateway:
-        uds-istio-config:
-          variables:
-            - name: ADMIN_TLS_CACERT
-              description: "The CA cert for the tenant gateway (must be base64 encoded)"
-              path: tls.cacert
-      istio-tenant-gateway:
-        uds-istio-config:
-          variables:
-            - name: TENANT_TLS_CACERT
-              description: "The CA cert for the tenant gateway (must be base64 encoded)"
-              path: tls.cacert
+
+  - name: core-monitoring
+    path: ../uds-core/build/
+    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
+    ref: 0.29.0

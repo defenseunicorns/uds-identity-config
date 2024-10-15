@@ -1,7 +1,5 @@
 ---
 title: Customization
-type: docs
-weight: 1
 ---
 
 These docs are intended for demonstrating how to customize the uds-core Identity (Keycloak) deployment by updating/changing the config image.  
@@ -77,9 +75,9 @@ Once that cluster is up and healthy and after making theme changes:
 
 The `UDS Identity` realm is defined in the realm.json found in [src/realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json). This can be modified and will require a new `uds-identity-config` image for `uds-core`.
 
-{{% alert-note %}}
+:::note
 Be aware that changing values in the realm may also need be to updated throughout the configuration of Keycloak and Authservice in `uds-core`. For example, changing the realm name will break a few different things within Keycloak unless those values are changed in `uds-core` as well.
-{{% /alert-note %}}
+:::
 
 See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
 
@@ -188,9 +186,9 @@ Build config image
 uds run dev-build
 ```
 
-{{% alert-note %}}
+:::note
 If you're getting errors from the ca-to-jks.sh script, verify your zip folder is in the correct directory.
-{{% /alert-note %}}
+:::
 
 #### Configure Istio Gateways CACERT in UDS Core
 
@@ -217,21 +215,21 @@ openssl s_client -connect sso.uds.dev:443
 
 ### Custom Plugin
 
-{{% alert-note %}}
+:::note
 This isn't recommended, however can be achieved if necessary
-{{% /alert-note %}}
+:::
 
-{{% alert-note %}}
+:::note
 Making these changes iteratively and importing into Keycloak to create a new realm can help to alleviate typo's and mis-configurations. This is also the quickest solution for testing without having to create,build,deploy with new images each time.
-{{% /alert-note %}}
+:::
 
 The plugin provides the auth flows that keycloak uses for x509 (CAC) authentication as well as some of the surrounding registration flows.
 
 One nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID.
 
-{{% alert-note %}}
+:::note
 When creating a user via ADMIN API or ADMIN UI, the 'REGISTER' event is not triggered, resulting in no Mattermost ID attribute generation. This will need to be done manually via click ops or the api. An example of how the attribute can be set via api can be seen [here](https://github.com/defenseunicorns/uds-common/blob/b2e8b25930c953ef893e7c787fe350f0d8679ee2/tasks/setup.yaml#L46).
-{{% /alert-note %}}
+:::
 
 ### Developing
 
