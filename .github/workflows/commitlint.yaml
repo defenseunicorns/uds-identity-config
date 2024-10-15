@@ -1,3 +1,6 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
 name: Metadata
 
 on:
@@ -32,3 +35,6 @@ jobs:
         env:
           pull_request_title: ${{ github.event.pull_request.title }}
         run: echo "$pull_request_title" | npx commitlint
+
+      - name: Lint for License headers
+        run: uds run license
