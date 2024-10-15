@@ -1,7 +1,5 @@
 ---
 title: Upgrading Versions
-type: docs
-weight: 3
 ---
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
@@ -40,9 +38,9 @@ This doc contains important information for upgrading uds-identity-config versio
 
 This version upgrade utilizes built in Keycloak functionality for User Managed Attributes.
 
-{{% alert-note %}}
+:::note
 User managed attributes are only available in Keycloak 24+
-{{% /alert-note %}}
+:::
 
 If upgrading without a full redeploy of keycloak the following changes will be needed:
 1. The `realm.json` will need to be updated to contain the correct User Managed Attributes definition, [User Managed Attributes Configuration](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.1/src/realm.json#L1884-L1895). The following steps can be used to do this with clickops:

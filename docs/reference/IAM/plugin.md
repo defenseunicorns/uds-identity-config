@@ -1,7 +1,5 @@
 ---
-title: Plugin
-type: docs
-weight: 2
+title: Keycloak Plugin
 ---
 
 A Keycloak plugin provides additional custom logic to our Keycloak deployment. Below is a table of the current implemented Custom Keycloak Implementations and how to interact with them.
@@ -18,13 +16,13 @@ A Keycloak plugin provides additional custom logic to our Keycloak deployment. B
 
 ### Warnings
 
-{{% alert-note %}}
+:::note
 When creating a user via ADMIN API or ADMIN UI, the `REGISTER` event is not triggered, resulting in no Mattermost ID attribute generation. This will need to be done manually via click ops or the api. An example of how the attribute can be set via api can be seen [here](https://github.com/defenseunicorns/uds-common/blob/b2e8b25930c953ef893e7c787fe350f0d8679ee2/tasks/setup.yaml#L46).
-{{% /alert-note %}}
+:::
 
-{{% alert-caution %}}
+:::caution
 Please use this scope only if you understand the implications of excluding full path information from group data. It is highly important to not use the `bare-groups` claim for protecting an application due to security vulnerabilities.
-{{% /alert-caution %}}
+:::
 
 ## Requirements
 
@@ -48,13 +46,13 @@ See the `New uds-identity-config Image` section in the [CUSTOMIZE.md](./CUSTOMIZ
 
 The maven surefire and jacoco plugins are configured in the [pom.xml](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/pom.xml).
 
-{{% alert-note %}}
+:::note
 `mvn` commands will need to be executed from inside of the `src/plugin` directory
-{{% /alert-note %}}
+:::
 
-{{% alert-note %}}
+:::note
 There is a uds-cli task for running the `mvn clean verify` command: `uds run dev-plugin`.
-{{% /alert-note %}}
+:::
 
 Some important commands that can be used when developing/testing on the plugin:
 
