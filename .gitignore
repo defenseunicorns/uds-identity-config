@@ -1,9 +1,9 @@
 .cache/
 .idea/
-build/
+build/**
 .DS_Store
 *.tar.zst
-zarf-sbom
+zarf-sbom/**
 tmp/
 cacert.b64
 ca.pem
@@ -11,8 +11,11 @@ ca.cer
 test.cer
 test.csr
 test.pem
-uds-core/
+uds-core
+uds-core/**
 ./src/authorized_certs.zip
 ./tls_cacert.yaml
 ./test.pfx
 src/extra-jars/
+src/test/cypress/node_modules/**
+src/plugin/target/**

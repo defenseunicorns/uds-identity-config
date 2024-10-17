@@ -1,3 +1,9 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+includes:
+  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.1.0/tasks/lint.yaml
+
 variables:
   - name: VERSION
     description: "The image tag"
@@ -141,3 +147,13 @@ tasks:
       - cmd: |
           npm --prefix src/test/cypress install
           npm --prefix src/test/cypress run cy.run
+
+  - name: license
+    actions:
+      - description: Lint for the SPDX license identifier being in source files
+        task: remote:license
+
+  - name: fix-license
+    actions:
+      - description: Add the SPDX license identifier to source files
+        task: remote:fix-license

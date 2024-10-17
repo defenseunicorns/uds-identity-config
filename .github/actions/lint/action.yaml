@@ -1,0 +1,29 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+name: lint-check
+description: "Check Project for Linting Errors"
+
+runs:
+  using: composite
+  steps:
+    - name: Use Node.js latest
+      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      with:
+        node-version: 20
+
+    - name: Set up Homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
+    - name: Install UDS CLI
+      # renovate: datasource=github-tags depName=defenseunicorns/uds-cli versioning=semver
+      run: brew install defenseunicorns/tap/uds@0.17.0
+      shell: bash
+
+    - name: Lint Deps
+      run: GOPATH="$HOME/go" go install github.com/google/addlicense@v1.1.1
+      shell: bash
+
+    - name: Run License Linting Checks
+      run: uds run license --no-progress
+      shell: bash
