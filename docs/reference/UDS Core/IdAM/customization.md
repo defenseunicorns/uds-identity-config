@@ -1,8 +1,7 @@
 ---
 title: Customization
+description: This documentation demonstrates how to customize the uds-core Identity (Keycloak) deployment by updating/changing the config image.
 ---
-
-These docs are intended for demonstrating how to customize the uds-core Identity (Keycloak) deployment by updating/changing the config image.  
 
 ## Testing custom image in UDS Core
 
@@ -225,7 +224,7 @@ Making these changes iteratively and importing into Keycloak to create a new rea
 
 The plugin provides the auth flows that keycloak uses for x509 (CAC) authentication as well as some of the surrounding registration flows.
 
-One nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomEventListenerProvider.java) is responsible for generating the unique ID.
+One nuanced auth flow is the creation of a Mattermost ID attribute for users. [CustomEventListener](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/eventListeners/RegisterEventListenerProvider.java is responsible for generating the unique ID.
 
 :::note
 When creating a user via ADMIN API or ADMIN UI, the 'REGISTER' event is not triggered, resulting in no Mattermost ID attribute generation. This will need to be done manually via click ops or the api. An example of how the attribute can be set via api can be seen [here](https://github.com/defenseunicorns/uds-common/blob/b2e8b25930c953ef893e7c787fe350f0d8679ee2/tasks/setup.yaml#L46).
