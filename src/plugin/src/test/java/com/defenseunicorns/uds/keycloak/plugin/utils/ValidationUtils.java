@@ -16,6 +16,7 @@ import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.ClientProvider;
 import org.keycloak.models.ClientScopeProvider;
 import org.keycloak.models.GroupProvider;
+import org.keycloak.models.IdentityProviderStorageProvider;
 import org.keycloak.models.KeyManager;
 import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.KeycloakSession;
@@ -303,6 +304,10 @@ public class ValidationUtils {
                     @Override
                     public boolean isClosed() {
                         throw new UnsupportedOperationException("Unimplemented method 'isClosed'");
+                    }
+                    @Override
+                    public IdentityProviderStorageProvider identityProviders() {
+                        throw new UnsupportedOperationException("Unimplemented method 'identityProviders'");
                     }
 
                 };
