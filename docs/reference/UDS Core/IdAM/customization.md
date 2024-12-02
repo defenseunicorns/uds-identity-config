@@ -115,6 +115,8 @@ overrides:
                TERMS_AND_CONDITIONS_ENABLED: true
                PASSWORD_POLICY: <fill in value here>
                X509_OCSP_FAIL_OPEN: true
+               ACCESS_TOKEN_LIFESPAN: 600
+               SSO_SESSION_LIFESPAN_TIMEOUT: 1200
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json) `identityProviders` section.
