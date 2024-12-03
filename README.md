@@ -22,8 +22,8 @@ This repo builds the UDS Identity (Keycloak) Config image used by UDS Identity. 
 
 ## Customizing UDS Identity Config
 
-If the default realm, plugin, theme, truststore, or jars do not provide enough functionality ( or provide too much functionality ), take a look at the [CUSTOMIZE.md](./docs/CUSTOMIZE.md) docs for making changes to the identity config.
+If the default realm, plugin, theme, truststore, or jars do not provide enough functionality ( or provide too much functionality ), take a look at the [CUSTOMIZE.md](./docs/reference/UDS%20Core/IdAM/CUSTOMIZE.md) docs for making changes to the identity config.
 
 
 ## Upgrading Identity Config
-When upgrading the Identity Config version, check the [Version Upgrade](./docs/VERSION_UPGRADE.md) docs for help.
+When upgrading the Identity Config version, check the [Version Upgrade](./docs/reference/UDS%20Core/IdAM/upgrading-versions.md) docs for help.
