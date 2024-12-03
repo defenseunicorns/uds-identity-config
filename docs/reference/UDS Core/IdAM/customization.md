@@ -117,9 +117,15 @@ overrides:
                X509_OCSP_FAIL_OPEN: true
                ACCESS_TOKEN_LIFESPAN: 600
                SSO_SESSION_LIFESPAN_TIMEOUT: 1200
+               SSO_SESSION_MAX_LIFESPAN: 36000
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).
+
+#### Customize Session and Access Token Timeouts
+The `SSO_SESSION_IDLE_TIMEOUT` specifies how long a session remains active without user activity, while the `ACCESS_TOKEN_LIFESPAN` defines the validity duration of an access token before it requires refreshing. The `SSO_SESSION_MAX_LIFESPAN` determines the maximum duration a session can remain active, regardless of user activity.
+
+To ensure smooth session management, configure the idle timeout to be longer than the access token lifespan (e.g., 10 minutes idle, 5 minutes lifespan) so tokens can be refreshed before the session expires, and ensure the max lifespan is set appropriately (e.g., 8 hours) to enforce session limits. Misalignment, such as setting a longer token lifespan than the idle timeout or not aligning the max lifespan with session requirements, can result in sessions ending unexpectedly or persisting longer than intended.
 
 ### Customize Truststore
 
