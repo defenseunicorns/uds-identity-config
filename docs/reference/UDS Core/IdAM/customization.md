@@ -119,7 +119,7 @@ overrides:
                SSO_SESSION_LIFESPAN_TIMEOUT: 1200
 ```
 
-> These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json) `identityProviders` section.
+> These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).
 
 ### Customize Truststore
 
