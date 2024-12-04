@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.8.0...v0.8.1) (2024-12-04)
+
+
+### Bug Fixes
+
+* link ([#276](https://github.com/defenseunicorns/uds-identity-config/issues/276)) ([4254754](https://github.com/defenseunicorns/uds-identity-config/commit/42547541bab11718415bc5458cc06cc049ae5329))
+
+
+### Miscellaneous
+
+* **deps:** update dependency prettier to v3.4.2 ([#274](https://github.com/defenseunicorns/uds-identity-config/issues/274)) ([dc56209](https://github.com/defenseunicorns/uds-identity-config/commit/dc56209d6e056a4b057105520e717c9117f9a424))
+
 ## [0.8.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.7.0...v0.8.0) (2024-12-03)
 
 
