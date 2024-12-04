@@ -375,3 +375,11 @@ body.password .subtitle {
   margin-bottom: 16px;
   margin-top: 16px;
 }
+
+#authenticateWebAuthnButton {
+  display: block;
+}
+
+#registerWebAuthn {
+  display: block;
+}
