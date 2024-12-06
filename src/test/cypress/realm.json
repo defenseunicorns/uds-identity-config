@@ -35,7 +35,7 @@
     "verifyEmail": true,
     "loginWithEmailAllowed": true,
     "duplicateEmailsAllowed": false,
-    "resetPasswordAllowed": true,
+    "resetPasswordAllowed": "${REALMS_UPDATE_PASSWORD_ENABLED:true}",
     "editUsernameAllowed": false,
     "bruteForceProtected": true,
     "permanentLockout": true,
@@ -1836,16 +1836,16 @@
                     "authenticator": "auth-x509-client-username-form",
                     "authenticatorFlow": false,
                     "requirement": "ALTERNATIVE",
-                    "priority": 0,
+                    "priority": 1,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticator": "auth-username-password-form",
-                    "authenticatorFlow": false,
+                    "authenticatorFlow": true,
                     "requirement": "ALTERNATIVE",
-                    "priority": 1,
-                    "autheticatorFlow": false,
+                    "priority": 2,
+                    "autheticatorFlow": true,
+                    "flowAlias": "MFA Login",
                     "userSetupAllowed": false
                 }
             ]
@@ -2031,13 +2031,21 @@
                     "userSetupAllowed": false
                 },
                 {
+                    "authenticator": "deny-access-authenticator",
+                    "authenticatorFlow": false,
+                    "requirement": "${REALM_DENY_USERNAME_PASSWORD:DISABLED}",
+                    "priority": 1,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                  },
+                  {
                     "authenticatorFlow": true,
                     "requirement": "REQUIRED",
-                    "priority": 1,
+                    "priority": 2,
                     "autheticatorFlow": true,
                     "flowAlias": "Conditional OTP",
                     "userSetupAllowed": false
-                }
+                  }
             ]
         },
         {
@@ -2147,7 +2155,7 @@
                 {
                     "authenticator": "registration-page-form",
                     "authenticatorFlow": true,
-                    "requirement": "REQUIRED",
+                    "requirement": "${REALM_REGISTRATION_FORM:REQUIRED}",
                     "priority": 10,
                     "autheticatorFlow": true,
                     "flowAlias": "UDS registration form",
@@ -2190,7 +2198,7 @@
                 {
                     "authenticator": "reset-password",
                     "authenticatorFlow": false,
-                    "requirement": "REQUIRED",
+                    "requirement": "${REALMS_RESET_CREDENTIAL_FLOW:REQUIRED}",
                     "priority": 30,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
@@ -2692,7 +2700,7 @@
             "alias": "UPDATE_PASSWORD",
             "name": "Update Password",
             "providerId": "UPDATE_PASSWORD",
-            "enabled": true,
+            "enabled": "${REALM_UPDATE_PASSWORD_ENABLED:true}",
             "defaultAction": false,
             "priority": 30,
             "config": {}
