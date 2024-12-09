@@ -2040,7 +2040,7 @@
                   },
                   {
                     "authenticatorFlow": true,
-                    "requirement": "REQUIRED",
+                    "requirement": "DISABLED",
                     "priority": 2,
                     "autheticatorFlow": true,
                     "flowAlias": "Conditional OTP",
@@ -2691,7 +2691,7 @@
             "alias": "CONFIGURE_TOTP",
             "name": "Configure OTP",
             "providerId": "CONFIGURE_TOTP",
-            "enabled": "${REALM_OTP_ENABLED:true}",
+            "enabled": "${REALM_OTP_ENABLED:false}",
             "defaultAction": false,
             "priority": 20,
             "config": {}
