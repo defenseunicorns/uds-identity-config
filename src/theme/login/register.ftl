@@ -11,7 +11,7 @@
                         </p>
                     </div>
                 <#else>
-                    <#if properties["enableUsernamePasswordAuth"] == "false" && properties["enableX509Login"] == "true">
+                    <#if properties["REALM_ENABLE_USERNAME_PASSWORD_AUTH"] == "false" && properties["REALM_ENABLE_X509_LOGIN"] == "true">
                         <div class="alert alert-warning">
                             <h2>Registration Requirement</h2>
                             <p>No CAC detected. A DoD PKI CAC is required to complete registration.</p>
@@ -44,7 +44,7 @@
                         </#if>
                     </div>
                 </div>
-                <#if properties["enableRegistrationFields"] == "true">
+                <#if properties["REALM_ENABLE_REGISTRATION_FIELDS"] == "true">
                     <div class="row">
                         <div class="col-lg-6 form-group ${messagesPerField.printIfExists('affiliation','has-error')}">
                             <label for="affiliation" class="form-label">Affiliation</label>
@@ -191,7 +191,7 @@
                     </label>
                     <textarea id="notes" class="form-control " name="notes"></textarea>
                 </div>
-                <#if properties["enableUsernamePasswordAuth"] == "true">
+                <#if properties["REALM_ENABLE_USERNAME_PASSWORD_AUTH"] == "true">
                     <div class="form-group ${messagesPerField.printIfExists('password','has-error')}">
                         <#if cacSubjectDN??>
                             <div class="alert alert-info cac-info text-white">
@@ -254,7 +254,7 @@
         </#if>
     </@layout.registrationLayout>
     <script>
-    if('${properties["enableRegistrationFields"]}' == "true") {
+    if('${properties["REALM_ENABLE_REGISTRATION_FIELDS"]}' == "true") {
         document.getElementById('affiliation').value = "${(register.formData['affiliation']!'')}";
         document.getElementById('rank').value = "${(register.formData['rank']!'')}";
     }

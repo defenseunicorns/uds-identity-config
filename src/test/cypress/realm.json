@@ -35,7 +35,7 @@
     "verifyEmail": true,
     "loginWithEmailAllowed": true,
     "duplicateEmailsAllowed": false,
-    "resetPasswordAllowed": "${REALMS_UPDATE_PASSWORD_ENABLED:true}",
+    "resetPasswordAllowed": "${REALM_ENABLE_USERNAME_PASSWORD_AUTH:true}",
     "editUsernameAllowed": false,
     "bruteForceProtected": true,
     "permanentLockout": true,
@@ -2700,7 +2700,7 @@
             "alias": "UPDATE_PASSWORD",
             "name": "Update Password",
             "providerId": "UPDATE_PASSWORD",
-            "enabled": "${REALM_UPDATE_PASSWORD_ENABLED:true}",
+            "enabled": "${REALM_ENABLE_USERNAME_PASSWORD_AUTH:true}",
             "defaultAction": false,
             "priority": 30,
             "config": {}
