@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.8.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.8.0...v0.8.1) (2024-12-09)
+
+
+### Bug Fixes
+
+* link ([#276](https://github.com/defenseunicorns/uds-identity-config/issues/276)) ([4254754](https://github.com/defenseunicorns/uds-identity-config/commit/42547541bab11718415bc5458cc06cc049ae5329))
+* passkey support ([#277](https://github.com/defenseunicorns/uds-identity-config/issues/277)) ([f0a198e](https://github.com/defenseunicorns/uds-identity-config/commit/f0a198edf4111fc3398d992b8acd9392f9658df3))
+* remove deprecated encryption on renovate config ([#281](https://github.com/defenseunicorns/uds-identity-config/issues/281)) ([80dbfe7](https://github.com/defenseunicorns/uds-identity-config/commit/80dbfe788240bbbe725ea6ad3a89bf0d89bf35b1))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#278](https://github.com/defenseunicorns/uds-identity-config/issues/278)) ([e23c7d0](https://github.com/defenseunicorns/uds-identity-config/commit/e23c7d03fdd7bbd9919b2a9254383f6564e37e97))
+* **deps:** update dependency prettier to v3.4.2 ([#274](https://github.com/defenseunicorns/uds-identity-config/issues/274)) ([dc56209](https://github.com/defenseunicorns/uds-identity-config/commit/dc56209d6e056a4b057105520e717c9117f9a424))
+
 ## [0.8.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.7.0...v0.8.0) (2024-12-03)
 
 
