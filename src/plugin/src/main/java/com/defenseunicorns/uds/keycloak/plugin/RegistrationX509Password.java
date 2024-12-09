@@ -68,22 +68,24 @@ public class RegistrationX509Password extends RegistrationPassword {
         List<FormMessage> errors = new ArrayList<>();
         context.getEvent().detail(Details.REGISTER_METHOD, "form");
 
-        if (formData.getFirst(RegistrationPage.FIELD_PASSWORD).isEmpty()
-                && formData.getFirst(RegistrationPage.FIELD_PASSWORD_CONFIRM).isEmpty()) {
+        String password = formData.getFirst(RegistrationPage.FIELD_PASSWORD);
+        String passwordConfirm = formData.getFirst(RegistrationPage.FIELD_PASSWORD_CONFIRM);
+
+        // Check if both password fields are either empty or null, and skip password validation
+        if ((password == null || password.isEmpty()) && (passwordConfirm == null || passwordConfirm.isEmpty())) {
             context.success();
             return;
         }
 
-        if (!formData.getFirst(RegistrationPage.FIELD_PASSWORD)
-                .equals(formData.getFirst(RegistrationPage.FIELD_PASSWORD_CONFIRM))) {
+        if (!password.equals(passwordConfirm)) {
             errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD_CONFIRM, Messages.INVALID_PASSWORD_CONFIRM));
         }
 
-        if (formData.getFirst(RegistrationPage.FIELD_PASSWORD) != null) {
+        if (password != null) {
             PolicyError err = context.getSession().getProvider(PasswordPolicyManagerProvider.class).validate(
                     context.getRealm().isRegistrationEmailAsUsername() ? formData.getFirst(RegistrationPage.FIELD_EMAIL)
                             : formData.getFirst(RegistrationPage.FIELD_USERNAME),
-                    formData.getFirst(RegistrationPage.FIELD_PASSWORD));
+                    password);
             if (err != null) {
                 errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD, err.getMessage(), err.getParameters()));
             }
@@ -107,8 +109,9 @@ public class RegistrationX509Password extends RegistrationPassword {
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
         UserModel user = context.getUser();
 
+        String password = formData.getFirst(RegistrationPage.FIELD_PASSWORD);
         if ((X509Tools.getX509Username(context) == null)
-                || (!formData.getFirst(RegistrationPage.FIELD_PASSWORD).isEmpty())) {
+                || (password != null && !password.isEmpty())) {
             super.success(context);
             // TOTP also enforced in RegistrationValidation class for non-CAC registration
             user.addRequiredAction(UserModel.RequiredAction.CONFIGURE_TOTP);

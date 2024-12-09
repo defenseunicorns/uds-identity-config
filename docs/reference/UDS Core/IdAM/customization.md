@@ -1,6 +1,7 @@
 ---
 title: Customization
-description: This documentation demonstrates how to customize the uds-core Identity (Keycloak) deployment by updating/changing the config image.
+tableOfContents:
+  maxHeadingLevel: 5
 ---
 
 ## Testing custom image in UDS Core
