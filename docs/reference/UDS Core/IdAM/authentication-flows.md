@@ -1,6 +1,7 @@
 ---
 title: Authentication Flow Customization
-description: This documentation demonstrates how to customize the uds-core Identity's (Keycloak) Authentication flows
+tableOfContents:
+  maxHeadingLevel: 5
 ---
 
 # Authentication Flow Customization
