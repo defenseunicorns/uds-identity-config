@@ -6,7 +6,9 @@ tableOfContents:
 
 # Authentication Flow Customization
 
-:::note Environment variables configured in the [uds-core Keycloak values.yaml file](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L28-L40) have `REALM_` [appended to them during creation.](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#templated-realm-values). See [official Customization docs](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/) for more information. :::
+:::note Environment variables configured in the [uds-core Keycloak values.yaml file](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L28-L40) have `REALM_` [appended to them during creation.](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#templated-realm-values). See [official Customization docs](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/) for more information.:::
+
+:::warning If upgrading uds-core, be aware that Keycloak Admin clickops will probably be required to set new Realm values. See the clickops section below for how to do this. :::
 
 ## Theme Configuration Definitions
 | Setting | Description | Options |
@@ -33,6 +35,10 @@ At this time, UDS Core supports three different avenues of authentication for us
 ### Default Configuration
 By defualt UDS Core has all three options configured out of the box.
 
+| Authentication Configuration Description | Theme Configurations | Realm Configurations |
+| - | - | - |
+| Default | `ENABLE_SOCIAL_LOGIN: true`<br>`ENABLE_X509_LOGIN: true`<br>`ENABLE_USERNAME_PASSWORD_AUTH: true`<br>`ENABLE_REGISTER_BUTTON: true`<br>`ENABLE_REGISTRATION_FIELDS: true` | `deny_username_password: DISABLED`<br>`reset_credential_flow: REQUIRED`<br>`registration_form: REQUIRED`<br>`otp_enabled: true` |
+
 ### Other Configurations
 
 | Authentication Configuration Description | Theme Configurations | Realm Configurations |
@@ -44,7 +50,23 @@ By defualt UDS Core has all three options configured out of the box.
 | Username Password with Social (IDP) | `ENABLE_SOCIAL_LOGIN: true`<br>`ENABLE_X509_LOGIN: false`<br>`ENABLE_USERNAME_PASSWORD_AUTH: true`<br>`ENABLE_REGISTER_BUTTON: true`<br>`ENABLE_REGISTRATION_FIELDS: true` | `deny_username_password: DISABLED`<br>`reset_credential_flow: REQUIRED`<br>`registration_form: REQUIRED`<br>`otp_enabled: true` |
 | X509 with Social (IDP) | `ENABLE_SOCIAL_LOGIN: true`<br>`ENABLE_X509_LOGIN: true`<br>`ENABLE_USERNAME_PASSWORD_AUTH: false`<br>`ENABLE_REGISTER_BUTTON: true`<br>`ENABLE_REGISTRATION_FIELDS: true `| `deny_username_password: REQUIRED`<br>`reset_credential_flow: DISABLED`<br>`registration_form: REQUIRED`<br>`otp_enabled: false` |
 
-### Security Concerns and Misconfigurations
+
+## How to clickops these configurations
+
+### Theme Configurations
+Theme's cannot be clickops'ed, for these changes to take affect an upgrade or fresh deployment will be required. Another option is exec-ing into the the keycloak pod and copying in the new themes to the `/opt/keycloak/theme/themes/login/` directory. After copying in the theme changes, the theme changes depend on environment variables being defined in the [theme.properties file](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/theme/login/theme.properties). The above table demonstrates the different environment variables for the `theme.properties` file.
+
+### Realm Configurations
+All Realm Configurations require accesss to the Keycloak admin portal.
+
+| Configuration | How to Configure |
+| - | - |
+| `deny_username_password` | 1. Realm Authentication tab<br> 2. Select the `UDS Authentication` Authentication Flow<br> 3. `DISABLE` the `Deny Access` step that is below the `Username Password Form` |
+| `reset_credential_flow` | 1. Realm Authentication tab<br> 2. Select the `UDS Reset Credentials` Authentication Flow<br> 3. `DISABLE` the `Reset Password` step |
+| `registration_form` | 1. Realm Authentication tab<br> 2. Select the `UDS Registration` Authentication Flow<br> 3. `DISABLE` the `UDS Registration form` step |
+| `otp_enabled` | 1. Realm Authentication tab<br> 2. Select the `Required Action` tab at the top of the Authentication view<br> 3. Toggle off the `Configure OTP` |
+
+## Security Concerns and Misconfigurations
 
 * If Username/Password registration/login is disabled but `updated_password_enabled=true`, there is still potential for someone to reach the reset credential flow and set their password. If not configured correctly that user could use that password to authenticate.
 
