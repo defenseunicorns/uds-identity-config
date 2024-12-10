@@ -2976,7 +2976,25 @@
             "defaultAction": false,
             "priority": 1001,
             "config": {}
-        }
+        },
+        {
+            "alias": "webauthn-register-passwordless",
+            "name": "Webauthn Register Passwordless",
+            "providerId": "webauthn-register-passwordless",
+            "enabled": true,
+            "defaultAction": false,
+            "priority": 1002,
+            "config": {}
+          },
+          {
+            "alias": "webauthn-register",
+            "name": "Webauthn Register",
+            "providerId": "webauthn-register",
+            "enabled": true,
+            "defaultAction": false,
+            "priority": 1003,
+            "config": {}
+          }
     ],
     "browserFlow": "UDS Authentication",
     "registrationFlow": "UDS Registration",
