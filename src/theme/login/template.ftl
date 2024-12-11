@@ -40,6 +40,7 @@ ${msg("loginTitle",(realm.displayName!''))}
 </head>
 <body class="${properties.kcBodyClass!}">
     <div class="container-fluid">
+        <div class="header-message" style="background-color: #3f7a47;color: #ffffff"><p>UNCLASSIFIED - NO CUI</p></div>
         <div class="row justify-content-center">
             <div class="col-xl-5 col-lg-7 col-md-10">
                 <div class="card">
@@ -96,7 +97,7 @@ ${message.type}
             <footer class="fixed-footer">
                 <img src="${url.resourcesPath}/img/full-du-logo.png" />
             </footer>
+            <div class="footer-message" style="background-color: #3f7a47;color: #ffffff"><p>UNCLASSIFIED - NO CUI</p></div>
             </body>
-
     </html>
 </#macro>

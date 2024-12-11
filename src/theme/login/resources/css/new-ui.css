@@ -275,7 +275,7 @@ body > .container-fluid {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 65px;
+  height: 85px;
   border-top: 1px solid #747474;
   backdrop-filter: blur(4px);
   background-color: rgba(100, 100, 100, 0.05) !important;
@@ -382,4 +382,32 @@ body.password .subtitle {
 
 #registerWebAuthn {
   display: block;
+}
+
+.header-message {
+  top: 0;
+  height: 16px;
+  line-height: 16px;
+}
+
+.footer-message {
+  bottom: 0;
+  height: 16px;
+  line-height: 16px;
+}
+
+.header-message, .footer-message {
+  padding: 0 15px;
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 0;
+  position: fixed;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  z-index: 1000;
+}
+
+.header-message, .footer-message p {
+  font-size: 12px;
 }
