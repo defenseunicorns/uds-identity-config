@@ -80,11 +80,11 @@ Be aware that changing values in the realm may also need be to updated throughou
 
 See the [Testing custom image in UDS Core](./CUSTOMIZE.md#testing-custom-image-in-uds-core) for building, publishing, and using the new image with `uds-core`.
 
-#### Templated Realm Values
+#### Templated Realm and Theme Values
 
-Keycloak supports using environment variables within the realm configuration, see [docs](https://www.keycloak.org/server/importExport).
+Keycloak supports using environment variables within the realm and theme configurations, see [docs](https://www.keycloak.org/server/importExport).
 
-These environment variables have default values set in the realm.json that uses the following syntax:
+Most environment variables have default values set in the realm.json that uses the following syntax:
 
 ```yaml
   ${REALM_GOOGLE_IDP_ENABLED:false}
@@ -104,23 +104,36 @@ overrides:
             path: realmInitEnv
             value:
                GOOGLE_IDP_ENABLED: true
-               GOOGLE_IDP_ID: <fill in value here>
-               GOOGLE_IDP_SIGNING_CERT: <fill in value here>
-               GOOGLE_IDP_NAME_ID_FORMAT: <fill in value here>
-               GOOGLE_IDP_CORE_ENTITY_ID: <fill in value here>
-               GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
-               GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
-               EMAIL_VERIFICATION_ENABLED: true
-               OTP_ENABLED: true
-               TERMS_AND_CONDITIONS_ENABLED: true
-               PASSWORD_POLICY: <fill in value here>
-               X509_OCSP_FAIL_OPEN: true
-               ACCESS_TOKEN_LIFESPAN: 600
-               SSO_SESSION_LIFESPAN_TIMEOUT: 1200
-               SSO_SESSION_MAX_LIFESPAN: 36000
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).
+
+##### Available Values
+| Name | Definition | Values |
+| - | - | - |
+| GOOGLE_IDP_ENABLED | Enables the Google Identity Provider in the realm | `true`, `false`(default) |
+| GOOGLE_IDP_ID | Unique identifier for Google as an identity provider | e.g., `"C0123456"` |
+| GOOGLE_IDP_SIGNING_CERT | Certificate for verifying the signature of SAML assertions from Google | PEM format certificate string |
+| GOOGLE_IDP_NAME_ID_FORMAT | Format of the NameID to use in SAML assertions | e.g., `"emailAddress"` |
+| GOOGLE_IDP_CORE_ENTITY_ID | The Entity ID for Google as a SAML identity provider | URL format string |
+| GOOGLE_IDP_ADMIN_GROUP | The admin group identifier from Google to map in Keycloak | e.g., `"/Admins"` |
+| GOOGLE_IDP_AUDITOR_GROUP | The auditor group identifier from Google to map in Keycloak | e.g., `"/Auditors"` |
+| EMAIL_VERIFICATION_ENABLED | Enables email verification during user registration | `true`, `false`(default) |
+| OTP_ENABLED | Enables one-time password (OTP) for authentication | `true`(default), `false` |
+| TERMS_AND_CONDITIONS_ENABLED | Enables the requirement for users to accept terms and conditions on registration | `true`, `false`(default) |
+| PASSWORD_POLICY | Defines the policy for user passwords within the realm | `"hashAlgorithm(pbkdf2-sha256) and forceExpiredPasswordChange(60) and specialChars(2) and digits(1) and lowerCase(1) and upperCase(1) and passwordHistory(5) and length(15) and notUsername(undefined)"`(defualt) |
+| X509_OCSP_FAIL_OPEN | Allows authentication to proceed if OCSP checks for user certificates fail | `true`, `false`(default) |
+| ACCESS_TOKEN_LIFESPAN | Sets the lifespan of the access token in seconds | `60`(default) seconds |
+| SSO_SESSION_LIFESPAN_TIMEOUT | Sets the timeout for a single sign-on session in seconds | Numeric value (e.g., 600 for 10 minutes)  |
+| SSO_SESSION_MAX_LIFESPAN | Sets the maximum lifespan of a single sign-on session in seconds | Numeric value (e.g., 36000 for 10 hours)  |
+| USERNAME_PASSWORD_AUTH_ENABLED | Configure whether Username and Password Authentication Flows are enabled. | `true`(default), `false` |
+| X509_AUTH_ENABLED | Configure whether X509 Authentication Flows are enabled. | `true`(default), `false` |
+| SOCIAL_AUTH_ENABLED | Configure whether Social Authentication Flows are enabled (Google SSO, Azure AD, etc). | `true`(default), `false` |
+| DISABLE_REGISTRATION_FIELDS | Configure whether misc Keycloak registartion fields are present (Pay Grade, Affiliation, Organization ). | `true`(default), `false` |
+| ENABLE_CUSTOM_BANNER | Configure a custom banner to be present for both login and account themes in Keycloak. | `true`, `false`(default) |
+| CUSTOM_BANNER_LEVEL | Configure the custom banner text. | `"UNCLASSIFIED // FOUO"`(defualt)|
+| CUSTOM_BANNER_BACKGROUND_COLOR | Configure the custom banner background color. | `"#007a33"`(default) |
+| CUSTOM_BANNER_TEXT_COLOR | Configure the custom banner text color. | `"white"`(default) |
 
 #### Customize Session and Access Token Timeouts
 The `SSO_SESSION_IDLE_TIMEOUT` specifies how long a session remains active without user activity, while the `ACCESS_TOKEN_LIFESPAN` defines the validity duration of an access token before it requires refreshing. The `SSO_SESSION_MAX_LIFESPAN` determines the maximum duration a session can remain active, regardless of user activity.
