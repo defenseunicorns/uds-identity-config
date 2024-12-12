@@ -24,11 +24,11 @@ cp -fv certs/* /opt/keycloak/conf/truststores
 # Check for environment variables and update login theme.properties
 {
     echo "# Login Theme configurations"
-    echo "REALM_ENABLE_SOCIAL_LOGIN=${REALM_ENABLE_SOCIAL_LOGIN:-true}"
-    echo "REALM_ENABLE_X509_LOGIN=${REALM_ENABLE_X509_LOGIN:-true}"
-    echo "REALM_ENABLE_USERNAME_PASSWORD_AUTH=${REALM_ENABLE_USERNAME_PASSWORD_AUTH:-true}"
-    echo "REALM_ENABLE_REGISTER_BUTTON=${REALM_ENABLE_REGISTER_BUTTON:-true}"
-    echo "REALM_ENABLE_REGISTRATION_FIELDS=${REALM_ENABLE_REGISTRATION_FIELDS:-true}"
+    echo "ENABLE_SOCIAL_LOGIN=${ENABLE_SOCIAL_LOGIN}"
+    echo "ENABLE_X509_LOGIN=${ENABLE_X509_LOGIN}"
+    echo "ENABLE_USERNAME_PASSWORD_AUTH=${ENABLE_USERNAME_PASSWORD_AUTH}"
+    echo "ENABLE_REGISTER_BUTTON=${ENABLE_REGISTER_BUTTON}"
+    echo "REALM_DISABLE_REGISTRATION_FIELDS=${REALM_DISABLE_REGISTRATION_FIELDS:-false}"
 } >> /opt/keycloak/themes/theme/login/theme.properties
 
 echo "Sync complete"

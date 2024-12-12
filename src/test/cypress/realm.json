@@ -35,7 +35,7 @@
     "verifyEmail": true,
     "loginWithEmailAllowed": true,
     "duplicateEmailsAllowed": false,
-    "resetPasswordAllowed": "${REALM_ENABLE_USERNAME_PASSWORD_AUTH:true}",
+    "resetPasswordAllowed": "${ENABLE_USERNAME_PASSWORD_AUTH:true}",
     "editUsernameAllowed": false,
     "bruteForceProtected": true,
     "permanentLockout": true,
@@ -1699,7 +1699,7 @@
                     "trusted-hosts": [
                         "127.0.0.6",
                         "*.${UDS_DOMAIN}",
-                        "*.admin.${UDS_DOMAIN}"
+                        "*.${UDS_DOMAIN}"
                     ],
                     "client-uris-must-match": [
                         "true"
@@ -2033,7 +2033,7 @@
                 {
                     "authenticator": "deny-access-authenticator",
                     "authenticatorFlow": false,
-                    "requirement": "${REALM_DENY_USERNAME_PASSWORD:DISABLED}",
+                    "requirement": "${ENABLE_DENY_USERNAME_PASSWORD:DISABLED}",
                     "priority": 1,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
@@ -2155,7 +2155,7 @@
                 {
                     "authenticator": "registration-page-form",
                     "authenticatorFlow": true,
-                    "requirement": "${REALM_REGISTRATION_FORM:REQUIRED}",
+                    "requirement": "${ENABLE_REGISTRATION_FORM:REQUIRED}",
                     "priority": 10,
                     "autheticatorFlow": true,
                     "flowAlias": "UDS registration form",
@@ -2198,7 +2198,7 @@
                 {
                     "authenticator": "reset-password",
                     "authenticatorFlow": false,
-                    "requirement": "${REALMS_RESET_CREDENTIAL_FLOW:REQUIRED}",
+                    "requirement": "${ENABLE_RESET_CREDENTIAL_FLOW:REQUIRED}",
                     "priority": 30,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
@@ -2691,7 +2691,7 @@
             "alias": "CONFIGURE_TOTP",
             "name": "Configure OTP",
             "providerId": "CONFIGURE_TOTP",
-            "enabled": "${REALM_OTP_ENABLED:false}",
+            "enabled": "${ENABLE_REALM_OTP:false}",
             "defaultAction": false,
             "priority": 20,
             "config": {}
@@ -2700,7 +2700,7 @@
             "alias": "UPDATE_PASSWORD",
             "name": "Update Password",
             "providerId": "UPDATE_PASSWORD",
-            "enabled": "${REALM_ENABLE_USERNAME_PASSWORD_AUTH:true}",
+            "enabled": "${ENABLE_USERNAME_PASSWORD_AUTH:true}",
             "defaultAction": false,
             "priority": 30,
             "config": {}

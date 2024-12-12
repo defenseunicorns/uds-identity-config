@@ -119,6 +119,10 @@ overrides:
                ACCESS_TOKEN_LIFESPAN: 600
                SSO_SESSION_LIFESPAN_TIMEOUT: 1200
                SSO_SESSION_MAX_LIFESPAN: 36000
+               USERNAME_PASSWORD_AUTH_ENABLED: true
+               X509_AUTH_ENABLED: true
+               SOCIAL_AUTH_ENABLED: true
+               DISABLE_REGISTRATION_FIELDS: true
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).

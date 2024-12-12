@@ -1,12 +1,12 @@
 <#import "template.ftl" as layout>
     <@layout.registrationLayout displayMessage=true displayInfo=realm.password && realm.registrationAllowed && !registrationDisabled??; section>
         <#if section="form">
-            <#if properties["REALM_ENABLE_X509_LOGIN"] == "true">
+            <#if properties["ENABLE_X509_LOGIN"] == "true">
                 <form id="kc-form" action="${url.loginAction}" method="post">
                     <!-- Dynamic content is added by JavaScript -->
                 </form>
             </#if>
-            <#if realm.password && properties["REALM_ENABLE_USERNAME_PASSWORD_AUTH"] == "true">
+            <#if realm.password && properties["ENABLE_USERNAME_PASSWORD_AUTH"] == "true">
                 <form onsubmit="login.disabled=true;return true;" action="${url.loginAction}" method="post">
                     <div class="form-group">
                         <label class="form-label" for="username">
@@ -44,7 +44,7 @@
                     </div>
                 </form>
             </#if>
-            <#if realm.password && social?? && social.providers?has_content && properties["REALM_ENABLE_SOCIAL_LOGIN"] == "true">
+            <#if realm.password && social?? && social.providers?has_content && properties["ENABLE_SOCIAL_LOGIN"] == "true">
                 <div id="kc-social-providers" class="kc-social-section kc-social-gray">
                     <hr/>
                     <h2>Sign in with:</h2>
@@ -67,7 +67,7 @@
                     <hr/>
                 </div>
             </#if>
-            <#if properties["REALM_ENABLE_REGISTER_BUTTON"] == "true">
+            <#if properties["ENABLE_REGISTER_BUTTON"] == "true">
                 <div class="footer-text">
                     No account? <a href="${url.registrationUrl}">Click here</a> to register now.<br>
                 </div>
@@ -89,7 +89,7 @@
                     </div>
                 `;
             }
-        } else if('${properties["REALM_ENABLE_X509_LOGIN"]}' == "true" && '${properties["REALM_ENABLE_SOCIAL_LOGIN"]}' == "false" && '${properties["REALM_ENABLE_USERNAME_PASSWORD_AUTH"]}' == "false"){
+        } else if('${properties["ENABLE_X509_LOGIN"]}' == "true" && '${properties["ENABLE_SOCIAL_LOGIN"]}' == "false" && '${properties["ENABLE_USERNAME_PASSWORD_AUTH"]}' == "false"){
             // No CAC detected
             formContainer.innerHTML = `
                 <div class="alert alert-info cac-info">
