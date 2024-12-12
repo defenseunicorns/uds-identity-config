@@ -11,7 +11,7 @@
                         </p>
                     </div>
                 <#else>
-                    <#if properties["ENABLE_USERNAME_PASSWORD_AUTH"] == "false" && properties["ENABLE_X509_LOGIN"] == "true">
+                    <#if properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "false" && properties["X509_LOGIN_ENABLED"] == "true">
                         <div class="alert alert-warning">
                             <h2>Registration Requirement</h2>
                             <p>No CAC detected. A DoD PKI CAC is required to complete registration.</p>
@@ -191,7 +191,7 @@
                     </label>
                     <textarea id="notes" class="form-control " name="notes"></textarea>
                 </div>
-                <#if properties["ENABLE_USERNAME_PASSWORD_AUTH"] == "true">
+                <#if properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "true">
                     <div class="form-group ${messagesPerField.printIfExists('password','has-error')}">
                         <#if cacSubjectDN??>
                             <div class="alert alert-info cac-info text-white">
