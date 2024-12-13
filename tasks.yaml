@@ -117,7 +117,7 @@ tasks:
     description: Configure existing uds-core/grafana package for group authz, build, deploy grafana
     actions:
       - cmd: |
-          sed -i '/^\s*sso:/,/^\s*-\s*name:/ { 
+          sed -i '/^\s*sso:/,/^\s*-\s*name:/ {
             /groups:/d
             /^\s*-\s*name:/a \ \ \ \ \ \ groups:\n\ \ \ \ \ \ \ \ anyOf:\n\ \ \ \ \ \ \ \ \ - \/UDS Core\/Admin
           }' uds-core/src/grafana/chart/templates/uds-package.yaml
