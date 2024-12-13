@@ -35,7 +35,7 @@
     "verifyEmail": true,
     "loginWithEmailAllowed": true,
     "duplicateEmailsAllowed": false,
-    "resetPasswordAllowed": true,
+    "resetPasswordAllowed": "${USERNAME_PASSWORD_AUTH_ENABLED:true}",
     "editUsernameAllowed": false,
     "bruteForceProtected": true,
     "permanentLockout": true,
@@ -2257,9 +2257,17 @@
                     "userSetupAllowed": false
                 },
                 {
+                  "authenticator": "deny-access-authenticator",
+                  "authenticatorFlow": false,
+                  "requirement": "${DENY_USERNAME_PASSWORD_ENABLED:DISABLED}",
+                  "priority": 1,
+                  "autheticatorFlow": false,
+                  "userSetupAllowed": false
+                },
+                {
                     "authenticatorFlow": true,
                     "requirement": "REQUIRED",
-                    "priority": 1,
+                    "priority": 2,
                     "autheticatorFlow": true,
                     "flowAlias": "Conditional OTP",
                     "userSetupAllowed": false
@@ -2374,7 +2382,7 @@
                 {
                     "authenticator": "registration-page-form",
                     "authenticatorFlow": true,
-                    "requirement": "REQUIRED",
+                    "requirement": "${REGISTRATION_FORM_ENABLED:REQUIRED}",
                     "priority": 10,
                     "autheticatorFlow": true,
                     "flowAlias": "UDS registration form",
@@ -2417,7 +2425,7 @@
                 {
                     "authenticator": "reset-password",
                     "authenticatorFlow": false,
-                    "requirement": "REQUIRED",
+                    "requirement": "${RESET_CREDENTIAL_FLOW_ENABLED:REQUIRED}",
                     "priority": 30,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
@@ -2910,7 +2918,7 @@
             "alias": "CONFIGURE_TOTP",
             "name": "Configure OTP",
             "providerId": "CONFIGURE_TOTP",
-            "enabled": "${REALM_OTP_ENABLED:true}",
+            "enabled": "${OTP_ENABLED:true}",
             "defaultAction": false,
             "priority": 20,
             "config": {}
@@ -2919,7 +2927,7 @@
             "alias": "UPDATE_PASSWORD",
             "name": "Update Password",
             "providerId": "UPDATE_PASSWORD",
-            "enabled": true,
+            "enabled": "${USERNAME_PASSWORD_AUTH_ENABLED:true}",
             "defaultAction": false,
             "priority": 30,
             "config": {}

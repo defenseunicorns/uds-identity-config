@@ -1,7 +1,12 @@
 <#import "template.ftl" as layout>
     <@layout.registrationLayout displayMessage=true displayInfo=realm.password && realm.registrationAllowed && !registrationDisabled??; section>
         <#if section="form">
-            <#if realm.password>
+            <#if properties["X509_LOGIN_ENABLED"] == "true">
+                <form id="kc-form" action="${url.loginAction}" method="post">
+                    <!-- Dynamic content is added by JavaScript -->
+                </form>
+            </#if>
+            <#if realm.password && properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "true">
                 <form onsubmit="login.disabled=true;return true;" action="${url.loginAction}" method="post">
                     <div class="form-group">
                         <label class="form-label" for="username">
@@ -39,10 +44,10 @@
                     </div>
                 </form>
             </#if>
-            <#if realm.password && social?? && social.providers?has_content>
+            <#if realm.password && social?? && social.providers?has_content && properties["SOCIAL_LOGIN_ENABLED"] == "true">
                 <div id="kc-social-providers" class="kc-social-section kc-social-gray">
                     <hr/>
-                    <h2>${msg("identity-provider-login-label")}</h2>
+                    <h2>Sign in with:</h2>
 
                     <ul class="social-ul kc-social-links <#if social.providers?size gt 3>pf-l-grid kc-social-grid</#if>">
                         <#list social.providers as p>
@@ -62,19 +67,36 @@
                     <hr/>
                 </div>
             </#if>
-            <div class="footer-text">
-                No account? <a href="${url.registrationUrl}">Click here</a> to register now.<br>
-            </div>
+            <#if properties["REGISTER_BUTTON_ENABLED"] == "true">
+                <div class="footer-text">
+                    No account? <a href="${url.registrationUrl}">Click here</a> to register now.<br>
+                </div>
+            </#if>
         </#if>
     </@layout.registrationLayout>
     <script>
-    const feedback = document.getElementById('alert-error');
-    if (feedback && feedback.innerHTML.indexOf('X509 certificate') > -1 && feedback.innerHTML.indexOf('Invalid user') > -1) {
-        feedback.outerHTML = [
-            '<div class="alert alert-info cac-info">',
-            '<h2>New DoD PKI Detected</h2>',
-            '<div style="line-height: 2rem;">If you do not have an account yet, <a href="${url.registrationUrl}">click to register</a> now.  Otherwise, please login with your username/password to associate this CAC with your existing account.',
-            '</div></div>'
-        ].join('');
-    }
+    (function () {
+        const feedback = document.getElementById('alert-error');
+        const formContainer = document.getElementById('kc-form');
+
+        // Dynamic content based on CAC detection
+        if (feedback) {
+            if (feedback.innerHTML.includes('X509 certificate') && feedback.innerHTML.includes('Invalid user')) {
+                feedback.outerHTML = `
+                    <div class="alert alert-info cac-info">
+                        <h2>New DoD PKI Detected test</h2>
+                        <p>Your CAC has been detected, but no account is associated with it.</p>
+                    </div>
+                `;
+            }
+        } else if('${properties["X509_LOGIN_ENABLED"]}' == "true" && '${properties["SOCIAL_LOGIN_ENABLED"]}' == "false" && '${properties["USERNAME_PASSWORD_AUTH_ENABLED"]}' == "false"){
+            // No CAC detected
+            formContainer.innerHTML = `
+                <div class="alert alert-info cac-info">
+                    <h2>CAC Not Detected</h2>
+                    <p>Please insert your CAC and try again.</p>
+                </div>
+            `;
+        }
+    })();
     </script>
