@@ -6,9 +6,6 @@ set -e
 
 echo "Syncing customizations to Keycloak"
 
-# Dump environment variables for debugging
-# printenv > /opt/keycloak/data/env_dump.txt
-
 # Ensure the import directory exists
 mkdir -p /opt/keycloak/data/import/
 mkdir -p /opt/keycloak/conf/

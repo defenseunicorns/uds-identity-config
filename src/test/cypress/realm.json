@@ -1699,7 +1699,7 @@
                     "trusted-hosts": [
                         "127.0.0.6",
                         "*.${UDS_DOMAIN}",
-                        "*.${UDS_DOMAIN}"
+                        "*.admin.${UDS_DOMAIN}"
                     ],
                     "client-uris-must-match": [
                         "true"

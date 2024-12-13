@@ -25,6 +25,8 @@ Specifically:
 * Continuous integration (CI) pipeline tests are definitive
 * We create immutable release artifacts
 
+Additional internal developer docs can be found [here](./docs/dev/README.md).
+
 ## Definition of Done
 
 We apply these general principles to all User Stories and activities contributing to the UDS.
