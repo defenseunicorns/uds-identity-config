@@ -20,25 +20,57 @@ cp -fv certs/* /opt/keycloak/conf/truststores
 
 # Check for environment variables and update login theme.properties
 {
-    echo "# Login Theme configurations"
     echo "ENABLE_SOCIAL_LOGIN=${ENABLE_SOCIAL_LOGIN}"
     echo "ENABLE_X509_LOGIN=${ENABLE_X509_LOGIN}"
     echo "ENABLE_USERNAME_PASSWORD_AUTH=${ENABLE_USERNAME_PASSWORD_AUTH}"
     echo "ENABLE_REGISTER_BUTTON=${ENABLE_REGISTER_BUTTON}"
     echo "REALM_DISABLE_REGISTRATION_FIELDS=${REALM_DISABLE_REGISTRATION_FIELDS:-false}"
-    echo "REALM_ENABLE_CUSTOM_BANNER=${REALM_ENABLE_CUSTOM_BANNER:-false}"
-    echo "REALM_CUSTOM_BANNER_LEVEL=${REALM_CUSTOM_BANNER_LEVEL:-"UNCLASSIFIED//FOUO"}"
-    echo "REALM_CUSTOM_BANNER_BACKGROUND_COLOR=${REALM_CUSTOM_BANNER_BACKGROUND_COLOR:-"#007a33"}"
-    echo "REALM_CUSTOM_BANNER_TEXT_COLOR=${REALM_CUSTOM_BANNER_TEXT_COLOR:-"white"}"
 } >> /opt/keycloak/themes/theme/login/theme.properties
 
-# Check for environment variables and update account theme.properties
-{
-    echo "# Account Theme configurations"
-    echo "REALM_ENABLE_CUSTOM_BANNER=${REALM_ENABLE_CUSTOM_BANNER:-false}"
-    echo "REALM_CUSTOM_BANNER_LEVEL=${REALM_CUSTOM_BANNER_LEVEL:-"UNCLASSIFIED//FOUO"}"
-    echo "REALM_CUSTOM_BANNER_BACKGROUND_COLOR=${REALM_CUSTOM_BANNER_BACKGROUND_COLOR:-"#007a33"}"
-    echo "REALM_CUSTOM_BANNER_TEXT_COLOR=${REALM_CUSTOM_BANNER_TEXT_COLOR:-"white"}"
-} >> /opt/keycloak/themes/theme/account/theme.properties
+# Define directory paths
+dirs="/opt/keycloak/themes/theme/admin/resources /opt/keycloak/themes/theme/account/resources /opt/keycloak/themes/theme/login/resources"
+
+# Loop through directories and create the custom-banner.js in each
+for dir in $dirs; do
+  cat <<EOF >"$dir/custom-banner.js"
+// custom-banner.js
+if ('${REALM_ENABLE_CUSTOM_BANNER}' === "true") {
+  document.addEventListener('DOMContentLoaded', function() {
+    var appNode = document.getElementById('app');
+    var insertTarget = appNode || document.body;
+    var isBody = !appNode;
+
+    var topBannerNode = createBannerNode('${REALM_CUSTOM_BANNER_LEVEL}', '${REALM_CUSTOM_BANNER_TEXT_COLOR}', '${REALM_CUSTOM_BANNER_BACKGROUND_COLOR}', 'top', '0');
+    if (isBody) {
+      document.body.insertBefore(topBannerNode, document.body.firstChild);
+    } else {
+      document.body.insertBefore(topBannerNode, appNode.nextSibling);
+    }
+    document.body.style.paddingTop = topBannerNode.offsetHeight + 'px';
+
+    var bottomBannerNode = createBannerNode('${REALM_CUSTOM_BANNER_LEVEL}', '${REALM_CUSTOM_BANNER_TEXT_COLOR}', '${REALM_CUSTOM_BANNER_BACKGROUND_COLOR}', 'bottom', '0');
+    document.body.appendChild(bottomBannerNode);
+    document.body.style.paddingBottom = bottomBannerNode.offsetHeight + 'px';
+
+    function createBannerNode(text, textColor, bgColor, position, offset) {
+      var bannerNode = document.createElement('div');
+      bannerNode.className = 'custom-banner';
+      bannerNode.textContent = text;
+      bannerNode.style.cssText = \`
+        width: 100%;
+        background-color: \${bgColor};
+        color: \${textColor};
+        text-align: center;
+        position: fixed;
+        \${position}: \${offset};
+        left: 0;
+        z-index: 1000;
+      \`;
+      return bannerNode;
+    }
+  });
+}
+EOF
+done
 
 echo "Sync complete"

@@ -55,6 +55,10 @@ ${msg("loginTitle",(realm.displayName!''))}
                                     <h2 class="client-unique-name">
                                         My Account
                                     </h2>
+                                <#elseif client.name == "${" + "client_security-admin-console" + "}">
+                                    <h2 class="client-unique-name">
+                                        Admin Account
+                                    </h2>
                                 <#else>
                                     <h2 class="client-unique-name">
                                         ${kcSanitize(client.name)?no_esc}
@@ -65,7 +69,7 @@ ${msg("loginTitle",(realm.displayName!''))}
                                     ${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc}
                                 </h2>
                             </#if>
-                        </div>                        
+                        </div>
                     </div>
                     <br>
                     <div class="card-body">
