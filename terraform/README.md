@@ -24,18 +24,8 @@
     * ```bash
         cd uds-identity-config/terraform
         terraform init
-        terraform import -var-file="admin-creds.tfvars" keycloak_realm.master master
         terraform plan -var-file="./admin-creds.tfvars"
         terraform apply -var-file="./admin-creds.tfvars"
-      ```
-
-* **These first steps will output the admin user id to use in the next set of steps**
-
-1. Remove admin user
-    * ```bash
-        cd uds-identity-config/terraform/remove-admin
-        terraform init
-        terraform import -var-file="../admin-creds.tfvars" keycloak_user.master_admin_user[0] master/<admin user id>
-        terraform plan -var="admin_user_count=0" -var-file="../admin-creds.tfvars"
-        terraform apply -var="admin_user_count=0" -var-file="../admin-creds.tfvars"
+        terraform plan -var="keycloak_admin_user_count=0" -var-file="./admin-creds.tfvars"
+        terraform apply -var="keycloak_admin_user_count=0" -var-file="./admin-creds.tfvars"
       ```
