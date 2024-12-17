@@ -62,7 +62,7 @@ packages:
                 GOOGLE_IDP_ADMIN_GROUP: "uds-core-dev-admin"
                 GOOGLE_IDP_AUDITOR_GROUP: "uds-core-dev-auditor"
 
-  - name: core-monitoring
-    path: ../uds-core/build/
-    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.32.1
+  # - name: core-monitoring
+  #   path: ../uds-core/build/
+  #   # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
+  #   ref: 0.32.1

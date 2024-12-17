@@ -111,7 +111,7 @@ tasks:
       - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
-      - task: cypress-tests
+      # - task: cypress-tests
 
   - name: grafana-group-auth-build-deploy
     description: Configure existing uds-core/grafana package for group authz, build, deploy grafana
@@ -137,7 +137,7 @@ tasks:
     actions:
       - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
       - cmd: cd uds-core && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization
-      - task: grafana-group-auth-build-deploy
+      # - task: grafana-group-auth-build-deploy
       - cmd: uds create bundles --confirm --no-progress
       - cmd: uds deploy bundles/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
 

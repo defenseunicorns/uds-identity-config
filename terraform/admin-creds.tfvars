@@ -1,0 +1,5 @@
+keycloak_admin_client_id        = "admin-cli"
+keycloak_admin_username         = "admin"
+keycloak_admin_password         = "admin"
+keycloak_admin_url              = "https://keycloak.admin.uds.dev"
+keycloak_idp_alias              = "azure-saml"
