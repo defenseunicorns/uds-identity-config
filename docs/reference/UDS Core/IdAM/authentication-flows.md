@@ -6,14 +6,20 @@ tableOfContents:
 
 # Authentication Flow Customization
 
-:::note Environment variables configured in the [uds-core Keycloak values.yaml file](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L30-32) have `REALM_` appended to them during creation. See [ Customization docs](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/) for more information.:::
+:::note
+Environment variables configured in the [uds-core Keycloak values.yaml file](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L30-32) have `REALM_` appended to them during creation. See [ Customization docs](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/) for more information.
+:::
 
-:::warning If upgrading uds-core, be aware that Keycloak Admin manual configuration will probably be required to set new Realm values. See the clickops section below for how to do this. :::
+:::warning
+If upgrading uds-core, be aware that Keycloak Admin manual configuration will probably be required to set new Realm values. See the manual configuration section below for how to do this.
+:::
 
 ## Bundle Overrides
 To simplify the configuration of the available authentication flows, the following three environment variables have been exposed. These variables default to `true` in UDS Core, override their values in a bundle to disable.
 
-:::note These settings allow for enabling/disabling one or more of the Auth flows. Be aware that disabling all three will result in no options for registration and authentication (login). :::
+:::note
+These settings allow for enabling/disabling one or more of the Auth flows. Be aware that disabling all three will result in no options for registration and authentication (login).
+:::
 
 | Setting | Description | Options |
 | - | - | - |
