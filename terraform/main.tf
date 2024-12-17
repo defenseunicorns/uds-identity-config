@@ -5,6 +5,13 @@ provider "keycloak" {
   password      = var.keycloak_admin_password
 }
 
+# Generate keycloak terraform client secret
+resource "random_password" "terraform_client_secret" {
+  length           = 32
+  special          = true
+  override_special = "_%"
+}
+
 # Create Keycloak service account client for using Terraform
 resource "keycloak_openid_client" "terraform_client" {
   realm_id                  = keycloak_realm.master.id
@@ -13,6 +20,7 @@ resource "keycloak_openid_client" "terraform_client" {
   description               = "Terraform client for configuring service account authorization."
   enabled                   = true
   access_type               = "CONFIDENTIAL"
+  client_secret             = random_password.terraform_client_secret.result
   valid_redirect_uris       = []
   web_origins               = []
   service_accounts_enabled  = true

@@ -26,6 +26,26 @@
         terraform init
         terraform plan -var-file="./admin-creds.tfvars"
         terraform apply -var-file="./admin-creds.tfvars"
+      ```
+3. When compeletely sure that admin user can be registered via Azure AD IDP and/or the terraform client credentials work with terraform re-run these:
+    * ```bash
         terraform plan -var="keycloak_admin_user_count=0" -var-file="./admin-creds.tfvars"
         terraform apply -var="keycloak_admin_user_count=0" -var-file="./admin-creds.tfvars"
       ```
+
+    * To configure a keycloak provider with the terraform client credentials:
+        * ```bash
+            provider "keycloak" {
+                client_id     = < keycloak terraform client id, default (terraform-client)>
+                url           = var.keycloak_admin_url
+                client_secret = < client-secret >
+            }
+          ```
+        * The client secret can be retrieved in the Keycloak Admin Portal:
+            1. Admin Portal
+            2. Select Master Realm - Top Left Drop down
+            3. Select Clients - Left Menu Tab
+            4. Select terraform-client
+            5. Select Credentials - Top Tab
+            6. Copy client secret
+        * Alternatively the client secret was generated and should be accessible via terraform state
