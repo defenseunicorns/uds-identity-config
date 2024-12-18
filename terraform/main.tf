@@ -61,12 +61,8 @@ resource "keycloak_group_roles" "group_roles" {
   ]
 }
 
-data "keycloak_realm" "uds_realm" {
-  realm = "uds"
-}
-
 resource "keycloak_saml_identity_provider" "realm_azure_saml_identity_provider" {
-  realm        = data.keycloak_realm.uds_realm.id
+  realm        = keycloak_realm.master.id
   alias        = var.identity_provider_name
   display_name = "Azure SSO"
 
@@ -96,7 +92,7 @@ resource "keycloak_saml_identity_provider" "realm_azure_saml_identity_provider" 
 }
 
 resource "keycloak_attribute_importer_identity_provider_mapper" "username" {
-  realm                   = data.keycloak_realm.uds_realm.id
+  realm                   = keycloak_realm.master.id
   name                    = "username-attribute-importer"
   claim_name              = "username"
   attribute_name          = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
@@ -105,7 +101,7 @@ resource "keycloak_attribute_importer_identity_provider_mapper" "username" {
 }
 
 resource "keycloak_attribute_importer_identity_provider_mapper" "name" {
-  realm                   = data.keycloak_realm.uds_realm.id
+  realm                   = keycloak_realm.master.id
   name                    = "email-attribute-importer"
   claim_name              = "email"
   attribute_name          = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
@@ -114,7 +110,7 @@ resource "keycloak_attribute_importer_identity_provider_mapper" "name" {
 }
 
 resource "keycloak_attribute_importer_identity_provider_mapper" "lastname" {
-  realm                   = data.keycloak_realm.uds_realm.id
+  realm                   = keycloak_realm.master.id
   name                    = "lastname-attribute-importer"
   claim_name              = "lastname"
   attribute_name          = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
@@ -123,7 +119,7 @@ resource "keycloak_attribute_importer_identity_provider_mapper" "lastname" {
 }
 
 resource "keycloak_attribute_importer_identity_provider_mapper" "firstname" {
-  realm                   = data.keycloak_realm.uds_realm.id
+  realm                   = keycloak_realm.master.id
   name                    = "firstname-attribute-importer"
   claim_name              = "firstname"
   attribute_name          = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
@@ -133,7 +129,7 @@ resource "keycloak_attribute_importer_identity_provider_mapper" "firstname" {
 
 # Group Mapping For UDS Core
 resource "keycloak_custom_identity_provider_mapper" "admin" {
-  realm                    = data.keycloak_realm.uds_realm.id
+  realm                    = keycloak_realm.master.id
   name                     = "admin-group-attribute-importer"
   identity_provider_alias  = keycloak_saml_identity_provider.realm_azure_saml_identity_provider.alias
   identity_provider_mapper = "saml-advanced-group-idp-mapper"
@@ -142,7 +138,7 @@ resource "keycloak_custom_identity_provider_mapper" "admin" {
     "syncMode"                   = "FORCE"
     "attributes"                 = "[{\"key\":\"http://schemas.microsoft.com/ws/2008/06/identity/claims/groups\",\"value\":\"${var.admin_group_id}\"}]"
     "are.attribute.values.regex" = "false"
-    "group"                      = "/admin-group"
+    "group"                      = "/${keycloak_group.admin_group.name}"
   }
 }
 
