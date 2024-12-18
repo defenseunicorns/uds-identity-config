@@ -1,17 +1,27 @@
 # Configure Master Keycloak Realm
 
 ## What's Happening:
-1. Required actions are turned off
-    * This disables the default admin user from updating their password, also aids in disabling username/password in the master realm
-2. New Authentication flows is created and configured to be default browser flow
-    * this results in no username password form being presented, instead a user is redirected to the IDP immediately.
-        * if IDP is misconfigured or not setup, keycloak will fail and present a screen that says `Invalid Username / Password`
-3. New Terraform Client is created
-    * service account client to be able to run terraform in the future
-    * configured with proper service account roles to manage the master realm
-4. Configure Azure IDP for allowing new admin users to be setup
-    * mapper configured to only allow Azure AD group < azure group here > to be created as admins
-5. Remove the default temporary Keycloak admin user
+1. Create Keycloak Terraform Client
+    1. Terraform Client allows service accounts
+        * Important for running terraform without user credentials for Day 1 & 2 ops
+    2. Generate Client Secret
+        * Should be saved or retrieved from Keycloak Admin UI
+    3. Assign Master Realm Admin Role to Service Account Roles
+        * This provides the service account the needed permissions to perform realm management
+2. Create Master Realm Admin User Group
+    1. Map group to the Realm Admin Role
+        * This group is called `admin-group` which has the Realm `admin` role, which gives the user complete relam management control
+3. Create Azure AD IDP
+    1. Setup user attributes to be mapped into Keycloak users from Azure AD
+    2. Setup mapper for mapping Azure AD group to Keycloak admin group
+4. Disable Username Password
+    1. Disable required actions for admin users
+        * Security measure so that admin users can't create passwords and get into undesired states
+    2. Configure new authentication flow to automatically redirect to Azure IDP
+        * No Keycloak landing page will be reached, just direct to Azure
+5. Manage the Keycloak tmp Admin User
+    1. When the variable `keycloak_admin_user_count=0` is provided to the terraform apply the tmp admin user is deleted
+        * **Very Important to not delete this user until satisfied that registering new admin users via the IDP works and the terraform client successfully works for running terraform applies**
 
 ## Requirements
 * Terraform

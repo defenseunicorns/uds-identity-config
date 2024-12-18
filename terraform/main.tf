@@ -61,6 +61,7 @@ resource "keycloak_group_roles" "group_roles" {
   ]
 }
 
+# Create/Setup Azure IDP
 resource "keycloak_saml_identity_provider" "realm_azure_saml_identity_provider" {
   realm        = keycloak_realm.master.id
   alias        = var.identity_provider_name
@@ -310,11 +311,13 @@ data "keycloak_user" "admin_user" {
   username = "admin"
 }
 
+# Import Keycloak tmp Admin User
 import {
   to = keycloak_user.master_admin_user[0]
   id = "master/${data.keycloak_user.admin_user.id}"
 }
 
+# If provided the correct variable, delete the tmp admin user
 resource "keycloak_user" "master_admin_user" {
   count         = var.keycloak_admin_user_count
   realm_id      = keycloak_realm.master.id
