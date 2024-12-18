@@ -1,6 +1,6 @@
 provider "keycloak" {
   client_id     = var.keycloak_admin_client_id
-  url           = var.keycloak_admin_url
+  url           = "https://keycloak.admin.${var.uds_domain}"
   username      = var.keycloak_admin_username
   password      = var.keycloak_admin_password
 }
@@ -45,11 +45,106 @@ resource "keycloak_openid_client_service_account_realm_role" "client_service_acc
   role                    = data.keycloak_role.realm_admin_role.name
 }
 
-# Configure Azure AD IDP for Master Realm
+# Create Master Realm User Group
+resource "keycloak_group" "admin_group" {
+  realm_id = keycloak_realm.master.id
+  name = "admin-group"
+}
 
-## Output the alias of the Azure AD IDP for use in the configuration of the authentication flow
+# Assign Admin Group the Realm Admin Role
+resource "keycloak_group_roles" "group_roles" {
+  realm_id = keycloak_realm.master.id
+  group_id = keycloak_group.admin_group.id
 
-# Configure group mapper for Azure AD to Keycloak
+  role_ids = [
+    data.keycloak_role.realm_admin_role.id
+  ]
+}
+
+data "keycloak_realm" "uds_realm" {
+  realm = "uds"
+}
+
+resource "keycloak_saml_identity_provider" "realm_azure_saml_identity_provider" {
+  realm        = data.keycloak_realm.uds_realm.id
+  alias        = var.identity_provider_name
+  display_name = "Azure SSO"
+
+  entity_id                  = "api://${azuread_application.keycloak-saml.client_id}"
+  single_sign_on_service_url = "https://login.microsoftonline.us/${data.azuread_client_config.current.tenant_id}/saml2"
+  single_logout_service_url  = "https://login.microsoftonline.us/${data.azuread_client_config.current.tenant_id}/saml2"
+
+
+  post_broker_login_flow_alias = "Group Protection Authorization"
+  backchannel_supported        = false
+  post_binding_response        = true
+  post_binding_logout          = false
+  post_binding_authn_request   = true
+  store_token                  = false
+  trust_email                  = true
+  force_authn                  = true
+  validate_signature           = false
+  principal_type               = "SUBJECT"
+  want_assertions_encrypted    = false
+
+  sync_mode = "LEGACY"
+  extra_config = {
+    metadataDescriptorUrl    = "https://login.microsoftonline.us/${data.azuread_client_config.current.tenant_id}/federationmetadata/2007-06/federationmetadata.xml"
+    useMetadataDescriptorUrl = true
+    idpEntityId              = "https://sts.windows.net/${data.azuread_client_config.current.tenant_id}/"
+  }
+}
+
+resource "keycloak_attribute_importer_identity_provider_mapper" "username" {
+  realm                   = data.keycloak_realm.uds_realm.id
+  name                    = "username-attribute-importer"
+  claim_name              = "username"
+  attribute_name          = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+  identity_provider_alias = keycloak_saml_identity_provider.realm_azure_saml_identity_provider.alias
+  user_attribute          = "username"
+}
+
+resource "keycloak_attribute_importer_identity_provider_mapper" "name" {
+  realm                   = data.keycloak_realm.uds_realm.id
+  name                    = "email-attribute-importer"
+  claim_name              = "email"
+  attribute_name          = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+  identity_provider_alias = keycloak_saml_identity_provider.realm_azure_saml_identity_provider.alias
+  user_attribute          = "email"
+}
+
+resource "keycloak_attribute_importer_identity_provider_mapper" "lastname" {
+  realm                   = data.keycloak_realm.uds_realm.id
+  name                    = "lastname-attribute-importer"
+  claim_name              = "lastname"
+  attribute_name          = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
+  identity_provider_alias = keycloak_saml_identity_provider.realm_azure_saml_identity_provider.alias
+  user_attribute          = "lastname"
+}
+
+resource "keycloak_attribute_importer_identity_provider_mapper" "firstname" {
+  realm                   = data.keycloak_realm.uds_realm.id
+  name                    = "firstname-attribute-importer"
+  claim_name              = "firstname"
+  attribute_name          = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+  identity_provider_alias = keycloak_saml_identity_provider.realm_azure_saml_identity_provider.alias
+  user_attribute          = "firstname"
+}
+
+# Group Mapping For UDS Core
+resource "keycloak_custom_identity_provider_mapper" "admin" {
+  realm                    = data.keycloak_realm.uds_realm.id
+  name                     = "admin-group-attribute-importer"
+  identity_provider_alias  = keycloak_saml_identity_provider.realm_azure_saml_identity_provider.alias
+  identity_provider_mapper = "saml-advanced-group-idp-mapper"
+
+  extra_config = {
+    "syncMode"                   = "FORCE"
+    "attributes"                 = "[{\"key\":\"http://schemas.microsoft.com/ws/2008/06/identity/claims/groups\",\"value\":\"${var.admin_group_id}\"}]"
+    "are.attribute.values.regex" = "false"
+    "group"                      = "/admin-group"
+  }
+}
 
 # Disable Required Actions
 locals {
@@ -184,7 +279,7 @@ resource "keycloak_realm" "master" {
   realm   = "master"
   enabled = true
 
-  browser_flow = "browser-idp-redirect"
+  #browser_flow = "browser-idp-redirect"
 }
 
 # Create new authentication flow
@@ -209,7 +304,7 @@ resource "keycloak_authentication_execution_config" "saml_idp_config" {
   execution_id = keycloak_authentication_execution.idp_redirector.id
   alias        = "Browser IDP"
   config = {
-    "defaultProvider" = var.keycloak_idp_alias
+    "defaultProvider" = var.identity_provider_name
   }
 }
 
