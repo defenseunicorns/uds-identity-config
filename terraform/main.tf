@@ -71,8 +71,6 @@ resource "keycloak_saml_identity_provider" "realm_azure_saml_identity_provider" 
   single_sign_on_service_url = "https://login.microsoftonline.us/${data.azuread_client_config.current.tenant_id}/saml2"
   single_logout_service_url  = "https://login.microsoftonline.us/${data.azuread_client_config.current.tenant_id}/saml2"
 
-
-  post_broker_login_flow_alias = "Group Protection Authorization"
   backchannel_supported        = false
   post_binding_response        = true
   post_binding_logout          = false
