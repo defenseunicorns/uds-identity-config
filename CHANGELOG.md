@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.9.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.9.0...v0.9.1) (2024-12-20)
+
+
+### Bug Fixes
+
+* admin ui login theme bug fix ([#294](https://github.com/defenseunicorns/uds-identity-config/issues/294)) ([4988e05](https://github.com/defenseunicorns/uds-identity-config/commit/4988e05a0caa58a81678d3f67c7e8535dac9b62a))
+
+
+### Miscellaneous
+
+* add action to check readiness on renovate PRs before running CI ([#296](https://github.com/defenseunicorns/uds-identity-config/issues/296)) ([c3155ee](https://github.com/defenseunicorns/uds-identity-config/commit/c3155ee9cea04b800099be5020448d1fb6e6d605))
+* **deps:** update actions/setup-java digest to 7a6d8a8 ([#293](https://github.com/defenseunicorns/uds-identity-config/issues/293)) ([fa8f752](https://github.com/defenseunicorns/uds-identity-config/commit/fa8f7522f7add384bec9a67dafb4fb8e1247aefe))
+* **deps:** update all dependencies ([#290](https://github.com/defenseunicorns/uds-identity-config/issues/290)) ([1fc7cb1](https://github.com/defenseunicorns/uds-identity-config/commit/1fc7cb12c1dd9214895e9c62c5bb65c12726fb5e))
+* **deps:** update all dependencies to v0.11.0 ([#295](https://github.com/defenseunicorns/uds-identity-config/issues/295)) ([c324d05](https://github.com/defenseunicorns/uds-identity-config/commit/c324d05524ac8db8d3f795dfe70c821bbd6fd849))
+* **deps:** update gha-deps ([#289](https://github.com/defenseunicorns/uds-identity-config/issues/289)) ([1d27f67](https://github.com/defenseunicorns/uds-identity-config/commit/1d27f673eccc7168e30fdd94ad77bf664924005f))
+
 ## [0.9.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.8.0...v0.9.0) (2024-12-16)
 
 
