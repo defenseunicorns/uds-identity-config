@@ -4,17 +4,57 @@ tableOfContents:
   maxHeadingLevel: 5
 ---
 
-# Authentication Flow Customization
+## Authentication Flow Options
+
+UDS Core comes equipped with a robust authentication framework that supports multiple authentication methods to meet diverse security requirements and user preferences. Here’s a breakdown of the authentication options available:
+
+---
+
+1. Username and Password
+
+    The most traditional form of authentication involves users providing a username and password that must match the credentials stored in the system. This method is widely used due to its simplicity and direct control over access credentials.
+
+    ---
+
+2. SSO (Single Sign-On)
+
+    Single Sign-On (SSO) allows users to authenticate with one set of credentials to access multiple applications. UDS Core can be configured to integrate with various SSO providers, such as Google SSO, Microsoft Entra, and others, streamlining the login process and reducing the burden of managing multiple usernames and passwords.
+
+    ---
+
+3. x509 Certificate
+
+    x509 certificates provide a way to authenticate using digital certificates. It is commonly used in environments that require higher security, such as corporate or governmental networks. This method uses public key infrastructure (PKI) to verify the user's identity through a trusted certificate authority.
+
+---
+
+## Authentication Flows in UDS Core
+
+UDS Core is shipped with a basic authentication flow that includes all three options out of the box. The following diagram shows the basic authentication flows that are deployed with standard UDS Core:
+
+![Basic Authentication Flow](https://github.com/defenseunicorns/uds-identity-config/blob/main/docs/.images/diagrams/uds-core-arch-overview.svg?raw=true)
+
+### Customizing Authentication Flows
+
+Different operational environments may necessitate distinct authentication flows to comply with specific security policies, regulatory demands, or demographic requirements. UDS Core facilitates the customization of these flows, allowing for tailored security measures and user interfaces. The diagram below illustrates various combinations of the three authentication methods that can be adapted to meet unique operational needs:
+
+![Complex Authentication Flows](https://github.com/defenseunicorns/uds-identity-config/blob/main/docs/.images/diagrams/uds-core-arch-overview.svg?raw=true)
+
+These customizations not only ensure appropriate security configurations by enabling or disabling specific flows but also maintain a seamless user experience by adjusting the Keycloak theme accordingly.
+
+The following sections provide a step-by-step guide on how to customize UDS Core to deploy specific authentication flows, catering to the particular needs and guidelines of your environment.
+
+## Authentication Flow Customization
 
 :::note
-Environment variables configured in the [uds-core Keycloak values.yaml file](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L30-32) have `REALM_` appended to them during creation. See [ Customization docs](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/) for more information.
+Environment variables configured in the [uds-core Keycloak values.yaml file](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L30-32) have `REALM_` appended to them during creation. See [ Customization docs](https://uds.defenseunicorns.com/reference/uds-core/idam/image-customizations/) for more information.
 :::
 
 :::warning
 If upgrading uds-core, be aware that Keycloak Admin manual configuration will probably be required to set new Realm values. See the manual configuration section below for how to do this.
 :::
 
-## Bundle Overrides
+### Bundle Overrides
 To simplify the configuration of the available authentication flows, the following three environment variables have been exposed. These variables default to `true` in UDS Core, override their values in a bundle to disable.
 
 :::note
@@ -29,12 +69,12 @@ These settings allow for enabling/disabling one or more of the Auth flows. Be aw
 
 These three variables handle the complexities of configuring the following environment variables, which are responsible for both visual (theme) and security (realm). The following variables are not exposed for overriding.
 
-## Manual Configuration
+### Manual Configuration
 
-### Theme Configurations
+#### Theme Configurations
 Theme's cannot be clickops'ed, for these changes to take affect an upgrade or fresh deployment will be required. Another option is exec-ing into the the keycloak pod and copying in the new themes to the `/opt/keycloak/theme/themes/login/` directory. After copying in the theme changes, the theme changes depend on environment variables being defined in the [theme.properties file](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/theme/login/theme.properties). The above table demonstrates the different environment variables for the `theme.properties` file.
 
-### Realm Configurations
+#### Realm Configurations
 All Realm Configurations require accesss to the Keycloak admin portal.
 
 | Configuration | How to Configure |

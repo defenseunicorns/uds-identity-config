@@ -4,7 +4,7 @@ tableOfContents:
   maxHeadingLevel: 5
 ---
 
-# Customize Truststore
+## Customizing Truststore
 
 The default truststore is configured in a [script](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/truststore/ca-to-jks.sh) and excuted in the [Dockerfile](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/Dockerfile). There is a few different ways the script could be customized.
 
@@ -12,7 +12,7 @@ The default truststore is configured in a [script](https://github.com/defenseuni
 * [Change the Regex Exclusion Filter](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/Dockerfile#30), used by the ca-to-jks script to exclude certain certs from being added to the final truststore.
 * [Change the truststore password](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/truststore/ca-to-jks.sh#L29)
 
-## Build test `authorized_certs.zip`
+### Build test `authorized_certs.zip`
 
 Utilizing the [`regenerate-test-pki` task](https://github.com/defenseunicorns/uds-identity-config/blob/main/tasks.yaml), you can create a test `authorized_certs.zip` to use for the truststore.
 
@@ -55,7 +55,7 @@ To use the `regenerate-test-pki` task:
    uds run regenerate-test-pki
    ```
 
-## Update Dockerfile and build image
+### Update Dockerfile and build image
 
 Update `CA_ZIP_URL` in [Dockerfile](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/Dockerfile) to refer to the generated `authorized_certs.zip`
 
@@ -74,7 +74,7 @@ uds run dev-build
 If you're getting errors from the ca-to-jks.sh script, verify your zip folder is in the correct directory.
 :::
 
-## Configure Istio Gateways CACERT in UDS Core
+### Configure Istio Gateways CACERT in UDS Core
 
 ```bash
 # In `uds-core` create cacert from the new identity-config image
@@ -86,11 +86,11 @@ uds run -f src/keycloak/tasks.yaml cacert --set IMAGE_NAME=<identity config imag
 uds run -f src/keycloak/tasks.yaml dev-cacert
 ```
 
-## Deploy UDS Core with new uds-identity-config
+### Deploy UDS Core with new uds-identity-config
 
-See [Testing custom image in UDS Core](./custom-idam-image-testing-deployment.md)
+See [Testing custom image in UDS Core](https://uds.defenseunicorns.com/reference/uds-core/idam/testing-deployment-customizations/)
 
-## Verify Istio Gateway configuration
+### Verify Istio Gateway configuration
 
 ```bash
 # Verify the "Acceptable client certificate CA names"

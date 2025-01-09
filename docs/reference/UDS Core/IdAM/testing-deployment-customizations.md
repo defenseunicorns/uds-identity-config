@@ -1,16 +1,16 @@
 ---
-title: Custom IDAM Image Testing and Deployment
+title: Testing and Deployment Customizations
 tableOfContents:
   maxHeadingLevel: 5
 ---
 
-# Image Management
+## Image Management
 
 This document provides comprehensive guidelines for managing custom images within the UDS Core system, from creation and testing to deployment and transportation, particularly in restricted environments like air-gapped systems.
 
-## Building and Testing Custom Images
+### Building and Testing Custom Images
 
-### Build a new image
+#### Build a new image
 
 Build a custom development image for UDS Core using the following commands:
 
@@ -23,7 +23,7 @@ docker tag uds-core-config:keycloak ttl.sh/uds-core-config:keycloak
 docker push ttl.sh/uds-core-config:keycloak
 ```
 
-### Update UDS Core references
+#### Update UDS Core references
 
 Update the custom image references in the `uds-core` repository:
 
@@ -31,7 +31,7 @@ Update the custom image references in the `uds-core` repository:
 * Specify configImage in Keycloak values.yaml.
 * For truststore updates, see gateway configuration instructions.
 
-### Deploy UDS Core
+#### Deploy UDS Core
 
 Deploy UDS Core with the new custom image:
 
@@ -42,13 +42,9 @@ uds run test-uds-core
 
 See [UDS Core](https://github.com/defenseunicorns/uds-core/blob/main/README.md) for further details
 
-# Building New Image with Updates
-
-## Transport Custom Image with Zarf
+## Building New Image with Updates
 
 For convenience, a Zarf package definition has been included to simplify custom image transport and install in air-gapped systems.
-
-### Build the Zarf package
 
 Use the included UDS task to build the custom image and package it with Zarf:
 
