@@ -80,18 +80,7 @@ packages:
                 SOCIAL_AUTH_ENABLED: false
                 OTP_ENABLED: false
 
-<<<<<<< Updated upstream
   - name: core-monitoring
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-<<<<<<< Updated upstream
     ref: 0.33.1
-=======
-    ref: 0.33.0
-=======
-  # - name: core-monitoring
-  #   path: ../uds-core/build/
-  #   # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-  #   ref: 0.33.0
->>>>>>> Stashed changes
->>>>>>> Stashed changes
