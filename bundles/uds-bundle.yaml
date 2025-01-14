@@ -39,6 +39,18 @@ packages:
             - name: TENANT_TLS_CACERT
               description: "The CA cert for the tenant gateway (must be base64 encoded)"
               path: tls.cacert
+      istio-controlplane:
+        uds-global-istio-config:
+          values:
+            - path: classificationBanner.text
+              value: "UNCLASSIFIED" # Possible values: UNCLASSIFIED, CUI, CONFIDENTIAL, SECRET, TOP SECRET, TOP SECRET//SCI, UNKNOWN
+            - path: classificationBanner.addFooter
+              value: true
+            - path: classificationBanner.enabledHosts
+              value:
+                - keycloak.admin.{{ .Values.domain }}
+                - sso.{{ .Values.domain }}
+                - grafana.admin.{{ .Values.domain }}
 
   - name: core-identity-authorization
     path: ../uds-core/build/
@@ -61,6 +73,12 @@ packages:
                 GOOGLE_IDP_CORE_ENTITY_ID: "https://sso.uds.dev/realms/uds"
                 GOOGLE_IDP_ADMIN_GROUP: "uds-core-dev-admin"
                 GOOGLE_IDP_AUDITOR_GROUP: "uds-core-dev-auditor"
+            - path: realmAuthFlows
+              value:
+                USERNAME_PASSWORD_AUTH_ENABLED: true
+                X509_AUTH_ENABLED: true
+                SOCIAL_AUTH_ENABLED: true
+                OTP_ENABLED: true
 
   - name: core-monitoring
     path: ../uds-core/build/
