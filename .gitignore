@@ -19,3 +19,5 @@ uds-core/**
 src/extra-jars/
 src/test/cypress/node_modules/**
 src/plugin/target/**
+uds-docs/
+uds-docs/**
