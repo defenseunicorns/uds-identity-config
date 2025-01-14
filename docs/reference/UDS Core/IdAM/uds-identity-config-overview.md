@@ -1,9 +1,23 @@
 ---
-title: UDS Identity Config Overview
+title: Overview
 sidebar:
     order: 1
 ---
 
+## What is IdAM?
+
+Identity and Access Management (IdAM) refers to a framework of policies and technologies that ensure the proper people in an enterprise have the appropriate access to technology resources. IdAM systems provide tools and technologies for controlling user access to critical information within an organization through a set of business processes and by managing identities and access rights. The technology typically helps IT managers control user access to critical information within an organization by using a digital identity—which is considered unique in the system—and setting up roles, permissions, and policies. IdAM solutions ensure that users are who they claim to be (authentication) and that they can access the applications and resources they are allowed to use (authorization).
+
 ## What is UDS Identity Config?
 
-UDS Identity Config supplies the configuration for Keycloak to UDS Core.
+UDS Identity Config is a component of the UDS Core that supplies the necessary configuration for Keycloak, an open-source Identity and Access Management solution. This configuration includes setting up realms, clients, roles, and other Keycloak settings tailored specifically for the UDS environment. By managing these configurations, UDS Identity Config facilitates the seamless integration of authentication and authorization functionalities into various services within the UDS ecosystem, ensuring that security protocols are consistently applied across platforms.
+
+## IdAM Contents
+
+1. [Custom Image Testing and Deployment](https://uds.defenseunicorns.com/reference/uds-core/idam/testing-deployment-customizations/)
+2. [Image Customizations](https://uds.defenseunicorns.com/reference/uds-core/idam/image-customizations/)
+3. [Image Truststore Customization](https://uds.defenseunicorns.com/reference/uds-core/idam/truststore-customization/)
+4. [Authentication Flows Customization](https://uds.defenseunicorns.com/reference/uds-core/idam/authentication-flows/)
+5. [UDS Core Integration Testing](https://uds.defenseunicorns.com/reference/uds-core/idam/integration/)
+6. [Custom Keycloak Plugins](https://uds.defenseunicorns.com/reference/uds-core/idam/plugin/)
+7. [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/)
