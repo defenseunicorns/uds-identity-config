@@ -28,19 +28,19 @@ UDS Core comes equipped with a robust authentication framework that supports mul
 
 ---
 
-![Authentication Flow Options](https://github.com/defenseunicorns/uds-identity-config/blob/customization-doc-updates/docs/.images/diagrams/uds-core-auth-flows-options.svg?raw=true)
+![Authentication Flow Options](https://github.com/defenseunicorns/uds-identity-config/blob/update-existing-diagrams/docs/.images/diagrams/uds-core-auth-flows-options.svg?raw=true)
 
 ## Authentication Flows in UDS Core
 
 UDS Core is shipped with a basic authentication flow that includes all three options out of the box. The following diagram shows the basic authentication flows that are deployed with standard UDS Core:
 
-![UDS Core Authentication Flow](https://github.com/defenseunicorns/uds-identity-config/blob/customization-doc-updates/docs/.images/diagrams/uds-core-auth-flows-basic.svg?raw=true)
+![UDS Core Authentication Flow](https://github.com/defenseunicorns/uds-identity-config/blob/update-existing-diagrams/docs/.images/diagrams/uds-core-auth-flows-basic.svg?raw=true)
 
 ### Customizing Authentication Flows
 
 Different operational environments may necessitate distinct authentication flows to comply with specific security policies, regulatory demands, or demographic requirements. UDS Core facilitates the customization of these flows, allowing for tailored security measures and user interfaces. The diagram below illustrates various combinations of the three authentication methods that can be adapted to meet unique operational needs:
 
-![Complex Authentication Flows](https://github.com/defenseunicorns/uds-identity-config/blob/customization-doc-updates/docs/.images/diagrams/uds-core-auth-flows-complex.svg?raw=true)
+![Complex Authentication Flows](https://github.com/defenseunicorns/uds-identity-config/blob/update-existing-diagrams/docs/.images/diagrams/uds-core-auth-flows-complex.svg?raw=true)
 
 These customizations not only ensure appropriate security configurations by enabling or disabling specific flows but also maintain a seamless user experience by adjusting the Keycloak theme accordingly.
 
