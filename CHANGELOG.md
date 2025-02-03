@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.9.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.9.1...v0.9.2) (2025-02-03)
+
+
+### Miscellaneous
+
+* **deps:** update actions/setup-java digest to 3a4f6e1 ([#323](https://github.com/defenseunicorns/uds-identity-config/issues/323)) ([a5a35bc](https://github.com/defenseunicorns/uds-identity-config/commit/a5a35bc9cf9bb5286cb9035524c2287676091683))
+* **deps:** update actions/setup-node action to v4.2.0 ([#321](https://github.com/defenseunicorns/uds-identity-config/issues/321)) ([06d20d6](https://github.com/defenseunicorns/uds-identity-config/commit/06d20d6763bda5736f98ee225b4a2c9cefc945d9))
+* **deps:** update all dependencies ([#315](https://github.com/defenseunicorns/uds-identity-config/issues/315)) ([3dac820](https://github.com/defenseunicorns/uds-identity-config/commit/3dac8201307438cd4af4bb2cfa124a5e50c71140))
+* **deps:** update all dependencies to v0.47.0 ([#318](https://github.com/defenseunicorns/uds-identity-config/issues/318)) ([21b41b4](https://github.com/defenseunicorns/uds-identity-config/commit/21b41b4e32bd056eccf6b8c4e1617251c0de188f))
+* **deps:** update all dependencies to v0.48.0 ([#324](https://github.com/defenseunicorns/uds-identity-config/issues/324)) ([b1dbd55](https://github.com/defenseunicorns/uds-identity-config/commit/b1dbd55bc651a1cb8018d8e1b063582d8fb8648f))
+* **deps:** update dependency cypress to v14.0.1 ([#322](https://github.com/defenseunicorns/uds-identity-config/issues/322)) ([17cd0a1](https://github.com/defenseunicorns/uds-identity-config/commit/17cd0a1bb5daf2aa7affe97e81f932f6549dec7e))
+* **deps:** update dependency defenseunicorns/uds-common to v1.7.2 ([#317](https://github.com/defenseunicorns/uds-identity-config/issues/317)) ([235ede9](https://github.com/defenseunicorns/uds-identity-config/commit/235ede9502f75bd286de207ee73824e7aeef1e4e))
+* **deps:** update dependency defenseunicorns/uds-common to v1.7.3 ([#320](https://github.com/defenseunicorns/uds-identity-config/issues/320)) ([b3d4a5a](https://github.com/defenseunicorns/uds-identity-config/commit/b3d4a5ab78585870d8fd9c6d099ca9a862367cb7))
+* **deps:** update gha-deps to v19.7.1 ([#325](https://github.com/defenseunicorns/uds-identity-config/issues/325)) ([a3f51de](https://github.com/defenseunicorns/uds-identity-config/commit/a3f51de04d3cf8e107dea7b5099f8c0b201438e0))
+
 ## [0.9.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.9.0...v0.9.1) (2025-01-21)
 
 
