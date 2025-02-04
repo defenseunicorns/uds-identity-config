@@ -25,7 +25,7 @@ packages:
   - name: core-base
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.34.1
+    ref: 0.35.0
     overrides:
       istio-admin-gateway:
         uds-istio-config:
@@ -55,7 +55,7 @@ packages:
   - name: core-identity-authorization
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.34.1
+    ref: 0.35.0
     overrides:
       keycloak:
         keycloak:
@@ -83,4 +83,4 @@ packages:
   - name: core-monitoring
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.34.1
+    ref: 0.35.0
