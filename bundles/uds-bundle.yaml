@@ -11,12 +11,12 @@ packages:
   - name: uds-k3d-dev
     repository: ghcr.io/defenseunicorns/packages/uds-k3d
     # renovate: datasource=github-tags depName=defenseunicorns/uds-k3d versioning=semver
-    ref: 0.11.0
+    ref: 0.12.0
 
   - name: init
     repository: ghcr.io/zarf-dev/packages/init
     # renovate: datasource=github-tags depName=zarf-dev/zarf versioning=semver
-    ref: v0.46.0
+    ref: v0.48.1
 
   - name: keycloak-identity-config
     path: ../
@@ -25,7 +25,7 @@ packages:
   - name: core-base
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.33.1
+    ref: 0.35.0
     overrides:
       istio-admin-gateway:
         uds-istio-config:
@@ -55,7 +55,7 @@ packages:
   - name: core-identity-authorization
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.33.1
+    ref: 0.35.0
     overrides:
       keycloak:
         keycloak:
@@ -83,4 +83,4 @@ packages:
   - name: core-monitoring
     path: ../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.33.1
+    ref: 0.35.0

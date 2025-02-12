@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.6.2/tasks/lint.yaml
+  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.8.0/tasks/lint.yaml
 
 variables:
   - name: VERSION
     description: "The image tag"
     # x-release-please-start-version
-    default: "0.9.0"
+    default: "0.9.1"
     # x-release-please-end
 
   - name: IMAGE_NAME
@@ -18,7 +18,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.33.1"
+    default: "v0.35.0"
 
 tasks:
   - name: build-and-publish
