@@ -4,6 +4,17 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
+## v0.9.1 to v0.9.2
+
+<details open>
+<summary>Upgrade Details</summary>
+
+* For running Istio with Ambient Mesh, it is required to add two new entries to the trusted hosts list: `*.pepr-uds-core-watcher.pepr-system.svc.cluster.local` and `*.keycloak.svc.cluster.local`. This is done automatically for new deployments but when upgrading it is required to perform these extra steps:
+  - Click `Clients` > `Client registration` > `Client details`
+  - Add `*.pepr-uds-core-watcher.pepr-system.svc.cluster.local` and `*.keycloak.svc.cluster.local` to the `Trusted Hosts` list
+  - Click `Save`
+</details>
+
 ## v0.5.1 to v0.5.2
 
 <details open>
@@ -19,7 +30,7 @@ This doc contains important information for upgrading uds-identity-config versio
   - Click `Save`
 * An additional scope (`bare-groups`) was included in the uds [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/realm.json#L1608-L1636). To add this scope manually do the following (in the `Unicorn Delivery Service` realm):
    - Click on `Client Scopes` > `Create client scope`.
-   - Name the scope `bare-groups`, and configure it  to be to be
+   - Name the scope `bare-groups`, and configure it  to be
       - Type: `Optional`
       - Include in token scope: `On`
    - Click `Save`
