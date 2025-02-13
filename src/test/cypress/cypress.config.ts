@@ -29,6 +29,7 @@ module.exports = defineConfig({
     supportFile: "support/e2e.ts",
     screenshotOnRunFailure: false,
     video: false,
+    injectDocumentDomain: true,
   },
 
   pageLoadTimeout: 12000,
