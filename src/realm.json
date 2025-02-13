@@ -2417,6 +2417,7 @@
                     "userSetupAllowed": false
                 },
                 {
+                    "authenticatorConfig": "reset-credentials-email",
                     "authenticator": "reset-credential-email",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
@@ -2897,6 +2898,13 @@
             "id": "5afe735f-ceba-4390-8ad4-63de03c294cc",
             "alias": "main",
             "config": {}
+        },
+        {
+            "id": "b5d3d1bc-14b0-407f-8057-d72451a34013",
+            "alias": "reset-credentials-email",
+            "config": {
+              "force-login": "true"
+            }
         },
         {
             "id": "d20d218e-9109-455d-9b03-bb453e209e81",

@@ -4,7 +4,7 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
-## v0.9.1 to v0.9.2
+## v0.9.1 to v0.10.0
 
 <details open>
 <summary>Upgrade Details</summary>
@@ -13,6 +13,10 @@ This doc contains important information for upgrading uds-identity-config versio
   - Click `Clients` > `Client registration` > `Client details`
   - Add `*.pepr-uds-core-watcher.pepr-system.svc.cluster.local` and `*.keycloak.svc.cluster.local` to the `Trusted Hosts` list
   - Click `Save`
+* Keycloak 26.1.1 introduces a new option to force re-login after resetting credentials ([Keycloak Release Notes](https://www.keycloak.org/docs/latest/release_notes/index.html#new-option-in-send-reset-email-to-force-a-login-after-reset-credentials)). This option has been enabled for new deployments but the existing ones, it needs to be turned on manually:
+    - Click `Authentication` > `UDS Reset Credentials` and find `Send Reset Email` Step of the Authentication Flow.
+    - Click `Settings`, enter a new alias name, for example `reset-credentials-email` and turn the `Force login after reset` option on.
+    - Click `Save`
 </details>
 
 ## v0.5.1 to v0.5.2
