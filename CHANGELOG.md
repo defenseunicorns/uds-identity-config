@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.10.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.10.0...v0.10.1) (2025-02-18)
+
+
+### Bug Fixes
+
+* react paths ([#347](https://github.com/defenseunicorns/uds-identity-config/issues/347)) ([196452b](https://github.com/defenseunicorns/uds-identity-config/commit/196452b653ff64ef8b0aa675024b26d171115711))
+
+
+### Miscellaneous
+
+* **deps:** update dependency k3d-io/k3d to v5.8.3 ([#343](https://github.com/defenseunicorns/uds-identity-config/issues/343)) ([ca3e5ca](https://github.com/defenseunicorns/uds-identity-config/commit/ca3e5cad00939604c31a37127562578e6d79167f))
+
 ## [0.10.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.9.1...v0.10.0) (2025-02-13)
 
 
