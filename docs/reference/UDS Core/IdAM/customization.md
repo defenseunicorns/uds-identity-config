@@ -80,17 +80,19 @@ overrides:
                GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
                GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
                EMAIL_VERIFICATION_ENABLED: true
-               OTP_ENABLED: true
                TERMS_AND_CONDITIONS_ENABLED: true
                PASSWORD_POLICY: <fill in value here>
                X509_OCSP_FAIL_OPEN: true
                ACCESS_TOKEN_LIFESPAN: 600
                SSO_SESSION_LIFESPAN_TIMEOUT: 1200
                SSO_SESSION_MAX_LIFESPAN: 36000
+               DISABLE_REGISTRATION_FIELDS: true
+            path: realmAuthFlows
+            value:
                USERNAME_PASSWORD_AUTH_ENABLED: true
                X509_AUTH_ENABLED: true
                SOCIAL_AUTH_ENABLED: true
-               DISABLE_REGISTRATION_FIELDS: true
+               OTP_ENABLED: true
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).
