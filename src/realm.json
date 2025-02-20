@@ -1925,9 +1925,7 @@
                     "trusted-hosts": [
                         "127.0.0.6",
                         "*.${UDS_DOMAIN}",
-                        "*.${UDS_ADMIN_DOMAIN}",
-                        "*.pepr-uds-core-watcher.pepr-system.svc.cluster.local",
-                        "*.keycloak.svc.cluster.local"
+                        "*.${UDS_ADMIN_DOMAIN}"
                     ],
                     "client-uris-must-match": [
                         "true"
