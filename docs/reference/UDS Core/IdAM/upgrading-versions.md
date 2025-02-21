@@ -9,7 +9,7 @@ This doc contains important information for upgrading uds-identity-config versio
 <details open>
 <summary>Upgrade Details</summary>
 
-In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to Keycloak 26.1.0. In this this release of Keycloak an unmentioned breaking change occured that added case sensitivity to the Client SAML Mappers. This resulted in breaking SAML Auth flows due to users IDP data not being correctly mapped into applications ( ex. Neuvector, Gitlab, etc ). Manual steps to fix this issue:
+In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to Keycloak 26.1.0. In this release of Keycloak an unmentioned breaking change that added case sensitivity to the Client SAML Mappers. This resulted in breaking SAML Auth flows due to users IDP data not being correctly mapped into applications ( ex. Sonarqube, Gitlab, etc ). Manual steps to fix this issue:
    - Click `Client scopes`
    - For each of the following mappers:
       - `mapper-saml-email-email`
