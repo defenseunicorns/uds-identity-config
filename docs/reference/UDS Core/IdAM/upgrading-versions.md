@@ -4,6 +4,31 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
+## v0.10.0+
+
+<details open>
+<summary>Upgrade Details</summary>
+
+In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to Keycloak 26.0.0. In this this release of Keycloak an unmentioned breaking change occured that added case sensitivity to the Client SAML Mappers. This resulted in breaking SAML Auth flows due to users IDP data not being correctly mapped into applications ( ex. Neuvector, Gitlab, etc ). Manual steps to fix this issue:
+   - Click `Client scopes`
+   - For each of the following mappers:
+      - `mapper-saml-email-email`
+      - `mapper-saml-firstname-first_name`
+      - `mapper-saml-lastname-last_name`
+      - `mapper-saml-username-login`
+      - `mapper-saml-username-name`
+   - Select the mapper, should now be on the `Client scope details` page
+   - Select the `Mappers` tab
+   - Select the available mapper
+   - Manually change the `Property` field dropdown to match the designated mapper property
+      - `mapper-saml-email-email` had a value of `Email`, that needs to be changed to select the `email` option from the drop down.
+      - `mapper-saml-firstname-first_name` had a value of `FirstName`, that needs to be changed to select the `firstName` option from the drop down.
+      - `mapper-saml-lastname-last_name` had a value of `LastName`, that needs to be changed to select the `lastName` option from the drop down.
+      - `mapper-saml-username-login` had a value of `Username`, that needs to be changed to select the `username` option from the drop down.
+      - `mapper-saml-username-name` had a value of `Username`, that needs to be changed to select the `username` option from the drop down.
+   - Make sure and click `Save` after updating the property field
+</details>
+
 ## v0.9.1 to v0.10.0
 
 <details open>
