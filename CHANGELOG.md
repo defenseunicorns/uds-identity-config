@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.10.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.10.1...v0.10.2) (2025-02-21)
+
+
+### Bug Fixes
+
+* realm saml mappers ([#352](https://github.com/defenseunicorns/uds-identity-config/issues/352)) ([954dac4](https://github.com/defenseunicorns/uds-identity-config/commit/954dac47ede3f1fa0d9a7d8923177a91a1069402))
+
+
+### Miscellaneous
+
+* **docs:** update overrides for auth flows ([#350](https://github.com/defenseunicorns/uds-identity-config/issues/350)) ([2a3ec95](https://github.com/defenseunicorns/uds-identity-config/commit/2a3ec95c9f45eb2be45347dedb954b4d637ceeab))
+
 ## [0.10.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.10.0...v0.10.1) (2025-02-18)
 
 
