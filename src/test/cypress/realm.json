@@ -1312,6 +1312,259 @@
             ]
         },
         {
+          "id": "463c56b8-d219-4706-bacd-03eea5ac24be",
+          "name": "mapper-saml-username-name",
+          "description": "Includes a protocol mapper to map the 'Username' user property to the SAML 'name' attribute.",
+          "protocol": "saml",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "5ba3ae16-8b93-476f-8f12-342bed47fd8e",
+              "name": "Name",
+              "protocol": "saml",
+              "protocolMapper": "saml-user-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "user.attribute": "username",
+                "attribute.nameformat": "Basic",
+                "attribute.name": "name"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a9967f77-178b-4cbe-aff7-e6ec2e88e55a",
+          "name": "mapper-saml-username-login",
+          "description": "Includes a protocol mapper to map the 'Username' user property to the SAML 'login' attribute.",
+          "protocol": "saml",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "d17fb80b-2b84-4ccd-b4d7-b054236c6d5e",
+              "name": "Name",
+              "protocol": "saml",
+              "protocolMapper": "saml-user-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "user.attribute": "username",
+                "attribute.nameformat": "Basic",
+                "attribute.name": "login"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a49616d1-4e40-41c0-8e75-e202893d59e2",
+          "name": "mapper-saml-email-email",
+          "description": "Includes a protocol mapper to map the 'Email' user property to the SAML 'email' attribute.",
+          "protocol": "saml",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "79726f6a-48bc-4918-a522-88f819be6694",
+              "name": "Name",
+              "protocol": "saml",
+              "protocolMapper": "saml-user-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "user.attribute": "email",
+                "attribute.nameformat": "Basic",
+                "attribute.name": "email"
+              }
+            }
+          ]
+        },
+        {
+          "id": "c35be8d3-be77-4c0e-a082-e7c75b1c113d",
+          "name": "mapper-saml-firstname-first_name",
+          "description": "Includes a protocol mapper to map the 'FirstName' user property to the SAML 'first_name' attribute.",
+          "protocol": "saml",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "true",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "abee8168-3e89-4f14-ab3f-861a104c84ee",
+              "name": "mapper-saml-firstname-first_name",
+              "protocol": "saml",
+              "protocolMapper": "saml-user-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "attribute.nameformat": "Basic",
+                "user.attribute": "firstName",
+                "friendly.name": "First Name",
+                "attribute.name": "first_name"
+              }
+            }
+          ]
+        },
+        {
+          "id": "cc86dcea-6f78-457e-bf45-fa0724ae584a",
+          "name": "mapper-saml-lastname-last_name",
+          "description": "Includes a protocol mapper to map the 'LastName' user property to the SAML 'last_name' attribute.",
+          "protocol": "saml",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "true",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "b6458185-a6d1-4f04-950f-ed3fe5b225e5",
+              "name": "mapper-saml-lastname-last_name",
+              "protocol": "saml",
+              "protocolMapper": "saml-user-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "attribute.nameformat": "Basic",
+                "user.attribute": "lastName",
+                "friendly.name": "Last Name",
+                "attribute.name": "last_name"
+              }
+            }
+          ]
+        },
+        {
+          "id": "5cc78c57-364a-44b8-8990-cde82ace3fe1",
+          "name": "mapper-saml-grouplist-groups",
+          "description": "Includes a protocol mapper to map the user's assigned groups to the SAML 'Groups' attribute.",
+          "protocol": "saml",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "true",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "ba004bd2-43e6-455c-8660-050b99266e94",
+              "name": "mapper-saml-grouplist-groups",
+              "protocol": "saml",
+              "protocolMapper": "saml-group-membership-mapper",
+              "consentRequired": false,
+              "config": {
+                "single": "false",
+                "attribute.nameformat": "Basic",
+                "full.path": "true",
+                "friendly.name": "groups",
+                "attribute.name": "Groups"
+              }
+            }
+          ]
+        },
+        {
+          "id": "14bc33e6-545f-4df7-a9c4-7d05b1b12a89",
+          "name": "mapper-oidc-username-username",
+          "description": "Includes a protocol mapper to map the 'username' user property to the token 'username' claim.",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "dedc069c-3446-46ea-beb8-da851a0b0a65",
+              "name": "username",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-usermodel-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "introspection.token.claim": "false",
+                "userinfo.token.claim": "true",
+                "user.attribute": "username",
+                "id.token.claim": "false",
+                "lightweight.claim": "false",
+                "access.token.claim": "false",
+                "claim.name": "username",
+                "jsonType.label": "String"
+              }
+            }
+          ]
+        },
+        {
+          "id": "80675602-8135-4421-b42c-a0635e7cb0a8",
+          "name": "mapper-oidc-mattermostid-id",
+          "description": "Includes a protocol mapper to map the 'mattermostid' user attribute to the token 'id' claim.",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "46f8d6b6-17dc-4463-95c0-7a770d507067",
+              "name": "mattermostid",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-usermodel-attribute-mapper",
+              "consentRequired": false,
+              "config": {
+                "introspection.token.claim": "false",
+                "userinfo.token.claim": "true",
+                "user.attribute": "mattermostid",
+                "id.token.claim": "false",
+                "lightweight.claim": "false",
+                "access.token.claim": "false",
+                "claim.name": "id",
+                "jsonType.label": "long"
+              }
+            }
+          ]
+        },
+        {
+          "id": "22244009-5342-4e37-a924-7d3398985585",
+          "name": "mapper-oidc-email-email",
+          "description": "Includes a protocol mapper to map the 'email' user attribute to the token 'email' claim.",
+          "protocol": "openid-connect",
+          "attributes": {
+            "include.in.token.scope": "false",
+            "display.on.consent.screen": "false",
+            "gui.order": "",
+            "consent.screen.text": ""
+          },
+          "protocolMappers": [
+            {
+              "id": "fc709f43-c2b7-4373-88a3-1a5b6b368155",
+              "name": "email",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-usermodel-property-mapper",
+              "consentRequired": false,
+              "config": {
+                "introspection.token.claim": "false",
+                "userinfo.token.claim": "true",
+                "user.attribute": "email",
+                "id.token.claim": "false",
+                "lightweight.claim": "false",
+                "access.token.claim": "false",
+                "claim.name": "email",
+                "jsonType.label": "String"
+              }
+            }
+          ]
+        },
+        {
             "id": "770edec1-8367-40cc-834c-ee2ef116cb0a",
             "name": "offline_access",
             "description": "OpenID Connect built-in scope: offline_access",

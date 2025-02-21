@@ -1294,7 +1294,7 @@
               "protocolMapper": "saml-user-property-mapper",
               "consentRequired": false,
               "config": {
-                "user.attribute": "Username",
+                "user.attribute": "username",
                 "attribute.nameformat": "Basic",
                 "attribute.name": "name"
               }
@@ -1320,7 +1320,7 @@
               "protocolMapper": "saml-user-property-mapper",
               "consentRequired": false,
               "config": {
-                "user.attribute": "Username",
+                "user.attribute": "username",
                 "attribute.nameformat": "Basic",
                 "attribute.name": "login"
               }
@@ -1346,7 +1346,7 @@
               "protocolMapper": "saml-user-property-mapper",
               "consentRequired": false,
               "config": {
-                "user.attribute": "Email",
+                "user.attribute": "email",
                 "attribute.nameformat": "Basic",
                 "attribute.name": "email"
               }
@@ -1373,7 +1373,7 @@
               "consentRequired": false,
               "config": {
                 "attribute.nameformat": "Basic",
-                "user.attribute": "FirstName",
+                "user.attribute": "firstName",
                 "friendly.name": "First Name",
                 "attribute.name": "first_name"
               }
@@ -1400,7 +1400,7 @@
               "consentRequired": false,
               "config": {
                 "attribute.nameformat": "Basic",
-                "user.attribute": "LastName",
+                "user.attribute": "lastName",
                 "friendly.name": "Last Name",
                 "attribute.name": "last_name"
               }
@@ -1433,7 +1433,7 @@
                 "attribute.name": "Groups"
               }
             }
-          ]            
+          ]
         },
         {
           "id": "14bc33e6-545f-4df7-a9c4-7d05b1b12a89",
