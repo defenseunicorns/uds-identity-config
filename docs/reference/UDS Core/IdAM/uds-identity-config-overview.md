@@ -12,6 +12,25 @@ Identity and Access Management (IdAM) refers to a framework of policies and tech
 
 UDS Identity Config is a component of the UDS Core that supplies the necessary configuration for Keycloak, an open-source Identity and Access Management solution. This configuration includes setting up realms, clients, roles, and other Keycloak settings tailored specifically for the UDS environment. By managing these configurations, UDS Identity Config facilitates the seamless integration of authentication and authorization functionalities into various services within the UDS ecosystem, ensuring that security protocols are consistently applied across platforms.
 
+### Main Responsibilities
+UDS Identity Config is responsible for managing several key aspects of Keycloak’s configuration within the UDS ecosystem, including:
+
+1. Realm Configuration – Defines realms, clients, roles, and authentication flows.
+2. Theme Configuration – Manages custom branding and UI elements for authentication pages.
+3. Truststore Management – Ensures secure communication by handling trusted certificates and keys.
+4. Custom Plugins – Supports additional functionality through custom Keycloak extensions and providers.
+
+### Upgrading UDS Identity Config
+When upgrading UDS Identity Config, changes to the realm configuration do not propagate automatically. This is because Keycloak persists its realm settings across upgrades to prevent breaking existing functionality. To apply updates to the realm configuration, follow the manual steps outlined in [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) .
+
+However, updates to the following components are automatically applied upon upgrade, as they are not persisted between versions:
+
+- Themes (branding and UI customizations)
+- Truststore (certificate and key management)
+- Custom Plugins (additional Keycloak extensions)
+
+This ensures that realm configurations remain unchanged during upgrades, while other non-persistent settings are automatically refreshed.
+
 ## IdAM Contents
 
 1. [Custom Image Testing and Deployment](https://uds.defenseunicorns.com/reference/uds-core/idam/testing-deployment-customizations/)
