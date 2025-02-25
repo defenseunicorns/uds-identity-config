@@ -49,7 +49,7 @@ The following sections provide a step-by-step guide on how to customize UDS Core
 ## Authentication Flow Customization
 
 :::note
-Environment variables configured in the [uds-core Keycloak values.yaml file](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L30-32) have `REALM_` appended to them during creation. See [ Customization docs](https://uds.defenseunicorns.com/reference/uds-core/idam/image-customizations/) for more information.
+Environment variables configured in the [uds-core Keycloak values.yaml file](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L30-32) have `REALM_` appended to them during creation. See [Customization docs](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/) for more information.
 :::
 
 :::warning
