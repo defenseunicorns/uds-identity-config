@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.10.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.10.2...v0.10.3) (2025-03-03)
+
+
+### Bug Fixes
+
+* broken docs link ([#355](https://github.com/defenseunicorns/uds-identity-config/issues/355)) ([45067dd](https://github.com/defenseunicorns/uds-identity-config/commit/45067dd2b8c141d186bc557c575504202787640a))
+* **deps:** update plugin-deps ([#357](https://github.com/defenseunicorns/uds-identity-config/issues/357)) ([54f74a7](https://github.com/defenseunicorns/uds-identity-config/commit/54f74a78444a173341d27723eec2f016e2087ef4))
+
+
+### Miscellaneous
+
+* **deps:** update gha-deps ([#356](https://github.com/defenseunicorns/uds-identity-config/issues/356)) ([4af68da](https://github.com/defenseunicorns/uds-identity-config/commit/4af68dae52c87cd0f36bbe1f48523a5ee5b0beed))
+* **doc:** add new section about upgrading identity config ([#353](https://github.com/defenseunicorns/uds-identity-config/issues/353)) ([67c99a8](https://github.com/defenseunicorns/uds-identity-config/commit/67c99a8d711382a73737a585149a0d18cd4153fb))
+
 ## [0.10.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.10.1...v0.10.2) (2025-02-21)
 
 
