@@ -20,12 +20,12 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
+import org.keycloak.Config;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.ClientAuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.client.AbstractClientAuthenticator;
 import org.keycloak.authentication.authenticators.client.ClientAuthUtil;
-import org.keycloak.common.util.SystemEnvProperties;
 import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.ClientModel;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
@@ -45,32 +45,28 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
 
     public static final String PROVIDER_ID = "client-kubernetes-secret";
 
-    public static final String PROPERTY_NAME_MOUNT_PATH = PROVIDER_ID + ".mount.path";
-    public static final String PROPERTY_LABEL_MOUNT_PATH = "Client Secret Mount Path";
-
     public static final String HELP_TOOLTIP_TEXT = "Validates client based on 'client_id' and 'client_secret' sent either in request parameters or in 'Authorization: Basic' header. The `client_secret` is pulled from a Kubernetes Secret mounted into the Keycloak Pod";
 
-    public static final String DEFAULT_MOUNT_PATH = "/var/run/secrets/keycloak/pepr/client-secret";
+    public static final String DEFAULT_MOUNT_PATH = "/var/run/secrets/uds/client-secrets";
     public static final String DEFAULT_ENVIRONMENT_VARIABLE_CLIENT_MOUNT_PATH = "KC_UDS_CLIENT_SECRET_MOUNT_PATH";
 
     private static final List<ProviderConfigProperty> clientConfigProperties = new ArrayList<>();
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    static {
-        ProviderConfigProperty property;
-        property = new ProviderConfigProperty();
-        property.setName(PROPERTY_NAME_MOUNT_PATH);
-        property.setLabel(PROPERTY_LABEL_MOUNT_PATH);
-        property.setType(ProviderConfigProperty.STRING_TYPE);
-        clientConfigProperties.add(property);
+    private String secretMountPath;
+
+    @Override
+    public void init(Config.Scope config) {
+        secretMountPath = System.getenv(DEFAULT_ENVIRONMENT_VARIABLE_CLIENT_MOUNT_PATH);
+        if (secretMountPath == null) {
+            secretMountPath = DEFAULT_MOUNT_PATH;
+        }
     }
 
     @Override
     public void authenticateClient(ClientAuthenticationFlowContext context) {
         String client_id = null;
         String clientSecret = null;
-
-        logger.error("##################################### 1");
 
         String authorizationHeader = context.getHttpRequest().getHttpHeaders().getRequestHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
@@ -93,8 +89,6 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
             }
         }
 
-        logger.error("##################################### 2");
-
         if (formData != null) {
             if (formData.containsKey(OAuth2Constants.CLIENT_ID)) {
                 client_id = formData.getFirst(OAuth2Constants.CLIENT_ID);
@@ -103,8 +97,6 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
                 clientSecret = formData.getFirst(OAuth2Constants.CLIENT_SECRET);
             }
         }
-
-        logger.error("##################################### 3");
 
         if (client_id == null) {
             client_id = context.getSession().getAttribute("client_id", String.class);
@@ -116,8 +108,6 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
             return;
         }
 
-        logger.error("##################################### 4");
-
         context.getEvent().client(client_id);
 
         ClientModel client = context.getSession().clients().getClientByClientId(context.getRealm(), client_id);
@@ -126,16 +116,12 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
             return;
         }
 
-        logger.error("##################################### 5");
-
         context.setClient(client);
 
         if (!client.isEnabled()) {
             context.failure(AuthenticationFlowError.CLIENT_DISABLED, null);
             return;
         }
-
-        logger.error("##################################### 6");
 
         if (client.isPublicClient()) {
             context.success();
@@ -148,30 +134,20 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
             return;
         }
 
-        String defaultMountPath = SystemEnvProperties.UNFILTERED.getProperty(DEFAULT_ENVIRONMENT_VARIABLE_CLIENT_MOUNT_PATH, DEFAULT_MOUNT_PATH);
-        String mountedFile = context.getClientAuthAttributes().getOrDefault(PROPERTY_NAME_MOUNT_PATH, defaultMountPath);
-
-        logger.error("[{}] client attributes: ", MethodHandles.lookup().lookupClass().getName(), context.getClientAuthAttributes());
-        logger.error("[{}] defaultMountPath: ", MethodHandles.lookup().lookupClass().getName(), defaultMountPath);
-        logger.error("[{}] mountedFile: ", MethodHandles.lookup().lookupClass().getName(), mountedFile);
-
-        if (mountedFile == null) {
-            reportMountFileError(context);
-            return;
-        }
 
         String mountedClientSecret = null;
+        Path mountedClientSecretPath = Path.of(secretMountPath).resolve(client_id);
+        logger.debug("secretMountPath: {}", secretMountPath);
+        logger.debug("mountedClientSecretPath: {}", mountedClientSecretPath);
         try {
-            mountedClientSecret = readString(Path.of(mountedFile));
+            mountedClientSecret = readString(mountedClientSecretPath);
         } catch (IOException e) {
             reportMountFileError(context);
             return;
         }
 
-        // At the moment there's no Secret validation. Maybe we should add it later?
-
-        //TODO: Remove before creating a PR
-        logger.error("[{}] mountedClientSecret: {} clientSecret: {}", MethodHandles.lookup().lookupClass().getName(), mountedClientSecret, clientSecret);
+        logger.debug("mountedClientSecret: {}", mountedClientSecret);
+        logger.debug("clientSecret: {}", clientSecret);
 
         if (!clientSecret.equals(mountedClientSecret)) {
             reportFailedAuth(context);
@@ -202,7 +178,7 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return new LinkedList<>();
+        return clientConfigProperties;
     }
 
     @Override
