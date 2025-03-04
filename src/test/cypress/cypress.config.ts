@@ -5,19 +5,23 @@
 
 import { defineConfig } from "cypress";
 
+const useCAC = process.env.USE_CAC === "true";
+
 module.exports = defineConfig({
-  clientCertificates: [
-    {
-      url: "https://sso.uds.dev/**",
-      ca: [],
-      certs: [
-        {
-          pfx: "certs/test.pfx",
-          passphrase: "certs/pfx_passphrase.txt",
-        },
-      ],
-    },
-  ],
+  clientCertificates: useCAC
+    ? [
+      {
+        url: "https://sso.uds.dev/**",
+        ca: [],
+        certs: [
+          {
+            pfx: "certs/test.pfx",
+            passphrase: "certs/pfx_passphrase.txt",
+          },
+        ],
+      },
+    ]
+    : [],
 
   e2e: {
     setupNodeEvents(on, config) {
