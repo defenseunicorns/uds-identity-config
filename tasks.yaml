@@ -43,6 +43,8 @@ tasks:
       - task: dev-build
       - cmd: |
           k3d image import -c uds uds-core-config:keycloak
+          kubectl patch statefulset keycloak -n keycloak --type='merge' -p '{"metadata":{"labels":{"zarf.dev/agent":"ignore"}}}'
+          kubectl patch statefulset keycloak -n keycloak --type='merge' -p '{"spec":{"template":{"metadata":{"labels":{"zarf.dev/agent":"ignore"}}}}}'
           kubectl rollout restart statefulset -n keycloak keycloak
 
   - name: dev-theme
@@ -129,8 +131,10 @@ tasks:
   - name: clone-core
     description: "Clone UDS Core for integration testing"
     actions:
-      - cmd: rm -rf uds-core/
-      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+      - cmd: rm -rf uds-core
+      - cmd: ln -s ../uds-core uds-core
+#      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+#      - cmd: git clone --branch pepr_keycloak_client_management https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
@@ -177,3 +181,46 @@ tasks:
         cmd: |
           # Actual startup takes up to a minute because of the npm install
           cd uds-docs && npm i && npm run dev
+
+  - name: test-client-credentials
+    actions:
+#      - description: Basic Client Credentials Test
+#        cmd: |
+#          set -xe
+#          curl -s --fail -X POST "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token" -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=uds-operator" -d "client_secret=uds-operator" -d "grant_type=client_credentials"
+#      - description: Obtain an Access Token
+#        cmd: |
+#          set -xe
+#          ACCESS_TOKEN=$(curl -s -X POST "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token" \
+#                -H "Content-Type: application/x-www-form-urlencoded" \
+#                -d "client_id=uds-operator" \
+#                -d "client_secret=uds-operator" \
+#                -d "grant_type=client_credentials" | jq -r .access_token)
+#
+#          echo $ACCESS_TOKEN | jwt decode -
+#      - description: Has Realm Management Role
+#        cmd: |
+#          set -xe
+#          ACCESS_TOKEN=$(curl -s -X POST "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token" \
+#                -H "Content-Type: application/x-www-form-urlencoded" \
+#                -d "client_id=uds-operator" \
+#                -d "client_secret=uds-operator" \
+#                -d "grant_type=client_credentials" | jq -r .access_token)
+#
+#          echo $ACCESS_TOKEN | jwt decode - | grep manage-clients
+      - description: Can obtain all Clients
+        cmd: |
+          set -xe
+          ACCESS_TOKEN=$(curl -s -X POST "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token" \
+                -H "Content-Type: application/x-www-form-urlencoded" \
+                -d "client_id=uds-operator" \
+                -d "client_secret=uds-operator" \
+                -d "grant_type=client_credentials" | jq -r .access_token)
+
+          CLIENTS=$(curl -s -X GET "https://keycloak.admin.uds.dev/admin/realms/uds/clients" \
+                -H "Authorization: Bearer $ACCESS_TOKEN" \
+                -H "Content-Type: application/json")
+#
+#          echo $CLIENTS | jq -e 'any(.[]; .clientId == "uds-operator")'
+#
+#          curl -X POST "https://keycloak.admin.uds.dev/admin/realms/uds/clients" -H "Authorization: Bearer $ACCESS_TOKEN" -H "Content-Type: application/json" -d '{"clientId":"my-simple-client","enabled":true,"publicClient":true,"redirectUris":["http://localhost/*"]}'
