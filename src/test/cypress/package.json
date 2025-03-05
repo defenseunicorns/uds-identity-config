@@ -4,12 +4,15 @@
   "main": "index.js",
   "scripts": {
     "cy.open": "cypress open",
-    "cy.run": "cypress run",
+    "cy.run": "cross-env USE_CAC=true cypress run --spec 'e2e/registration.cy.ts' && cross-env USE_CAC=false cypress run --spec 'e2e/**/*.cy.ts,!e2e/registration.cy.ts'",
+    "cy.run:registration": "cross-env USE_CAC=true cypress run --spec 'e2e/registration.cy.ts'",
+    "cy.run:others": "cross-env USE_CAC=false cypress run --spec 'e2e/**/*.cy.ts,!e2e/registration.cy.ts'",
     "prettier": "prettier --write **/*.ts"
   },
   "devDependencies": {
     "cypress": "^14.0.0",
     "prettier": "^3.2.5",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.3",
+    "cross-env": "^7.0.3"
   }
 }
