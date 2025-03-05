@@ -146,8 +146,7 @@ tasks:
     actions:
       - cmd: |
           npm --prefix src/test/cypress install
-          npm --prefix src/test/cypress run cy.run:others
-          npm --prefix src/test/cypress run cy.run:registration
+          npm --prefix src/test/cypress run cy.run
 
   - name: license
     actions:

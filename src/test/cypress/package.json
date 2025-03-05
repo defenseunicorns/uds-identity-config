@@ -4,9 +4,9 @@
   "main": "index.js",
   "scripts": {
     "cy.open": "cypress open",
-    "cy.run": "cypress run",
+    "cy.run": "cross-env USE_CAC=true cypress run --spec 'e2e/registration.cy.ts' && cross-env USE_CAC=false cypress run --spec 'e2e/**/*.cy.ts,!e2e/registration.cy.ts'",
     "cy.run:registration": "cross-env USE_CAC=true cypress run --spec 'e2e/registration.cy.ts'",
-    "cy.run:others": "cross-env USE_CAC=false cypress run --spec 'e2e/login.cy.ts,e2e/group-authz.cy.ts'",
+    "cy.run:others": "cross-env USE_CAC=false cypress run --spec 'e2e/**/*.cy.ts,!e2e/registration.cy.ts'",
     "prettier": "prettier --write **/*.ts"
   },
   "devDependencies": {
