@@ -134,7 +134,6 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
             return;
         }
 
-
         String mountedClientSecret = null;
         Path mountedClientSecretPath = Path.of(secretMountPath).resolve(client_id);
         logger.debug("secretMountPath: {}", secretMountPath);
