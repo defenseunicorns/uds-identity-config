@@ -35,7 +35,7 @@ tasks:
   - name: dev-build
     description: "Build the image locally for dev"
     actions:
-      - cmd: docker build src -t uds-core-config:keycloak
+      - cmd: docker build src -t uds-core-config:keycloak --no-cache
 
   - name: dev-update-image
     description: "Build the image and import locally into k3d"
@@ -109,7 +109,7 @@ tasks:
     description: "UDS Core + Identity Config Integration Testing"
     actions:
       - description: Build identity config image
-        cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" --build-arg REALM_FILE="test/cypress/realm.json" -t uds-core-config:keycloak src
+        cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" --build-arg REALM_FILE="test/cypress/realm.json" -t uds-core-config:keycloak --no-cache src
       - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
@@ -132,6 +132,7 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core
+#      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
       - cmd: git clone --branch pepr_keycloak_client_management --single-branch --depth 1 https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
