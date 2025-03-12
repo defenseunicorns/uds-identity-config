@@ -17,7 +17,7 @@ uds-core/**
 ./tls_cacert.yaml
 ./test.pfx
 src/extra-jars/
-src/test/cypress/node_modules/**
+**/node_modules/**
 src/plugin/target/**
 uds-docs/
 uds-docs/**
