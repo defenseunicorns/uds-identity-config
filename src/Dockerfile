@@ -11,6 +11,9 @@ FROM cgr.dev/chainguard/maven:openjdk-17 AS plugin
 WORKDIR /home/build
 
 COPY plugin/pom.xml .
+# Download/resolve dependencies only (avoids downloading them again as they will be in cache!)
+RUN mvn dependency:go-offline -B
+
 COPY plugin/src ./src
 
 RUN mvn clean package
