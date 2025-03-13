@@ -93,6 +93,8 @@ overrides:
                X509_AUTH_ENABLED: true
                SOCIAL_AUTH_ENABLED: true
                OTP_ENABLED: true
+               WEBAUTHN_ENABLED: true
+               X509_MFA_ENABLED: true
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).

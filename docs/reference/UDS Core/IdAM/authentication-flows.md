@@ -68,6 +68,7 @@ These settings allow for enabling/disabling one or more of the Auth flows. Be aw
 | [USERNAME_PASSWORD_AUTH_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L30) | Toggle on/off the Username and Password Authentication flow. When disabled there will be no username password login, password / password confirm registration fields, no credential reset, and no update password options available. | `true`(default), `false` |
 | [X509_AUTH_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L31) | Toggle on/off X509 (CAC) Authentication flow. | `true`(default), `false` |
 | [SOCIAL_AUTH_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L32) | Toggle on/off Social (Google SSO, Azure AD, etc. ) Authentication flows.| `true`(default), `false` |
+| [X509_MFA_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L32) | Toggle on/off X509 to require additional MFA options (OTP, WebAuthn, etc).| `true`, `false`(default) |
 
 These three variables handle the complexities of configuring the following environment variables, which are responsible for both visual (theme) and security (realm). The following variables are not exposed for overriding.
 
@@ -85,3 +86,4 @@ All Realm Configurations require accesss to the Keycloak admin portal.
 | `RESET_CREDENTIAL_FLOW_ENABLED` | 1. Realm Authentication tab<br> 2. Select the `UDS Reset Credentials` Authentication Flow<br> 3. `DISABLE` the `Reset Password` step |
 | `REGISTRATION_FORM_ENABLED` | 1. Realm Authentication tab<br> 2. Select the `UDS Registration` Authentication Flow<br> 3. `DISABLE` the `UDS Registration form` step |
 | `OTP_ENABLED` | 1. Realm Authentication tab<br> 2. Select the `Required Action` tab at the top of the Authentication view<br> 3. Toggle off the `Configure OTP` |
+| `WEBAUTHN_ENABLED` | 1. Realm Authentication tab<br> 2. Select the `Required Action` tab at the top of the Authentication view<br> 3. Toggle on the `Webauthn Register Passwordless` `Enabled` column<br> 4. Select the `Flows` tab at the top of the Authentication view<br> 5. Select the `UDS Authentication` flow<br> 6. Set the `MFA` sub-flow to `Required`<br> 7. Set the `WebAuthn Passwordless Authenticator` in the `MFA` sub-flow to `Required` |
