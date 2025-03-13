@@ -45,7 +45,7 @@ ${msg("loginTitle",(realm.displayName!''))}
                 <div class="card">
                     <div class="card-header branding row">
                         <div class="col-sm-5 p-0">
-                            <img src="${url.resourcesPath}/img/uds-logo.svg"/>
+                            <img src="${url.resourcesPath}/img/ve/vrt-wht.svg"/>
                         </div>
                         <div class="col-sm-1">&nbsp;</div>
                         <div class="col-sm-6 my-auto">
@@ -98,7 +98,7 @@ ${message.type}
             </div>
             </div>
             <footer class="fixed-footer">
-                <img src="${url.resourcesPath}/img/full-du-logo.png" />
+                <img src="${url.resourcesPath}/img/ve/hrz-wht.png" />
             </footer>
             </body>
 
