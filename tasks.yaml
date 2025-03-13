@@ -13,7 +13,7 @@ variables:
 
   - name: IMAGE_NAME
     description: "The repository + name for the published image"
-    default: "ghcr.io/defenseunicorns/uds/identity-config"
+    default: "ghcr.io/valid-eval/uds-identity-config"
 
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
