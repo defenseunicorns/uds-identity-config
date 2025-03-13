@@ -10,7 +10,6 @@ on:
 
 jobs:
   publish-uds-core:
-    if: ${{ needs.tag-new-version.outputs.release_created == 'true'}}
     runs-on: ubuntu-latest
     name: Publish Image
 
