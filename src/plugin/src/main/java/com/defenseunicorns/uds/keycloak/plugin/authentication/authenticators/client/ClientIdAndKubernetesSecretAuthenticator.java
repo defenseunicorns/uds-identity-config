@@ -1,27 +1,12 @@
 /*
- * Copyright 2024 Defense Unicorns
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Defense Unicorns
+ * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
 package com.defenseunicorns.uds.keycloak.plugin.authentication.authenticators.client;
 
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.Config;
-import org.keycloak.OAuth2Constants;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.ClientAuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.client.AbstractClientAuthenticator;
@@ -30,7 +15,6 @@ import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.ClientModel;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.util.BasicAuthHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +39,18 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
 
     private String secretMountPath;
 
+    static String readMountedClientSecret(String secretMountPath, String clientId) throws IOException {
+        String mountedClientSecret = null;
+        Path mountedClientSecretPath = Path.of(secretMountPath).resolve(clientId);
+        logger.debug("Reading Client Secret from: {}", mountedClientSecretPath);
+
+        mountedClientSecret = readString(mountedClientSecretPath);
+        if (mountedClientSecret == null || mountedClientSecret.isEmpty()) {
+            throw new IllegalArgumentException("Mounted Client Secret exists but is empty");
+        }
+        return mountedClientSecret;
+    }
+
     @Override
     public void init(Config.Scope config) {
         secretMountPath = System.getenv(DEFAULT_ENVIRONMENT_VARIABLE_CLIENT_MOUNT_PATH);
@@ -65,90 +61,22 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
 
     @Override
     public void authenticateClient(ClientAuthenticationFlowContext context) {
-        String client_id = null;
-        String clientSecret = null;
-
-        String authorizationHeader = context.getHttpRequest().getHttpHeaders().getRequestHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-
-        MediaType mediaType = context.getHttpRequest().getHttpHeaders().getMediaType();
-        boolean hasFormData = mediaType != null && mediaType.isCompatible(MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-
-        MultivaluedMap<String, String> formData = hasFormData ? context.getHttpRequest().getDecodedFormParameters() : null;
-
-        if (authorizationHeader != null) {
-            String[] usernameSecret = BasicAuthHelper.RFC6749.parseHeader(authorizationHeader);
-            if (usernameSecret != null) {
-                client_id = usernameSecret[0];
-                clientSecret = usernameSecret[1];
-            } else {
-                if (formData != null && !formData.containsKey(OAuth2Constants.CLIENT_ID)) {
-                    Response challengeResponse = Response.status(Response.Status.UNAUTHORIZED).header(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"" + context.getRealm().getName() + "\"").build();
-                    context.challenge(challengeResponse);
-                    return;
-                }
-            }
-        }
-
-        if (formData != null) {
-            if (formData.containsKey(OAuth2Constants.CLIENT_ID)) {
-                client_id = formData.getFirst(OAuth2Constants.CLIENT_ID);
-            }
-            if (formData.containsKey(OAuth2Constants.CLIENT_SECRET)) {
-                clientSecret = formData.getFirst(OAuth2Constants.CLIENT_SECRET);
-            }
-        }
-
-        if (client_id == null) {
-            client_id = context.getSession().getAttribute("client_id", String.class);
-        }
-
-        if (client_id == null) {
-            Response challengeResponse = ClientAuthUtil.errorResponse(Response.Status.BAD_REQUEST.getStatusCode(), "invalid_client", "Missing client_id parameter");
-            context.challenge(challengeResponse);
-            return;
-        }
-
-        context.getEvent().client(client_id);
-
-        ClientModel client = context.getSession().clients().getClientByClientId(context.getRealm(), client_id);
-        if (client == null) {
-            context.failure(AuthenticationFlowError.CLIENT_NOT_FOUND, null);
-            return;
-        }
-
-        context.setClient(client);
-
-        if (!client.isEnabled()) {
-            context.failure(AuthenticationFlowError.CLIENT_DISABLED, null);
-            return;
-        }
-
-        if (client.isPublicClient()) {
-            context.success();
-            return;
-        }
-
-        if (clientSecret == null) {
-            Response challengeResponse = ClientAuthUtil.errorResponse(Response.Status.UNAUTHORIZED.getStatusCode(), "unauthorized_client", "Invalid client or Invalid client credentials");
-            context.challenge(challengeResponse);
+        ClientAuthenticatorUtils.ClientAuthenticatorData clientAuthenticationData = ClientAuthenticatorUtils.getExtractClientIdAndSecret(context);
+        if (clientAuthenticationData == ClientAuthenticatorUtils.INVALID) {
+            logger.debug("Authentication failed: {}", context);
             return;
         }
 
         String mountedClientSecret = null;
-        Path mountedClientSecretPath = Path.of(secretMountPath).resolve(client_id);
-        logger.debug("secretMountPath: {}", secretMountPath);
-        logger.debug("mountedClientSecretPath: {}", mountedClientSecretPath);
         try {
-            mountedClientSecret = readString(mountedClientSecretPath);
-        } catch (IOException e) {
+            mountedClientSecret = readMountedClientSecret(this.secretMountPath, clientAuthenticationData.client_id());
+        } catch (IOException | IllegalArgumentException e) {
+            logger.debug("Client Secret file doesn't exist or is empty, {}", e.getMessage());
             reportMountFileError(context);
             return;
         }
 
-        logger.debug("mountedClientSecret: {}", mountedClientSecret);
-        logger.debug("clientSecret: {}", clientSecret);
-
-        if (!clientSecret.equals(mountedClientSecret)) {
+        if (!clientAuthenticationData.clientSecret().equals(mountedClientSecret)) {
             reportFailedAuth(context);
             return;
         }
