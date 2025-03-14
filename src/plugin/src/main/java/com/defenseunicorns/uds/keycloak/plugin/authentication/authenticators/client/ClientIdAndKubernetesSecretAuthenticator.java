@@ -5,8 +5,12 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.authentication.authenticators.client;
 
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.Config;
+import org.keycloak.OAuth2Constants;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.ClientAuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.client.AbstractClientAuthenticator;
@@ -15,6 +19,7 @@ import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.ClientModel;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.util.BasicAuthHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,22 +66,85 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
 
     @Override
     public void authenticateClient(ClientAuthenticationFlowContext context) {
-        ClientAuthenticatorUtils.ClientAuthenticatorData clientAuthenticationData = ClientAuthenticatorUtils.getExtractClientIdAndSecret(context);
-        if (clientAuthenticationData == ClientAuthenticatorUtils.INVALID) {
-            logger.debug("Authentication failed: {}", context);
+        String client_id = null;
+        String clientSecret = null;
+
+        String authorizationHeader = context.getHttpRequest().getHttpHeaders().getRequestHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+
+        MediaType mediaType = context.getHttpRequest().getHttpHeaders().getMediaType();
+        boolean hasFormData = mediaType != null && mediaType.isCompatible(MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+
+        MultivaluedMap<String, String> formData = hasFormData ? context.getHttpRequest().getDecodedFormParameters() : null;
+
+        if (authorizationHeader != null) {
+            String[] usernameSecret = BasicAuthHelper.RFC6749.parseHeader(authorizationHeader);
+            if (usernameSecret != null) {
+                client_id = usernameSecret[0];
+                clientSecret = usernameSecret[1];
+            } else {
+                if (formData != null && !formData.containsKey(OAuth2Constants.CLIENT_ID)) {
+                    Response challengeResponse = Response.status(Response.Status.UNAUTHORIZED).header(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"" + context.getRealm().getName() + "\"").build();
+                    context.challenge(challengeResponse);
+                    return;
+                }
+            }
+        }
+
+        if (formData != null) {
+            if (formData.containsKey(OAuth2Constants.CLIENT_ID)) {
+                client_id = formData.getFirst(OAuth2Constants.CLIENT_ID);
+            }
+            if (formData.containsKey(OAuth2Constants.CLIENT_SECRET)) {
+                clientSecret = formData.getFirst(OAuth2Constants.CLIENT_SECRET);
+            }
+        }
+
+        if (client_id == null) {
+            client_id = context.getSession().getAttribute("client_id", String.class);
+        }
+
+        if (client_id == null) {
+            Response challengeResponse = ClientAuthUtil.errorResponse(Response.Status.BAD_REQUEST.getStatusCode(), "invalid_client", "Missing client_id parameter");
+            context.challenge(challengeResponse);
+            return;
+        }
+
+        context.getEvent().client(client_id);
+
+        ClientModel client = context.getSession().clients().getClientByClientId(context.getRealm(), client_id);
+        if (client == null) {
+            context.failure(AuthenticationFlowError.CLIENT_NOT_FOUND, null);
+            return;
+        }
+
+        context.setClient(client);
+
+        if (!client.isEnabled()) {
+            context.failure(AuthenticationFlowError.CLIENT_DISABLED, null);
+            return;
+        }
+
+        if (client.isPublicClient()) {
+            context.success();
+            return;
+        }
+
+        if (clientSecret == null) {
+            Response challengeResponse = ClientAuthUtil.errorResponse(Response.Status.UNAUTHORIZED.getStatusCode(), "unauthorized_client", "Invalid client or Invalid client credentials");
+            context.challenge(challengeResponse);
             return;
         }
 
         String mountedClientSecret = null;
         try {
-            mountedClientSecret = readMountedClientSecret(this.secretMountPath, clientAuthenticationData.client_id());
+            mountedClientSecret = readMountedClientSecret(this.secretMountPath, client_id);
         } catch (IOException | IllegalArgumentException e) {
             logger.debug("Client Secret file doesn't exist or is empty, {}", e.getMessage());
             reportMountFileError(context);
             return;
         }
 
-        if (!clientAuthenticationData.clientSecret().equals(mountedClientSecret)) {
+        if (!clientSecret.equals(mountedClientSecret)) {
             reportFailedAuth(context);
             return;
         }

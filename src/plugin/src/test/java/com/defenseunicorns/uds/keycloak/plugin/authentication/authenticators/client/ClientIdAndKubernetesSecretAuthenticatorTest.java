@@ -6,6 +6,7 @@
 package com.defenseunicorns.uds.keycloak.plugin.authentication.authenticators.client;
 
 import org.junit.Test;
+import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -14,7 +15,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 public class ClientIdAndKubernetesSecretAuthenticatorTest {
 
     @Test(expected = NoSuchFileException.class)

@@ -143,6 +143,14 @@ tasks:
       - task: grafana-group-auth-build-deploy
       - cmd: uds create bundles --confirm --no-progress
       - cmd: uds deploy bundles/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
+      - task: reconfigure-uds-operator
+
+  - name: reconfigure-uds-operator
+    description: "Reconfigure the UDS Operator to use the Client Credentials flow"
+    actions:
+      - cmd: |
+          kubectl patch deployment pepr-uds-core-watcher -n pepr-system --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "PEPR_KEYCLOAK_CLIENT_STRATEGY", "value": "client_credentials"}}]'
+          kubectl rollout restart deployment pepr-uds-core-watcher -n pepr-system
 
   - name: cypress-tests
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
