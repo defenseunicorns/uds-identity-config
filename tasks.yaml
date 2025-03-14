@@ -19,16 +19,20 @@ variables:
     default: "v0.37.0"
 
 tasks:
-  - name: build-and-publish
-    description: "Build and publish the multi-arch image"
-    actions:
-      - cmd: docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ${IMAGE_NAME}:${VERSION} src
-
   - name: build-zarf-pkg
     description: "Build the custom docker image and the zarf package for transporting it"
     actions:
       - cmd: docker build --tag ${IMAGE_NAME}:${VERSION} src
       - cmd: ./uds zarf package create . --set IDENTITY_CONFIG_IMG=${IMAGE_NAME}:${VERSION} --confirm
+
+  - name: build-and-publish
+    description: "Build and publish zarf image"
+    actions:
+      - cmd: build-zarf-pkg
+      - cmd: |
+          ARCH=amd64
+          CLI_VERSION=$(uds zarf version)
+          uds zarf package publish keycloak-identity-config-${ARCH}-${CLI_VERSION}.tar.zst oci://${IMAGE_NAME}
 
   - name: dev-build
     description: "Build the image locally for dev"
