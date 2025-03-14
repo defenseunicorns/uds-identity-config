@@ -4,7 +4,7 @@
 kind: ZarfPackageConfig
 metadata:
   name: keycloak-identity-config
-  version: 0.10.2
+  version: 0.10.2-VE.1
 
 constants:
   - name: IDENTIFY_CONFIG_IMG
