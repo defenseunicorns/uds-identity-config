@@ -7,7 +7,7 @@ includes:
 variables:
   - name: VERSION
     description: "The image tag"
-    default: "0.10.2"
+    default: "0.10.3"
 
   - name: IMAGE_NAME
     description: "The repository + name for the published image"
