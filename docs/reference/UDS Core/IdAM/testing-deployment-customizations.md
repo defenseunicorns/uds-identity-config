@@ -31,6 +31,16 @@ Update the custom image references in the `uds-core` repository:
 * Specify configImage in Keycloak values.yaml.
 * For truststore updates, see gateway configuration instructions.
 
+Alternatively, to override the existing Identity-Config image found in the Keycloak [values.yaml](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml), use the following:
+```yaml
+overrides:
+   keycloak:
+      keycloak:
+         values:
+            - path: configImage
+              value: ttl.sh/uds-core-config:keycloak
+```
+
 #### Deploy UDS Core
 
 Deploy UDS Core with the new custom image:
