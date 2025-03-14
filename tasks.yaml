@@ -28,7 +28,7 @@ tasks:
   - name: build-and-publish
     description: "Build and publish zarf image"
     actions:
-      - cmd: build-zarf-pkg
+      - task: build-zarf-pkg
       - cmd: |
           ARCH=amd64
           CLI_VERSION=$(uds zarf version)
