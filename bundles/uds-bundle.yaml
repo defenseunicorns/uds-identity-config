@@ -27,6 +27,13 @@ packages:
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
     ref: 0.37.0
     overrides:
+      uds-operator-config:
+        uds-operator-config:
+          variables:
+            - name: PEPR_KEYCLOAK_CLIENT_STRATEGY
+              description: "Keycloak client strategy for uds-operator. Possible values: \"dynamic_client_registration\", \"client_credentials\" and \"auto\""
+              default: "auto"
+              path: operator.PEPR_KEYCLOAK_CLIENT_STRATEGY
       istio-admin-gateway:
         uds-istio-config:
           variables:
@@ -79,6 +86,10 @@ packages:
                 X509_AUTH_ENABLED: true
                 SOCIAL_AUTH_ENABLED: true
                 OTP_ENABLED: true
+            - path: env[0]
+              value:
+                name: JAVA_OPTS_KC_HEAP
+                value: "-XX:MaxRAMPercentage=70 -XX:MinRAMPercentage=70 -XX:InitialRAMPercentage=50 -XX:MaxRAM=1G"
 
   - name: core-monitoring
     path: ../uds-core/build/
