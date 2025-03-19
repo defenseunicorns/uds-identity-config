@@ -9,9 +9,12 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.models.ClientModel;
+import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -69,6 +72,18 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
 
         // then
         assertFalse(result);
+    }
+
+    @Test
+    public void shouldNotThrowExceptionWhenAuthenticatedClientIsNull() {
+        // given
+        ClientCRUDContext clientCRUDContext = mock(ClientCRUDContext.class);
+
+        // when
+        String result = executor.getAuthenticatedClientId(clientCRUDContext);
+
+        // then
+        assertNull(result);
     }
 
 }

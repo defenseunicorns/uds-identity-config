@@ -38,9 +38,9 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     public void executeOnEvent(ClientPolicyContext context) throws ClientPolicyException {
         if ((context instanceof ClientCRUDContext clientCRUDContext)) {
 
-            logger.debug("Executing UDSClientPolicyPermissionsExecutor, authenticated to Client ID: {}, ", clientCRUDContext.getAuthenticatedClient().getClientId());
+            logger.debug("Executing UDSClientPolicyPermissionsExecutor, authenticated to Client ID: {}, ", getAuthenticatedClientId(clientCRUDContext));
 
-            if (clientCRUDContext.getAuthenticatedClient() != null && UDS_OPERATOR_CLIENT_ID.equals(clientCRUDContext.getAuthenticatedClient().getClientId())) {
+            if (clientCRUDContext.getAuthenticatedClient() != null && UDS_OPERATOR_CLIENT_ID.equals(getAuthenticatedClientId(clientCRUDContext))) {
                 switch (context.getEvent()) {
                     case UPDATE:
                         logger.debug("Updating existing Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
@@ -65,6 +65,13 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                 }
             }
         }
+    }
+
+    String getAuthenticatedClientId(ClientCRUDContext clientCRUDContext) {
+        if (clientCRUDContext.getAuthenticatedClient() == null) {
+            return null;
+        }
+        return clientCRUDContext.getAuthenticatedClient().getClientId();
     }
 
     boolean isOwnedByUDSOperator(ClientModel client) {
