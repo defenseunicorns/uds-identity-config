@@ -135,6 +135,16 @@ jobs:
       - name: Cypress Integration Tests
         run: uds run uds-core-integration-tests --no-progress
 
+      - name: Debug Output
+        if: ${{ always() }}
+        uses: ./.github/actions/debug-output
+
+      - name: Save logs
+        if: always()
+        uses: ./.github/actions/save-logs
+        with:
+          suffix: -uds_core_cypress_integration
+
   uds_core_cypress_integration_dynamic_client_registration:
     runs-on: ubuntu-latest
     name: UDS Core + Identity Config cypress integration tests with Dynamic Client Registration
@@ -156,3 +166,13 @@ jobs:
 
       - name: Cypress Integration Tests
         run: uds run uds-core-integration-tests --set=PEPR_KEYCLOAK_CLIENT_STRATEGY=dynamic_client_registration --no-progress
+
+      - name: Debug Output
+        if: ${{ always() }}
+        uses: ./.github/actions/debug-output
+
+      - name: Save logs
+        if: always()
+        uses: ./.github/actions/save-logs
+        with:
+          suffix: -uds_core_cypress_integration_dynamic_client_registration
