@@ -4,9 +4,44 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
-## v0.10.0+
+## v0.10.2 to v0.11.0
+<summary>Upgrade Details</summar>
 
-<details open>
+In uds-identity-config version 0.11.0 we incorporated some big changes around MFA.
+- Previous versions didn't allow for MFA on the X509 Authentication flow. Now that can be configured to required additional factors of authentication. By default this is disabled and will need to be enabled.
+- Additionally, we've added support of WebAuthn MFA. This can assume many different form such as biometrics, passkeys, etc. This also is disabled by default and is only used as an MFA option.
+
+If wanting configure the MFA everywhere with both OTP and WebAuthn options, the following steps will help to manually configure these options:
+1. There is a [new theme for webauthn-authentication](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/theme/login/webauthn-authenticate.ftl) that conditionally removes the register button. This is removed because we assume that since you are doing MFA you have already provided enough details to be identified by Keycloak and don't need to register.
+2. The Authentication `Required Actions` have a few changes as well:
+   - Click `Authentication` tab from left side menu
+   - Click `Required Actions` tab from Authentication page menu
+   - Enable the following `Required Actions`, only toggle the `Enabled` **DO NOT TOGGLE** `Set as default action`:
+      - `Configure OTP`
+      - `Webauthn Register Passwordless`
+   - Disable the `WebAuthn Register`, make sure this is **not** the `WebAuthn Register Passwordless` option ( this one should be enabled )
+3. The `UDS Authentication` authentication flow has undergone significant changes.
+   - Click `Authentication` tab from left side menu
+   - Click `UDS Authentication` flow option
+   - **This can be very dangerous to modify so make sure you know what you're doing before making changes here**
+   - In the `Authentication` top level sub-flow of the `UDS Authentication` flow
+      - Click the `+` icon and add a `sub-flow`
+         - Name that sub-flow `X509 Authentication`
+      - Drag that new sub-flow up and drop below the `Cookie` step
+      - Set the flow to `Alternative`
+      - in the new `X509 Authentication` sub-flow select the `+` icon and add a sub-flow called `X509 Conditional OTP`
+         - Set the `X509 Conditional OTP` to `Required`
+         - Click the `+` and add the `Condition` called `Condition - user configured`
+            - set this to be `Required`
+         - Click the `+` and add the step called `OTP Form`
+            - set this to be `Required`
+         - Click the `+` and add the step called `WebAuthn Passwordless Authenticator`
+      - Drag the existing `X509/Validate Username Form` step into the `X509 Authentication` sub-flow, should be above the `X509 Conditional OTP`
+         - May have to drag this twice, make sure this is `Required`
+
+## v0.10.0 to v0.10.+
+
+<details>
 <summary>Upgrade Details</summary>
 
 In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to Keycloak 26.1.0. In this release of Keycloak an unmentioned breaking change that added case sensitivity to the Client SAML Mappers. This resulted in breaking SAML Auth flows due to users IDP data not being correctly mapped into applications ( ex. Sonarqube, Gitlab, etc ). Manual steps to fix this issue:
@@ -31,7 +66,7 @@ In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to
 
 ## v0.9.1 to v0.10.0
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 * For running Istio with Ambient Mesh, it is required to add two new entries to the trusted hosts list: `*.pepr-uds-core-watcher.pepr-system.svc.cluster.local` and `*.keycloak.svc.cluster.local`. This is done automatically for new deployments but when upgrading it is required to perform these extra steps:
@@ -46,7 +81,7 @@ In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to
 
 ## v0.5.1 to v0.5.2
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 * An custom Keycloak event logger that replaces the default event logger is [included in this release](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/realm.json#L1669), if you wish to enable manually as part of an upgrade do the following (in the `Unicorn Delivery Service` realm):
@@ -73,7 +108,7 @@ In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to
 
 ## v0.5.0 to v0.5.1
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 This version upgrade utilizes built in Keycloak functionality for User Managed Attributes.

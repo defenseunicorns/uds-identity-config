@@ -909,8 +909,8 @@
             "protocol": "openid-connect",
             "attributes": {
                 "include.in.token.scope": "true",
-                "display.on.consent.screen": "true",
-                "consent.screen.text": "${emailScopeConsentText}"
+                "consent.screen.text": "${emailScopeConsentText}",
+                "display.on.consent.screen": "true"
             },
             "protocolMappers": [
                 {
@@ -954,8 +954,8 @@
             "protocol": "openid-connect",
             "attributes": {
                 "include.in.token.scope": "true",
-                "display.on.consent.screen": "true",
-                "consent.screen.text": "${profileScopeConsentText}"
+                "consent.screen.text": "${profileScopeConsentText}",
+                "display.on.consent.screen": "true"
             },
             "protocolMappers": [
                 {
@@ -1204,8 +1204,8 @@
             "protocol": "openid-connect",
             "attributes": {
                 "include.in.token.scope": "false",
-                "display.on.consent.screen": "true",
-                "consent.screen.text": "${rolesScopeConsentText}"
+                "consent.screen.text": "${rolesScopeConsentText}",
+                "display.on.consent.screen": "true"
             },
             "protocolMappers": [
                 {
@@ -1570,8 +1570,8 @@
             "protocol": "openid-connect",
             "attributes": {
                 "include.in.token.scope": "true",
-                "display.on.consent.screen": "true",
-                "consent.screen.text": "${addressScopeConsentText}"
+                "consent.screen.text": "${addressScopeConsentText}",
+                "display.on.consent.screen": "true"
             },
             "protocolMappers": [
                 {
@@ -1878,8 +1878,8 @@
                     ],
                     "allowed-client-scopes": [
                         "openid",
-                        "bare-groups",
                         "aws-groups",
+                        "bare-groups",
                         "mapper-saml-username-name",
                         "mapper-saml-email-email",
                         "mapper-saml-username-login",
@@ -2046,7 +2046,7 @@
         {
             "id": "0c528a3a-e0d7-45f5-a458-f8c23842ab75",
             "alias": "Authentication",
-            "description": "Authentication Flows",
+            "description": "",
             "providerId": "basic-flow",
             "topLevel": false,
             "builtIn": false,
@@ -2055,17 +2055,16 @@
                     "authenticator": "auth-cookie",
                     "authenticatorFlow": false,
                     "requirement": "ALTERNATIVE",
-                    "priority": 1,
+                    "priority": 0,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticatorConfig": "dod-cac",
-                    "authenticator": "auth-x509-client-username-form",
-                    "authenticatorFlow": false,
+                    "authenticatorFlow": true,
                     "requirement": "ALTERNATIVE",
-                    "priority": 2,
-                    "autheticatorFlow": false,
+                    "priority": 1,
+                    "autheticatorFlow": true,
+                    "flowAlias": "x509 Authentication",
                     "userSetupAllowed": false
                 },
                 {
@@ -2073,7 +2072,7 @@
                     "requirement": "ALTERNATIVE",
                     "priority": 3,
                     "autheticatorFlow": true,
-                    "flowAlias": "Username Password Form",
+                    "flowAlias": "Username/Password Authentication",
                     "userSetupAllowed": false
                 }
             ]
@@ -2133,6 +2132,40 @@
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 20,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                }
+            ]
+        },
+        {
+            "id": "ae089c5c-0424-4fb7-9768-2346b32bb1b2",
+            "alias": "Conditional OTP",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": false,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticator": "conditional-user-configured",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 0,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "auth-otp-form",
+                    "authenticatorFlow": false,
+                    "requirement": "${OTP_FLOW_ENABLED:REQUIRED}",
+                    "priority": 1,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "webauthn-authenticator-passwordless",
+                    "authenticatorFlow": false,
+                    "requirement": "${WEBAUTHN_FLOW_ENABLED:REQUIRED}",
+                    "priority": 2,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }
@@ -2235,27 +2268,35 @@
             ]
         },
         {
-            "id": "b59a7d49-c5e4-45f8-946f-1e2e58d5254f",
-            "alias": "MFA",
-            "description": "Sub Flow for MFA Options",
+            "id": "cdf1be21-4140-4652-9d68-3b60742cc8ad",
+            "alias": "Username/Password Authentication",
+            "description": "",
             "providerId": "basic-flow",
             "topLevel": false,
             "builtIn": false,
             "authenticationExecutions": [
                 {
-                    "authenticator": "auth-otp-form",
+                    "authenticator": "auth-username-password-form",
                     "authenticatorFlow": false,
-                    "requirement": "${OTP_FLOW_ENABLED:REQUIRED}",
+                    "requirement": "REQUIRED",
                     "priority": 0,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticator": "webauthn-authenticator-passwordless",
+                    "authenticator": "deny-access-authenticator",
                     "authenticatorFlow": false,
-                    "requirement": "${WEBAUTHN_FLOW_ENABLED:REQUIRED}",
+                    "requirement": "${DENY_USERNAME_PASSWORD_ENABLED:DISABLED}",
                     "priority": 1,
                     "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticatorFlow": true,
+                    "requirement": "${MFA_FLOW_ENABLED:DISABLED}",
+                    "priority": 2,
+                    "autheticatorFlow": true,
+                    "flowAlias": "Conditional OTP",
                     "userSetupAllowed": false
                 }
             ]
@@ -2303,18 +2344,10 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticatorFlow": true,
-                    "requirement": "${MFA_FLOW_ENABLED:REQUIRED}",
-                    "priority": 5,
-                    "autheticatorFlow": true,
-                    "flowAlias": "MFA",
-                    "userSetupAllowed": false
-                },
-                {
                     "authenticator": "uds-group-restriction",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
-                    "priority": 8,
+                    "priority": 2,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }
@@ -2368,8 +2401,8 @@
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 20,
-                    "userSetupAllowed": false,
-                    "autheticatorFlow": false
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
                 }
             ]
         },
@@ -2411,8 +2444,8 @@
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 40,
-                    "userSetupAllowed": false,
-                    "autheticatorFlow": false
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
                 }
             ]
         },
@@ -2474,32 +2507,6 @@
                     "priority": 20,
                     "autheticatorFlow": true,
                     "flowAlias": "Handle Existing Account",
-                    "userSetupAllowed": false
-                }
-            ]
-        },
-        {
-            "id": "cdf1be21-4140-4652-9d68-3b60742cc8ad",
-            "alias": "Username Password Form",
-            "description": "Authentication Sub Flow for Username Password From",
-            "providerId": "basic-flow",
-            "topLevel": false,
-            "builtIn": false,
-            "authenticationExecutions": [
-                {
-                    "authenticator": "auth-username-password-form",
-                    "authenticatorFlow": false,
-                    "requirement": "REQUIRED",
-                    "priority": 1,
-                    "autheticatorFlow": false,
-                    "userSetupAllowed": false
-                },
-                {
-                    "authenticator": "deny-access-authenticator",
-                    "authenticatorFlow": false,
-                    "requirement": "${DENY_USERNAME_PASSWORD_ENABLED:DISABLED}",
-                    "priority": 2,
-                    "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }
             ]
@@ -2865,6 +2872,33 @@
                     "userSetupAllowed": false
                 }
             ]
+        },
+        {
+            "id": "2d1047c5-1ecd-40a9-8292-80f5d0cfda68",
+            "alias": "x509 Authentication",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": false,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticatorConfig": "dod-cac",
+                    "authenticator": "auth-x509-client-username-form",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 1,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticatorFlow": true,
+                    "requirement": "${MFA_FLOW_ENABLED:DISABLED}",
+                    "priority": 2,
+                    "autheticatorFlow": true,
+                    "flowAlias": "Conditional OTP",
+                    "userSetupAllowed": false
+                }
+            ]
         }
     ],
     "authenticatorConfig": [
@@ -2990,8 +3024,8 @@
             "alias": "webauthn-register-passwordless",
             "name": "Webauthn Register Passwordless",
             "providerId": "webauthn-register-passwordless",
-            "enabled": true,
-            "defaultAction": "${WEBAUTHN_MFA_ENABLED:false}",
+            "enabled": "${WEBAUTHN_ENABLED:false}",
+            "defaultAction": false,
             "priority": 1002,
             "config": {}
         },
@@ -3011,6 +3045,7 @@
     "resetCredentialsFlow": "UDS Reset Credentials",
     "clientAuthenticationFlow": "clients",
     "dockerAuthenticationFlow": "docker auth",
+    "firstBrokerLoginFlow": "first broker login",
     "attributes": {
         "cibaBackchannelTokenDeliveryMode": "poll",
         "cibaAuthRequestedUserHint": "login_hint",
