@@ -219,4 +219,65 @@ public class CustomAWSSAMLGroupMapperTest {
 
         verify(mockAttributeStatement, never()).addAttribute(any(ASTChoiceType.class));
     }
+
+    @Test
+    public void testTransformAttributeStatement_mixedGroups() {
+        GroupModel awsGroup = mock(GroupModel.class);
+        GroupModel nonAwsGroup = mock(GroupModel.class);
+
+        // awsGroup qualifies because it includes "-aws-"
+        when(awsGroup.getName()).thenReturn("Admin-aws-test");
+        when(awsGroup.getParent()).thenReturn(null);
+
+        // nonAwsGroup does not qualify and should be ignored.
+        when(nonAwsGroup.getName()).thenReturn("NonAwsGroup");
+        when(nonAwsGroup.getParent()).thenReturn(null);
+
+        when(mockUser.getGroupsStream()).thenReturn(Stream.of(awsGroup, nonAwsGroup));
+
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel,
+                mockSession, mockUserSession, mockClientSession);
+
+        // Expect only the awsGroup's built path ("/Admin-aws-test") to be in the
+        // attribute.
+        verify(mockAttributeStatement).addAttribute(argThat(attribute -> {
+            ASTChoiceType choice = (ASTChoiceType) attribute;
+            AttributeType attrType = (AttributeType) choice.getAttribute();
+            String value = attrType.getAttributeValue().get(0).toString();
+            return "aws-groups".equals(attrType.getName())
+                    && value.equals("/Admin-aws-test");
+        }));
+    }
+
+    @Test
+    public void testTransformAttributeStatement_childGroupWithNonAwsParent() {
+        GroupModel childGroup = mock(GroupModel.class);
+        GroupModel nonAwsParent = mock(GroupModel.class);
+
+        // Child has "-aws-" in its name, but parent's name does not.
+        when(childGroup.getName()).thenReturn("Admin-aws-test");
+        when(childGroup.getParent()).thenReturn(nonAwsParent);
+
+        // Parent does not include "-aws-"
+        when(nonAwsParent.getName()).thenReturn("Core");
+        when(nonAwsParent.getParent()).thenReturn(null);
+
+        // The built group path is assumed to be "/Core/Admin-aws-test"
+        when(mockUser.getGroupsStream()).thenReturn(Stream.of(childGroup));
+
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel,
+                mockSession, mockUserSession, mockClientSession);
+
+        // Since the child's name qualifies, the final built path
+        // ("/Core/Admin-aws-test") contains "-aws-"
+        // and is expected to be processed.
+        verify(mockAttributeStatement).addAttribute(argThat(attribute -> {
+            ASTChoiceType choice = (ASTChoiceType) attribute;
+            AttributeType attrType = (AttributeType) choice.getAttribute();
+            String value = attrType.getAttributeValue().get(0).toString();
+            return "aws-groups".equals(attrType.getName())
+                    && value.equals("/Core/Admin-aws-test");
+        }));
+    }
+
 }
