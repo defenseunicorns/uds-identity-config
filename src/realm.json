@@ -2763,14 +2763,6 @@
             "builtIn": false,
             "authenticationExecutions": [
                 {
-                    "authenticator": "conditional-user-configured",
-                    "authenticatorFlow": false,
-                    "requirement": "REQUIRED",
-                    "priority": 0,
-                    "autheticatorFlow": false,
-                    "userSetupAllowed": false
-                },
-                {
                     "authenticator": "identity-provider-redirector",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
