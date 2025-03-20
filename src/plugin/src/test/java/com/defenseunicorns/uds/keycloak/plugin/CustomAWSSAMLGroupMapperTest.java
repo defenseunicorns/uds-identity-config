@@ -280,4 +280,20 @@ public class CustomAWSSAMLGroupMapperTest {
         }));
     }
 
+    @Test
+    public void testTransformAttributeStatement_singleNonAwsGroup() {
+        GroupModel group = mock(GroupModel.class);
+        // This group name does not include "-aws-"
+        when(group.getName()).thenReturn("Admin");
+        when(group.getParent()).thenReturn(null);
+
+        when(mockUser.getGroupsStream()).thenReturn(Stream.of(group));
+
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel,
+                mockSession, mockUserSession, mockClientSession);
+
+        // Verify that addAttribute is never called since the group does not meet the
+        // -aws- filter.
+        verify(mockAttributeStatement, never()).addAttribute(any(ASTChoiceType.class));
+    }
 }
