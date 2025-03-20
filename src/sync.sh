@@ -26,6 +26,8 @@ cp -fv certs/* /opt/keycloak/conf/truststores
     echo "USERNAME_PASSWORD_AUTH_ENABLED=${USERNAME_PASSWORD_AUTH_ENABLED}"
     echo "REGISTER_BUTTON_ENABLED=${REGISTER_BUTTON_ENABLED}"
     echo "REALM_DISABLE_REGISTRATION_FIELDS=${REALM_DISABLE_REGISTRATION_FIELDS:-false}"
+    echo "WEBAUTHN_ENABLED=${WEBAUTHN_ENABLED}"
+    echo "X509_MFA_ENABLED=${X509_MFA_ENABLED}"
 } >> /opt/keycloak/themes/theme/login/theme.properties
 
 echo "Sync complete"
