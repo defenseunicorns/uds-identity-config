@@ -22,7 +22,8 @@ See the [Authentication Flow Customization](../reference/UDS%20Core/IdAM/authent
 | [OTP_FLOW_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/templates/secret-kc-realm.yaml#L28) | Control whether the OTP is required as an MFA method. | `REQUIRED`(default), `DISABLED` |
 | [WEBAUTHN_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/templates/secret-kc-realm.yaml#L24) | Control whether the `WebAuthn Register Passwordless` required action is enabled. | `true`, `false`(default) |
 | [WEBAUTHN_FLOW_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/templates/secret-kc-realm.yaml#L24) | Control whether the `WebAuthn Register Passwordless` required action is enabled. | `REQUIRED`, `DISABLED`(default) |
-| [X509_MFA_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/templates/secret-kc-realm.yaml#L24) | Control whether X509 Authentication flows can also required MFA. This configuration is used in the custom `Registration Validation` plugin. | `true`, `false`(default) |
+| [X509_MFA_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/templates/secret-kc-realm.yaml#L24) | Control whether X509 Authentication flows can also require MFA. This configuration is used in the custom `Registration Validation` plugin. | `true`, `false`(default) |
+| [X509_MFA_FLOW_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/templates/secret-kc-realm.yaml#L24) | Control whether X509 Authentication flows require MFA. This is needed so that X509 MFA can be configured seperately from Username/Password MFA. | `REQUIRED`, `DISABLED`(default) |
 | [MFA_FLOW_ENABLED](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/templates/secret-kc-realm.yaml#L24) | Control whether the `MFA` authentication is required. | `REQUIRED`(default), `DISABLED` |
 
 ### Common Configurations

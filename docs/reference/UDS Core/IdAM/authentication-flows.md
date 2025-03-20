@@ -30,6 +30,36 @@ UDS Core comes equipped with a robust authentication framework that supports mul
 
 ![Authentication Flow Options](https://github.com/defenseunicorns/uds-identity-config/blob/main/docs/.images/diagrams/uds-core-auth-flows-options.svg?raw=true)
 
+## MFA Authentication
+
+UDS Core comes with two different options for MFA requirements. One time password (OTP) and WebAuthn options can be configured. These options are available for both `Username and Password` and `x509` authentication flows. They are controlled individually, to provide the most amount of configurability.
+
+```yaml
+    - path: realmAuthFlows
+        value:
+            USERNAME_PASSWORD_AUTH_ENABLED: true
+            X509_AUTH_ENABLED: true
+            SOCIAL_AUTH_ENABLED: true
+            OTP_ENABLED: true
+            WEBAUTHN_ENABLED: false
+            X509_MFA_ENABLED: false
+```
+
+Above is the complete list of authentication configurations from a bundle override. Below is the description of what each of those do:
+
+| Name | Description | Default Value |
+| - | - | - |
+| `USERNAME_PASSWORD_AUTH_ENABLED` | Controls whether the `Username and Password` authentication flow is allowed and present on the login page. |  `true`(default), `false` |
+| `X509_AUTH_ENABLED` | Controls whether the `X509` authentication is allowed and present (when a proper certificate is present) on the login page. | `true`(default), `false` |
+| `SOCIAL_AUTH_ENABLED` | Controls whether the `Social` authentication is allowed and present on the login page. This requires that an Identity Provider be configured as well. | `true`(default), `false` |
+| `OTP_ENABLED` | Control whether `OTP` MFA is enabled, making it required for `Username and Password` authentication. | `true`(default), `false` |
+| `WEBAUTHN_ENABLED` | Control whether `WebAuthn` MFA is enabled, making it required for `Username and Password` authentication. | `true`, `false`(default) |
+| `X509_MFA_ENABLED` | Control whether `X509` authentication flow should also include MFA. Enabling this requires `OTP_ENABLED` or `WEBAUTHN_ENABLED` as well. | `true`, `false`(default) |
+
+:::warning
+We shift all authn and authz responsibilies to the Identity Provider if choosing to use SSO, this means that MFA is not configurable for SSO options.
+:::
+
 ## Authentication Flows in UDS Core
 
 UDS Core is shipped with a basic authentication flow that includes all three options out of the box. The following diagram shows the basic authentication flows that are deployed with standard UDS Core:

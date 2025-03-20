@@ -2892,7 +2892,7 @@
                 },
                 {
                     "authenticatorFlow": true,
-                    "requirement": "${MFA_FLOW_ENABLED:DISABLED}",
+                    "requirement": "${X509_MFA_FLOW_ENABLED:DISABLED}",
                     "priority": 2,
                     "autheticatorFlow": true,
                     "flowAlias": "Conditional OTP",
