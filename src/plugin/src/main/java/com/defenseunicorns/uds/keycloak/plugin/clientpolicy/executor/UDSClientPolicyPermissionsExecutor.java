@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Keycloak Client Policy Executor for the UDS Operator.
@@ -25,12 +27,27 @@ import java.lang.invoke.MethodHandles;
  * The following changes are introduced to the Client:
  * * The Client is marked as created by the UDS Operator by setting the attribute "created-by=uds-operator".
  * * The UDS Operator's Token is checked if it can access particular Client (the client either contains "created-by=uds-operator" or its name starts with "uds").
+ * * The Client can't use the Full Scope Allowed feature.
+ * * The Client can only use a limited set of Client Scopes (see {@code UDSClientPolicyPermissionsExecutor.ALLOWED_CLIENT_SCOPES}).
  */
 public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorProvider<ClientPolicyExecutorConfigurationRepresentation> {
 
     public static final String UDS_OPERATOR_CLIENT_ID = "uds-operator";
     public static final String ATTRIBUTE_UDS_OPERATOR = "created-by";
     public static final String ATTRIBUTE_UDS_OPERATOR_VALUE = "uds-operator";
+
+    public static final List<String> ALLOWED_CLIENT_SCOPES = List.of("openid",
+            "bare-groups",
+            "aws-groups",
+            "mapper-saml-username-name",
+            "mapper-saml-email-email",
+            "mapper-saml-username-login",
+            "mapper-saml-firstname-first_name",
+            "mapper-saml-lastname-last_name",
+            "mapper-saml-grouplist-groups",
+            "mapper-oidc-username-username",
+            "mapper-oidc-mattermostid-id",
+            "mapper-oidc-email-email");
 
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -47,12 +64,12 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                         if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient()) && !hasBackwardsCompatibleClientName(clientCRUDContext.getTargetClient())) {
                             throw new ClientPolicyException(Errors.UNAUTHORIZED_CLIENT, "The Client doesn't have the " + ATTRIBUTE_UDS_OPERATOR + "=" + ATTRIBUTE_UDS_OPERATOR_VALUE + " attribute. Rejecting request.");
                         }
-                        setUDSOperatorAsOwner(clientCRUDContext.getProposedClientRepresentation());
+                        enforceClientSettings(clientCRUDContext.getProposedClientRepresentation());
                         break;
 
                     case REGISTER:
                         logger.debug("Creating new Client with Client ID: {}", clientCRUDContext.getProposedClientRepresentation().getClientId());
-                        setUDSOperatorAsOwner(clientCRUDContext.getProposedClientRepresentation());
+                        enforceClientSettings(clientCRUDContext.getProposedClientRepresentation());
                         break;
 
                     case VIEW:
@@ -96,9 +113,45 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         return FullScopeDisabledExecutorFactory.PROVIDER_ID;
     }
 
+    void enforceClientSettings(ClientRepresentation rep) {
+        setUDSOperatorAsOwner(rep);
+        setFullScopeDisabled(rep);
+        setAllowedClientScopes(rep);
+    }
+
     private void setUDSOperatorAsOwner(ClientRepresentation rep) {
         if (rep.getAttributes() == null)
             rep.setAttributes(new java.util.HashMap<>());
         rep.getAttributes().put(ATTRIBUTE_UDS_OPERATOR, ATTRIBUTE_UDS_OPERATOR_VALUE);
+    }
+
+    private void setFullScopeDisabled(ClientRepresentation rep) {
+        rep.setFullScopeAllowed(false);
+    }
+
+    private void setAllowedClientScopes(ClientRepresentation rep) {
+        List<String> requestedDefaultScopeNames = new LinkedList<>();
+        List<String> requestedOptionalScopeNames = new LinkedList<>();
+
+        if (rep.getDefaultClientScopes() != null) {
+            requestedDefaultScopeNames.addAll(rep.getDefaultClientScopes());
+        }
+        if (rep.getOptionalClientScopes() != null) {
+            requestedOptionalScopeNames.addAll(rep.getOptionalClientScopes());
+        }
+
+        requestedDefaultScopeNames.removeIf(scope -> !ALLOWED_CLIENT_SCOPES.contains(scope));
+        requestedOptionalScopeNames.removeIf(scope -> !ALLOWED_CLIENT_SCOPES.contains(scope));
+
+        if (rep.getDefaultClientScopes().size() != requestedDefaultScopeNames.size()) {
+            logger.debug("Default Client Scopes contain invalid Scopes that have been removed");
+        }
+
+        if (rep.getOptionalClientScopes().size() != requestedOptionalScopeNames.size()) {
+            logger.debug("Optional Client Scopes contain invalid Scopes that have been removed");
+        }
+
+        rep.setDefaultClientScopes(requestedDefaultScopeNames);
+        rep.setOptionalClientScopes(requestedOptionalScopeNames);
     }
 }

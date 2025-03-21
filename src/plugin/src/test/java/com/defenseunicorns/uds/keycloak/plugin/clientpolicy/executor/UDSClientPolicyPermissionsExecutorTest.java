@@ -9,10 +9,12 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.models.ClientModel;
+import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -20,10 +22,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
 
+    private final UDSClientPolicyPermissionsExecutor executor = new UDSClientPolicyPermissionsExecutor();
     @Mock
     private ClientModel client;
-
-    private final UDSClientPolicyPermissionsExecutor executor = new UDSClientPolicyPermissionsExecutor();
 
     @Test
     public void shouldReportAsOwnedByUDS() {
@@ -84,6 +85,36 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
 
         // then
         assertNull(result);
+    }
+
+    @Test
+    public void shouldEnforceFullScopeDisabled() {
+        // given
+        ClientRepresentation rep = new ClientRepresentation();
+        rep.setFullScopeAllowed(true);
+
+        // when
+        executor.enforceClientSettings(rep);
+
+        // then
+        assertFalse(rep.isFullScopeAllowed());
+    }
+
+    @Test
+    public void shouldRemoveMaliciousClientScopes() {
+        // given
+        ClientRepresentation rep = new ClientRepresentation();
+        rep.setDefaultClientScopes(List.of("malicious-scope", "openid"));
+        rep.setOptionalClientScopes(List.of("malicious-scope", "openid"));
+
+        // when
+        executor.enforceClientSettings(rep);
+
+        // then
+        assertEquals(1, rep.getDefaultClientScopes().size());
+        assertEquals("openid", rep.getDefaultClientScopes().get(0));
+        assertEquals(1, rep.getOptionalClientScopes().size());
+        assertEquals("openid", rep.getOptionalClientScopes().get(0));
     }
 
 }
