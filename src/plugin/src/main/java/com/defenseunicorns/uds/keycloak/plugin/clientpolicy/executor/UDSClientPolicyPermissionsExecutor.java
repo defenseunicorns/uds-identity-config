@@ -130,28 +130,24 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     }
 
     private void setAllowedClientScopes(ClientRepresentation rep) {
-        List<String> requestedDefaultScopeNames = new LinkedList<>();
-        List<String> requestedOptionalScopeNames = new LinkedList<>();
-
         if (rep.getDefaultClientScopes() != null) {
+            List<String> requestedDefaultScopeNames = new LinkedList<>();
             requestedDefaultScopeNames.addAll(rep.getDefaultClientScopes());
+            requestedDefaultScopeNames.removeIf(scope -> !ALLOWED_CLIENT_SCOPES.contains(scope));
+            rep.setDefaultClientScopes(requestedDefaultScopeNames);
+            if (rep.getDefaultClientScopes().size() != requestedDefaultScopeNames.size()) {
+                logger.debug("Default Client Scopes contain invalid Scopes that have been removed");
+            }
         }
+
         if (rep.getOptionalClientScopes() != null) {
+            List<String> requestedOptionalScopeNames = new LinkedList<>();
             requestedOptionalScopeNames.addAll(rep.getOptionalClientScopes());
+            requestedOptionalScopeNames.removeIf(scope -> !ALLOWED_CLIENT_SCOPES.contains(scope));
+            rep.setOptionalClientScopes(requestedOptionalScopeNames);
+            if (rep.getOptionalClientScopes().size() != requestedOptionalScopeNames.size()) {
+                logger.debug("Optional Client Scopes contain invalid Scopes that have been removed");
+            }
         }
-
-        requestedDefaultScopeNames.removeIf(scope -> !ALLOWED_CLIENT_SCOPES.contains(scope));
-        requestedOptionalScopeNames.removeIf(scope -> !ALLOWED_CLIENT_SCOPES.contains(scope));
-
-        if (rep.getDefaultClientScopes().size() != requestedDefaultScopeNames.size()) {
-            logger.debug("Default Client Scopes contain invalid Scopes that have been removed");
-        }
-
-        if (rep.getOptionalClientScopes().size() != requestedOptionalScopeNames.size()) {
-            logger.debug("Optional Client Scopes contain invalid Scopes that have been removed");
-        }
-
-        rep.setDefaultClientScopes(requestedDefaultScopeNames);
-        rep.setOptionalClientScopes(requestedOptionalScopeNames);
     }
 }
