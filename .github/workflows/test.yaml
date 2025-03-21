@@ -113,6 +113,16 @@ jobs:
       - name: Smoke Tests
         run: uds run uds-core-smoke-test --no-progress
 
+      - name: Debug Output
+        if: ${{ always() }}
+        uses: ./.github/actions/debug-output
+
+      - name: Save logs
+        if: always()
+        uses: ./.github/actions/save-logs
+        with:
+          suffix: -uds_core_base_integration
+
   uds_core_cypress_integration:
     runs-on: ubuntu-latest
     name: UDS Core + Identity Config cypress integration tests
