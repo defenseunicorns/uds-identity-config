@@ -15,7 +15,17 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Keycloak Client Policy Executor Factory for the UDS Operator.
+ * Factory for creating and registering the UDS Client Policy Executor with Keycloak.
+ *
+ * This class is needed to integrate the custom UDS security hardening logic into Keycloak's
+ * client management process. It creates instances of UDSClientPolicyPermissionsExecutor, which
+ * enforce policies such as:
+ * - Marking clients as created by the UDS Operator by setting the "created-by=uds-operator" attribute.
+ * - Restricting operations on clients not owned by the UDS Operator or not following the naming convention.
+ * - Disabling the "Full Scope Allowed" feature and limiting client scopes to an allowed set.
+ *
+ * Without this factory, Keycloak would not be able to instantiate and manage the custom policy
+ * executor, and the UDS-specific client policies would not be enforced.
  */
 public class UDSClientPolicyPermissionsExecutorFactory implements ClientPolicyExecutorProviderFactory {
 
