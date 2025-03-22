@@ -4,6 +4,66 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
+## v0.11.0+
+
+<details open>
+<summary>Upgrade Details</summary>
+
+In uds-identity-config versions 0.10.3+, the UDS Operator can automatically switch to Client Credentials Grant from using the Dynamic Client Registration. The new method works faster, is more reliable and doesn't require storing Registration Tokens in Pepr Store. It is highly recommended to switch to it, which requires the following steps:
+    - Create the `uds-operator` Client:
+        - Go to `Clients` > `Client registration` > `Create`
+            - Client type: `openid-connect`
+            - Client ID: `uds-operator`
+            - Client Name: `uds-operator`
+            - Click `Next`
+            - Client authentication: on
+            - Uncheck all Authentications flows except from `Service account roles`
+            - Click `Next`
+            - Click `Save`
+        - Go to `Clients` > `uds-operator` > `Credentials` tab
+            - Set `Client Authenticator` to `Client Id and Kubernetes Secret`
+            - Click `Save`
+    - Configure the UDS Client Policy
+        - Go to `Realm Settings` > `Client Policies` > `Profiles`
+            - Click `Create Client Profile`
+                - Name: `uds-client-profile`
+                - Description: `UDS Client Profile`
+                - Click `Save`
+            - Click `Add Executor`
+                - Select `uds-operator-permissions`
+                - Click `Add`
+        - Go to `Realm Settings` > `Client Policies` > `Policies`
+            - Click `Create client policy`
+                - Name: `uds-client-policy`
+                - Description: `UDS Client Policy`
+            - Click `Add condition`
+            - Select `any-client`
+            - Click `Add`
+            - Click `Add client profile`
+            - Select `uds-client-profile`
+            - Click `Add` (there is a glitch in the UI where it seems all the profiles are selected, but only the selected one is actually chosen)
+    - Configure the Client Credentials Authentication Flow
+        - Go to `Authentication` > `Flows`
+            - Click `clients`
+                - Click `Actions` > `Duplicate`
+                    - Name: `UDS Client Credentials`
+                    - Description `UDS Client Credentials`
+                    - Click `Duplicate`
+            - Go to `Authentication` > `UDS Client Credentials`
+                - Click `Add Step`
+                    - Select `Client Id and Kubernetes Secret`
+                    - Click `Add`
+                - Select `Requirement` and set it to `Alternative`
+            - Go to `Authentication`, select three dots on the right side of the panel for `UDS Client Credentials` and select `Bind flows`
+                - Select `Client authentication flow`
+                - Click `Save`
+    - Verify that everything is configured correctly
+        - Deploy a new package or update the existing one
+        - Check UDS Operator logs and verify if there are no errors
+            - Use `uds zarf tools kubectl logs deploy/pepr-uds-core-watcher -n pepr-system | grep "Client Credentials Keycloak Client is available"` command to verify if the UDS Operator uses the Client Credentials flow.
+
+</details>
+
 ## v0.10.0+
 
 <details open>

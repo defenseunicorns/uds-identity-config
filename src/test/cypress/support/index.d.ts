@@ -20,5 +20,7 @@ declare namespace Cypress {
     avoidX509(): Chainable;
 
     verifyLoggedIn(): Chainable;
+
+    getAccessToken(): Chainable;
   }
 }
