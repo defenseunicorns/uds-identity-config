@@ -31,7 +31,17 @@ import java.util.*;
 import static java.nio.file.Files.readString;
 
 /**
- * Keycloak Client Authenticator that uses client_id obtained from the request and client_secret obtained from a Kubernetes Secret mounted into the Keycloak Pod.
+ * Keycloak Client Authenticator that uses `client_id` obtained from the request and `client_secret` obtained from a Kubernetes Secret mounted into the Keycloak Pod.
+ *
+ * This authenticator validates the client based on the `client_id` and `client_secret` provided in the request. The `client_secret` is retrieved from a Kubernetes Secret mounted into the Keycloak Pod.
+ *
+ * The authenticator follows these steps:
+ * 1. Extracts the `client_id` and `client_secret` from the request headers or form data.
+ * 2. Validates the `client_id` and retrieves the corresponding client from the Keycloak session.
+ * 3. Checks if the client is enabled and not a public client.
+ * 4. Reads the `client_secret` from the mounted Kubernetes Secret.
+ * 5. Compares the provided `client_secret` with the mounted `client_secret`. The comparison also use @{code trim} method.
+ * 7. Authenticates the client if the secrets match, otherwise reports an authentication failure.
  */
 public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuthenticator {
 
@@ -142,10 +152,13 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
         try {
             mountedClientSecret = readMountedClientSecret(this.secretMountPath, client_id);
         } catch (IOException | IllegalArgumentException e) {
-            logger.debug("Client Secret file doesn't exist or is empty, {}", e.getMessage());
+            logger.warn("Client Secret file doesn't exist or is empty, {}", e.getMessage());
             reportMountFileError(context);
             return;
         }
+
+        clientSecret = mountedClientSecret.trim();
+        mountedClientSecret = mountedClientSecret.trim();
 
         if (!clientSecret.equals(mountedClientSecret)) {
             reportFailedAuth(context);
