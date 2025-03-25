@@ -57,10 +57,22 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         when(client.getClientId()).thenReturn("uds-core-admin-grafana");
 
         // when
-        boolean result = executor.hasBackwardsCompatibleClientName(client);
+        boolean result = executor.canAccessWithInBackwardsCompatibilityMode(client);
 
         // then
         assertTrue(result);
+    }
+
+    @Test
+    public void shouldDenyAccessOnBuiltInClient() {
+        // given
+        when(client.getClientId()).thenReturn("realm-management");
+
+        // when
+        boolean result = executor.canAccessWithInBackwardsCompatibilityMode(client);
+
+        // then
+        assertFalse(result);
     }
 
     @Test
@@ -69,7 +81,7 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         when(client.getClientId()).thenReturn("admin-cli");
 
         // when
-        boolean result = executor.hasBackwardsCompatibleClientName(client);
+        boolean result = executor.canAccessWithInBackwardsCompatibilityMode(client);
 
         // then
         assertFalse(result);
@@ -98,23 +110,6 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
 
         // then
         assertFalse(rep.isFullScopeAllowed());
-    }
-
-    @Test
-    public void shouldRemoveMaliciousClientScopes() {
-        // given
-        ClientRepresentation rep = new ClientRepresentation();
-        rep.setDefaultClientScopes(List.of("malicious-scope", "openid"));
-        rep.setOptionalClientScopes(List.of("malicious-scope", "openid"));
-
-        // when
-        executor.enforceClientSettings(rep);
-
-        // then
-        assertEquals(1, rep.getDefaultClientScopes().size());
-        assertEquals("openid", rep.getDefaultClientScopes().get(0));
-        assertEquals(1, rep.getOptionalClientScopes().size());
-        assertEquals("openid", rep.getOptionalClientScopes().get(0));
     }
 
 }

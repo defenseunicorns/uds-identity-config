@@ -28,26 +28,13 @@ import java.util.List;
  * * The Client is marked as created by the UDS Operator by setting the attribute "created-by=uds-operator".
  * * The UDS Operator's Token is checked if it can access particular Client (the client either contains "created-by=uds-operator" or its name starts with "uds").
  * * The Client can't use the Full Scope Allowed feature.
- * * The Client can only use a limited set of Client Scopes (see {@code UDSClientPolicyPermissionsExecutor.ALLOWED_CLIENT_SCOPES}).
+ * * The Client can use all potential Client Scopes. This will be restricted in the future and is tracked with
  */
 public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorProvider<ClientPolicyExecutorConfigurationRepresentation> {
 
     public static final String UDS_OPERATOR_CLIENT_ID = "uds-operator";
     public static final String ATTRIBUTE_UDS_OPERATOR = "created-by";
     public static final String ATTRIBUTE_UDS_OPERATOR_VALUE = "uds-operator";
-
-    public static final List<String> ALLOWED_CLIENT_SCOPES = List.of("openid",
-            "bare-groups",
-            "aws-groups",
-            "mapper-saml-username-name",
-            "mapper-saml-email-email",
-            "mapper-saml-username-login",
-            "mapper-saml-firstname-first_name",
-            "mapper-saml-lastname-last_name",
-            "mapper-saml-grouplist-groups",
-            "mapper-oidc-username-username",
-            "mapper-oidc-mattermostid-id",
-            "mapper-oidc-email-email");
 
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -61,7 +48,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                 switch (context.getEvent()) {
                     case UPDATE:
                         logger.debug("Updating existing Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
-                        if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient()) && !hasBackwardsCompatibleClientName(clientCRUDContext.getTargetClient())) {
+                        if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient()) && !canAccessWithInBackwardsCompatibilityMode(clientCRUDContext.getTargetClient())) {
                             throw new ClientPolicyException(Errors.UNAUTHORIZED_CLIENT, "The Client doesn't have the " + ATTRIBUTE_UDS_OPERATOR + "=" + ATTRIBUTE_UDS_OPERATOR_VALUE + " attribute. Rejecting request.");
                         }
                         enforceClientSettings(clientCRUDContext.getProposedClientRepresentation());
@@ -75,7 +62,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                     case VIEW:
                     case UNREGISTER:
                         logger.debug("Viewing or deleting Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
-                        if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient()) && !hasBackwardsCompatibleClientName(clientCRUDContext.getTargetClient())) {
+                        if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient()) && !canAccessWithInBackwardsCompatibilityMode(clientCRUDContext.getTargetClient())) {
                             throw new ClientPolicyException(Errors.UNAUTHORIZED_CLIENT, "The Client doesn't have the " + ATTRIBUTE_UDS_OPERATOR + "=" + ATTRIBUTE_UDS_OPERATOR_VALUE + " attribute. Rejecting request.");
                         }
                         break;
@@ -95,8 +82,23 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         return ATTRIBUTE_UDS_OPERATOR_VALUE.equals(client.getAttribute(ATTRIBUTE_UDS_OPERATOR));
     }
 
-    boolean hasBackwardsCompatibleClientName(ClientModel client) {
-        return client.getClientId().startsWith("uds");
+    boolean canAccessWithInBackwardsCompatibilityMode(ClientModel client) {
+        switch (client.getClientId()) {
+            case "account":
+            case "account-console":
+            case "admin-cli":
+            case "broker":
+            case "realm-management":
+            case "security-admin-console":
+            case "uds-operator":
+            logger.warn("Denying access to the Client with Client ID: {}. This Client is not allowed to be accessed by the UDS Operator.", client.getClientId());
+            return false;
+        }
+
+        if (!client.getClientId().startsWith("uds")) {
+            logger.debug("Allowing access to the Client with Client ID: {} in backwards compatibility mode. Please note, that this type of access will be denied in the future.", client.getClientId());
+        }
+        return true;
     }
 
     @Override
@@ -116,7 +118,6 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     void enforceClientSettings(ClientRepresentation rep) {
         setUDSOperatorAsOwner(rep);
         setFullScopeDisabled(rep);
-        setAllowedClientScopes(rep);
     }
 
     private void setUDSOperatorAsOwner(ClientRepresentation rep) {
@@ -127,27 +128,5 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     private void setFullScopeDisabled(ClientRepresentation rep) {
         rep.setFullScopeAllowed(false);
-    }
-
-    private void setAllowedClientScopes(ClientRepresentation rep) {
-        if (rep.getDefaultClientScopes() != null) {
-            List<String> requestedDefaultScopeNames = new LinkedList<>();
-            requestedDefaultScopeNames.addAll(rep.getDefaultClientScopes());
-            requestedDefaultScopeNames.removeIf(scope -> !ALLOWED_CLIENT_SCOPES.contains(scope));
-            rep.setDefaultClientScopes(requestedDefaultScopeNames);
-            if (rep.getDefaultClientScopes().size() != requestedDefaultScopeNames.size()) {
-                logger.debug("Default Client Scopes contain invalid Scopes that have been removed");
-            }
-        }
-
-        if (rep.getOptionalClientScopes() != null) {
-            List<String> requestedOptionalScopeNames = new LinkedList<>();
-            requestedOptionalScopeNames.addAll(rep.getOptionalClientScopes());
-            requestedOptionalScopeNames.removeIf(scope -> !ALLOWED_CLIENT_SCOPES.contains(scope));
-            rep.setOptionalClientScopes(requestedOptionalScopeNames);
-            if (rep.getOptionalClientScopes().size() != requestedOptionalScopeNames.size()) {
-                logger.debug("Optional Client Scopes contain invalid Scopes that have been removed");
-            }
-        }
     }
 }
