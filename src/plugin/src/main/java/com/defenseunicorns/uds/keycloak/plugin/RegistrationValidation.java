@@ -40,7 +40,7 @@ public class RegistrationValidation extends RegistrationUserCreation {
         // Otherwise, add them only if x509Username is null (i.e. for non-X509 users).
         if ((x509MFAEnabled != null && x509MFAEnabled.equalsIgnoreCase("true")) || x509Username == null) {
             user.addRequiredAction(UserModel.RequiredAction.CONFIGURE_TOTP);
-            user.addRequiredAction("webauthn-register-passwordless");
+            user.addRequiredAction("webauthn-register");
         }
     }
 

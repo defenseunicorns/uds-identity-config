@@ -2197,7 +2197,7 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticator": "webauthn-authenticator-passwordless",
+                    "authenticator": "webauthn-authenticator",
                     "authenticatorFlow": false,
                     "requirement": "${WEBAUTHN_FLOW_ENABLED:REQUIRED}",
                     "priority": 2,
@@ -3059,7 +3059,7 @@
             "alias": "webauthn-register-passwordless",
             "name": "Webauthn Register Passwordless",
             "providerId": "webauthn-register-passwordless",
-            "enabled": "${WEBAUTHN_ENABLED:false}",
+            "enabled": false,
             "defaultAction": false,
             "priority": 1002,
             "config": {}
@@ -3068,7 +3068,7 @@
             "alias": "webauthn-register",
             "name": "Webauthn Register",
             "providerId": "webauthn-register",
-            "enabled": false,
+            "enabled": "${WEBAUTHN_ENABLED:false}",
             "defaultAction": false,
             "priority": 1003,
             "config": {}
