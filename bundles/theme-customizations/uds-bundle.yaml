@@ -1,0 +1,57 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: UDSBundle
+metadata:
+  name: theme-customization-tests
+  description: A UDS Bundle designed to be deployed on top of `uds-bundle-k3d-core-slim-dev` to test theme customization
+  version: "dev"
+
+packages:
+  - name: core-identity-authorization
+    path: ../../uds-core/build/
+    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
+    ref: 0.38.0
+    overrides:
+      keycloak:
+        keycloak:
+          variables:
+            - name: KEYCLOAK_CONFIG_IMAGE
+              description: "The keycloak config image to deploy plugin and initial setup configuration"
+              path: configImage
+          values:
+            - path: themeCustomizations
+              value:
+                resources:
+                  images:
+                    - name: background.jpg
+                      configmap:
+                        name: keycloak-theme-overrides
+                    - name: logo.svg
+                      configmap:
+                        name: keycloak-theme-overrides
+                    - name: footer.png
+                      configmap:
+                        name: keycloak-theme-overrides
+                    - name: favicon.svg
+                      configmap:
+                        name: keycloak-theme-overrides
+            - path: realmInitEnv
+              value:
+                GOOGLE_IDP_ENABLED: true
+                GOOGLE_IDP_ID: "C01881u7t"
+                GOOGLE_IDP_SIGNING_CERT: "MIIDdDCCAlygAwIBAgIGAXkza8/+MA0GCSqGSIb3DQEBCwUAMHsxFDASBgNVBAoTC0dvb2dsZSBJbmMuMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MQ8wDQYDVQQDEwZHb29nbGUxGDAWBgNVBAsTD0dvb2dsZSBGb3IgV29yazELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWEwHhcNMjEwNTAzMTgwOTMzWhcNMjYwNTAyMTgwOTMzWjB7MRQwEgYDVQQKEwtHb29nbGUgSW5jLjEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEPMA0GA1UEAxMGR29vZ2xlMRgwFgYDVQQLEw9Hb29nbGUgRm9yIFdvcmsxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu9en1CO4EriCJ5jzss6TqUmtYMXXRBfsSkdnhVvMx0fYOegxy0d8DouUEEITlPW+YPBG1T72kiV9KGtKVw90ff4Y+siNDNrME81w4K3Zjo6VukvATfD05lVzh9JyO0VxdzBpdRXSJqBOVLo38cwVbyTcX5Nk/nHENjDSN7as3UvbXa7eT4Xswy1GARGAZ3MAaLTZn1+Cctn0MDKniQOS6QDryYgKWz8ko/H4T9XCxgjHJVsL6obezaPZF+pibyyVPCuePssuxUbFHF6yiP5rCfAsK6VTv/8pbYGauGpYHDgnM941RtN2ThltORgi+P9i9wQ8VRBQpEm1RvDXOqJ7OwIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQB5L26tpco6EgVunmZYBAFiFE+Dhqwvy4J1iKuXApaKhqabeKJ8kBv/pJBnZl7CRF5Pv8dLfhNoNm2BsXbpH91/rhDj9zl/Imkc5ttVGbXbKSBpUaduwBZpsVIX0xCugNPflHFz9kf/zsGWb3X6wO/2eNewj3fr8jNRC/KWQ7otcdqwYbe1BO4yo6FjAIs5L+wCQcc2JjRWgBon4wL25ccX3nH8aMHl4/gz5trKwPqH0/lYcScJmMSRPzHbmd62LlmZE9eWEwuYJ+h8fssTZA9JTMXvkPhg05w2snaM9XdSuXIRo4UtqGpMQC0KRMmwDHbVSluX63wn7iSZD4TGHZGa"
+                GOOGLE_IDP_NAME_ID_FORMAT: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+                GOOGLE_IDP_CORE_ENTITY_ID: "https://sso.uds.dev/realms/uds"
+                GOOGLE_IDP_ADMIN_GROUP: "uds-core-dev-admin"
+                GOOGLE_IDP_AUDITOR_GROUP: "uds-core-dev-auditor"
+            - path: realmAuthFlows
+              value:
+                USERNAME_PASSWORD_AUTH_ENABLED: true
+                X509_AUTH_ENABLED: true
+                SOCIAL_AUTH_ENABLED: true
+                OTP_ENABLED: true
+            - path: env[0]
+              value:
+                name: JAVA_OPTS_KC_HEAP
+                value: "-XX:MaxRAMPercentage=70 -XX:MinRAMPercentage=70 -XX:InitialRAMPercentage=50 -XX:MaxRAM=1G"

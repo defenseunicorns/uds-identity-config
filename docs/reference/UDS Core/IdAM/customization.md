@@ -19,6 +19,7 @@ Once `uds-core` has sucessfully deployed with your new image, viewing the Keyclo
 The UDS Identity Config supports a limited and opinionated set of branding customizations. This includes:
 
 * Changing the logo
+* Changing the footer image
 * Changing the favicon
 * Changing the background image
 

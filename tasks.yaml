@@ -130,7 +130,7 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core/
-      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --branch 319-customize_keycloak_themes --depth 1 --single-branch https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
@@ -139,7 +139,7 @@ tasks:
       - cmd: cd uds-core && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization
       - task: grafana-group-auth-build-deploy
       - cmd: uds create bundles --confirm --no-progress
-      - cmd: uds deploy bundles/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
+      - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
 
   - name: cypress-tests
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
@@ -147,6 +147,19 @@ tasks:
       - cmd: |
           npm --prefix src/test/cypress install
           npm --prefix src/test/cypress run cy.run
+
+  - name: theme-customization-tests
+    description: "Runs theme customization tests ( requires an existing deployed UDS Core Identity )"
+    actions:
+      - description: "Create theme customization resources"
+        cmd: |
+          uds zarf tools kubectl apply -f tasks/theme-customization-configmap.yaml
+      - description: "Deploy the theme customization bundle"
+        cmd: uds deploy bundles/theme-customizations/uds-bundle-theme-customization-tests-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
+      - cmd: |
+         # Should already be done... but just in case
+         npm --prefix src/test/cypress install
+         npm --prefix src/test/cypress run cy.run:theme-customization
 
   - name: license
     actions:
