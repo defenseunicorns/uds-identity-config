@@ -9,7 +9,7 @@ This doc contains important information for upgrading uds-identity-config versio
 <details open>
 <summary>Upgrade Details</summary>
 
-In uds-identity-config versions 0.10.3+, the UDS Operator can automatically switch to Client Credentials Grant from using the Dynamic Client Registration. The new method works faster, is more reliable and doesn't require storing Registration Tokens in Pepr Store. It is highly recommended to switch to it, which requires the following steps:
+In uds-identity-config versions v0.11.0+, the UDS Operator can automatically switch to Client Credentials Grant from using the Dynamic Client Registration. The new method works faster, is more reliable and doesn't require storing Registration Tokens in the Pepr Store. It is highly recommended to switch to it, which requires the following steps:
     - Create the `uds-operator` Client:
         - Go to `Clients` > `Client registration` > `Create`
             - Client type: `openid-connect`
