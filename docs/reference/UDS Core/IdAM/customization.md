@@ -51,7 +51,7 @@ packages:
                             name: keycloak-theme-overrides
 ```
 
-The configuration supports only 3 potential keys: `background.jpg`, `logo.svg`, `footer.png`, and `favicon.svg` which are expected to exist in the corresponding ConfigMaps. The values of these keys are base64 encoded images hosted as `binaryData` part of the ConfigMap. In this example, all 3 images reside in the same ConfigMap named `keycloak-theme-overrides`.
+The configuration supports only four potential keys: `background.jpg`, `logo.svg`, `footer.png`, and `favicon.svg` which are expected to exist in the corresponding ConfigMaps. The values of these keys are base64 encoded images hosted as `binaryData` part of the ConfigMap. In this example, all four images reside in the same ConfigMap named `keycloak-theme-overrides`.
 
 ## Customizing Theme
 
