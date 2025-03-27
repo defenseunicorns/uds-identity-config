@@ -16,7 +16,7 @@ Once `uds-core` has sucessfully deployed with your new image, viewing the Keyclo
 
 ### Branding customizations
 
-The UDS Identity Config support a limited and opinionated set of branding customizations. This includes:
+The UDS Identity Config supports a limited and opinionated set of branding customizations. This includes:
 
 * Changing the logo
 * Changing the favicon
