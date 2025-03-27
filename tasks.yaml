@@ -112,6 +112,7 @@ tasks:
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
       - task: cypress-tests
+      - task: theme-customization-tests
 
   - name: grafana-group-auth-build-deploy
     description: Configure existing uds-core/grafana package for group authz, build, deploy grafana
