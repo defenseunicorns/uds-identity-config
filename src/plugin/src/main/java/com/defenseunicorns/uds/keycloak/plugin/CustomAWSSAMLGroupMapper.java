@@ -92,13 +92,14 @@ public class CustomAWSSAMLGroupMapper extends AbstractSAMLProtocolMapper impleme
         // Retrieve the user's groups
         Set<GroupModel> groups = user.getGroupsStream().collect(Collectors.toSet());
 
-        if (!groups.isEmpty()) {
-            // Use Keycloak's ModelToRepresentation utility to get the full group paths
-            List<String> groupPaths = groups.stream()
-                    .map(ModelToRepresentation::buildGroupPath)
-                    .collect(Collectors.toList());
+        // Filter groups to only include those whose full group path contains "-aws-"
+        List<String> groupPaths = groups.stream()
+                .map(ModelToRepresentation::buildGroupPath)
+                .filter(groupPath -> groupPath.contains("-aws-"))
+                .collect(Collectors.toList());
 
-            // Check for any group paths containing a colon
+        if (!groupPaths.isEmpty()) {
+            // Ensure no group path contains the invalid character ':'
             for (String groupPath : groupPaths) {
                 if (groupPath.contains(":")) {
                     throw new IllegalArgumentException(
