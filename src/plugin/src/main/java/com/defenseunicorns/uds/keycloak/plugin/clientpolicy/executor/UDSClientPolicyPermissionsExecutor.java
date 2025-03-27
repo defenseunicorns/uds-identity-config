@@ -26,9 +26,9 @@ import java.util.List;
  * <p>
  * The following changes are introduced to the Client:
  * * The Client is marked as created by the UDS Operator by setting the attribute "created-by=uds-operator".
- * * The UDS Operator's Token is checked if it can access particular Client (the client either contains "created-by=uds-operator" or its name starts with "uds").
+ * * The UDS Operator's Token is checked if it can access particular Client (the client need to contain "created-by=uds-operator" attribute).
  * * The Client can't use the Full Scope Allowed feature.
- * * The Client can use all potential Client Scopes. This will be restricted in the future and is tracked with
+ * * The Client can use all potential Client Scopes. This will be restricted in the future and is tracked with https://github.com/defenseunicorns/uds-identity-config/issues/385
  */
 public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorProvider<ClientPolicyExecutorConfigurationRepresentation> {
 
@@ -48,7 +48,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                 switch (context.getEvent()) {
                     case UPDATE:
                         logger.debug("Updating existing Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
-                        if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient()) && !canAccessWithInBackwardsCompatibilityMode(clientCRUDContext.getTargetClient())) {
+                        if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient())) {
                             throw new ClientPolicyException(Errors.UNAUTHORIZED_CLIENT, "The Client doesn't have the " + ATTRIBUTE_UDS_OPERATOR + "=" + ATTRIBUTE_UDS_OPERATOR_VALUE + " attribute. Rejecting request.");
                         }
                         enforceClientSettings(clientCRUDContext.getProposedClientRepresentation());
@@ -62,7 +62,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                     case VIEW:
                     case UNREGISTER:
                         logger.debug("Viewing or deleting Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
-                        if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient()) && !canAccessWithInBackwardsCompatibilityMode(clientCRUDContext.getTargetClient())) {
+                        if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient())) {
                             throw new ClientPolicyException(Errors.UNAUTHORIZED_CLIENT, "The Client doesn't have the " + ATTRIBUTE_UDS_OPERATOR + "=" + ATTRIBUTE_UDS_OPERATOR_VALUE + " attribute. Rejecting request.");
                         }
                         break;
@@ -80,25 +80,6 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     boolean isOwnedByUDSOperator(ClientModel client) {
         return ATTRIBUTE_UDS_OPERATOR_VALUE.equals(client.getAttribute(ATTRIBUTE_UDS_OPERATOR));
-    }
-
-    boolean canAccessWithInBackwardsCompatibilityMode(ClientModel client) {
-        switch (client.getClientId()) {
-            case "account":
-            case "account-console":
-            case "admin-cli":
-            case "broker":
-            case "realm-management":
-            case "security-admin-console":
-            case "uds-operator":
-            logger.warn("Denying access to the Client with Client ID: {}. This Client is not allowed to be accessed by the UDS Operator.", client.getClientId());
-            return false;
-        }
-
-        if (!client.getClientId().startsWith("uds")) {
-            logger.debug("Allowing access to the Client with Client ID: {} in backwards compatibility mode. Please note, that this type of access will be denied in the future.", client.getClientId());
-        }
-        return true;
     }
 
     @Override

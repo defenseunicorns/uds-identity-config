@@ -52,42 +52,6 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
     }
 
     @Test
-    public void shouldBeBackwardsCompatible() {
-        // given
-        when(client.getClientId()).thenReturn("uds-core-admin-grafana");
-
-        // when
-        boolean result = executor.canAccessWithInBackwardsCompatibilityMode(client);
-
-        // then
-        assertTrue(result);
-    }
-
-    @Test
-    public void shouldDenyAccessOnBuiltInClient() {
-        // given
-        when(client.getClientId()).thenReturn("realm-management");
-
-        // when
-        boolean result = executor.canAccessWithInBackwardsCompatibilityMode(client);
-
-        // then
-        assertFalse(result);
-    }
-
-    @Test
-    public void shouldNotBeBackwardsCompatible() {
-        // given
-        when(client.getClientId()).thenReturn("admin-cli");
-
-        // when
-        boolean result = executor.canAccessWithInBackwardsCompatibilityMode(client);
-
-        // then
-        assertFalse(result);
-    }
-
-    @Test
     public void shouldNotThrowExceptionWhenAuthenticatedClientIsNull() {
         // given
         ClientCRUDContext clientCRUDContext = mock(ClientCRUDContext.class);

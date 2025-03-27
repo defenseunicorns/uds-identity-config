@@ -33,9 +33,3 @@ At this time, UDS Core supports three different avenues of authentication for us
 | Username Password with X509 | `SOCIAL_LOGIN_ENABLED: false`<br>`X509_LOGIN_ENABLED: true`<br>`USERNAME_PASSWORD_AUTH_ENABLED: true`<br>`REGISTER_BUTTON_ENABLED: true` | `DENY_USERNAME_PASSWORD_ENABLED: DISABLED`<br>`RESET_CREDENTIAL_FLOW_ENABLED: REQUIRED`<br>`REGISTRATION_FORM_ENABLED: REQUIRED`<br>`OTP_ENABLED: true` |
 | Username Password with Social (IDP) | `SOCIAL_LOGIN_ENABLED: true`<br>`X509_LOGIN_ENABLED: false`<br>`USERNAME_PASSWORD_AUTH_ENABLED: true`<br>`REGISTER_BUTTON_ENABLED: true` | `DENY_USERNAME_PASSWORD_ENABLED: DISABLED`<br>`RESET_CREDENTIAL_FLOW_ENABLED: REQUIRED`<br>`REGISTRATION_FORM_ENABLED: REQUIRED`<br>`OTP_ENABLED: true` |
 | X509 with Social (IDP) | `SOCIAL_LOGIN_ENABLED: true`<br>`X509_LOGIN_ENABLED: true`<br>`USERNAME_PASSWORD_AUTH_ENABLED: false`<br>`REGISTER_BUTTON_ENABLED: true`| `DENY_USERNAME_PASSWORD_ENABLED: REQUIRED`<br>`RESET_CREDENTIAL_FLOW_ENABLED: DISABLED`<br>`REGISTRATION_FORM_ENABLED: REQUIRED`<br>`OTP_ENABLED: false` |
-
-### UDS Client Policy considerations
-
-The uds-identity-config provides a set of extensions, including the UDS Client Policy. The `UDSClientPolicyPermissionsExecutor` contains a set of security hardening rules that may need adjustments based on future feature implementations.
-
-The most critical one is hardcoded, allowed list of allowed Client Scopes (see `ALLOWED_CLIENT_SCOPES`). This list is intentionally not extensible as client application could influence how the Access Token looks like and impact security guarantees this way. Whenever a new mapper is added, it should also be added to that list. 

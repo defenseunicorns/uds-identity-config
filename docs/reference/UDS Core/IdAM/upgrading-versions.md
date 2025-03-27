@@ -62,6 +62,8 @@ In uds-identity-config versions v0.11.0+, the UDS Operator can automatically swi
         - Check UDS Operator logs and verify if there are no errors
             - Use `uds zarf tools kubectl logs deploy/pepr-uds-core-watcher -n pepr-system | grep "Client Credentials Keycloak Client is available"` command to verify if the UDS Operator uses the Client Credentials flow.
 
+After introducing the above changes, please ensure all Packages are reconciled correctly and there are no errors. If for some reason you see the UDS Operator throwing errors with `The Client doesn't have the created-by=uds-operator attribute. Rejecting request`, you need to disable the `UDS Client Policy` and give it a bit more time to process all the Packages.
+
 </details>
 
 ## v0.10.0+
