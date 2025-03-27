@@ -303,6 +303,7 @@
                 }
             ],
             "security-admin-console": [],
+            "uds-operator": [],
             "admin-cli": [],
             "account-console": [],
             "broker": [
@@ -478,6 +479,19 @@
     "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
     "webAuthnPolicyPasswordlessAcceptableAaguids": [],
     "webAuthnPolicyPasswordlessExtraOrigins": [],
+    "users": [
+        {
+            "id": "c668a4ae-34d4-44f6-935d-dee5ea0c55a7",
+            "username": "service-account-uds-operator",
+            "enabled": true,
+            "serviceAccountClientId": "uds-operator",
+            "clientRoles": {
+                "realm-management": [
+                    "manage-clients"
+                ]
+            }
+        }
+    ],
     "scopeMappings": [
         {
             "clientScope": "offline_access",
@@ -802,6 +816,39 @@
                 "offline_access",
                 "microprofile-jwt"
             ]
+        },
+        {
+            "id": "16e3cc1f-89d1-4012-b40d-0bdecfe21d70",
+            "clientId": "uds-operator",
+            "name": "uds-operator",
+            "description": "A client used by the UDS Operator",
+            "enabled": true,
+            "alwaysDisplayInConsole": false,
+            "clientAuthenticatorType": "client-kubernetes-secret",
+            "secret": "**********",
+            "redirectUris": [
+                "/*"
+            ],
+            "bearerOnly": false,
+            "standardFlowEnabled": false,
+            "implicitFlowEnabled": false,
+            "directAccessGrantsEnabled": false,
+            "serviceAccountsEnabled": true,
+            "publicClient": false,
+            "frontchannelLogout": true,
+            "protocol": "openid-connect",
+            "attributes": {
+                "realm_client": "false",
+                "oidc.ciba.grant.enabled": "false",
+                "client.secret.creation.time": "1741765509",
+                "backchannel.logout.session.required": "true",
+                "frontchannel.logout.session.required": "true",
+                "oauth2.device.authorization.grant.enabled": "false",
+                "display.on.consent.screen": "false",
+                "use.jwks.url": "false",
+                "backchannel.logout.revoke.offline.tokens": "false"
+            },
+            "fullScopeAllowed": true
         }
     ],
     "clientScopes": [
@@ -2380,6 +2427,56 @@
             ]
         },
         {
+            "id": "020cc9d1-cfb3-4176-ae4a-51905ddba865",
+            "alias": "UDS Client Credentials",
+            "description": "Client Credentials Authentication flow for UDS",
+            "providerId": "client-flow",
+            "topLevel": true,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticator": "client-kubernetes-secret",
+                    "authenticatorFlow": false,
+                    "requirement": "ALTERNATIVE",
+                    "priority": 10,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "client-secret",
+                    "authenticatorFlow": false,
+                    "requirement": "ALTERNATIVE",
+                    "priority": 20,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "client-jwt",
+                    "authenticatorFlow": false,
+                    "requirement": "ALTERNATIVE",
+                    "priority": 30,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "client-secret-jwt",
+                    "authenticatorFlow": false,
+                    "requirement": "ALTERNATIVE",
+                    "priority": 40,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "client-x509",
+                    "authenticatorFlow": false,
+                    "requirement": "ALTERNATIVE",
+                    "priority": 41,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                }
+            ]
+        },
+        {
             "id": "2122677b-1a02-40a4-817b-66da58b1621a",
             "alias": "UDS Registration",
             "description": "registration flow",
@@ -3043,7 +3140,7 @@
     "registrationFlow": "UDS Registration",
     "directGrantFlow": "direct grant",
     "resetCredentialsFlow": "UDS Reset Credentials",
-    "clientAuthenticationFlow": "clients",
+    "clientAuthenticationFlow": "UDS Client Credentials",
     "dockerAuthenticationFlow": "docker auth",
     "firstBrokerLoginFlow": "first broker login",
     "attributes": {
@@ -3065,9 +3162,37 @@
     },
     "userManagedAccessAllowed": false,
     "clientProfiles": {
-        "profiles": []
+        "profiles": [
+            {
+                "name": "UDS Client Profile",
+                "description": "The UDS Profile restricts what the UDS Operator can do in Keycloak",
+                "executors": [
+                    {
+                        "executor": "uds-operator-permissions",
+                        "configuration": {}
+                    }
+                ]
+            }
+        ]
     },
     "clientPolicies": {
-        "policies": []
+        "policies": [
+            {
+                "name": "UDS Client Policy",
+                "description": "The UDS Profile restricts what the UDS Operator can do in Keycloak",
+                "enabled": true,
+                "conditions": [
+                    {
+                        "condition": "any-client",
+                        "configuration": {
+                            "is-negative-logic": false
+                        }
+                    }
+                ],
+                "profiles": [
+                    "UDS Client Profile"
+                ]
+            }
+        ]
     }
 }
