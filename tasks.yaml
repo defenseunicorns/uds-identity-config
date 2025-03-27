@@ -18,7 +18,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.38.0"
+    default: "main"
 
   - name: PEPR_KEYCLOAK_CLIENT_STRATEGY
     description: "Keycloak client strategy for uds-operator. Possible values: \"dynamic_client_registration\", \"client_credentials\" and \"auto\""
@@ -136,8 +136,7 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core
-#      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
-      - cmd: git clone --branch pepr_keycloak_client_management --single-branch --depth 1 https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
