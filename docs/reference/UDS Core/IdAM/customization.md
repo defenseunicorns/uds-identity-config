@@ -60,7 +60,7 @@ The configuration supports only four potential keys: `background.jpg`, `logo.svg
 * [Official Keycloak Theme Docs](https://www.keycloak.org/docs/latest/server_development/#_themes)
 * [Official Keycloak Theme Github](https://github.com/keycloak/keycloak/tree/b066c59a83c99d757d501d8f5e6061372706d24d/themes/src/main/resources/theme)
 
-Changes can be made to the [src/theme](https://github.com/defenseunicorns/uds-identity-config/tree/main/src/theme) directory. At this time only Account and Login themes are included, but email, admin, and welcome themes could be added as well.
+For other changes beyond these images you will need to build a custom theme and identity-config image. Changes can be made to the [src/theme](https://github.com/defenseunicorns/uds-identity-config/tree/main/src/theme) directory. At this time only Account and Login themes are included, but email, admin, and welcome themes could be added as well.
 
 ### Testing Changes
 
