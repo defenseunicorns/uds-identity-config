@@ -118,6 +118,7 @@ tasks:
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
       - task: cypress-tests
+      - task: theme-customization-tests
 
   - name: grafana-group-auth-build-deploy
     description: Configure existing uds-core/grafana package for group authz, build, deploy grafana
@@ -144,8 +145,8 @@ tasks:
       - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
       - cmd: cd uds-core && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization
       - task: grafana-group-auth-build-deploy
-      - cmd: uds create bundles --confirm --no-progress
-      - cmd: uds deploy bundles/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --set=core-base.PEPR_KEYCLOAK_CLIENT_STRATEGY=${PEPR_KEYCLOAK_CLIENT_STRATEGY} --confirm --no-progress
+      - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
+      - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --set=core-base.PEPR_KEYCLOAK_CLIENT_STRATEGY=${PEPR_KEYCLOAK_CLIENT_STRATEGY} --confirm --no-progress
 
   - name: cypress-tests
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
@@ -153,6 +154,21 @@ tasks:
       - cmd: |
           npm --prefix src/test/cypress install
           PEPR_KEYCLOAK_CLIENT_STRATEGY=${PEPR_KEYCLOAK_CLIENT_STRATEGY} npm --prefix src/test/cypress run cy.run
+
+  - name: theme-customization-tests
+    description: "Runs theme customization tests ( requires an existing deployed UDS Core Identity )"
+    actions:
+      - description: "Create theme customization resources"
+        cmd: uds zarf tools kubectl apply -f tasks/theme-customization-configmap.yaml
+      - description: "Create the theme customization bundle"
+        cmd: uds create bundles/theme-customizations --confirm --no-progress
+      - description: "Deploy the theme customization bundle"
+        cmd: uds deploy bundles/theme-customizations/uds-bundle-theme-customization-tests-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
+      - description: "Run the theme customization tests"
+        cmd: |
+         # Should already be done... but just in case
+         npm --prefix src/test/cypress install
+         npm --prefix src/test/cypress run cy.run:theme-customization
 
   - name: license
     actions:

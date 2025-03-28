@@ -18,6 +18,34 @@ cp -fvr theme/* /opt/keycloak/themes/theme/
 cp -fv *.jar /opt/keycloak/providers/
 cp -fv certs/* /opt/keycloak/conf/truststores
 
+if [ -d /opt/keycloak/theme-overrides ]; then
+    echo "Applying theme customizations"
+    if [ -f /opt/keycloak/theme-overrides/logo.svg ]; then
+      echo "Overriding logo.svg"
+      cp -fv /opt/keycloak/theme-overrides/logo.svg /opt/keycloak/themes/theme/login/resources/img/logo.svg
+      cp -fv /opt/keycloak/theme-overrides/logo.svg /opt/keycloak/themes/theme/login/resources/img/uds-logo.svg
+      cp -fv /opt/keycloak/theme-overrides/logo.svg /opt/keycloak/themes/theme/account/resources/public/logo.svg
+      cp -fv /opt/keycloak/theme-overrides/logo.svg /opt/keycloak/themes/theme/account/resources/public/uds-logo.svg
+    fi
+
+    if [ -f /opt/keycloak/theme-overrides/favicon.svg ]; then
+      echo "Overriding favicon.svg"
+      cp -fv /opt/keycloak/theme-overrides/favicon.svg /opt/keycloak/themes/theme/login/resources/img/favicon.svg
+    fi
+
+    if [ -f /opt/keycloak/theme-overrides/background.jpg ]; then
+      echo "Overriding background.jpg"
+      cp -fv /opt/keycloak/theme-overrides/background.jpg /opt/keycloak/themes/theme/login/resources/img/tech-bg.jpg
+      cp -fv /opt/keycloak/theme-overrides/background.jpg /opt/keycloak/themes/theme/account/resources/public/tech-bg.jpg
+    fi
+
+    if [ -f /opt/keycloak/theme-overrides/footer.png ]; then
+      echo "Overriding footer.png"
+      cp -fv /opt/keycloak/theme-overrides/footer.png /opt/keycloak/themes/theme/login/resources/img/full-du-logo.png
+      cp -fv /opt/keycloak/theme-overrides/footer.png /opt/keycloak/themes/theme/account/resources/public/full-du-logo.png
+    fi
+fi
+
 # Check for environment variables and update login theme.properties
 {
     echo "# Login Theme configurations"
