@@ -77,8 +77,8 @@ If wanting to configure the MFA everywhere with both OTP and WebAuthn options, t
    - Click `Required Actions` tab from Authentication page menu
    - Enable the following `Required Actions`, only toggle the `Enabled` **DO NOT TOGGLE** `Set as default action`:
       - `Configure OTP`
-      - `Webauthn Register Passwordless`
-   - Disable the `WebAuthn Register`, make sure this is **not** the `WebAuthn Register Passwordless` option ( this one should be enabled )
+      - `Webauthn Register`
+   - Disable the `WebAuthn Register Passwordless`, make sure this is **not** the `WebAuthn Register` option ( this one should be enabled )
 3. The `UDS Authentication` authentication flow has undergone significant changes.
    - Click `Authentication` tab from left side menu
    - Click `UDS Authentication` flow option
@@ -86,7 +86,7 @@ If wanting to configure the MFA everywhere with both OTP and WebAuthn options, t
    - In the `Authentication` top level sub-flow of the `UDS Authentication` flow
       - Click the `+` icon and add a `sub-flow`
          - Name that sub-flow `X509 Authentication`
-      - Drag that new sub-flow up and drop below the `Cookie` step
+      - Drag that new sub-flow up and drop below the `Cookie` and the `IDP Redirector` step
       - Set the flow to `Alternative`
       - in the new `X509 Authentication` sub-flow select the `+` icon and add a sub-flow called `X509 Conditional OTP`
          - Set the `X509 Conditional OTP` to `Required`
@@ -94,7 +94,7 @@ If wanting to configure the MFA everywhere with both OTP and WebAuthn options, t
             - set this to be `Required`
          - Click the `+` and add the step called `OTP Form`
             - set this to be `Required`
-         - Click the `+` and add the step called `WebAuthn Passwordless Authenticator`
+         - Click the `+` and add the step called `WebAuthn Authenticator`
       - Drag the existing `X509/Validate Username Form` step into the `X509 Authentication` sub-flow, should be above the `X509 Conditional OTP`
          - May have to drag this twice, make sure this is `Required`
 
