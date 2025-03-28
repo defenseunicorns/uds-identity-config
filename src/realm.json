@@ -956,8 +956,8 @@
             "protocol": "openid-connect",
             "attributes": {
                 "include.in.token.scope": "true",
-                "display.on.consent.screen": "true",
-                "consent.screen.text": "${emailScopeConsentText}"
+                "consent.screen.text": "${emailScopeConsentText}",
+                "display.on.consent.screen": "true"
             },
             "protocolMappers": [
                 {
@@ -1001,8 +1001,8 @@
             "protocol": "openid-connect",
             "attributes": {
                 "include.in.token.scope": "true",
-                "display.on.consent.screen": "true",
-                "consent.screen.text": "${profileScopeConsentText}"
+                "consent.screen.text": "${profileScopeConsentText}",
+                "display.on.consent.screen": "true"
             },
             "protocolMappers": [
                 {
@@ -1251,8 +1251,8 @@
             "protocol": "openid-connect",
             "attributes": {
                 "include.in.token.scope": "false",
-                "display.on.consent.screen": "true",
-                "consent.screen.text": "${rolesScopeConsentText}"
+                "consent.screen.text": "${rolesScopeConsentText}",
+                "display.on.consent.screen": "true"
             },
             "protocolMappers": [
                 {
@@ -1617,8 +1617,8 @@
             "protocol": "openid-connect",
             "attributes": {
                 "include.in.token.scope": "true",
-                "display.on.consent.screen": "true",
-                "consent.screen.text": "${addressScopeConsentText}"
+                "consent.screen.text": "${addressScopeConsentText}",
+                "display.on.consent.screen": "true"
             },
             "protocolMappers": [
                 {
@@ -1925,8 +1925,8 @@
                     ],
                     "allowed-client-scopes": [
                         "openid",
-                        "bare-groups",
                         "aws-groups",
+                        "bare-groups",
                         "mapper-saml-username-name",
                         "mapper-saml-email-email",
                         "mapper-saml-username-login",
@@ -2115,12 +2115,11 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticatorConfig": "dod-cac",
-                    "authenticator": "auth-x509-client-username-form",
-                    "authenticatorFlow": false,
+                    "authenticatorFlow": true,
                     "requirement": "ALTERNATIVE",
-                    "priority": 2,
-                    "autheticatorFlow": false,
+                    "priority": 1,
+                    "autheticatorFlow": true,
+                    "flowAlias": "x509 Authentication",
                     "userSetupAllowed": false
                 },
                 {
@@ -2128,7 +2127,7 @@
                     "requirement": "ALTERNATIVE",
                     "priority": 3,
                     "autheticatorFlow": true,
-                    "flowAlias": "MFA Login",
+                    "flowAlias": "Username/Password Authentication",
                     "userSetupAllowed": false
                 }
             ]
@@ -2194,8 +2193,8 @@
             ]
         },
         {
-            "id": "ae089c5c-0424-4fb7-9768-2346b32bb1b2",
-            "alias": "Conditional OTP",
+            "id": "6ba27e4e-b569-4531-857b-2e6a10077f02",
+            "alias": "Conditional Username/Password 2FA",
             "description": "",
             "providerId": "basic-flow",
             "topLevel": false,
@@ -2212,8 +2211,50 @@
                 {
                     "authenticator": "auth-otp-form",
                     "authenticatorFlow": false,
-                    "requirement": "REQUIRED",
+                    "requirement": "${OTP_FLOW_ENABLED:REQUIRED}",
                     "priority": 1,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "webauthn-authenticator",
+                    "authenticatorFlow": false,
+                    "requirement": "${WEBAUTHN_FLOW_ENABLED:REQUIRED}",
+                    "priority": 2,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                }
+            ]
+        },
+        {
+            "id": "ae089c5c-0424-4fb7-9768-2346b32bb1b2",
+            "alias": "Conditional X509 2FA",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": false,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticator": "conditional-user-configured",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 0,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "auth-otp-form",
+                    "authenticatorFlow": false,
+                    "requirement": "${OTP_FLOW_ENABLED:REQUIRED}",
+                    "priority": 1,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "webauthn-authenticator",
+                    "authenticatorFlow": false,
+                    "requirement": "${WEBAUTHN_FLOW_ENABLED:REQUIRED}",
+                    "priority": 2,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }
@@ -2272,6 +2313,24 @@
             ]
         },
         {
+            "id": "7d53187d-13f4-4ec6-ade0-20b7d88d9aa4",
+            "alias": "Group Protection Authorization",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": true,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticator": "uds-group-restriction",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 0,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                }
+            ]
+        },
+        {
             "id": "b44188c2-ddf7-4268-a860-b20e32c7fbcf",
             "alias": "Handle Existing Account",
             "description": "Handle what to do if there is existing account with same email/username like authenticated identity provider",
@@ -2299,7 +2358,7 @@
         },
         {
             "id": "cdf1be21-4140-4652-9d68-3b60742cc8ad",
-            "alias": "MFA Login",
+            "alias": "Username/Password Authentication",
             "description": "",
             "providerId": "basic-flow",
             "topLevel": false,
@@ -2323,10 +2382,10 @@
                 },
                 {
                     "authenticatorFlow": true,
-                    "requirement": "REQUIRED",
+                    "requirement": "${MFA_FLOW_ENABLED:DISABLED}",
                     "priority": 2,
                     "autheticatorFlow": true,
-                    "flowAlias": "Conditional OTP",
+                    "flowAlias": "Conditional Username/Password 2FA",
                     "userSetupAllowed": false
                 }
             ]
@@ -2377,27 +2436,9 @@
                     "authenticator": "uds-group-restriction",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
-                    "priority": 1,
-                    "userSetupAllowed": false,
-                    "autheticatorFlow": false
-                }
-            ]
-        },
-        {
-            "id": "7d53187d-13f4-4ec6-ade0-20b7d88d9aa4",
-            "alias": "Group Protection Authorization",
-            "description": "",
-            "providerId": "basic-flow",
-            "topLevel": true,
-            "builtIn": false,
-            "authenticationExecutions": [
-                {
-                    "authenticator": "uds-group-restriction",
-                    "authenticatorFlow": false,
-                    "requirement": "REQUIRED",
-                    "priority": 0,
-                    "userSetupAllowed": false,
-                    "autheticatorFlow": false
+                    "priority": 2,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
                 }
             ]
         },
@@ -2499,8 +2540,8 @@
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 20,
-                    "userSetupAllowed": false,
-                    "autheticatorFlow": false
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
                 }
             ]
         },
@@ -2542,8 +2583,8 @@
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 40,
-                    "userSetupAllowed": false,
-                    "autheticatorFlow": false
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
                 }
             ]
         },
@@ -2988,6 +3029,33 @@
                     "userSetupAllowed": false
                 }
             ]
+        },
+        {
+            "id": "2d1047c5-1ecd-40a9-8292-80f5d0cfda68",
+            "alias": "x509 Authentication",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": false,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticatorConfig": "dod-cac",
+                    "authenticator": "auth-x509-client-username-form",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 1,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticatorFlow": true,
+                    "requirement": "${X509_MFA_FLOW_ENABLED:DISABLED}",
+                    "priority": 2,
+                    "autheticatorFlow": true,
+                    "flowAlias": "Conditional X509 2FA",
+                    "userSetupAllowed": false
+                }
+            ]
         }
     ],
     "authenticatorConfig": [
@@ -3113,7 +3181,7 @@
             "alias": "webauthn-register-passwordless",
             "name": "Webauthn Register Passwordless",
             "providerId": "webauthn-register-passwordless",
-            "enabled": true,
+            "enabled": false,
             "defaultAction": false,
             "priority": 1002,
             "config": {}
@@ -3122,7 +3190,7 @@
             "alias": "webauthn-register",
             "name": "Webauthn Register",
             "providerId": "webauthn-register",
-            "enabled": true,
+            "enabled": "${WEBAUTHN_ENABLED:false}",
             "defaultAction": false,
             "priority": 1003,
             "config": {}
@@ -3134,6 +3202,7 @@
     "resetCredentialsFlow": "UDS Reset Credentials",
     "clientAuthenticationFlow": "UDS Client Credentials",
     "dockerAuthenticationFlow": "docker auth",
+    "firstBrokerLoginFlow": "first broker login",
     "attributes": {
         "cibaBackchannelTokenDeliveryMode": "poll",
         "cibaAuthRequestedUserHint": "login_hint",

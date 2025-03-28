@@ -85,7 +85,7 @@ packages:
                 USERNAME_PASSWORD_AUTH_ENABLED: true
                 X509_AUTH_ENABLED: true
                 SOCIAL_AUTH_ENABLED: true
-                OTP_ENABLED: true
+                OTP_ENABLED: false
             - path: env[0]
               value:
                 name: JAVA_OPTS_KC_HEAP
