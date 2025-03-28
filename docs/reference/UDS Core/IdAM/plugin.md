@@ -14,6 +14,8 @@ A Keycloak plugin provides additional custom logic to our Keycloak deployment. B
 | [JSON Log Event Listener](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/eventListeners/JSONLogEventListenerProvider.java) | [EventListener](https://www.keycloak.org/docs-api/25.0.0/javadocs/org/keycloak/events/EventListenerProvider.html) | JSON Log Event listener converts Keycloak event logs into json strings for ease of use in Logging applications like Grafana. |
 | [User Group Path Mapper](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomGroupPathMapper.java) | [OpenID Mapper](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/protocol/oidc/mappers/AbstractOIDCProtocolMapper.html) | Some application break when using a forward slash in the group naming, this mapper removes the leading slash and creates a new `groups` claim called `bare-groups`. See Warnings below regarding the use of this plugin. |
 | [User AWS SAML Group Mapper](https://github.com/defenseunicorns/uds-identity-config/blob/v0.6.0/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/CustomAWSSAMLGroupMapper.java) | [SAML Mapper](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/protocol/saml/mappers/AbstractSAMLProtocolMapper.html) | Amazon AppStream applications expect a specific group claim format when using Keycloak for authentication. This mapper filters the user’s groups to include only those with the substring `-aws-`. It then concatenates these qualified group paths into a colon-separated string that is passed in the SAML attribute. For example, if a user’s group hierarchy includes `/Core-aws/Admin-aws-test` and `/Core-aws/Auditor-aws-test`, the resulting SAML attribute value will be: `/Core-aws/Admin-aws-test:/Core-aws/Auditor-aws-test`. |
+| [ClientIdAndKubernetesSecretAuthenticator](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/authentication/authenticators/client/ClientIdAndKubernetesSecretAuthenticator.java) | [ClientAuthenticator](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/authentication/ClientAuthenticator.html) | This authenticator is used to authenticate a client using a Kubernetes secret. It is used in the `ClientIdAndKubernetesSecret` authentication flow. |
+| [UDSClientPolicyPermissionsExecutor](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/clientpolicy/executor/UDSClientPolicyPermissionsExecutor.java) | [ClientPolicyExecutorProvider](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/clientpolicy/executor/ClientPolicyExecutorProvider.html) | This executor is used to check if a client has the necessary permissions to access a resource. It is used in the `UDSClientPolicyPermissions` client policy. |
 
 ### Warnings
 
@@ -106,6 +108,7 @@ In addition, modify the realm for keycloak, otherwise the realm will require plu
   * `UDS Registration`
   * `UDS Reset Credentials`
   * `UDS registration form`
+  * `UDS Client Credentials`
 
 * Make changes to authenticationExecutions from the `browser` authenticationFlow:
   * Remove `auth-cookie`
@@ -121,6 +124,7 @@ In addition, modify the realm for keycloak, otherwise the realm will require plu
   * `"browserFlow": "browser"`
   * `"registrationFlow": "registration"`
   * `"resetCredentialsFlow": "reset credentials"`
+  * `"clientAuthenticationFlow": "clients"`
 
 ### Disabling
 

@@ -20,6 +20,10 @@ variables:
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
     default: "v0.38.0"
 
+  - name: PEPR_KEYCLOAK_CLIENT_STRATEGY
+    description: "Keycloak client strategy for uds-operator. Possible values: \"dynamic_client_registration\", \"client_credentials\" and \"auto\""
+    default: client_credentials
+
 tasks:
   - name: build-and-publish
     description: "Build and publish the multi-arch image"
@@ -43,6 +47,8 @@ tasks:
       - task: dev-build
       - cmd: |
           k3d image import -c uds uds-core-config:keycloak
+          kubectl patch statefulset keycloak -n keycloak --type='merge' -p '{"metadata":{"labels":{"zarf.dev/agent":"ignore"}}}'
+          kubectl patch statefulset keycloak -n keycloak --type='merge' -p '{"spec":{"template":{"metadata":{"labels":{"zarf.dev/agent":"ignore"}}}}}'
           kubectl rollout restart statefulset -n keycloak keycloak
 
   - name: dev-theme
@@ -130,7 +136,7 @@ tasks:
   - name: clone-core
     description: "Clone UDS Core for integration testing"
     actions:
-      - cmd: rm -rf uds-core/
+      - cmd: rm -rf uds-core
       - cmd: git clone --branch 319-customize_keycloak_themes --depth 1 --single-branch https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
@@ -140,14 +146,14 @@ tasks:
       - cmd: cd uds-core && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization
       - task: grafana-group-auth-build-deploy
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
-      - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
+      - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --set=core-base.PEPR_KEYCLOAK_CLIENT_STRATEGY=${PEPR_KEYCLOAK_CLIENT_STRATEGY} --confirm --no-progress
 
   - name: cypress-tests
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
     actions:
       - cmd: |
           npm --prefix src/test/cypress install
-          npm --prefix src/test/cypress run cy.run
+          PEPR_KEYCLOAK_CLIENT_STRATEGY=${PEPR_KEYCLOAK_CLIENT_STRATEGY} npm --prefix src/test/cypress run cy.run
 
   - name: theme-customization-tests
     description: "Runs theme customization tests ( requires an existing deployed UDS Core Identity )"

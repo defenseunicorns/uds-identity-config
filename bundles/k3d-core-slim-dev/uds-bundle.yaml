@@ -11,7 +11,7 @@ packages:
   - name: uds-k3d-dev
     repository: ghcr.io/defenseunicorns/packages/uds-k3d
     # renovate: datasource=github-tags depName=defenseunicorns/uds-k3d versioning=semver
-    ref: 0.12.0
+    ref: 0.12.1
 
   - name: init
     repository: ghcr.io/zarf-dev/packages/init
@@ -27,6 +27,13 @@ packages:
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
     ref: 0.38.0
     overrides:
+      uds-operator-config:
+        uds-operator-config:
+          variables:
+            - name: PEPR_KEYCLOAK_CLIENT_STRATEGY
+              description: "Keycloak client strategy for uds-operator. Possible values: \"dynamic_client_registration\", \"client_credentials\" and \"auto\""
+              default: "auto"
+              path: operator.PEPR_KEYCLOAK_CLIENT_STRATEGY
       istio-admin-gateway:
         uds-istio-config:
           variables:
