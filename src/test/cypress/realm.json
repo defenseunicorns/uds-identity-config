@@ -2140,18 +2140,26 @@
                     "userSetupAllowed": false
                 },
                 {
+                    "authenticatorFlow": true,
+                    "requirement": "ALTERNATIVE",
+                    "priority": 1,
+                    "autheticatorFlow": true,
+                    "flowAlias": "idp redirector",
+                    "userSetupAllowed": false
+                },
+                {
                     "authenticatorConfig": "dod-cac",
                     "authenticator": "auth-x509-client-username-form",
                     "authenticatorFlow": false,
                     "requirement": "ALTERNATIVE",
-                    "priority": 1,
+                    "priority": 2,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 },
                 {
                     "authenticatorFlow": true,
                     "requirement": "ALTERNATIVE",
-                    "priority": 2,
+                    "priority": 3,
                     "autheticatorFlow": true,
                     "flowAlias": "MFA Login",
                     "userSetupAllowed": false
@@ -2871,6 +2879,24 @@
                     "priority": 20,
                     "autheticatorFlow": true,
                     "flowAlias": "Authentication Options",
+                    "userSetupAllowed": false
+                }
+            ]
+        },
+        {
+            "id": "4652cc13-2c49-4f4f-ba2d-fbaa15846852",
+            "alias": "idp redirector",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": false,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticator": "identity-provider-redirector",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 1,
+                    "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }
             ]

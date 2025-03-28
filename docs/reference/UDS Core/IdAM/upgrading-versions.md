@@ -64,6 +64,21 @@ In uds-identity-config versions v0.11.0+, the UDS Operator can automatically swi
 
 After introducing the above changes, please ensure all Packages are reconciled correctly and there are no errors. If for some reason you see the UDS Operator throwing errors with `The Client doesn't have the created-by=uds-operator attribute. Rejecting request`, you need to disable the `UDS Client Policy` and give it a bit more time to process all the Packages.
 
+---
+
+To add an `IDP Redirector` option to the `UDS Authentication`, which enables bypassing the login page and jumping directly to the IDP login when using the `kc_idp_hint` URL parameter, do the following steps:
+- Click `Authentication` from the left sidebar under `Configure`
+- Select the `UDS Authentication` auth flow
+- Under the `Authentication` sub-flow in `UDS Authentication`, click the `+` and add a new `sub-flow`
+   - Name that sub-flow `idp redirector`
+   - click `Add`
+- Drag that new `idp redirector` sub-flow from the bottom of the `Authentication` sub-flow to be directly below the `Cookie` step
+- Set the `idp redirector` sub-flow to be `Alternative`
+- Click the `+` on the `idp redirector` sub-flow and add a new step
+- Select the `Identity Provider Redirector`
+- Click `Add`
+- Set that `Identity Provider Redirector` step to `Required`
+
 </details>
 
 ## v0.10.0+
