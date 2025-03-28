@@ -2193,8 +2193,42 @@
             ]
         },
         {
+            "id": "6ba27e4e-b569-4531-857b-2e6a10077f02",
+            "alias": "Conditional Username/Password 2FA",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": false,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticator": "conditional-user-configured",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 0,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "auth-otp-form",
+                    "authenticatorFlow": false,
+                    "requirement": "${OTP_FLOW_ENABLED:REQUIRED}",
+                    "priority": 1,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "webauthn-authenticator",
+                    "authenticatorFlow": false,
+                    "requirement": "${WEBAUTHN_FLOW_ENABLED:REQUIRED}",
+                    "priority": 2,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                }
+            ]
+        },
+        {
             "id": "ae089c5c-0424-4fb7-9768-2346b32bb1b2",
-            "alias": "Conditional OTP",
+            "alias": "Conditional X509 2FA",
             "description": "",
             "providerId": "basic-flow",
             "topLevel": false,
@@ -2351,7 +2385,7 @@
                     "requirement": "${MFA_FLOW_ENABLED:DISABLED}",
                     "priority": 2,
                     "autheticatorFlow": true,
-                    "flowAlias": "Conditional OTP",
+                    "flowAlias": "Conditional Username/Password 2FA",
                     "userSetupAllowed": false
                 }
             ]
@@ -3018,7 +3052,7 @@
                     "requirement": "${X509_MFA_FLOW_ENABLED:DISABLED}",
                     "priority": 2,
                     "autheticatorFlow": true,
-                    "flowAlias": "Conditional OTP",
+                    "flowAlias": "Conditional X509 2FA",
                     "userSetupAllowed": false
                 }
             ]
