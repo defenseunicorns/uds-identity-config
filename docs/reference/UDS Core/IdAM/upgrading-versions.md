@@ -68,9 +68,9 @@ After introducing the above changes, please ensure all Packages are reconciled c
 
 In uds-identity-config version 0.11.0 we incorporated some big changes around MFA.
 - Previous versions didn't allow for MFA on the X509 Authentication flow. Now that can be configured to required additional factors of authentication. By default this is disabled and will need to be enabled.
-- Additionally, we've added support of WebAuthn MFA. This can assume many different form such as biometrics, passkeys, etc. This also is disabled by default and is only used as an MFA option.
+- Additionally, we've added support of WebAuthn MFA. This can assume many different forms such as biometrics, passkeys, etc. This also is disabled by default and is only used as an MFA option.
 
-If wanting configure the MFA everywhere with both OTP and WebAuthn options, the following steps will help to manually configure these options:
+If wanting to configure the MFA everywhere with both OTP and WebAuthn options, the following steps will help to manually configure these options on an upgrade:
 1. There is a [new theme for webauthn-authentication](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/theme/login/webauthn-authenticate.ftl) that conditionally removes the register button. This is removed because we assume that since you are doing MFA you have already provided enough details to be identified by Keycloak and don't need to register.
 2. The Authentication `Required Actions` have a few changes as well:
    - Click `Authentication` tab from left side menu
@@ -97,6 +97,21 @@ If wanting configure the MFA everywhere with both OTP and WebAuthn options, the 
          - Click the `+` and add the step called `WebAuthn Passwordless Authenticator`
       - Drag the existing `X509/Validate Username Form` step into the `X509 Authentication` sub-flow, should be above the `X509 Conditional OTP`
          - May have to drag this twice, make sure this is `Required`
+
+---
+
+To add an `IDP Redirector` option to the `UDS Authentication`, which enables bypassing the login page and jumping directly to the IDP login when using the `kc_idp_hint` URL parameter, do the following steps:
+- Click `Authentication` from the left sidebar under `Configure`
+- Select the `UDS Authentication` auth flow
+- Under the `Authentication` sub-flow in `UDS Authentication`, click the `+` and add a new `sub-flow`
+   - Name that sub-flow `idp redirector`
+   - click `Add`
+- Drag that new `idp redirector` sub-flow from the bottom of the `Authentication` sub-flow to be directly below the `Cookie` step
+- Set the `idp redirector` sub-flow to be `Alternative`
+- Click the `+` on the `idp redirector` sub-flow and add a new step
+- Select the `Identity Provider Redirector`
+- Click `Add`
+- Set that `Identity Provider Redirector` step to `Required`
 
 </details>
 

@@ -2144,6 +2144,14 @@
                     "requirement": "ALTERNATIVE",
                     "priority": 1,
                     "autheticatorFlow": true,
+                    "flowAlias": "idp redirector",
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticatorFlow": true,
+                    "requirement": "ALTERNATIVE",
+                    "priority": 1,
+                    "autheticatorFlow": true,
                     "flowAlias": "x509 Authentication",
                     "userSetupAllowed": false
                 },
@@ -2878,6 +2886,24 @@
                     "priority": 20,
                     "autheticatorFlow": true,
                     "flowAlias": "Authentication Options",
+                    "userSetupAllowed": false
+                }
+            ]
+        },
+        {
+            "id": "4652cc13-2c49-4f4f-ba2d-fbaa15846852",
+            "alias": "idp redirector",
+            "description": "",
+            "providerId": "basic-flow",
+            "topLevel": false,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticator": "identity-provider-redirector",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 1,
+                    "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }
             ]
