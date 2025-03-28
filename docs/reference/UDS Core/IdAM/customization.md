@@ -86,7 +86,6 @@ overrides:
                ACCESS_TOKEN_LIFESPAN: 600
                SSO_SESSION_LIFESPAN_TIMEOUT: 1200
                SSO_SESSION_MAX_LIFESPAN: 36000
-               DISABLE_REGISTRATION_FIELDS: true
             path: realmAuthFlows
             value:
                USERNAME_PASSWORD_AUTH_ENABLED: true
@@ -95,6 +94,9 @@ overrides:
                OTP_ENABLED: true
                WEBAUTHN_ENABLED: true
                X509_MFA_ENABLED: true
+            path: themeCustomizations
+            value:
+               DISABLE_REGISTRATION_FIELDS: true
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).
