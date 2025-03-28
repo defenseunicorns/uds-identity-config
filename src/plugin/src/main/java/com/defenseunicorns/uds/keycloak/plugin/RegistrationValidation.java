@@ -32,9 +32,15 @@ public class RegistrationValidation extends RegistrationUserCreation {
         // Default actions for all users
         user.addRequiredAction(UserModel.RequiredAction.VERIFY_EMAIL);
 
-        if (x509Username == null) {
-            // This user must configure MFA for their login
+        // Read the environment variable "X509_MFA_ENABLED"
+        String x509MFAEnabled = System.getenv("X509_MFA_ENABLED");
+
+        // Determine whether to add MFA required actions
+        // If X509_MFA_ENABLED is set to "true", add required actions for every user.
+        // Otherwise, add them only if x509Username is null (i.e. for non-X509 users).
+        if ((x509MFAEnabled != null && x509MFAEnabled.equalsIgnoreCase("true")) || x509Username == null) {
             user.addRequiredAction(UserModel.RequiredAction.CONFIGURE_TOTP);
+            user.addRequiredAction("webauthn-register");
         }
     }
 

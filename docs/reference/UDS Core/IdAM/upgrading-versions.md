@@ -10,59 +10,93 @@ This doc contains important information for upgrading uds-identity-config versio
 <summary>Upgrade Details</summary>
 
 In uds-identity-config versions v0.11.0+, the UDS Operator can automatically switch to Client Credentials Grant from using the Dynamic Client Registration. The new method works faster, is more reliable and doesn't require storing Registration Tokens in the Pepr Store. It is highly recommended to switch to it, which requires the following steps:
-    - Create the `uds-operator` Client:
-        - Go to `Clients` > `Client registration` > `Create`
-            - Client type: `openid-connect`
-            - Client ID: `uds-operator`
-            - Client Name: `uds-operator`
-            - Click `Next`
-            - Client authentication: on
-            - Uncheck all Authentications flows except from `Service account roles`
-            - Click `Next`
-            - Click `Save`
-        - Go to `Clients` > `uds-operator` > `Credentials` tab
-            - Set `Client Authenticator` to `Client Id and Kubernetes Secret`
-            - Click `Save`
-    - Configure the UDS Client Policy
-        - Go to `Realm Settings` > `Client Policies` > `Profiles`
-            - Click `Create Client Profile`
-                - Name: `uds-client-profile`
-                - Description: `UDS Client Profile`
-                - Click `Save`
-            - Click `Add Executor`
-                - Select `uds-operator-permissions`
-                - Click `Add`
-        - Go to `Realm Settings` > `Client Policies` > `Policies`
-            - Click `Create client policy`
-                - Name: `uds-client-policy`
-                - Description: `UDS Client Policy`
-            - Click `Add condition`
-            - Select `any-client`
-            - Click `Add`
-            - Click `Add client profile`
-            - Select `uds-client-profile`
-            - Click `Add` (there is a glitch in the UI where it seems all the profiles are selected, but only the selected one is actually chosen)
-    - Configure the Client Credentials Authentication Flow
-        - Go to `Authentication` > `Flows`
-            - Click `clients`
-                - Click `Actions` > `Duplicate`
-                    - Name: `UDS Client Credentials`
-                    - Description `UDS Client Credentials`
-                    - Click `Duplicate`
-            - Go to `Authentication` > `UDS Client Credentials`
-                - Click `Add Step`
-                    - Select `Client Id and Kubernetes Secret`
-                    - Click `Add`
-                - Select `Requirement` and set it to `Alternative`
-            - Go to `Authentication`, select three dots on the right side of the panel for `UDS Client Credentials` and select `Bind flows`
-                - Select `Client authentication flow`
-                - Click `Save`
-    - Verify that everything is configured correctly
-        - Deploy a new package or update the existing one
-        - Check UDS Operator logs and verify if there are no errors
-            - Use `uds zarf tools kubectl logs deploy/pepr-uds-core-watcher -n pepr-system | grep "Client Credentials Keycloak Client is available"` command to verify if the UDS Operator uses the Client Credentials flow.
+   - Create the `uds-operator` Client:
+      - Go to `Clients` > `Client registration` > `Create`
+         - Client type: `openid-connect`
+         - Client ID: `uds-operator`
+         - Client Name: `uds-operator`
+         - Click `Next`
+         - Client authentication: on
+         - Uncheck all Authentications flows except from `Service account roles`
+         - Click `Next`
+         - Click `Save`
+      - Go to `Clients` > `uds-operator` > `Credentials` tab
+         - Set `Client Authenticator` to `Client Id and Kubernetes Secret`
+         - Click `Save`
+   - Configure the UDS Client Policy
+      - Go to `Realm Settings` > `Client Policies` > `Profiles`
+         - Click `Create Client Profile`
+               - Name: `uds-client-profile`
+               - Description: `UDS Client Profile`
+               - Click `Save`
+         - Click `Add Executor`
+               - Select `uds-operator-permissions`
+               - Click `Add`
+      - Go to `Realm Settings` > `Client Policies` > `Policies`
+         - Click `Create client policy`
+               - Name: `uds-client-policy`
+               - Description: `UDS Client Policy`
+         - Click `Add condition`
+         - Select `any-client`
+         - Click `Add`
+         - Click `Add client profile`
+         - Select `uds-client-profile`
+         - Click `Add` (there is a glitch in the UI where it seems all the profiles are selected, but only the selected one is actually chosen)
+   - Configure the Client Credentials Authentication Flow
+      - Go to `Authentication` > `Flows`
+         - Click `clients`
+               - Click `Actions` > `Duplicate`
+                  - Name: `UDS Client Credentials`
+                  - Description `UDS Client Credentials`
+                  - Click `Duplicate`
+         - Go to `Authentication` > `UDS Client Credentials`
+               - Click `Add Step`
+                  - Select `Client Id and Kubernetes Secret`
+                  - Click `Add`
+               - Select `Requirement` and set it to `Alternative`
+         - Go to `Authentication`, select three dots on the right side of the panel for `UDS Client Credentials` and select `Bind flows`
+               - Select `Client authentication flow`
+               - Click `Save`
+   - Verify that everything is configured correctly
+      - Deploy a new package or update the existing one
+      - Check UDS Operator logs and verify if there are no errors
+         - Use `uds zarf tools kubectl logs deploy/pepr-uds-core-watcher -n pepr-system | grep "Client Credentials Keycloak Client is available"` command to verify if the UDS Operator uses the Client Credentials flow.
 
 After introducing the above changes, please ensure all Packages are reconciled correctly and there are no errors. If for some reason you see the UDS Operator throwing errors with `The Client doesn't have the created-by=uds-operator attribute. Rejecting request`, you need to disable the `UDS Client Policy` and give it a bit more time to process all the Packages.
+
+---
+
+In uds-identity-config version 0.11.0 we incorporated some big changes around MFA.
+- Previous versions didn't allow for MFA on the X509 Authentication flow. Now that can be configured to required additional factors of authentication. By default this is disabled and will need to be enabled.
+- Additionally, we've added support of WebAuthn MFA. This can assume many different forms such as biometrics, passkeys, etc. This also is disabled by default and is only used as an MFA option.
+
+If wanting to configure the MFA everywhere with both OTP and WebAuthn options, the following steps will help to manually configure these options on an upgrade:
+1. There is a [new theme for webauthn-authentication](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/theme/login/webauthn-authenticate.ftl) that conditionally removes the register button. This is removed because we assume that since you are doing MFA you have already provided enough details to be identified by Keycloak and don't need to register.
+2. The Authentication `Required Actions` have a few changes as well:
+   - Click `Authentication` tab from left side menu
+   - Click `Required Actions` tab from Authentication page menu
+   - Enable the following `Required Actions`, only toggle the `Enabled` **DO NOT TOGGLE** `Set as default action`:
+      - `Configure OTP`
+      - `Webauthn Register`
+   - Disable the `WebAuthn Register Passwordless`, make sure this is **not** the `WebAuthn Register` option ( this one should be enabled )
+3. The `UDS Authentication` authentication flow has undergone significant changes.
+   - Click `Authentication` tab from left side menu
+   - Click `UDS Authentication` flow option
+   - **This can be very dangerous to modify so make sure you know what you're doing before making changes here**
+   - In the `Authentication` top level sub-flow of the `UDS Authentication` flow
+      - Click the `+` icon and add a `sub-flow`
+         - Name that sub-flow `X509 Authentication`
+      - Drag that new sub-flow up and drop below the `Cookie` and the `IDP Redirector` step
+      - Set the flow to `Alternative`
+      - in the new `X509 Authentication` sub-flow select the `+` icon and add a sub-flow called `X509 Conditional OTP`
+         - Set the `X509 Conditional OTP` to `Required`
+         - Click the `+` and add the `Condition` called `Condition - user configured`
+            - set this to be `Required`
+         - Click the `+` and add the step called `OTP Form`
+            - set this to be `Required`
+         - Click the `+` and add the step called `WebAuthn Authenticator`
+      - Drag the existing `X509/Validate Username Form` step into the `X509 Authentication` sub-flow, should be above the `X509 Conditional OTP`
+         - May have to drag this twice, make sure this is `Required`
 
 ---
 
@@ -83,7 +117,7 @@ To add an `IDP Redirector` option to the `UDS Authentication`, which enables byp
 
 ## v0.10.0+
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to Keycloak 26.1.0. In this release of Keycloak an unmentioned breaking change that added case sensitivity to the Client SAML Mappers. This resulted in breaking SAML Auth flows due to users IDP data not being correctly mapped into applications ( ex. Sonarqube, Gitlab, etc ). Manual steps to fix this issue:
@@ -108,7 +142,7 @@ In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to
 
 ## v0.9.1 to v0.10.0
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 * For running Istio with Ambient Mesh, it is required to add two new entries to the trusted hosts list: `*.pepr-uds-core-watcher.pepr-system.svc.cluster.local` and `*.keycloak.svc.cluster.local`. This is done automatically for new deployments but when upgrading it is required to perform these extra steps:
@@ -123,7 +157,7 @@ In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to
 
 ## v0.5.1 to v0.5.2
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 * An custom Keycloak event logger that replaces the default event logger is [included in this release](https://github.com/defenseunicorns/uds-identity-config/blob/v0.5.2/src/realm.json#L1669), if you wish to enable manually as part of an upgrade do the following (in the `Unicorn Delivery Service` realm):
@@ -150,7 +184,7 @@ In uds-identity-config versions 0.10.0+, the version of Keycloak was upgraded to
 
 ## v0.5.0 to v0.5.1
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 This version upgrade utilizes built in Keycloak functionality for User Managed Attributes.
