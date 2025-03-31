@@ -78,6 +78,7 @@ If wanting to configure the MFA everywhere with both OTP and WebAuthn options, t
    - Enable the following `Required Actions`, only toggle the `Enabled` **DO NOT TOGGLE** `Set as default action`:
       - `Configure OTP`
       - `Webauthn Register`
+      - `Delete Credential`
    - Disable the `WebAuthn Register Passwordless`, make sure this is **not** the `WebAuthn Register` option ( this one should be enabled )
 3. The `UDS Authentication` authentication flow has undergone significant changes.
    - Click `Authentication` tab from left side menu
