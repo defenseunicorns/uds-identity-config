@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.11.0...v0.11.1) (2025-03-31)
+
+
+### Bug Fixes
+
+* rename auth flow ([#404](https://github.com/defenseunicorns/uds-identity-config/issues/404)) ([a3e19e1](https://github.com/defenseunicorns/uds-identity-config/commit/a3e19e1693f5ddc797eee74b8749681a1453ff55))
+
 ## [0.11.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.10.2...v0.11.0) (2025-03-31)
 
 
