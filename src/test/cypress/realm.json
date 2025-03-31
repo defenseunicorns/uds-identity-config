@@ -3227,6 +3227,15 @@
             "defaultAction": false,
             "priority": 1003,
             "config": {}
+        },
+        {
+          "alias": "delete_credential",
+          "name": "Delete Credential",
+          "providerId": "delete_credential",
+          "enabled": "${MFA_ENABLED:false}",
+          "defaultAction": false,
+          "priority": 1006,
+          "config": {}
         }
     ],
     "browserFlow": "UDS Authentication",
