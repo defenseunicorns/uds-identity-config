@@ -2194,7 +2194,7 @@
         },
         {
             "id": "6ba27e4e-b569-4531-857b-2e6a10077f02",
-            "alias": "Conditional Username/Password 2FA",
+            "alias": "Conditional OTP",
             "description": "",
             "providerId": "basic-flow",
             "topLevel": false,
@@ -2385,7 +2385,7 @@
                     "requirement": "${MFA_FLOW_ENABLED:DISABLED}",
                     "priority": 2,
                     "autheticatorFlow": true,
-                    "flowAlias": "Conditional Username/Password 2FA",
+                    "flowAlias": "Conditional OTP",
                     "userSetupAllowed": false
                 }
             ]
