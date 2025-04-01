@@ -135,7 +135,7 @@ public class RequireGroupAuthenticator implements Authenticator {
                     LOGGER.info("Stale session detected, asking user to accept Terms and Conditions again");
                 }
             } else {
-                LOGGER.info("User didn't accept Terms and Conditions. Requesting accepting it");
+                LOGGER.info("User hasn't accepted Terms and Conditions. Requesting user accept them.");
             }
             user.setAttribute(TAC_USER_ATTRIBUTE, Arrays.asList(parentSessionId));
         } else {
