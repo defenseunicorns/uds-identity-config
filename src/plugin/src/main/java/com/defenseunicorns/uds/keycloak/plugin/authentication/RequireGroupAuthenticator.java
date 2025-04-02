@@ -124,18 +124,16 @@ public class RequireGroupAuthenticator implements Authenticator {
 
         if (isConditionalTACActive(context)) {
             String parentSessionId = context.getAuthenticationSession().getParentSession().getId();
-            LOGGER.debugf("Conditional TAC, parent session ID: %s", parentSessionId);
             if (user.getAttributes().get(TAC_USER_ATTRIBUTE) != null) {
                 String userSessionId = user.getAttributes().get(TAC_USER_ATTRIBUTE).get(0);
-                LOGGER.debugf("Conditional TAC, user session ID: %s", parentSessionId);
                 if (parentSessionId.equals(userSessionId)) {
                     shouldAddTAC = false;
-                    LOGGER.info("User already accepted Terms and Conditions for this session. Skipping...");
+                    LOGGER.trace("User already accepted Terms and Conditions for this session. Skipping...");
                 } else {
-                    LOGGER.info("Stale session detected, asking user to accept Terms and Conditions again");
+                    LOGGER.trace("Stale session detected, asking user to accept Terms and Conditions again");
                 }
             } else {
-                LOGGER.info("User hasn't accepted Terms and Conditions. Requesting user accept them.");
+                LOGGER.trace("User hasn't accepted Terms and Conditions. Requesting user accept them.");
             }
             user.setAttribute(TAC_USER_ATTRIBUTE, Arrays.asList(parentSessionId));
         } else {
@@ -150,14 +148,14 @@ public class RequireGroupAuthenticator implements Authenticator {
     }
 
     protected boolean isConditionalTACActive(AuthenticationFlowContext context) {
-        LOGGER.debug("Evaluating conditional TAC");
+        LOGGER.trace("Evaluating conditional TAC");
         AuthenticatorConfigModel authConfig = context.getAuthenticatorConfig();
         if (authConfig != null && authConfig.getConfig() != null) {
             String tocPerSession = authConfig.getConfig().get(RequireGroupAuthenticatorFactory.TOC_PER_SESSION_CONFIG_NAME);
-            LOGGER.debugf("Custom Authentication Config is configured, TAC per session setting: %s", tocPerSession);
+            LOGGER.tracef("Custom Authentication Config is configured, TAC per session setting: %s", tocPerSession);
             return Boolean.valueOf(tocPerSession);
         } else {
-            LOGGER.debug("No AuthenticatorConfig is configured, using default (true) value");
+            LOGGER.trace("No AuthenticatorConfig is configured, using default (true) value");
         }
         return true;
     }
