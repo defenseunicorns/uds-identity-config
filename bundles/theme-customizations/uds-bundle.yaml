@@ -11,7 +11,7 @@ packages:
   - name: core-identity-authorization
     path: ../../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.38.0
+    ref: 0.39.0
     overrides:
       keycloak:
         keycloak:
