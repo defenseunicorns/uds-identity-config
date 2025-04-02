@@ -73,7 +73,12 @@ For other changes beyond these images you will need to build a custom theme and 
 
 ### Registration Form Fields
 
-Registration Form Fields, which by default are enabled, can be disabled to minimize the steps to register a new user. See [this section](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#templated-realm-values) for the example of disabling the registration form fields with the `themeCustomizations.settings.disableRegistrationFields` environment variable.
+Registration Form Fields, which by default are enabled, can be disabled to minimize the steps to register a new user. See [this section](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#templated-realm-values) for the example of disabling the registration form fields with the `themeCustomizations.settings.enableRegistrationFields` environment variable.
+
+When disabled, the following fields will not be present during registration:
+- Affiliation
+- Pay Grade
+- Unit, Organization or Company Name
 
 ### Testing Changes
 
@@ -148,7 +153,7 @@ overrides:
                X509_MFA_ENABLED: true
             path: themeCustomizations.settings
             value:
-               disableRegistrationFields: true
+               enableRegistrationFields: true
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).
