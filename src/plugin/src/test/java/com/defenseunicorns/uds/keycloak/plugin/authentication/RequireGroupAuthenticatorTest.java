@@ -5,31 +5,33 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.authentication;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
-import org.keycloak.models.ClientModel;
-import org.keycloak.models.GroupModel;
-import org.keycloak.models.GroupProvider;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.*;
 import org.keycloak.sessions.AuthenticationSessionModel;
 import org.keycloak.sessions.RootAuthenticationSessionModel;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Collections;
 import java.util.stream.Stream;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RequireGroupAuthenticatorTest {
 
     @InjectMocks
+    @Spy
     private RequireGroupAuthenticator authenticator;
 
     @Mock
@@ -63,10 +65,13 @@ public class RequireGroupAuthenticatorTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
+        when(parentAuthenticationSession.getId()).thenReturn("test-id");
+
         when(context.getRealm()).thenReturn(realm);
         when(context.getUser()).thenReturn(user);
         when(context.getAuthenticationSession()).thenReturn(authenticationSession);
         when(authenticationSession.getClient()).thenReturn(client);
+        when(authenticationSession.getParentSession()).thenReturn(parentAuthenticationSession);
 
         when(group.getName()).thenReturn("Admin");
         when(group.getParent()).thenReturn(parentGroup);
@@ -201,6 +206,86 @@ public class RequireGroupAuthenticatorTest {
 
         authenticator.authenticate(context);
 
+        verify(context).success();
+    }
+
+    @Test
+    public void testConditionalTACWhenThePluginIsNotConfigured() {
+        when(context.getAuthenticatorConfig()).thenReturn(null);
+
+        boolean result = authenticator.isConditionalTACActive(context);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testConditionalTACWhenPluginConfigurationIsDisabled() {
+        AuthenticatorConfigModel authConfig = mock(AuthenticatorConfigModel.class);
+        when(context.getAuthenticatorConfig()).thenReturn(authConfig);
+        when(authConfig.getConfig()).thenReturn(Collections.singletonMap(RequireGroupAuthenticatorFactory.TOC_PER_SESSION_CONFIG_NAME, "false"));
+
+        boolean result = authenticator.isConditionalTACActive(context);
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testConditionalTACWhenPluginConfigurationIsEnabled() {
+        AuthenticatorConfigModel authConfig = mock(AuthenticatorConfigModel.class);
+        when(context.getAuthenticatorConfig()).thenReturn(authConfig);
+        when(authConfig.getConfig()).thenReturn(Collections.singletonMap(RequireGroupAuthenticatorFactory.TOC_PER_SESSION_CONFIG_NAME, "true"));
+
+        boolean result = authenticator.isConditionalTACActive(context);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testAddingTACWhenSessionIDsMismatch() {
+        doReturn(true).when(authenticator).isConditionalTACActive(context);
+
+        when(context.getAuthenticationSession().getParentSession().getId()).thenReturn("test-session-id");
+        when(user.getAttributes()).thenReturn(Collections.singletonMap(RequireGroupAuthenticator.TAC_USER_ATTRIBUTE, Collections.singletonList("doesn't match")));
+
+        authenticator.success(context, user);
+
+        verify(user).addRequiredAction("TERMS_AND_CONDITIONS");
+        verify(context).success();
+    }
+
+    @Test
+    public void testNotAddingTACWhenSessionIDsMatch() {
+        doReturn(true).when(authenticator).isConditionalTACActive(context);
+
+        when(context.getAuthenticationSession().getParentSession().getId()).thenReturn("test-session-id");
+        when(user.getAttributes()).thenReturn(Collections.singletonMap(RequireGroupAuthenticator.TAC_USER_ATTRIBUTE, Collections.singletonList("test-session-id")));
+
+        authenticator.success(context, user);
+
+        verify(user, never()).addRequiredAction("TERMS_AND_CONDITIONS");
+        verify(context).success();
+    }
+
+    @Test
+    public void testAddingTACWhenUserHasNoAttribute() {
+        doReturn(true).when(authenticator).isConditionalTACActive(context);
+
+        when(context.getAuthenticationSession().getParentSession().getId()).thenReturn("test-session-id");
+        when(user.getAttributes()).thenReturn(Collections.emptyMap());
+
+        authenticator.success(context, user);
+
+        verify(user).addRequiredAction("TERMS_AND_CONDITIONS");
+        verify(context).success();
+    }
+
+    @Test
+    public void testAddingTACWhenConditionalTACIsDisabled() {
+        doReturn(false).when(authenticator).isConditionalTACActive(context);
+
+        authenticator.success(context, user);
+
+        verify(user).addRequiredAction("TERMS_AND_CONDITIONS");
         verify(context).success();
     }
 }

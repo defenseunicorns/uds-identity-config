@@ -49,7 +49,7 @@ public class RequireGroupAuthenticatonFactoryTest {
 
     @Test
     public void testIsConfigurable() {
-        assertFalse(factory.isConfigurable());
+        assertTrue(factory.isConfigurable());
     }
 
     @Test
@@ -62,6 +62,6 @@ public class RequireGroupAuthenticatonFactoryTest {
         List<?> configProperties = factory.getConfigProperties();
 
         assertNotNull(configProperties);
-        assertTrue(configProperties.isEmpty());
+        assertEquals(1, configProperties.size());
     }
 }
