@@ -20,6 +20,11 @@ UDS Identity Config is responsible for managing several key aspects of Keycloak�
 3. Truststore Management – Ensures secure communication by handling trusted certificates and keys.
 4. Custom Plugins – Supports additional functionality through custom Keycloak extensions and providers.
 
+### Air-Gapped Limitations
+When Keycloak is configured for X.509 certificate authentication and OCSP checking (x509-cert-auth.ocsp-checking-enabled) is enabled, it attempts to contact the OCSP responder specified in the certificate or a manually configured URL. In air-gapped or otherwise restricted environments, this external endpoint may be unreachable.
+
+See this [bundle override](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#templated-realm-values) for an example of disabling OCSP checking but note the risks of doing so. By allowing certificates to pass when the revocation check fails, the door is open to revoked certificates being considered valid, which can pose a serious security threat depending on your organization’s compliance requirements and threat model.
+
 ### Upgrading UDS Identity Config
 When upgrading UDS Identity Config, changes to the realm configuration do not propagate automatically. This is because Keycloak persists its realm settings across upgrades to prevent breaking existing functionality. To apply updates to the realm configuration, follow the manual steps outlined in [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) .
 
