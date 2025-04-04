@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.12.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.11.1...v0.12.0) (2025-04-04)
+
+
+### Features
+
+* configurable Terms and Conditions ([#400](https://github.com/defenseunicorns/uds-identity-config/issues/400)) ([00d9f37](https://github.com/defenseunicorns/uds-identity-config/commit/00d9f370a01fd860fda546a4d4703403c13d926c))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.projectlombok:lombok to v1.18.38 ([#401](https://github.com/defenseunicorns/uds-identity-config/issues/401)) ([24cdc5c](https://github.com/defenseunicorns/uds-identity-config/commit/24cdc5cd094aff63baeeaf9357f68c0cc144c7b0))
+* rename disable registration fields ([#396](https://github.com/defenseunicorns/uds-identity-config/issues/396)) ([1e7c874](https://github.com/defenseunicorns/uds-identity-config/commit/1e7c874657ff364cb7d763cfbc2ececa4466fc7b))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#406](https://github.com/defenseunicorns/uds-identity-config/issues/406)) ([781404c](https://github.com/defenseunicorns/uds-identity-config/commit/781404cdad6346e062e31866793d9e443eebc0f5))
+* **deps:** update all dependencies to v0.51.0 ([#414](https://github.com/defenseunicorns/uds-identity-config/issues/414)) ([42f54f7](https://github.com/defenseunicorns/uds-identity-config/commit/42f54f7be68516f33b97da1a31c41df38ec4e18f))
+* **deps:** update dependency org.jacoco:jacoco-maven-plugin to v0.8.13 ([#410](https://github.com/defenseunicorns/uds-identity-config/issues/410)) ([bc86e96](https://github.com/defenseunicorns/uds-identity-config/commit/bc86e9698950616b5060bddb36ee7295facb4fff))
+* **docs:** update air gapped limitations for x509 ([#413](https://github.com/defenseunicorns/uds-identity-config/issues/413)) ([ce63e8a](https://github.com/defenseunicorns/uds-identity-config/commit/ce63e8ae7b8784fa3eee2c5a74668ce869f3c585))
+* revert to latest core for tasks ([#408](https://github.com/defenseunicorns/uds-identity-config/issues/408)) ([ab84e94](https://github.com/defenseunicorns/uds-identity-config/commit/ab84e94ba263eadf14945216a3421142cca6b991))
+
 ## [0.11.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.11.0...v0.11.1) (2025-03-31)
 
 
