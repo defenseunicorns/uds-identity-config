@@ -71,6 +71,15 @@ kubectl create configmap keycloak-theme-overrides \
 
 For other changes beyond these images you will need to build a custom theme and identity-config image. Changes can be made to the [src/theme](https://github.com/defenseunicorns/uds-identity-config/tree/main/src/theme) directory. At this time only Account and Login themes are included, but email, admin, and welcome themes could be added as well.
 
+### Registration Form Fields
+
+Registration Form Fields, which by default are enabled, can be disabled to minimize the steps to register a new user. See [this section](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#templated-realm-values) for the example of disabling the registration form fields with the `themeCustomizations.settings.enableRegistrationFields` environment variable.
+
+When disabled, the following fields will not be present during registration:
+- Affiliation
+- Pay Grade
+- Unit, Organization or Company Name
+
 ### Testing Changes
 
 To test the `identity-config` theme changes, a local running Keycloak instance is required.
@@ -134,7 +143,6 @@ overrides:
                ACCESS_TOKEN_LIFESPAN: 600
                SSO_SESSION_LIFESPAN_TIMEOUT: 1200
                SSO_SESSION_MAX_LIFESPAN: 36000
-               DISABLE_REGISTRATION_FIELDS: true
             path: realmAuthFlows
             value:
                USERNAME_PASSWORD_AUTH_ENABLED: true
@@ -143,6 +151,9 @@ overrides:
                OTP_ENABLED: true
                WEBAUTHN_ENABLED: true
                X509_MFA_ENABLED: true
+            path: themeCustomizations.settings
+            value:
+               enableRegistrationFields: true
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).

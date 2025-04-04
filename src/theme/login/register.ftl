@@ -44,7 +44,7 @@
                         </#if>
                     </div>
                 </div>
-                <#if properties["REALM_DISABLE_REGISTRATION_FIELDS"] == "false">
+                <#if properties["ENABLE_REGISTRATION_FIELDS"] == "true">
                     <div class="row">
                         <div class="col-lg-6 form-group ${messagesPerField.printIfExists('affiliation','has-error')}">
                             <label for="affiliation" class="form-label">Affiliation</label>
@@ -254,7 +254,7 @@
         </#if>
     </@layout.registrationLayout>
     <script>
-    if('${properties["REALM_DISABLE_REGISTRATION_FIELDS"]}' == "false") {
+    if('${properties["ENABLE_REGISTRATION_FIELDS"]}' == "true") {
         document.getElementById('affiliation').value = "${(register.formData['affiliation']!'')}";
         document.getElementById('rank').value = "${(register.formData['rank']!'')}";
     }
