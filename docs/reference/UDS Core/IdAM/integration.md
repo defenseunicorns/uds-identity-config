@@ -47,3 +47,4 @@ Follow these steps to update the certs for cypress:
 3. Run `uds run cacert` to extract cacert from docker image for the tls_cacert.yaml file
 4. Copy the authorized_certs.zip, test.pfx, and tls_cacert.yaml into the [certs directory](https://github.com/defenseunicorns/uds-identity-config/tree/main/src/test/cypress/certs)
    - `mv test.pfx tls_cacert.yaml src/authorized_certs.zip src/cypress/certs/`
+5. Will need to add license headers to generated `tls_cacert.yaml` to pass linting
