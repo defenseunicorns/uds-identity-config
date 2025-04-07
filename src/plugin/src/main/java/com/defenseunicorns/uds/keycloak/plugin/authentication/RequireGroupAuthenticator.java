@@ -108,10 +108,12 @@ public class RequireGroupAuthenticator implements Authenticator {
         GroupModel currentGroup = group;
         while (currentGroup != null) {
             String groupName = currentGroup.getName();
-            //  disallow slashes in group names to protect against Keycloak allowing unescaped slashes in group names until https://github.com/defenseunicorns/uds-identity-config/issues/118
-            if (groupName.contains("/")) {
-                LOGGER.errorf("Group name '%s' contains a slash", groupName);
-                throw new IllegalArgumentException("Group names cannot contain slashes");
+            // Disallow slashes in the group unless they are prefixed by a tilde ~
+            // See https://www.keycloak.org/docs/latest/upgrading/index.html#escaping-slashes-in-group-paths
+            // Regexp tester: https://regex101.com/r/BgkuuO/1
+            if (groupName.matches(".*(?<!~)/.*")) {
+                LOGGER.errorf("Group name '%s' contains a disallowed slash", groupName);
+                throw new IllegalArgumentException("Group names cannot contain slashes unless prefixed with '~'");
             }
             path.insert(0, "/" + groupName);
             currentGroup = currentGroup.getParent();

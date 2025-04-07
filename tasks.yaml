@@ -137,7 +137,7 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core
-      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --depth 1 --branch 111-accept-slashes-in-keycloak-group https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"

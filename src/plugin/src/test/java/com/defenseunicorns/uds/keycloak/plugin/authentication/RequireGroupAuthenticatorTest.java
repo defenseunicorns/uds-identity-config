@@ -190,9 +190,20 @@ public class RequireGroupAuthenticatorTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testShouldThrowExceptionForInvalidGroupName() {
+    public void testShouldThrowExceptionForInvalidGroupNameWithSlash() {
         GroupModel invalidGroup = mock(GroupModel.class);
         when(invalidGroup.getName()).thenReturn("Invalid/Group");
+
+        when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"Invalid/Group\"]}");
+        when(realm.getGroupsStream()).thenReturn(Stream.of(invalidGroup));
+
+        authenticator.authenticate(context);
+    }
+
+    @Test
+    public void testShouldNotThrowExceptionForValidGroupNameWithEscapedSlash() {
+        GroupModel invalidGroup = mock(GroupModel.class);
+        when(invalidGroup.getName()).thenReturn("Invalid~/Group");
 
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"Invalid/Group\"]}");
         when(realm.getGroupsStream()).thenReturn(Stream.of(invalidGroup));
