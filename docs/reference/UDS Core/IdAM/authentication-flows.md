@@ -26,6 +26,8 @@ UDS Core comes equipped with a robust authentication framework that supports mul
 
     x509 certificates provide a way to authenticate using digital certificates. It is commonly used in environments that require higher security, such as corporate or governmental networks. This method uses public key infrastructure (PKI) to verify the user's identity through a trusted certificate authority.
 
+    > **Air-Gapped Note**: In environments without reliable internet access, **OCSP revocation checks** may fail if the designated OCSP responder cannot be reached. As a short-term workaround, you can configure “fail-open” or disable OCSP checks entirely. However, these approaches carry **security risks** (e.g., potentially allowing revoked certificates).
+
 ---
 
 ![Authentication Flow Options](https://github.com/defenseunicorns/uds-identity-config/blob/main/docs/.images/diagrams/uds-core-auth-flows-options.svg?raw=true)
