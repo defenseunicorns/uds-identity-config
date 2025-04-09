@@ -3,6 +3,7 @@
 
 includes:
   - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.12.0/tasks/lint.yaml
+  - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/373-remove-test-realm/tasks/setup.yaml
 
 variables:
   - name: VERSION
@@ -113,7 +114,7 @@ tasks:
     description: "UDS Core + Identity Config Integration Testing"
     actions:
       - description: Build identity config image
-        cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" --build-arg REALM_FILE="test/cypress/realm.json" -t uds-core-config:keycloak --no-cache src
+        cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" -t uds-core-config:keycloak --no-cache src
       - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
@@ -147,6 +148,26 @@ tasks:
       - task: grafana-group-auth-build-deploy
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
       - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --set=core-base.PEPR_KEYCLOAK_CLIENT_STRATEGY=${PEPR_KEYCLOAK_CLIENT_STRATEGY} --confirm --no-progress
+      - task: create-users
+      - task: setup:print-keycloak-admin-password
+
+  - name: create-users
+    description: "Creating users needed by the tests"
+    actions:
+      # Calling this explicitly even though it's also called by setup:keycloak-user. During the testing we often need it.
+      - task: setup:keycloak-admin-user
+      - description: "Create the Auditor User (testing_user) in the UDS Core realm"
+        task: setup:keycloak-user
+        with:
+          group: "/UDS Core/Auditor"
+          username: "testing_user"
+          password: "Testingpassword1!!"
+      - description: "Create the Admin User (testing_admin) in the UDS Core realm"
+        task: setup:keycloak-user
+        with:
+          group: "/UDS Core/Admin"
+          username: "testing_admin"
+          password: "Testingpassword1!!"
 
   - name: cypress-tests
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
