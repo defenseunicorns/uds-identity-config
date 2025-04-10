@@ -28,6 +28,7 @@ describe("CAC Registration Flow", () => {
     // Navigate to login page
     cy.visit("https://sso.uds.dev");
 
+
     // Verify DoD PKI Detected Banner on Login page
     cy.get(".form-group .alert-info").should("be.visible").contains("h2", "DoD PKI Detected");
     cy.get(".form-group #certificate_subjectDN")
@@ -49,11 +50,11 @@ describe("CAC Registration Flow", () => {
 describe("Registration Tests", () => {
   it("Duplicate Registration", () => {
     const formData: RegistrationFormData = {
-      firstName: "Testing",
-      lastName: "User",
+      firstName: "Doug",
+      lastName: "Doug",
       organization: "Defense Unicorns",
       username: "testing_user",
-      email: "testinguser@gmail.com",
+      email: "testing_user@uds.dev",
       password: "PrettyUnicorns1!!",
       affiliation: "Contractor",
       payGrade: "N/A",
