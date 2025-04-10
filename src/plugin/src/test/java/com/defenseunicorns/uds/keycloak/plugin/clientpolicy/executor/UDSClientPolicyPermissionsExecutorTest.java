@@ -14,8 +14,6 @@ import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.List;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
