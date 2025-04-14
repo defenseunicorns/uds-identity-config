@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.12.0...v0.12.1) (2025-04-14)
+
+
+### Miscellaneous
+
+* rename task ([#430](https://github.com/defenseunicorns/uds-identity-config/issues/430)) ([bd9db31](https://github.com/defenseunicorns/uds-identity-config/commit/bd9db31bd485ebe79815720ebb95f2074809f3c1))
+
 ## [0.12.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.11.1...v0.12.0) (2025-04-14)
 
 
