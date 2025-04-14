@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.13.0/tasks/lint.yaml
-  - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/373-remove-test-realm/tasks/setup.yaml
+  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.0/tasks/lint.yaml
+  - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.0/tasks/setup.yaml
 
 variables:
   - name: VERSION
@@ -149,7 +149,6 @@ tasks:
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
       - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --set=core-base.PEPR_KEYCLOAK_CLIENT_STRATEGY=${PEPR_KEYCLOAK_CLIENT_STRATEGY} --confirm --no-progress
       - task: create-users
-      - task: setup:print-keycloak-admin-password
 
   - name: create-users
     description: "Creating users needed by the tests"
