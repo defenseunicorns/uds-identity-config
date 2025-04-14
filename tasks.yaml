@@ -5,6 +5,7 @@ includes:
   - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.0/tasks/lint.yaml
   - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.0/tasks/setup.yaml
 
+
 variables:
   - name: VERSION
     description: "The image tag"

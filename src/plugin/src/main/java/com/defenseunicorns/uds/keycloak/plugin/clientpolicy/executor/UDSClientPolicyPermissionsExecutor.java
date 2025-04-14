@@ -18,8 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Keycloak Client Policy Executor for the UDS Operator.
@@ -65,6 +63,8 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                         if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient())) {
                             throw new ClientPolicyException(Errors.UNAUTHORIZED_CLIENT, "The Client doesn't have the " + ATTRIBUTE_UDS_OPERATOR + "=" + ATTRIBUTE_UDS_OPERATOR_VALUE + " attribute. Rejecting request.");
                         }
+                        break;
+                    default:
                         break;
                 }
             }
