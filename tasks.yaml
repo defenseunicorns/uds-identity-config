@@ -10,7 +10,7 @@ variables:
   - name: VERSION
     description: "The image tag"
     # x-release-please-start-version
-    default: "0.12.0"
+    default: "0.12.1"
     # x-release-please-end
 
   - name: IMAGE_NAME
