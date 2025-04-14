@@ -7,7 +7,7 @@ import { RegistrationFormData } from "../support/types";
 
 describe("Login Flow", () => {
   it("Existing User", () => {
-    // existing user created in test realm.json
+    // existing user
     const formData: RegistrationFormData = {
       firstName: "Testing",
       lastName: "User",

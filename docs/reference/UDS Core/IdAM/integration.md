@@ -26,7 +26,7 @@ Using uds-cli task [`uds-core-integration-tests`](https://github.com/defenseunic
 Task explanation:
 
 - Cleanup an existing uds-core directory ( mainly for local testing )
-- Create docker image that uses the new certs as well as a testing realm.json ( has a defined user, no MFA, and no email verification )
+- Create docker image that uses the new certs
 - Clone [`uds-core`](https://github.com/defenseunicorns/uds-core) necessary for setting up k3d cluster to test against
 - Use that cacert in deploying `uds-core` [istio gateways](https://github.com/defenseunicorns/uds-core/tree/main/src/istio/values)
 - Create zarf package that combines uds-core and identity-config
