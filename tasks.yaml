@@ -3,7 +3,7 @@
 
 includes:
   - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.0/tasks/lint.yaml
-  - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.0/tasks/setup.yaml
+  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.0/tasks/setup.yaml
 
 
 variables:
@@ -155,15 +155,15 @@ tasks:
     description: "Creating users needed by the tests"
     actions:
       # Calling this explicitly even though it's also called by setup:keycloak-user. During the testing we often need it.
-      - task: setup:keycloak-admin-user
+      - task: common-setup:keycloak-admin-user
       - description: "Create the Auditor User (testing_user) in the UDS Core realm"
-        task: setup:keycloak-user
+        task: common-setup:keycloak-user
         with:
           group: "/UDS Core/Auditor"
           username: "testing_user"
           password: "Testingpassword1!!"
       - description: "Create the Admin User (testing_admin) in the UDS Core realm"
-        task: setup:keycloak-user
+        task: common-setup:keycloak-user
         with:
           group: "/UDS Core/Admin"
           username: "testing_admin"
