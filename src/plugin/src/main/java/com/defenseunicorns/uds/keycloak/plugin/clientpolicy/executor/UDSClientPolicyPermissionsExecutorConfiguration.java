@@ -16,13 +16,13 @@ public class UDSClientPolicyPermissionsExecutorConfiguration extends ClientPolic
     private List<String> allowedProtocolMappers;
 
     @JsonProperty(value = UDSClientPolicyPermissionsExecutorFactory.USE_DEFAULT_ALLOWED_PROTOCOL_MAPPER_TYPES, defaultValue = "true")
-    private boolean useDefaultAllowedProtocolMappers;
+    private boolean useDefaultAllowedProtocolMappers = true;
 
     @JsonProperty(UDSClientPolicyPermissionsExecutorFactory.ADDITIONAL_ALLOWED_CLIENT_SCOPES)
     private List<String> allowedClientScopes;
 
     @JsonProperty(value = UDSClientPolicyPermissionsExecutorFactory.USE_DEFAULT_ALLOWED_CLIENT_SCOPES, defaultValue = "true")
-    private boolean useDefaultAllowedClientScopes;
+    private boolean useDefaultAllowedClientScopes = true;
 
     public List<String> getAllowedProtocolMappers() {
         return allowedProtocolMappers;

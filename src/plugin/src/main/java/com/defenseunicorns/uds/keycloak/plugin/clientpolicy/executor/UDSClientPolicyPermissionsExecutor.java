@@ -182,7 +182,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             config.setAllowedClientScopes(allowedClientScopes);
         }
 
-        logger.trace("Initializing with configuration: {}", config);
+        logger.debug("Initializing with configuration: {}", config);
         this.configuration = config;
     }
 
