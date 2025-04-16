@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.0/tasks/lint.yaml
-  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.0/tasks/setup.yaml
+  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.1/tasks/lint.yaml
+  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.1/tasks/setup.yaml
 
 
 variables:
@@ -20,7 +20,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.39.0"
+    default: "v0.40.0"
 
   - name: PEPR_KEYCLOAK_CLIENT_STRATEGY
     description: "Keycloak client strategy for uds-operator. Possible values: \"dynamic_client_registration\", \"client_credentials\" and \"auto\""
