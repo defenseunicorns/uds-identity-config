@@ -64,9 +64,6 @@ public class UDSClientPolicyPermissionsExecutorFactory implements ClientPolicyEx
         additionalAllowedClientScopes.setLabel("Additional Allowed Client Scopes");
         additionalAllowedClientScopes.setHelpText("Additional Allowed Client Scopes");
         additionalAllowedClientScopes.setType(ProviderConfigProperty.MULTIVALUED_STRING_TYPE);
-        // Unfortunately, when we're creating a Client Policy we don't have access to Client Scopes yet.
-        // This is different in
-//            additionalAllowedClientScopes.setOptions(getClientScopes());
         configProperties.add(additionalAllowedClientScopes);
 
         useDefaultAllowedClientScopes.setName(USE_DEFAULT_ALLOWED_CLIENT_SCOPES);

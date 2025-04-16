@@ -8,6 +8,8 @@ package com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor;
 import com.defenseunicorns.uds.keycloak.plugin.CustomAWSSAMLGroupMapper;
 import com.defenseunicorns.uds.keycloak.plugin.CustomGroupPathMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import org.keycloak.common.util.CollectionUtil;
 import org.keycloak.events.Errors;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientScopeModel;
@@ -30,6 +32,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.keycloak.common.util.CollectionUtil.*;
 
 /**
  * Keycloak Client Policy Executor for the UDS Operator.
@@ -138,20 +142,22 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     }
 
     void setAllowedProtocolMappers(ClientRepresentation rep) {
-        if (rep.getProtocolMappers() != null && !rep.getProtocolMappers().isEmpty()) {
+        if (isNotEmpty(rep.getProtocolMappers()) && configuration.getAllowedProtocolMappers() != null) {
             rep.getProtocolMappers()
                     .removeIf(mapper -> !configuration.getAllowedProtocolMappers().contains(mapper.getProtocolMapper()));
         }
     }
 
     void setAllowedCustomClientScopes(ClientRepresentation rep) {
-        if (rep.getDefaultClientScopes() != null && !rep.getDefaultClientScopes().isEmpty()) {
-            rep.getDefaultClientScopes()
-                    .removeIf(scope -> !configuration.getAllowedClientScopes().contains(scope));
-        }
-        if (rep.getOptionalClientScopes() != null && !rep.getOptionalClientScopes().isEmpty()) {
-            rep.getOptionalClientScopes()
-                    .removeIf(scope -> !configuration.getAllowedClientScopes().contains(scope));
+        if (configuration.getAllowedClientScopes() != null) {
+            if (isNotEmpty(rep.getDefaultClientScopes())) {
+                rep.getDefaultClientScopes()
+                        .removeIf(scope -> !configuration.getAllowedClientScopes().contains(scope));
+            }
+            if (isNotEmpty(rep.getOptionalClientScopes())) {
+                rep.getOptionalClientScopes()
+                        .removeIf(scope -> !configuration.getAllowedClientScopes().contains(scope));
+            }
         }
     }
 
