@@ -2,13 +2,15 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.13.0/tasks/lint.yaml
+  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.1/tasks/lint.yaml
+  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.1/tasks/setup.yaml
+
 
 variables:
   - name: VERSION
     description: "The image tag"
     # x-release-please-start-version
-    default: "0.11.1"
+    default: "0.12.1"
     # x-release-please-end
 
   - name: IMAGE_NAME
@@ -18,7 +20,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.39.0"
+    default: "v0.40.0"
 
   - name: PEPR_KEYCLOAK_CLIENT_STRATEGY
     description: "Keycloak client strategy for uds-operator. Possible values: \"dynamic_client_registration\", \"client_credentials\" and \"auto\""
@@ -113,7 +115,7 @@ tasks:
     description: "UDS Core + Identity Config Integration Testing"
     actions:
       - description: Build identity config image
-        cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" --build-arg REALM_FILE="test/cypress/realm.json" -t uds-core-config:keycloak --no-cache src
+        cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" -t uds-core-config:keycloak --no-cache src
       - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
@@ -147,6 +149,25 @@ tasks:
       - task: grafana-group-auth-build-deploy
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
       - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --set=core-base.PEPR_KEYCLOAK_CLIENT_STRATEGY=${PEPR_KEYCLOAK_CLIENT_STRATEGY} --confirm --no-progress
+      - task: create-users
+
+  - name: create-users
+    description: "Creating users needed by the tests"
+    actions:
+      # Calling this explicitly even though it's also called by setup:keycloak-user. During the testing we often need it.
+      - task: common-setup:keycloak-admin-user
+      - description: "Create the Auditor User (testing_user) in the UDS Core realm"
+        task: common-setup:keycloak-user
+        with:
+          group: "/UDS Core/Auditor"
+          username: "testing_user"
+          password: "Testingpassword1!!"
+      - description: "Create the Admin User (testing_admin) in the UDS Core realm"
+        task: common-setup:keycloak-user
+        with:
+          group: "/UDS Core/Admin"
+          username: "testing_admin"
+          password: "Testingpassword1!!"
 
   - name: cypress-tests
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
