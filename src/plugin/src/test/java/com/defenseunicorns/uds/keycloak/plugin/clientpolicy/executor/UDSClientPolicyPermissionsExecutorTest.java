@@ -123,6 +123,7 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         executor.enforceClientSettings(rep);
 
         // then
+        assertFalse(rep.getProtocolMappers().stream().anyMatch(mapper -> "invalid".equals(mapper.getProtocolMapper())));
         assertEquals(1, rep.getProtocolMappers().size());
         assertEquals(allowedProtocolMapper.getId(), rep.getProtocolMappers().get(0).getId());
     }
