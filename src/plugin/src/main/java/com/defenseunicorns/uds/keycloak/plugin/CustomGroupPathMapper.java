@@ -25,8 +25,8 @@ public class CustomGroupPathMapper extends AbstractOIDCProtocolMapper implements
         OIDCIDTokenMapper, UserInfoTokenMapper {
 
     public static final String PROVIDER_ID = "bare-group-path-mapper";
-    private static final String GROUPS_CLAIM = "groups";
-    private static final String BARE_GROUPS_CLAIM = "bare-groups";
+    public static final String GROUPS_CLAIM = "groups";
+    public static final String BARE_GROUPS_CLAIM = "bare-groups";
 
     @Override
     public String getDisplayCategory() {

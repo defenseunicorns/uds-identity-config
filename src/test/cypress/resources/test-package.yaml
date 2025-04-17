@@ -1,0 +1,33 @@
+# Copyright 2025 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-package
+---
+apiVersion: uds.dev/v1alpha1
+kind: Package
+metadata:
+  name: test-package
+  namespace: test-package
+spec:
+  sso:
+    - name: Test
+      clientId: uds-core-admin-test
+      redirectUris:
+        - "https://test-package.admin.uds.dev/openId_auth"
+      protocolMappers:
+        - name: valid-protocol-mapper-1
+          protocol: "openid-connect"
+          protocolMapper: "bare-group-path-mapper"
+        - name: valid-protocol-mapper-2
+          protocol: "openid-connect"
+          protocolMapper: "oidc-full-name-mapper"
+        - name: valid-protocol-mapper-3
+          protocol: "saml"
+          protocolMapper: "aws-saml-group-mapper"
+        # This one is expected to be rejected by the Policy
+        - name: invalid-protocol-mapper
+          protocol: "openid-connect"
+          protocolMapper: "non-whitelisted-protocol-mapper"

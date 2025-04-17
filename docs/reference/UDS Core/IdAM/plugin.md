@@ -17,6 +17,14 @@ A Keycloak plugin provides additional custom logic to our Keycloak deployment. B
 | [ClientIdAndKubernetesSecretAuthenticator](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/authentication/authenticators/client/ClientIdAndKubernetesSecretAuthenticator.java) | [ClientAuthenticator](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/authentication/ClientAuthenticator.html)                          | Authenticates a client using a Kubernetes secret. Used in the `ClientIdAndKubernetesSecret` authentication flow.                                                                                                                                                                                                                                                   |
 | [UDSClientPolicyPermissionsExecutor](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/clientpolicy/executor/UDSClientPolicyPermissionsExecutor.java)                            | [ClientPolicyExecutorProvider](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/clientpolicy/executor/ClientPolicyExecutorProvider.html) | Checks if a client has the necessary permissions to access a resource. Used in the `UDSClientPolicyPermissions` client policy.                                                                                                                                                                                                                                     |
 
+### Security hardening
+
+The UDS Keycloak Plugin leverages [Keycloak Client Policies](https://www.keycloak.org/docs/latest/server_admin/index.html#_client_policies) to enforce security hardening for clients created by the UDS Operator. The configuration can be accessed under "Realm Settings" > "Client Policies" > "UDS Client Profile" > "uds-operator-permissions" and includes the following options:
+
+* `Additional Allowed Protocol Mappers` - Specifies additional Protocol Mappers permitted for use by the packages.
+* `Use UDS Default Allowed Protocol Mappers` - When enabled, applies a predefined list of Protocol Mappers. Additional Protocol Mappers can be added using the `Additional Allowed Protocol Mappers` option.
+* `Additional Allowed Client Scopes` - Specifies additional Client Scopes permitted for use by the packages.
+* `Use UDS Default Client Scopes` - When enabled, applies a predefined list of Client Scopes. Additional Client Scopes can be added using the `Additional Allowed Client Scopes` option.
 
 ### Terms and Conditions behavior
 
