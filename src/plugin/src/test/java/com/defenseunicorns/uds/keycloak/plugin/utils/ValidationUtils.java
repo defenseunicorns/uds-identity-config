@@ -332,6 +332,11 @@ public class ValidationUtils {
                     }
 
                     @Override
+                    public boolean isProxyTrusted() {
+                        return false;
+                    }
+
+                    @Override
                     public String getHttpMethod() {
                         return null;
                     }
