@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.13.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.12.1...v0.13.0) (2025-04-18)
+
+
+### Features
+
+* uds policy hardening ([#428](https://github.com/defenseunicorns/uds-identity-config/issues/428)) ([69b3388](https://github.com/defenseunicorns/uds-identity-config/commit/69b3388080d06ac7e61b361eea46f44244e4e435))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.2.0 ([#426](https://github.com/defenseunicorns/uds-identity-config/issues/426)) ([66f3f19](https://github.com/defenseunicorns/uds-identity-config/commit/66f3f19bd0a83c7d99a9c1fd4ac1902f97364792))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#432](https://github.com/defenseunicorns/uds-identity-config/issues/432)) ([3965791](https://github.com/defenseunicorns/uds-identity-config/commit/3965791a7dfeb2fde17f2f13a94161fb1c1cdaa8))
+* **deps:** update all dependencies ([#437](https://github.com/defenseunicorns/uds-identity-config/issues/437)) ([fceb07f](https://github.com/defenseunicorns/uds-identity-config/commit/fceb07f8740a0cea071fa713b05716cdc90e3154))
+* **deps:** update dependency defenseunicorns/uds-k3d to v0.12.3 ([#436](https://github.com/defenseunicorns/uds-identity-config/issues/436)) ([4642278](https://github.com/defenseunicorns/uds-identity-config/commit/4642278286e30cac36126a251f2c8b246dca0d6e))
+* **deps:** update docker image ghcr.io/zarf-dev/packages/init to v0.52.1 ([#440](https://github.com/defenseunicorns/uds-identity-config/issues/440)) ([41037e0](https://github.com/defenseunicorns/uds-identity-config/commit/41037e081d5a13e2c5198747a1d097aa600ebe0d))
+* **deps:** update gha-deps to v0.26.2 ([#435](https://github.com/defenseunicorns/uds-identity-config/issues/435)) ([403c0dc](https://github.com/defenseunicorns/uds-identity-config/commit/403c0dc1443a34191da4ea599d4b9300712d6b08))
+* small doc change ([#438](https://github.com/defenseunicorns/uds-identity-config/issues/438)) ([8645f4b](https://github.com/defenseunicorns/uds-identity-config/commit/8645f4b12bb85c6ebe71259e3984af79ee0a7e70))
+
 ## [0.12.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.12.0...v0.12.1) (2025-04-14)
 
 
