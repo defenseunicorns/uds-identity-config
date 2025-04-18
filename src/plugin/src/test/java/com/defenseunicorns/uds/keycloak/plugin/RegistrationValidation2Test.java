@@ -122,7 +122,7 @@ class RegistrationValidation2Test {
                     return Stream.of(userModel);
                 });
 
-        CryptoIntegration.init(this.getClass().getClassLoader());
+//        CryptoIntegration.init(this.getClass().getClassLoader());
     }
 
     @Test

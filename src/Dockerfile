@@ -11,9 +11,22 @@ FROM cgr.dev/chainguard/maven:openjdk-17 AS plugin
 WORKDIR /home/build
 
 COPY plugin/pom.xml .
+RUN mvn dependency:go-offline
 COPY plugin/src ./src
 
 RUN mvn clean package
+
+RUN mvn dependency:copy-dependencies -DoutputDirectory=target/lib
+# https://www.keycloak.org/server/fips#_bouncycastle_fips_bits
+RUN mkdir -p target/fips/libs
+RUN cp target/lib/bc-fips-*.jar target/fips/libs
+RUN cp target/lib/bctls-fips-*.jar target/fips/libs
+RUN cp target/lib/bcpkix-fips-*.jar target/fips/libs
+RUN cp target/lib/bcutil-fips-*.jar target/fips/libs
+
+RUN pwd
+RUN ls -lR target/fips/libs
+RUN ls /home/build/target/fips/libs/*.jar
 
 # Include anything in the extra-jars directory in the target directory
 # We will filter out in the next build stage
@@ -52,6 +65,12 @@ WORKDIR /home/nonroot
 
 # Copy Jars from the plugin build stage
 COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
+
+# mkdir -p /home/nonroot/fips/libs with --chown=nonroot
+RUN mkdir -p ./fips/libs
+RUN chown -R nonroot:nonroot ./fips/libs
+COPY --chown=nonroot --from=plugin /home/build/target/fips/libs/*.jar ./fips/libs
+RUN ls -lR ./fips/libs
 
 # Copy the DOD Unclass PEM and truststore for Istio & Keycloak Auth
 COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .

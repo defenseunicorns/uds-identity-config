@@ -5,6 +5,7 @@
 
 package com.defenseunicorns.uds.keycloak.plugin;
 
+import org.keycloak.crypto.fips.FIPS1402Provider;
 import org.keycloak.http.HttpRequest;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +51,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ X509Tools.class })
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"javax.management.*", "javax.security.auth.x500.*"})
 class RegistrationX509PasswordTest {
 
     @Mock
@@ -128,7 +129,13 @@ class RegistrationX509PasswordTest {
                     return Stream.of(userModel);
                 });
 
-        CryptoIntegration.init(this.getClass().getClassLoader());
+//        new org.keycloak.crypto.fips.FIPS1402Provider();
+
+//        CryptoIntegration.init(this.getClass().getClassLoader());
+//        CryptoIntegration.setProvider(new FIPS1402Provider());
+
+//        System.err.println(CryptoIntegration.dumpJavaSecurityProviders());
+//        System.err.println(CryptoIntegration.dumpSecurityProperties());
     }
 
     @Test
