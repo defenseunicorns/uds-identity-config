@@ -121,8 +121,6 @@ class RegistrationValidation2Test {
                 .thenAnswer((stream) -> {
                     return Stream.of(userModel);
                 });
-
-//        CryptoIntegration.init(this.getClass().getClassLoader());
     }
 
     @Test
