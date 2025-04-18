@@ -128,14 +128,6 @@ class RegistrationX509PasswordTest {
                 .thenAnswer((stream) -> {
                     return Stream.of(userModel);
                 });
-
-//        new org.keycloak.crypto.fips.FIPS1402Provider();
-
-//        CryptoIntegration.init(this.getClass().getClassLoader());
-//        CryptoIntegration.setProvider(new FIPS1402Provider());
-
-//        System.err.println(CryptoIntegration.dumpJavaSecurityProviders());
-//        System.err.println(CryptoIntegration.dumpSecurityProperties());
     }
 
     @Test

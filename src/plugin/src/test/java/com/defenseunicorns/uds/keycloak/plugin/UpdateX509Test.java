@@ -45,9 +45,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ X509Tools.class })
-//@PowerMockIgnore("javax.management.*")
 @PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.ssl.*", "org.slf4j.*", "javax.parsers.*", "ch.qos.logback.*", "jdk.xml.internal.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.dom.*", "org.xml.sax.*", "com.sun.org.apache.xalan.internal.*", "com.sun.org.apache.xpath.internal.*", "org.apache.commons.logging.*", "org.apache.logging.log4j.*", "org.apache.logging.slf4j.*", "javax.security.auth.*", " org.bouncycastle.*"})
-//@PowerMockIgnore("jdk.internal.reflect.*")
 class UpdateX509Test {
 
     @Mock
@@ -122,9 +120,6 @@ class UpdateX509Test {
                 .thenAnswer((stream) -> {
                     return Stream.of(userModel);
                 });
-
-//        CryptoIntegration.init(this.getClass().getClassLoader());
-//        CryptoIntegration.setProvider(new FIPS1402Provider());
     }
 
     @Test
