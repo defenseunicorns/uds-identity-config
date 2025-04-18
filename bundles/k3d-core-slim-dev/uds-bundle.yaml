@@ -16,7 +16,7 @@ packages:
   - name: init
     repository: ghcr.io/zarf-dev/packages/init
     # renovate: datasource=github-tags depName=zarf-dev/zarf versioning=semver
-    ref: v0.51.0
+    ref: v0.52.0
 
   - name: keycloak-identity-config
     path: ../../
@@ -25,7 +25,7 @@ packages:
   - name: core-base
     path: ../../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.40.0
+    ref: 0.40.1
     overrides:
       uds-operator-config:
         uds-operator-config:
@@ -62,7 +62,7 @@ packages:
   - name: core-identity-authorization
     path: ../../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.40.0
+    ref: 0.40.1
     overrides:
       keycloak:
         keycloak:
@@ -95,4 +95,4 @@ packages:
   - name: core-monitoring
     path: ../../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.40.0
+    ref: 0.40.1
