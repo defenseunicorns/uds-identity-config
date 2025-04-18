@@ -18,6 +18,12 @@ cp -fvr theme/* /opt/keycloak/themes/theme/
 cp -fv *.jar /opt/keycloak/providers/
 cp -fv certs/* /opt/keycloak/conf/truststores
 
+# if USE_FIPS is true
+if [ "${FIPS_ENABLED}" = "true" ]; then
+    echo "FIPS mode enabled, copying FIPS libraries"
+    cp -fv ./fips/libs/*.jar /opt/keycloak/providers/
+fi
+
 if [ -d /opt/keycloak/theme-overrides ]; then
     echo "Applying theme customizations"
     if [ -f /opt/keycloak/theme-overrides/logo.svg ]; then

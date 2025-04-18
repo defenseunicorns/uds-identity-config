@@ -48,19 +48,10 @@
         </dependency>
         <dependency>
             <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-crypto-default</artifactId>
+            <artifactId>keycloak-crypto-fips1402</artifactId>
             <version>${keycloak.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpg-fips</artifactId>
-            <version>2.1.11</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
-        </dependency>
+
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
@@ -72,11 +63,6 @@
             <artifactId>powermock-api-mockito2</artifactId>
             <version>2.0.9</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.18.3</version>
         </dependency>
     </dependencies>
 
@@ -110,6 +96,7 @@
                         --add-opens=java.base/java.util.stream=ALL-UNNAMED
                         --add-opens=java.base/java.net=ALL-UNNAMED
                         --add-opens=java.base/sun.security.jca=ALL-UNNAMED
+                        --add-opens java.base/org.bouncycastle.jcajce.provider=ALL-UNNAMED
                     </argLine>
                 </configuration>
                 <executions>
