@@ -22,10 +22,6 @@ variables:
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
     default: "v0.40.1"
 
-  - name: PEPR_KEYCLOAK_CLIENT_STRATEGY
-    description: "Keycloak client strategy for uds-operator. Possible values: \"dynamic_client_registration\", \"client_credentials\" and \"auto\""
-    default: client_credentials
-
 tasks:
   - name: build-and-publish
     description: "Build and publish the multi-arch image"
@@ -116,7 +112,7 @@ tasks:
     actions:
       - description: Build identity config image
         cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" -t uds-core-config:keycloak --no-cache src
-      - task: clone-core
+      # - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
       - task: cypress-tests
@@ -148,7 +144,7 @@ tasks:
       - cmd: cd uds-core && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization
       - task: grafana-group-auth-build-deploy
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
-      - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --set=core-base.PEPR_KEYCLOAK_CLIENT_STRATEGY=${PEPR_KEYCLOAK_CLIENT_STRATEGY} --confirm --no-progress
+      - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
       - task: create-users
 
   - name: create-users
@@ -174,7 +170,7 @@ tasks:
     actions:
       - cmd: |
           npm --prefix src/test/cypress install
-          PEPR_KEYCLOAK_CLIENT_STRATEGY=${PEPR_KEYCLOAK_CLIENT_STRATEGY} npm --prefix src/test/cypress run cy.run
+          npm --prefix src/test/cypress run cy.run
 
   - name: theme-customization-tests
     description: "Runs theme customization tests ( requires an existing deployed UDS Core Identity )"
