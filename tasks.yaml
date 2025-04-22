@@ -20,7 +20,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "istio-ambient-envoyfilter-updates"
+    default: "v0.40.1"
 
 tasks:
   - name: build-and-publish
@@ -112,7 +112,7 @@ tasks:
     actions:
       - description: Build identity config image
         cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" -t uds-core-config:keycloak --no-cache src
-      # - task: clone-core
+      - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
       - task: cypress-tests
