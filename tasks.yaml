@@ -20,7 +20,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.40.1"
+    default: "istio-ambient-envoyfilter-updates"
 
 tasks:
   - name: build-and-publish
