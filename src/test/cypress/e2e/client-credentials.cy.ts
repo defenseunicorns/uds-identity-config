@@ -115,4 +115,22 @@ describe("UDS Operator Client Credentials", () => {
             });
         });
     });
+
+    it("Dynamic Client Registration is disabled", () => {
+        cy.request({
+            method: "POST",
+            url: "https://keycloak.admin.uds.dev/realms/uds/clients-registrations/default",
+            failOnStatusCode: false,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: {
+                clientId: "dcr-should-be-disabled",
+                redirectUris: ["http://localhost"],
+                publicClient: true,
+            },
+        }).then((response) => {
+            expect([401, 403]).to.include(response.status);
+        });
+    });
 });
