@@ -20,7 +20,7 @@ To use the `regenerate-test-pki` task:
 
 * Create `csr.conf`
 
-   ```conf
+   ```bash
    [req]
    default_bits       = 2048
    default_keyfile    = key.pem
