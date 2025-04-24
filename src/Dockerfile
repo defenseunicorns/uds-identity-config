@@ -16,11 +16,10 @@ COPY plugin/src ./src
 
 RUN mvn clean package
 
-RUN mvn dependency:copy-dependencies -DoutputDirectory=target/lib
-
 # https://www.keycloak.org/server/fips#_bouncycastle_fips_bits
 # Keycloak FIPS mode requires additional libraries. This way we ensure its version is exactly
 # the same as use used by Keycloak Server.
+RUN mvn dependency:copy-dependencies -DoutputDirectory=target/lib
 RUN mkdir -p target/fips/libs
 RUN cp target/lib/bc-fips-*.jar target/fips/libs
 RUN cp target/lib/bctls-fips-*.jar target/fips/libs
@@ -68,7 +67,8 @@ COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
 # FIPS dependencies
 RUN mkdir -p ./fips/libs
 RUN chown -R nonroot:nonroot ./fips/libs
-COPY --chown=nonroot --from=plugin /home/build/target/fips/libs/*.jar ./fips/libs
+COPY --chown=nonroot --from=plugin /home/build/target/fips ./
+
 
 # Copy the DOD Unclass PEM and truststore for Istio & Keycloak Auth
 COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
