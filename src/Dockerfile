@@ -67,8 +67,7 @@ COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
 # FIPS dependencies
 RUN mkdir -p ./fips/libs
 RUN chown -R nonroot:nonroot ./fips/libs
-COPY --chown=nonroot --from=plugin /home/build/target/fips ./
-
+COPY --chown=nonroot --from=plugin /home/build/target/fips/libs/*.jar ./fips/libs
 
 # Copy the DOD Unclass PEM and truststore for Istio & Keycloak Auth
 COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
