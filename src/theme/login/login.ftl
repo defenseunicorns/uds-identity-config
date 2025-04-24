@@ -84,7 +84,7 @@
             if (feedback.innerHTML.includes('X509 certificate') && feedback.innerHTML.includes('Invalid user')) {
                 feedback.outerHTML = `
                     <div class="alert alert-info cac-info">
-                        <h2>New DoD PKI Detected test</h2>
+                        <h2>New DoD PKI Detected</h2>
                         <p>Your CAC has been detected, but no account is associated with it.</p>
                     </div>
                 `;
