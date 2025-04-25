@@ -4,9 +4,22 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
-## v0.11.0+
+## v0.14.0+
 
 <details open>
+<summary>Upgrade Details</summary>
+
+In uds-identity-config versions v0.14.0+, the UDS Identity Config has removed `Dynamic Client Registration`. Part of this means that we need to remove a couple of the `Trusted Hosts` configured in uds-identity-config. To manually configure this:
+   - Navigate to the `UDS` realm (be aware that in KC v26.2 the UI/UX of navigating realms has changed)
+   - Go to `Clients` > `Client Registration` > `Trusted Hosts`
+   - Remove the following Trusted Hosts:
+      - `*.keycloak.svc.cluster.local`
+      - `*.pepr-uds-core-watcher.pepr-system.svc.cluster.local`
+   - Click the `Save` button
+<details>
+
+## v0.11.0+
+
 <summary>Upgrade Details</summary>
 
 In uds-identity-config versions v0.11.0+, the UDS Operator can automatically switch to Client Credentials Grant from using the Dynamic Client Registration. The new method works faster, is more reliable and doesn't require storing Registration Tokens in the Pepr Store. It is highly recommended to switch to it, which requires the following steps:
