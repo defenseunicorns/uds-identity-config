@@ -5,17 +5,17 @@
 
 package com.defenseunicorns.uds.keycloak.plugin;
 
-import org.keycloak.http.HttpRequest;
+import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.Config;
 import org.keycloak.authentication.RequiredActionContext;
-import org.keycloak.common.crypto.UserIdentityExtractor;
-import org.keycloak.common.crypto.CryptoIntegration;
 import org.keycloak.authentication.authenticators.x509.X509AuthenticatorConfigModel;
 import org.keycloak.authentication.authenticators.x509.X509ClientCertificateAuthenticator;
+import org.keycloak.common.crypto.UserIdentityExtractor;
 import org.keycloak.forms.login.LoginFormsProvider;
+import org.keycloak.http.HttpRequest;
 import org.keycloak.models.*;
 import org.keycloak.services.x509.X509ClientCertificateLookup;
 import org.keycloak.sessions.AuthenticationSessionModel;
@@ -26,14 +26,8 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
-
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.defenseunicorns.uds.keycloak.plugin.utils.Utils.setupFileMocks;
@@ -44,9 +38,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ X509Tools.class })
-//@PowerMockIgnore("javax.management.*")
-@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.ssl.*", "org.slf4j.*", "javax.parsers.*", "ch.qos.logback.*", "jdk.xml.internal.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
-//@PowerMockIgnore("jdk.internal.reflect.*")
+@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.ssl.*", "org.slf4j.*", "javax.parsers.*", "ch.qos.logback.*", "jdk.xml.internal.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.dom.*", "org.xml.sax.*", "com.sun.org.apache.xalan.internal.*", "com.sun.org.apache.xpath.internal.*", "org.apache.commons.logging.*", "org.apache.logging.log4j.*", "org.apache.logging.slf4j.*", "javax.security.auth.*", " org.bouncycastle.*"})
 class UpdateX509Test {
 
     @Mock
@@ -121,8 +113,6 @@ class UpdateX509Test {
                 .thenAnswer((stream) -> {
                     return Stream.of(userModel);
                 });
-
-        CryptoIntegration.init(this.getClass().getClassLoader());
     }
 
     @Test

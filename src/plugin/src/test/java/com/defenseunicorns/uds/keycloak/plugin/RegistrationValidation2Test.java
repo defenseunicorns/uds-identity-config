@@ -5,16 +5,17 @@
 
 package com.defenseunicorns.uds.keycloak.plugin;
 
-import org.keycloak.authentication.FormContext;
-import org.keycloak.http.HttpRequest;
+import com.defenseunicorns.uds.keycloak.plugin.utils.UserModelDefaultMethodsImpl;
+import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.keycloak.authentication.FormContext;
 import org.keycloak.authentication.ValidationContext;
-import org.keycloak.common.crypto.UserIdentityExtractor;
-import org.keycloak.common.crypto.CryptoIntegration;
 import org.keycloak.authentication.authenticators.x509.X509AuthenticatorConfigModel;
 import org.keycloak.authentication.authenticators.x509.X509ClientCertificateAuthenticator;
+import org.keycloak.common.crypto.UserIdentityExtractor;
+import org.keycloak.http.HttpRequest;
 import org.keycloak.models.*;
 import org.keycloak.services.validation.Validation;
 import org.keycloak.services.x509.X509ClientCertificateLookup;
@@ -25,9 +26,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.defenseunicorns.uds.keycloak.plugin.utils.UserModelDefaultMethodsImpl;
-import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -121,8 +119,6 @@ class RegistrationValidation2Test {
                 .thenAnswer((stream) -> {
                     return Stream.of(userModel);
                 });
-
-        CryptoIntegration.init(this.getClass().getClassLoader());
     }
 
     @Test

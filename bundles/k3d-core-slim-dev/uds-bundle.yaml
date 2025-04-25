@@ -16,7 +16,7 @@ packages:
   - name: init
     repository: ghcr.io/zarf-dev/packages/init
     # renovate: datasource=github-tags depName=zarf-dev/zarf versioning=semver
-    ref: v0.52.1
+    ref: v0.53.0
 
   - name: keycloak-identity-config
     path: ../../
@@ -84,6 +84,8 @@ packages:
               value:
                 name: JAVA_OPTS_KC_HEAP
                 value: "-XX:MaxRAMPercentage=70 -XX:MinRAMPercentage=70 -XX:InitialRAMPercentage=50 -XX:MaxRAM=1G"
+            - path: fips
+              value: true
 
   - name: core-monitoring
     path: ../../uds-core/build/
