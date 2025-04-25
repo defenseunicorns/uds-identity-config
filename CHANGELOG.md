@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.13.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.12.1...v0.13.0) (2025-04-25)
+
+
+### Features
+
+* fips mode ([#434](https://github.com/defenseunicorns/uds-identity-config/issues/434)) ([b524962](https://github.com/defenseunicorns/uds-identity-config/commit/b5249620e21c9a27575e4fc0b89380e8ee7e9171))
+* uds policy hardening ([#428](https://github.com/defenseunicorns/uds-identity-config/issues/428)) ([69b3388](https://github.com/defenseunicorns/uds-identity-config/commit/69b3388080d06ac7e61b361eea46f44244e4e435))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.2.0 ([#426](https://github.com/defenseunicorns/uds-identity-config/issues/426)) ([66f3f19](https://github.com/defenseunicorns/uds-identity-config/commit/66f3f19bd0a83c7d99a9c1fd4ac1902f97364792))
+* **deps:** update plugin-deps to v26.2.1 ([#443](https://github.com/defenseunicorns/uds-identity-config/issues/443)) ([cadbcdd](https://github.com/defenseunicorns/uds-identity-config/commit/cadbcddf62b4b50621a8b275b23ec0d1db9d8683))
+* remove test from New DoD PKI Detected banner ([#447](https://github.com/defenseunicorns/uds-identity-config/issues/447)) ([51a3366](https://github.com/defenseunicorns/uds-identity-config/commit/51a336602db68fc9ecf9f0aa2989ca544d16834c))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#432](https://github.com/defenseunicorns/uds-identity-config/issues/432)) ([3965791](https://github.com/defenseunicorns/uds-identity-config/commit/3965791a7dfeb2fde17f2f13a94161fb1c1cdaa8))
+* **deps:** update all dependencies ([#437](https://github.com/defenseunicorns/uds-identity-config/issues/437)) ([fceb07f](https://github.com/defenseunicorns/uds-identity-config/commit/fceb07f8740a0cea071fa713b05716cdc90e3154))
+* **deps:** update dependency cypress to v14.3.2 ([#439](https://github.com/defenseunicorns/uds-identity-config/issues/439)) ([f524e98](https://github.com/defenseunicorns/uds-identity-config/commit/f524e98c937998bbee6baa4e4f9cb61bbe369c07))
+* **deps:** update dependency defenseunicorns/uds-common to v1.14.2 ([#448](https://github.com/defenseunicorns/uds-identity-config/issues/448)) ([2656408](https://github.com/defenseunicorns/uds-identity-config/commit/2656408473dbe675eb84134b23e3f4169c783722))
+* **deps:** update dependency defenseunicorns/uds-k3d to v0.12.3 ([#436](https://github.com/defenseunicorns/uds-identity-config/issues/436)) ([4642278](https://github.com/defenseunicorns/uds-identity-config/commit/4642278286e30cac36126a251f2c8b246dca0d6e))
+* **deps:** update dependency zarf-dev/zarf to v0.53.0 ([#444](https://github.com/defenseunicorns/uds-identity-config/issues/444)) ([7b85772](https://github.com/defenseunicorns/uds-identity-config/commit/7b8577239a2683fc9ffbef02b7b1aefbcc380be2))
+* **deps:** update docker image ghcr.io/zarf-dev/packages/init to v0.52.1 ([#440](https://github.com/defenseunicorns/uds-identity-config/issues/440)) ([41037e0](https://github.com/defenseunicorns/uds-identity-config/commit/41037e081d5a13e2c5198747a1d097aa600ebe0d))
+* **deps:** update gha-deps to v0.26.2 ([#435](https://github.com/defenseunicorns/uds-identity-config/issues/435)) ([403c0dc](https://github.com/defenseunicorns/uds-identity-config/commit/403c0dc1443a34191da4ea599d4b9300712d6b08))
+* **deps:** update gha-deps to v0.27.0 ([#442](https://github.com/defenseunicorns/uds-identity-config/issues/442)) ([fae7a13](https://github.com/defenseunicorns/uds-identity-config/commit/fae7a13da94ecce6cd151eb06a9eddb93430a35a))
+* **deps:** update gha-deps to v0.27.1 ([#445](https://github.com/defenseunicorns/uds-identity-config/issues/445)) ([4e99c75](https://github.com/defenseunicorns/uds-identity-config/commit/4e99c755efc697744fd32fd95a98dd5c461e9df8))
+* small doc change ([#438](https://github.com/defenseunicorns/uds-identity-config/issues/438)) ([8645f4b](https://github.com/defenseunicorns/uds-identity-config/commit/8645f4b12bb85c6ebe71259e3984af79ee0a7e70))
+
 ## [0.12.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.12.0...v0.12.1) (2025-04-14)
 
 
