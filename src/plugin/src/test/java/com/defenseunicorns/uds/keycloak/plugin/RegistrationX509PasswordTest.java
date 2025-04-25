@@ -5,19 +5,21 @@
 
 package com.defenseunicorns.uds.keycloak.plugin;
 
-import org.keycloak.http.HttpRequest;
+import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.Config;
 import org.keycloak.authentication.ValidationContext;
-import org.keycloak.common.crypto.CryptoIntegration;
-import org.keycloak.common.crypto.UserIdentityExtractor;
 import org.keycloak.authentication.authenticators.x509.X509AuthenticatorConfigModel;
 import org.keycloak.authentication.authenticators.x509.X509ClientCertificateAuthenticator;
 import org.keycloak.authentication.forms.RegistrationPage;
+import org.keycloak.common.crypto.UserIdentityExtractor;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.forms.login.LoginFormsProvider;
+import org.keycloak.http.HttpRequest;
 import org.keycloak.models.*;
 import org.keycloak.policy.PasswordPolicyManagerProvider;
 import org.keycloak.policy.PolicyError;
@@ -29,11 +31,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
-
-import jakarta.ws.rs.core.MultivaluedHashMap;
-import jakarta.ws.rs.core.MultivaluedMap;
 
 import java.security.cert.X509Certificate;
 import java.util.Collections;
@@ -50,7 +47,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ X509Tools.class })
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"javax.management.*", "javax.security.auth.x500.*"})
 class RegistrationX509PasswordTest {
 
     @Mock
@@ -127,8 +124,6 @@ class RegistrationX509PasswordTest {
                 .thenAnswer((stream) -> {
                     return Stream.of(userModel);
                 });
-
-        CryptoIntegration.init(this.getClass().getClassLoader());
     }
 
     @Test

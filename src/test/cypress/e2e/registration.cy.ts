@@ -33,7 +33,9 @@ describe("CAC Registration Flow", () => {
     cy.get(".form-group .alert-info").should("be.visible").contains("h2", "DoD PKI Detected");
     cy.get(".form-group #certificate_subjectDN")
       .should("be.visible")
-      .contains("C=US,ST=Colorado,L=Colorado Springs,O=Defense Unicorns,CN=uds.dev");
+      // FIPS and non-FIPS mode use different formats for the subject DN. That's why we check if all parts are present instead of
+      // a full string match.
+      .contains("C=US").contains("ST=Colorado").contains("L=Colorado Springs").contains("O=Defense Unicorns").contains("CN=uds.dev")
 
     // Verify that PKI User information is correct
     cy.get(".form-group").contains("label", "You will be logged in as:").should("be.visible");
