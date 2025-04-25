@@ -5,18 +5,17 @@
 
 package com.defenseunicorns.uds.keycloak.plugin;
 
-import org.keycloak.crypto.fips.FIPS1402Provider;
-import org.keycloak.http.HttpRequest;
+import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.Config;
 import org.keycloak.authentication.RequiredActionContext;
-import org.keycloak.common.crypto.UserIdentityExtractor;
-import org.keycloak.common.crypto.CryptoIntegration;
 import org.keycloak.authentication.authenticators.x509.X509AuthenticatorConfigModel;
 import org.keycloak.authentication.authenticators.x509.X509ClientCertificateAuthenticator;
+import org.keycloak.common.crypto.UserIdentityExtractor;
 import org.keycloak.forms.login.LoginFormsProvider;
+import org.keycloak.http.HttpRequest;
 import org.keycloak.models.*;
 import org.keycloak.services.x509.X509ClientCertificateLookup;
 import org.keycloak.sessions.AuthenticationSessionModel;
@@ -27,14 +26,8 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
-
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.defenseunicorns.uds.keycloak.plugin.utils.Utils.setupFileMocks;

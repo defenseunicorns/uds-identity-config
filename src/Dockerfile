@@ -14,7 +14,7 @@ COPY plugin/pom.xml .
 RUN mvn dependency:go-offline
 COPY plugin/src ./src
 
-RUN mvn clean package
+RUN mvn package
 
 # https://www.keycloak.org/server/fips#_bouncycastle_fips_bits
 # Keycloak FIPS mode requires additional libraries. This way we ensure its version is exactly

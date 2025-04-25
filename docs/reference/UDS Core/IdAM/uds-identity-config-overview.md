@@ -25,6 +25,17 @@ When Keycloak is configured for X.509 certificate authentication and OCSP checki
 
 See this [bundle override](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#templated-realm-values) for an example of disabling OCSP checking but note the risks of doing so. By allowing certificates to pass when the revocation check fails, the door is open to revoked certificates being considered valid, which can pose a serious security threat depending on your organization’s compliance requirements and threat model.
 
+### FIPS Mode
+UDS Core supports running Keycloak in [FIPS 140-2 Strict Mode](https://www.keycloak.org/server/fips) by enabling the `fips` Helm Chart override. When set to `true`, the UDS Identity Config Init Container automatically copies the required Bouncy Castle JAR files into the Keycloak Providers directory.
+
+To verify that FIPS mode is active, set the `debugMode` Helm Chart override to `true` and review the Keycloak bootstrap logs. Look for the following line:
+
+```bash
+KC(BCFIPS version 2.0 Approved Mode, FIPS-JVM: disabled)
+```
+
+The `BCFIPS version 2.0 Approved Mode` confirms that Keycloak is operating in FIPS Strict Mode. The `FIPS-JVM` setting indicates whether the underlying JVM is also running in FIPS mode. If this setting is disabled, it likely means the Keycloak container is not hosted on a system with a FIPS-enabled kernel.
+
 ### Upgrading UDS Identity Config
 When upgrading UDS Identity Config, changes to the realm configuration do not propagate automatically. This is because Keycloak persists its realm settings across upgrades to prevent breaking existing functionality. To apply updates to the realm configuration, follow the manual steps outlined in [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) .
 
