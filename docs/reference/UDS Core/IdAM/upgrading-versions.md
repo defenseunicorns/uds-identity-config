@@ -23,6 +23,12 @@ In uds-identity-config versions v0.11.0+, the UDS Operator can automatically swi
       - Go to `Clients` > `uds-operator` > `Credentials` tab
          - Set `Client Authenticator` to `Client Id and Kubernetes Secret`
          - Click `Save`
+      - Go to `Service accounts roles`
+         - Should see the Role `default-roles-uds` > click the three dots on the right and `unassign` > `Remove`
+         - Click `Assign role`
+         - Make sure the filter is on `Filter by clients`
+         - Check the box next to `realm-management: manage-clients`
+         - Click `Assign`
    - Configure the UDS Client Policy
       - Go to `Realm Settings` > `Client Policies` > `Profiles`
          - Click `Create Client Profile`
