@@ -57,7 +57,7 @@ In uds-identity-config versions v0.11.0+, the UDS Operator can automatically swi
                   - Description `UDS Client Credentials`
                   - Click `Duplicate`
          - Go to `Authentication` > `UDS Client Credentials`
-               - Click `Add Step`
+               - Click `Add Execution`
                   - Select `Client Id and Kubernetes Secret`
                   - Click `Add`
                - Select `Requirement` and set it to `Alternative`
