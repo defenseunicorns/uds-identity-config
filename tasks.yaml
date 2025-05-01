@@ -20,7 +20,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.41.0"
+    default: "v0.41.1"
 
   - name: PEPR_KEYCLOAK_CLIENT_STRATEGY
     description: "Keycloak client strategy for uds-operator. Possible values: \"dynamic_client_registration\", \"client_credentials\" and \"auto\""
