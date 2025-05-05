@@ -1940,6 +1940,18 @@
                 }
             },
             {
+                "id": "af4a7461-9348-4cef-bf5c-5a19fac4238f",
+                "name": "max number of clients",
+                "providerId": "max-clients",
+                "subType": "anonymous",
+                "subComponents": {},
+                "config": {
+                  "max-clients": [
+                    "0"
+                  ]
+                }
+            },
+            {
                 "id": "7717935d-a03c-46e0-82fd-78be66dab63b",
                 "name": "Allowed Client Scopes",
                 "providerId": "allowed-client-templates",
@@ -1970,11 +1982,8 @@
                         "true"
                     ],
                     "trusted-hosts": [
-                        "127.0.0.6",
                         "*.${UDS_DOMAIN}",
-                        "*.${UDS_ADMIN_DOMAIN}",
-                        "*.pepr-uds-core-watcher.pepr-system.svc.cluster.local",
-                        "*.keycloak.svc.cluster.local"
+                        "*.${UDS_ADMIN_DOMAIN}"
                     ],
                     "client-uris-must-match": [
                         "true"
