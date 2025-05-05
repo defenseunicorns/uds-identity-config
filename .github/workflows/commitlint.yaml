@@ -8,7 +8,7 @@ on:
     branches: [main]
     # milestoned is added here as a workaround for release-please not triggering PR workflows (PRs should be added to a milestone to trigger the workflow).
     # labeled is added here to allow for "manual" triggering of CI on renovate PRs
-    types: [milestoned, opened, reopened, synchronize, labeled]
+    types: [milestoned, opened, reopened, edited, synchronize, labeled]
 
 jobs:
   title_check:
