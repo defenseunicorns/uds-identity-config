@@ -19,6 +19,7 @@ import org.keycloak.protocol.oidc.mappers.*;
 import org.keycloak.protocol.saml.mappers.RoleListMapper;
 import org.keycloak.protocol.saml.mappers.UserAttributeStatementMapper;
 import org.keycloak.protocol.saml.mappers.UserPropertyAttributeStatementMapper;
+import org.keycloak.protocol.saml.mappers.GroupMembershipMapper;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.services.clientpolicy.ClientPolicyContext;
 import org.keycloak.services.clientpolicy.ClientPolicyException;
@@ -55,6 +56,8 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             UserAttributeStatementMapper.PROVIDER_ID,
             UserAttributeMapper.PROVIDER_ID,
             UserPropertyAttributeStatementMapper.PROVIDER_ID,
+            org.keycloak.protocol.saml.mappers.GroupMembershipMapper.PROVIDER_ID, // tbd: what is the best way to use, imports may collide with https://www.keycloak.org/docs-api/26.2.0/javadocs/org/keycloak/protocol/oidc/mappers/GroupMembershipMapper.html
+            AudienceProtocolMapper.PROVIDER_ID, // tbd: should we add this by default to support https://github.com/uds-packages/argo-workflows/blob/5257c03814a9f6b3925e26aaaea914918344dc37/chart/templates/uds-package.yaml#L26
             UserPropertyMapper.PROVIDER_ID,
             FullNameMapper.PROVIDER_ID,
             AddressMapper.PROVIDER_ID,
