@@ -15,6 +15,7 @@ In uds-identity-config versions v0.14.0+, the UDS Identity Config has removed `D
    - Remove the following Trusted Hosts:
       - `*.keycloak.svc.cluster.local`
       - `*.pepr-uds-core-watcher.pepr-system.svc.cluster.local`
+      - `127.0.0.6`
    - Click the `Save` button
    - Go to `Clients` > `Client Registration`
    - Click `Create client policy`
