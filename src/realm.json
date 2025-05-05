@@ -1982,7 +1982,6 @@
                         "true"
                     ],
                     "trusted-hosts": [
-                        "127.0.0.6",
                         "*.${UDS_DOMAIN}",
                         "*.${UDS_ADMIN_DOMAIN}"
                     ],

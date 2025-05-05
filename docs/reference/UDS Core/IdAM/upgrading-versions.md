@@ -16,6 +16,12 @@ In uds-identity-config versions v0.14.0+, the UDS Identity Config has removed `D
       - `*.keycloak.svc.cluster.local`
       - `*.pepr-uds-core-watcher.pepr-system.svc.cluster.local`
    - Click the `Save` button
+   - Go to `Clients` > `Client Registration`
+   - Click `Create client policy`
+   - Click the `max-clients` option
+   - Name the `max-clients` policy `max number of clients`
+   - Set `Max Clients Per Realm` to `0`
+   - Click the `Save` button
 <details>
 
 ## v0.11.0+
