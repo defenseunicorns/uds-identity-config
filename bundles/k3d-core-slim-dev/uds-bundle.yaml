@@ -27,13 +27,6 @@ packages:
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
     ref: 0.41.1
     overrides:
-      uds-operator-config:
-        uds-operator-config:
-          variables:
-            - name: PEPR_KEYCLOAK_CLIENT_STRATEGY
-              description: "Keycloak client strategy for uds-operator. Possible values: \"dynamic_client_registration\", \"client_credentials\" and \"auto\""
-              default: "auto"
-              path: operator.PEPR_KEYCLOAK_CLIENT_STRATEGY
       istio-admin-gateway:
         uds-istio-config:
           variables:

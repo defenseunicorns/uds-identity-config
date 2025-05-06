@@ -15,7 +15,13 @@ import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.protocol.ProtocolMapper;
-import org.keycloak.protocol.oidc.mappers.*;
+import org.keycloak.protocol.saml.mappers.GroupMembershipMapper;
+import org.keycloak.protocol.oidc.mappers.UserAttributeMapper;
+import org.keycloak.protocol.oidc.mappers.AudienceProtocolMapper;
+import org.keycloak.protocol.oidc.mappers.UserPropertyMapper;
+import org.keycloak.protocol.oidc.mappers.FullNameMapper;
+import org.keycloak.protocol.oidc.mappers.AddressMapper;
+import org.keycloak.protocol.oidc.mappers.SHA256PairwiseSubMapper;
 import org.keycloak.protocol.saml.mappers.RoleListMapper;
 import org.keycloak.protocol.saml.mappers.UserAttributeStatementMapper;
 import org.keycloak.protocol.saml.mappers.UserPropertyAttributeStatementMapper;
@@ -55,6 +61,8 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             UserAttributeStatementMapper.PROVIDER_ID,
             UserAttributeMapper.PROVIDER_ID,
             UserPropertyAttributeStatementMapper.PROVIDER_ID,
+            GroupMembershipMapper.PROVIDER_ID,
+            AudienceProtocolMapper.PROVIDER_ID,
             UserPropertyMapper.PROVIDER_ID,
             FullNameMapper.PROVIDER_ID,
             AddressMapper.PROVIDER_ID,
