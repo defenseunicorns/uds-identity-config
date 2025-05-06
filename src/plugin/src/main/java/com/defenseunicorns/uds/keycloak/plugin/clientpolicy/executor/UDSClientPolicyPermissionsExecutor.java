@@ -62,7 +62,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             UserAttributeMapper.PROVIDER_ID,
             UserPropertyAttributeStatementMapper.PROVIDER_ID,
             GroupMembershipMapper.PROVIDER_ID,
-            AudienceProtocolMapper.PROVIDER_ID, // tbd: should we add this by default to support https://github.com/uds-packages/argo-workflows/blob/5257c03814a9f6b3925e26aaaea914918344dc37/chart/templates/uds-package.yaml#L26
+            AudienceProtocolMapper.PROVIDER_ID,
             UserPropertyMapper.PROVIDER_ID,
             FullNameMapper.PROVIDER_ID,
             AddressMapper.PROVIDER_ID,
