@@ -10,10 +10,12 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.keycloak.events.Errors;
 import org.keycloak.models.*;
 import org.keycloak.protocol.saml.mappers.UserAttributeStatementMapper;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
+import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -91,17 +93,14 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         assertNull(result);
     }
 
-    @Test
-    public void shouldEnforceFullScopeDisabled() {
+    @Test(expected = ClientPolicyException.class)
+    public void shouldValidateFullScopeDisabled() throws Exception {
         // given
         ClientRepresentation rep = new ClientRepresentation();
         rep.setFullScopeAllowed(true);
 
         // when
-        executor.enforceClientSettings(rep);
-
-        // then
-        assertFalse(rep.isFullScopeAllowed());
+        executor.validateClientSettings(rep);
     }
 
     @Test
@@ -120,12 +119,14 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         rep.setProtocolMappers(new ArrayList<>(List.of(allowedProtocolMapper, disallowedProtocolMapper)));
 
         // when
-        executor.enforceClientSettings(rep);
-
-        // then
-        assertFalse(rep.getProtocolMappers().stream().anyMatch(mapper -> "invalid".equals(mapper.getProtocolMapper())));
-        assertEquals(1, rep.getProtocolMappers().size());
-        assertEquals(allowedProtocolMapper.getId(), rep.getProtocolMappers().get(0).getId());
+        ClientPolicyException returnedException = null;
+        try {
+            executor.validateClientSettings(rep);
+            fail("Expected ClientPolicyException");
+        } catch (ClientPolicyException e) {
+            assertEquals(Errors.INVALID_CLIENT, e.getMessage());
+            assertEquals("The Protocol Mapper invalid is not allowed. Rejecting request.", e.getErrorDetail());
+        }
     }
 
     @Test
@@ -137,13 +138,14 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         rep.setOptionalClientScopes(new ArrayList<>(List.of(CustomGroupPathMapper.GROUPS_CLAIM, "invalid")));
 
         // when
-        executor.enforceClientSettings(rep);
-
-        // then
-        assertEquals(1, rep.getOptionalClientScopes().size());
-        assertEquals(1, rep.getDefaultClientScopes().size());
-        assertEquals(CustomGroupPathMapper.GROUPS_CLAIM, rep.getOptionalClientScopes().get(0));
-        assertEquals(CustomGroupPathMapper.GROUPS_CLAIM, rep.getDefaultClientScopes().get(0));
+        ClientPolicyException returnedException = null;
+        try {
+            executor.validateClientSettings(rep);
+            fail("Expected ClientPolicyException");
+        } catch (ClientPolicyException e) {
+            assertEquals(Errors.INVALID_CLIENT, e.getMessage());
+            assertEquals("The Client Scope invalid is not allowed. Rejecting request.", e.getErrorDetail());
+        }
     }
 
     @Test

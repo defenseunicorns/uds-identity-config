@@ -8,8 +8,6 @@ package com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor;
 import com.defenseunicorns.uds.keycloak.plugin.CustomAWSSAMLGroupMapper;
 import com.defenseunicorns.uds.keycloak.plugin.CustomGroupPathMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import org.keycloak.common.util.CollectionUtil;
 import org.keycloak.events.Errors;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientScopeModel;
@@ -26,6 +24,7 @@ import org.keycloak.protocol.saml.mappers.RoleListMapper;
 import org.keycloak.protocol.saml.mappers.UserAttributeStatementMapper;
 import org.keycloak.protocol.saml.mappers.UserPropertyAttributeStatementMapper;
 import org.keycloak.representations.idm.ClientRepresentation;
+import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.services.clientpolicy.ClientPolicyContext;
 import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
@@ -116,12 +115,14 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                         if (!isOwnedByUDSOperator(clientCRUDContext.getTargetClient())) {
                             throw new ClientPolicyException(Errors.UNAUTHORIZED_CLIENT, "The Client doesn't have the " + ATTRIBUTE_UDS_OPERATOR + "=" + ATTRIBUTE_UDS_OPERATOR_VALUE + " attribute. Rejecting request.");
                         }
-                        enforceClientSettings(clientCRUDContext.getProposedClientRepresentation());
+                        validateClientSettings(clientCRUDContext.getProposedClientRepresentation());
+                        setUDSOperatorAsOwner(clientCRUDContext.getProposedClientRepresentation());
                         break;
 
                     case REGISTER:
                         logger.trace("Creating new Client with Client ID: {}", clientCRUDContext.getProposedClientRepresentation().getClientId());
-                        enforceClientSettings(clientCRUDContext.getProposedClientRepresentation());
+                        validateClientSettings(clientCRUDContext.getProposedClientRepresentation());
+                        setUDSOperatorAsOwner(clientCRUDContext.getProposedClientRepresentation());
                         break;
 
                     case VIEW:
@@ -149,22 +150,31 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         return ATTRIBUTE_UDS_OPERATOR_VALUE.equals(client.getAttribute(ATTRIBUTE_UDS_OPERATOR));
     }
 
-    void setAllowedProtocolMappers(ClientRepresentation rep) {
+    void validateAllowedProtocolMappers(ClientRepresentation rep) throws ClientPolicyException {
         if (isNotEmpty(rep.getProtocolMappers()) && configuration.getAllowedProtocolMappers() != null) {
-            rep.getProtocolMappers()
-                    .removeIf(mapper -> !configuration.getAllowedProtocolMappers().contains(mapper.getProtocolMapper()));
+            for (ProtocolMapperRepresentation mapper : rep.getProtocolMappers()) {
+                if (!configuration.getAllowedProtocolMappers().contains(mapper.getProtocolMapper())) {
+                    throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Protocol Mapper " + mapper.getProtocolMapper() + " is not allowed. Rejecting request.");
+                }
+            }
         }
     }
 
-    void setAllowedCustomClientScopes(ClientRepresentation rep) {
+    void validateAllowedCustomClientScopes(ClientRepresentation rep) throws ClientPolicyException {
         if (configuration.getAllowedClientScopes() != null) {
             if (isNotEmpty(rep.getDefaultClientScopes())) {
-                rep.getDefaultClientScopes()
-                        .removeIf(scope -> !configuration.getAllowedClientScopes().contains(scope));
+                for (String scope : rep.getDefaultClientScopes()) {
+                    if (!configuration.getAllowedClientScopes().contains(scope)) {
+                        throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Client Scope " + scope + " is not allowed. Rejecting request.");
+                    }
+                };
             }
             if (isNotEmpty(rep.getOptionalClientScopes())) {
-                rep.getOptionalClientScopes()
-                        .removeIf(scope -> !configuration.getAllowedClientScopes().contains(scope));
+                for (String scope : rep.getOptionalClientScopes()) {
+                    if (!configuration.getAllowedClientScopes().contains(scope)) {
+                        throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Client Scope " + scope + " is not allowed. Rejecting request.");
+                    }
+                };
             }
         }
     }
@@ -210,13 +220,12 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         return FullScopeDisabledExecutorFactory.PROVIDER_ID;
     }
 
-    void enforceClientSettings(ClientRepresentation rep) {
-        logger.trace("Client Representation before enforcements: {}", toString(rep));
+    void validateClientSettings(ClientRepresentation rep) throws ClientPolicyException {
+        logger.trace("Validating Client Representation before enforcements: {}", toString(rep));
 
-        setUDSOperatorAsOwner(rep);
-        setFullScopeDisabled(rep);
-        setAllowedProtocolMappers(rep);
-        setAllowedCustomClientScopes(rep);
+        validateFullScopeDisabled(rep);
+        validateAllowedProtocolMappers(rep);
+        validateAllowedCustomClientScopes(rep);
 
         logger.trace("Client Representation after enforcements: {}", toString(rep));
     }
@@ -227,7 +236,9 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         rep.getAttributes().put(ATTRIBUTE_UDS_OPERATOR, ATTRIBUTE_UDS_OPERATOR_VALUE);
     }
 
-    private void setFullScopeDisabled(ClientRepresentation rep) {
-        rep.setFullScopeAllowed(false);
+    private void validateFullScopeDisabled(ClientRepresentation rep) throws ClientPolicyException {
+        if (rep.isFullScopeAllowed() != null && rep.isFullScopeAllowed()) {
+            throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Client can't use the Full Scope Allowed feature. Rejecting request.");
+        }
     }
 }
