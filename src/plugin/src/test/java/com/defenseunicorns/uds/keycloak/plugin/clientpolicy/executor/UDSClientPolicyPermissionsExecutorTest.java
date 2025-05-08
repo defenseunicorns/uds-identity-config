@@ -119,7 +119,6 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         rep.setProtocolMappers(new ArrayList<>(List.of(allowedProtocolMapper, disallowedProtocolMapper)));
 
         // when
-        ClientPolicyException returnedException = null;
         try {
             executor.validateClientSettings(rep);
             fail("Expected ClientPolicyException");
@@ -138,7 +137,6 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         rep.setOptionalClientScopes(new ArrayList<>(List.of(CustomGroupPathMapper.GROUPS_CLAIM, "invalid")));
 
         // when
-        ClientPolicyException returnedException = null;
         try {
             executor.validateClientSettings(rep);
             fail("Expected ClientPolicyException");
