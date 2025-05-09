@@ -58,7 +58,7 @@ Above is the complete list of authentication configurations from a bundle overri
 | `WEBAUTHN_ENABLED` | Control whether `WebAuthn` MFA is enabled, making it required for `Username and Password` authentication. | `true`, `false`(default) |
 | `X509_MFA_ENABLED` | Control whether `X509` authentication flow should also include MFA. Enabling this requires `OTP_ENABLED` or `WEBAUTHN_ENABLED` as well. | `true`, `false`(default) |
 
-:::warning
+:::caution
 We shift all authn and authz responsibilies to the Identity Provider if choosing to use SSO, this means that MFA is not configurable for SSO options.
 :::
 
@@ -84,7 +84,7 @@ The following sections provide a step-by-step guide on how to customize UDS Core
 Environment variables configured in the [uds-core Keycloak values.yaml file](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L30-32) have `REALM_` appended to them during creation. See [Customization docs](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/) for more information.
 :::
 
-:::warning
+:::caution
 If upgrading uds-core, be aware that Keycloak Admin manual configuration will probably be required to set new Realm values. See the manual configuration section below for how to do this.
 :::
 
