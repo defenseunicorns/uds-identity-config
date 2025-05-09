@@ -39,7 +39,7 @@ To prevent locking the administrator password, follow these steps:
 - Open the `Credentials` tab and click `Reset Password`.
 - Enter a new password of at least 14 characters. You can reuse your existing password if desired.
 - Set `Temporary` to `Off` and click `Save`.
-- Return to your user's details, open the `Credentials` tab, and click `Show data`. Ensure the `algorithm` is set to `pbkdf2-sha256`.
+- Return to your user's details, open the `Credentials` tab, and click `Show data`. Ensure the `algorithm` is set to `pbkdf2-sha512`.
 - You are now ready to enable FIPS mode in Keycloak.
 
 For more details on FIPS limitations, refer to the [Keycloak FIPS 140-2 support](https://www.keycloak.org/server/fips) page.
