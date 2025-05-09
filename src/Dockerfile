@@ -6,7 +6,7 @@
 # Build the Keycloak java plugin and copy any extra-jars                          #
 #                                                                                 #
 ###################################################################################
-FROM cgr.dev/du-uds-defenseunicorns/maven:3-jdk17 AS plugin
+FROM cgr.dev/chainguard/maven:openjdk-17 AS plugin
 
 WORKDIR /home/build
 
