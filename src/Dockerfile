@@ -8,7 +8,7 @@
 ###################################################################################
 FROM maven:3-eclipse-temurin-17-focal AS plugin
 
-WORKDIR /tmp
+WORKDIR /home/build
 
 COPY plugin/pom.xml .
 RUN mvn dependency:go-offline
@@ -39,7 +39,7 @@ FROM maven:3-eclipse-temurin-17-focal AS truststore
 USER root
 RUN apt-get update && apt-get install unzip -y
 
-WORKDIR /tmp
+WORKDIR /home/build
 
 ARG CA_REGEX_EXCLUSION_FILTER="\(.*EMAIL.*\|.*SW.*\)"
 ARG CA_ZIP_URL=https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-dod_approved_external_pkis_trust_chains.zip
@@ -62,16 +62,16 @@ FROM cgr.dev/chainguard/busybox:latest
 WORKDIR /home/nonroot
 
 # Copy Jars from the plugin build stage
-COPY --chown=nonroot --from=plugin /tmp/target/*.jar .
+COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
 
 # FIPS dependencies
 RUN mkdir -p ./fips/libs
 RUN chown -R nonroot:nonroot ./fips/libs
-COPY --chown=nonroot --from=plugin /tmp/target/fips/libs/*.jar ./fips/libs
+COPY --chown=nonroot --from=plugin /home/build/target/fips/libs/*.jar ./fips/libs
 
 # Copy the DOD Unclass PEM and truststore for Istio & Keycloak Auth
-COPY --chown=nonroot --from=truststore /tmp/authorized_certs.pem .
-COPY --chown=nonroot --from=truststore /tmp/certs ./certs
+COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
+COPY --chown=nonroot --from=truststore /home/build/certs ./certs
 
 # The realm.json is loaded into Keycloak on startup only if the realm does not exist
 ARG REALM_FILE=realm.json
