@@ -6,7 +6,7 @@
 # Build the Keycloak java plugin and copy any extra-jars                          #
 #                                                                                 #
 ###################################################################################
-FROM cgr.dev/chainguard/maven:openjdk-17 AS plugin
+FROM maven:3-eclipse-temurin-21-jammy AS plugin
 
 WORKDIR /home/build
 
@@ -35,9 +35,9 @@ COPY extra-jars/* ./target/
 # Build the Java truststore from DOD CAs                                          #
 #                                                                                 #
 ###################################################################################
-FROM amazoncorretto:21-alpine-jdk AS truststore
+FROM maven:3-eclipse-temurin-21-jammy AS truststore
 USER root
-RUN apk add openssl coreutils sed bash findutils
+RUN apt-get update && apt-get install unzip -y
 
 WORKDIR /home/build
 
