@@ -36,7 +36,9 @@ KC(BCFIPS version 2.0 Approved Mode, FIPS-JVM: disabled)
 
 The `BCFIPS version 2.0 Approved Mode` confirms that Keycloak is operating in FIPS Strict Mode. The `FIPS-JVM` setting indicates whether the underlying JVM is also running in FIPS mode. If this setting is disabled, it likely means the Keycloak container is not hosted on a system with a FIPS-enabled kernel.
 
-:::warning
+:::caution
+If you're planning on migrating to FIPS mode, please ensure you followed [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) guide. Otherwise, you might lock yourself out of the Keycloak admin console.
+:::
 If you're planning migrating to FIPS mode, please ensure you followed [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) guide. Otherwise, you might lock yourself out of the Keycloak admin console.
 :::
 
