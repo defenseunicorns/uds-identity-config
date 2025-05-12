@@ -28,12 +28,12 @@ UDS Core v0.41.0+ resolves a critical issue with enabling FIPS mode in Keycloak.
 
 Enabling FIPS mode introduces two significant changes:
 * Passwords must be at least 14 characters long. Keycloak will reject shorter passwords, including database credentials and user passwords.
-* The `argon2` hashing algorithm is unavailable in FIPS mode. Existing systems must first migrate to the `pbkdf2-sha256` algorithm for hashing user credentials before enabling FIPS mode in the `master` realm. Failing to do so will lock the administrator password.
+* The `argon2` hashing algorithm is unavailable in FIPS mode. Existing systems must first migrate to the `pbkdf2-sha512` algorithm for hashing user credentials before enabling FIPS mode in the `master` realm. Failing to do so will lock the administrator password.
 
 To prevent locking the administrator password, follow these steps:
 - Log in to Keycloak with the administrator account (you may need to use `uds zarf connect keycloak`).
 - In the `master` Realm, navigate to `Authentication` > `Policies` > `Password Policy` and click `Add Policy`.
-- Select `Hashing Algorithm` and enter `pbkdf2-sha256`.
+- Select `Hashing Algorithm` and enter `pbkdf2-sha512`.
 - Click `Save`.
 - Go to `Users` and select your administrator account.
 - Open the `Credentials` tab and click `Reset Password`.
