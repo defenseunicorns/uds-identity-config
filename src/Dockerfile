@@ -6,7 +6,7 @@
 # Build the Keycloak java plugin and copy any extra-jars                          #
 #                                                                                 #
 ###################################################################################
-FROM maven:3-eclipse-temurin-17-focal AS plugin
+FROM maven:3-eclipse-temurin-21-jammy AS plugin
 
 WORKDIR /home/build
 
