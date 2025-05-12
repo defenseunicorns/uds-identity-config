@@ -39,8 +39,6 @@ The `BCFIPS version 2.0 Approved Mode` confirms that Keycloak is operating in FI
 :::caution
 If you're planning on migrating to FIPS mode, please ensure you followed [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) guide. Otherwise, you might lock yourself out of the Keycloak admin console.
 :::
-If you're planning migrating to FIPS mode, please ensure you followed [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) guide. Otherwise, you might lock yourself out of the Keycloak admin console.
-:::
 
 ### Upgrading UDS Identity Config
 When upgrading UDS Identity Config, changes to the realm configuration do not propagate automatically. This is because Keycloak persists its realm settings across upgrades to prevent breaking existing functionality. To apply updates to the realm configuration, follow the manual steps outlined in [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) .
