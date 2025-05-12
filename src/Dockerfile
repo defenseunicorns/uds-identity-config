@@ -35,7 +35,7 @@ COPY extra-jars/* ./target/
 # Build the Java truststore from DOD CAs                                          #
 #                                                                                 #
 ###################################################################################
-FROM maven:3-eclipse-temurin-17-focal AS truststore
+FROM maven:3-eclipse-temurin-21-jammy AS truststore
 USER root
 RUN apt-get update && apt-get install unzip -y
 
