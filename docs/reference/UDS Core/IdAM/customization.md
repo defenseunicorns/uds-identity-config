@@ -14,6 +14,15 @@ See [Testing custom image in UDS Core](https://uds.defenseunicorns.com/reference
 
 Once `uds-core` has sucessfully deployed with your new image, viewing the Keycloak pod can provide insight into a successful deployment or not. Also describing the Keycloak pod, should display your new image being pulled instead of the default image defined [here](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L10) in the events section.
 
+## Customizing Theme
+
+**Official Theming Docs**
+
+* [Official Keycloak Theme Docs](https://www.keycloak.org/docs/latest/server_development/#_themes)
+* [Official Keycloak Theme Github](https://github.com/keycloak/keycloak/tree/b066c59a83c99d757d501d8f5e6061372706d24d/themes/src/main/resources/theme)
+
+For other changes beyond these images you will need to build a custom theme and identity-config image. Changes can be made to the [src/theme](https://github.com/defenseunicorns/uds-identity-config/tree/main/src/theme) directory. At this time only Account and Login themes are included, but email, admin, and welcome themes could be added as well.
+
 ### Branding customizations
 
 The UDS Identity Config supports a limited and opinionated set of branding customizations. This includes:
@@ -61,15 +70,6 @@ kubectl create configmap keycloak-theme-overrides \
   --from-file=footer.png=path/to/local/directory/footer.png \
   --from-file=favicon.svg=path/to/local/directory/favicon.svg
 ```
-
-## Customizing Theme
-
-**Official Theming Docs**
-
-* [Official Keycloak Theme Docs](https://www.keycloak.org/docs/latest/server_development/#_themes)
-* [Official Keycloak Theme Github](https://github.com/keycloak/keycloak/tree/b066c59a83c99d757d501d8f5e6061372706d24d/themes/src/main/resources/theme)
-
-For other changes beyond these images you will need to build a custom theme and identity-config image. Changes can be made to the [src/theme](https://github.com/defenseunicorns/uds-identity-config/tree/main/src/theme) directory. At this time only Account and Login themes are included, but email, admin, and welcome themes could be added as well.
 
 ### Registration Form Fields
 
