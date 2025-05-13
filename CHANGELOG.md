@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.14.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.13.1...v0.14.0) (2025-05-12)
+
+
+### Features
+
+* fail the UDS Core Package on validation errors ([#465](https://github.com/defenseunicorns/uds-identity-config/issues/465)) ([8913073](https://github.com/defenseunicorns/uds-identity-config/commit/89130738f3b38506eb956faa9879d0d38d9a0bd5))
+* keycloak FIPS docs ([#468](https://github.com/defenseunicorns/uds-identity-config/issues/468)) ([8e4df8e](https://github.com/defenseunicorns/uds-identity-config/commit/8e4df8e4e0565c8989e907fd5693d7135abd9a83))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.2.3 ([#459](https://github.com/defenseunicorns/uds-identity-config/issues/459)) ([737ce09](https://github.com/defenseunicorns/uds-identity-config/commit/737ce0974d16ba59cd8dce48a41f6e439d4c572d))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies to v0.54.0 ([#457](https://github.com/defenseunicorns/uds-identity-config/issues/457)) ([e8cad6c](https://github.com/defenseunicorns/uds-identity-config/commit/e8cad6c5ffa5eb328420c58763cd2140735b3aa8))
+* **deps:** update gha-deps to v0.27.2 ([#463](https://github.com/defenseunicorns/uds-identity-config/issues/463)) ([4e17564](https://github.com/defenseunicorns/uds-identity-config/commit/4e175641deefcd9f28d434232249501614459c50))
+* docker image fix ([#471](https://github.com/defenseunicorns/uds-identity-config/issues/471)) ([d6336d9](https://github.com/defenseunicorns/uds-identity-config/commit/d6336d9b73b51cb8cc8bf86b9bbede0d54a1a2f7))
+* **docs:** fix warning block in docs ([#474](https://github.com/defenseunicorns/uds-identity-config/issues/474)) ([21d03d1](https://github.com/defenseunicorns/uds-identity-config/commit/21d03d1e8ec1cceb017f8961403be52df350cea7))
+
 ## [0.13.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.13.0...v0.13.1) (2025-05-06)
 
 
