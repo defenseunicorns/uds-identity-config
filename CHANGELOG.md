@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.14.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.14.0...v0.14.1) (2025-05-15)
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.2.4 ([#467](https://github.com/defenseunicorns/uds-identity-config/issues/467)) ([9e8f2c2](https://github.com/defenseunicorns/uds-identity-config/commit/9e8f2c2010a6d1d63c0f939976ba16854bef2f94))
+
+
+### Miscellaneous
+
+* cleanup cacert tasks in identity-config ([#480](https://github.com/defenseunicorns/uds-identity-config/issues/480)) ([1c493d8](https://github.com/defenseunicorns/uds-identity-config/commit/1c493d809bc41a1bc98825d3cb89ee9115c3e9d4))
+* **deps:** update dependency defenseunicorns/uds-core to v0.42.0 ([#477](https://github.com/defenseunicorns/uds-identity-config/issues/477)) ([1e50836](https://github.com/defenseunicorns/uds-identity-config/commit/1e50836d33e4e4375811b03445c5dd3ccfb66ee1))
+* **deps:** update gha-deps to v19.8.1 ([#466](https://github.com/defenseunicorns/uds-identity-config/issues/466)) ([089742a](https://github.com/defenseunicorns/uds-identity-config/commit/089742a7e45f32e956e16e0634c5d7d7b866f7bd))
+* **docs:** move branding customiation under theme section ([#476](https://github.com/defenseunicorns/uds-identity-config/issues/476)) ([40ba177](https://github.com/defenseunicorns/uds-identity-config/commit/40ba177bdf1c8660f05447b7bd39b8110bcf105d))
+
 ## [0.14.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.13.1...v0.14.0) (2025-05-12)
 
 
