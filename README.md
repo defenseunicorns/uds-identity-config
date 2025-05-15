@@ -14,7 +14,7 @@ This repo builds the UDS Identity (Keycloak) Config image used by UDS Identity. 
    | dev-update-image    | Build the image and import locally into k3d |
    | dev-theme           | Copy theme to Keycloak in dev cluster       |
    | dev-plugin          | Build and run unit tests for keycloak plugin|
-   | cacert              | Get the CA cert value for the Istio Gateway |
+   | dev-cacert          | Get the CA cert value for the Istio Gateway from your local build |
    | debug-istio-traffic | Debug Istio traffic on keycloak             |
    | regenerate-test-pki | Generate a PKI cert for testing             |
    | uds-core-integration-test | Create cluster and deploy uds-core identity using local uds-identity-config image |
