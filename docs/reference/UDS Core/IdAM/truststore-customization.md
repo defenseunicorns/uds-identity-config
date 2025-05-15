@@ -76,15 +76,13 @@ If you're getting errors from the ca-to-jks.sh script, verify your zip folder is
 
 ### Configure Istio Gateways CACERT in UDS Core
 
-```bash
-# In `uds-core` create cacert from the new identity-config image
-uds run -f src/keycloak/tasks.yaml cacert --set IMAGE_NAME=<identity config image> --set VERSION=<identity config image version>
-```
+In order to ensure your client certs are requested when deploying UDS Core you will need to override the `tls.cacert` value for the gateway(s) where you expect client certs to be provided. A values file can be generated from your local image build using the `dev-cacert` task:
 
 ```bash
-# Update tenant and admin gateway with generated cacerts
-uds run -f src/keycloak/tasks.yaml dev-cacert
+uds run dev-cacert
 ```
+
+This task can also be modified locally to point to a different image if you have published a custom build somewhere else. The output of this task will be a values file locally, `tls_cacert.yaml`, that can be used in your bundle or copied out as needed.
 
 ### Deploy UDS Core with new uds-identity-config
 
