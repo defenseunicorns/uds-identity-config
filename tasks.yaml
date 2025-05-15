@@ -5,7 +5,6 @@ includes:
   - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.2/tasks/lint.yaml
   - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.14.2/tasks/setup.yaml
 
-
 variables:
   - name: VERSION
     description: "The image tag"
@@ -64,8 +63,8 @@ tasks:
           cd src/plugin
           mvn clean verify | egrep ".*"
 
-  - name: cacert
-    description: "Get the CA cert value for the Istio Gateway"
+  - name: dev-cacert
+    description: "Get the CA cert value for the Istio Gateway from your local build"
     actions:
       # This is written to a file rather than printed because it is a massive value to copy out of the terminal
       - cmd: |
@@ -73,7 +72,7 @@ tasks:
           tls:
             cacert: "$(docker run --rm --entrypoint sh uds-core-config:keycloak -c 'cat /home/nonroot/authorized_certs.pem | base64 -w 0')"
           EOF
-          echo "Base64 encoded CA Cert value is in cacert.b64, this can be passed to your Istio tenant gateway for Keycloak OPTIONAL_MUTUAL"
+          echo "CA Cert values are in tls_cacert.yaml, this can be provided to your Istio gateway(s) for Keycloak OPTIONAL_MUTUAL"
 
   - name: debug-istio-traffic
     description: "Debug Istio traffic on keycloak"
@@ -183,9 +182,9 @@ tasks:
         cmd: uds deploy bundles/theme-customizations/uds-bundle-theme-customization-tests-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
       - description: "Run the theme customization tests"
         cmd: |
-         # Should already be done... but just in case
-         npm --prefix src/test/cypress install
-         npm --prefix src/test/cypress run cy.run:theme-customization
+          # Should already be done... but just in case
+          npm --prefix src/test/cypress install
+          npm --prefix src/test/cypress run cy.run:theme-customization
 
   - name: license
     actions:
