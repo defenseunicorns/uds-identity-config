@@ -47,6 +47,7 @@ For more details on FIPS limitations, refer to the [Keycloak FIPS 140-2 support]
 
 ## v0.11.0+
 
+<details>
 <summary>Upgrade Details</summary>
 
 In uds-identity-config versions v0.11.0+, the UDS Operator can automatically switch to Client Credentials Grant from using the Dynamic Client Registration. The new method works faster, is more reliable and doesn't require storing Registration Tokens in the Pepr Store. It is highly recommended to switch to it, which requires the following steps:
