@@ -43,10 +43,11 @@ To prevent locking the administrator password, follow these steps:
 - You are now ready to enable FIPS mode in Keycloak.
 
 For more details on FIPS limitations, refer to the [Keycloak FIPS 140-2 support](https://www.keycloak.org/server/fips) page.
-<details>
+</details>
 
 ## v0.11.0+
 
+<details>
 <summary>Upgrade Details</summary>
 
 In uds-identity-config versions v0.11.0+, the UDS Operator can automatically switch to Client Credentials Grant from using the Dynamic Client Registration. The new method works faster, is more reliable and doesn't require storing Registration Tokens in the Pepr Store. It is highly recommended to switch to it, which requires the following steps:
@@ -109,7 +110,9 @@ In uds-identity-config versions v0.11.0+, the UDS Operator can automatically swi
       - Check UDS Operator logs and verify if there are no errors
          - Use `uds zarf tools kubectl logs deploy/pepr-uds-core-watcher -n pepr-system | grep "Client Credentials Keycloak Client is available"` command to verify if the UDS Operator uses the Client Credentials flow.
 
-After introducing the above changes, please ensure all Packages are reconciled correctly and there are no errors. If for some reason you see the UDS Operator throwing errors with `The Client doesn't have the created-by=uds-operator attribute. Rejecting request`, you need to disable the `UDS Client Policy` and give it a bit more time to process all the Packages.
+   After introducing the changes above, ensure that all packages reconcile correctly and that no errors appear. If the UDS Operator displays the error `The client doesn’t have the created-by=uds-operator attribute. Rejecting request`, disable `UDS Client Policy` and give the system a bit more time to process every package. Some users have reported that they needed to disable `UDS Client Policy`, cycle the Pepr Watcher pod (this will force reconciliation of **all** Packages), wait for all Package CRs to be ready, and finally enable the `UDS Client Policy`.
+
+   [Additional information if you need to add protocol mappers that UDS Core does not include out of the box.](https://uds.defenseunicorns.com/reference/uds-core/idam/plugin/#security-hardening)
 
 ---
 
