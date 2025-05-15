@@ -43,7 +43,7 @@ To prevent locking the administrator password, follow these steps:
 - You are now ready to enable FIPS mode in Keycloak.
 
 For more details on FIPS limitations, refer to the [Keycloak FIPS 140-2 support](https://www.keycloak.org/server/fips) page.
-<details>
+</details>
 
 ## v0.11.0+
 
@@ -109,7 +109,14 @@ In uds-identity-config versions v0.11.0+, the UDS Operator can automatically swi
       - Check UDS Operator logs and verify if there are no errors
          - Use `uds zarf tools kubectl logs deploy/pepr-uds-core-watcher -n pepr-system | grep "Client Credentials Keycloak Client is available"` command to verify if the UDS Operator uses the Client Credentials flow.
 
-After introducing the above changes, please ensure all Packages are reconciled correctly and there are no errors. If for some reason you see the UDS Operator throwing errors with `The Client doesn't have the created-by=uds-operator attribute. Rejecting request`, you need to disable the `UDS Client Policy` and give it a bit more time to process all the Packages.
+   After introducing the changes above, ensure that all packages reconcile correctly and that no errors appear. If the UDS Operator displays the error `The client doesn’t have the created-by=uds-operator attribute. Rejecting request`, disable `UDS Client Policy` and give the system a bit more time to process every package. Some users have reported that they needed to disable `UDS Client Policy`, remove their package, re-enable `UDS Client Policy`, and then redeploy the package.
+
+   If you need to add protocol mappers that UDS Core does not include out of the box, follow these steps:
+   - In the Keycloak Admin Console, open `Realm Settings` for your realm.
+   - Select the `Client Policies` tab.
+   - Click the `UDS Client Policy`, created in the earlier steps.
+   - On the policy’s details page, find the executor entry named `uds-operator-permissions` and select it.
+   - The configuration lists the default protocol mappers and client scopes that UDS Core provides. In `Additional Allowed Protocol Mappers` and `Additional Allowed Client Scopes`, you can add any extra mappers or scopes your deployment requires beyond the defaults.
 
 ---
 
