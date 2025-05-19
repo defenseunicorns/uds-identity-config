@@ -8,6 +8,7 @@ import org.keycloak.services.x509.NginxProxySslClientCertificateLookup;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Set;
 
 public class AWSLBProxySslClientCertificateLookup extends NginxProxySslClientCertificateLookup {
@@ -36,18 +37,11 @@ public class AWSLBProxySslClientCertificateLookup extends NginxProxySslClientCer
             pem = pem.replace(PemUtils.END_CERT, "");
         }
 
-        pem = new String(java.util.Base64.getEncoder().encode(pem.getBytes(StandardCharsets.UTF_8)));
+        // The Mime Base64 handles line breaks correctly
+        pem = new String(Base64.getMimeEncoder().encode(pem.getBytes(StandardCharsets.UTF_8)));
         logger.tracef("Base64-encoded PEM from AWS LB: %s\n", pem);
 
+        // We could create the certificate directly here but it's better to use PemUtils and stay consistent with the rest of the codebase
         return PemUtils.decodeCertificate(pem);
-    }
-
-    //TODO: Make this protected in NginxProxySslClientCertificateLookup
-    private static String removeBeginEnd(String pem) {
-        pem = pem.replace(PemUtils.BEGIN_CERT, "");
-        pem = pem.replace(PemUtils.END_CERT, "");
-        pem = pem.replace("\r\n", "");
-        pem = pem.replace("\n", "");
-        return pem.trim();
     }
 }
