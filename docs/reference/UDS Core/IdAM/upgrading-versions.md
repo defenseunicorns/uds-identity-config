@@ -4,6 +4,18 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
+## v0.15.0+
+
+<details open>
+<summary>Upgrade Details</summary>
+
+UDS Core v0.42.0 switched Keycloak to run in Ambient Mode. In some cases, specifically in AWS environment that uses “Shared Address Space” (see RFC6598), this may result in HTTP 403 errors. In order to resolve this, the uds-identity-config v0.15.0 requires setting "Require SSL" option to "None". To manually configure this:
+    - Navigate to the `UDS` realm
+    - Go to `Realm Settings` > `General` tab
+    - Switch `Require SSL` to `None`
+
+</details>
+
 ## v0.14.0+
 
 <details open>
