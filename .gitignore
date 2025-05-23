@@ -11,8 +11,7 @@ ca.cer
 test.cer
 test.csr
 test.pem
-uds-core
-uds-core/**
+/uds-core/
 ./src/authorized_certs.zip
 ./tls_cacert.yaml
 ./test.pfx
