@@ -4,7 +4,7 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
-## v0.15.0+
+## v0.14.1+
 
 <details open>
 <summary>Upgrade Details</summary>
