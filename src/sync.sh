@@ -41,8 +41,8 @@ if [ -d /opt/keycloak/theme-overrides ]; then
 
     if [ -f /opt/keycloak/theme-overrides/background.jpg ]; then
       echo "Overriding background.jpg"
-      cp -fv /opt/keycloak/theme-overrides/background.jpg /opt/keycloak/themes/theme/login/resources/img/tech-bg.jpg
-      cp -fv /opt/keycloak/theme-overrides/background.jpg /opt/keycloak/themes/theme/account/resources/public/tech-bg.jpg
+      cp -fv /opt/keycloak/theme-overrides/background.jpg /opt/keycloak/themes/theme/login/resources/img/background.jpg
+      cp -fv /opt/keycloak/theme-overrides/background.jpg /opt/keycloak/themes/theme/account/resources/public/background.jpg
     fi
 
     if [ -f /opt/keycloak/theme-overrides/footer.png ]; then

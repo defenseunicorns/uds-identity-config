@@ -54,12 +54,12 @@ describe("Theme customizations", () => {
 
         // background.jpg tests
         cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/tech-bg.jpg | base64 -w 0",
+          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/background.jpg | base64 -w 0",
         ).then(result => {
           expect(result.stdout).to.equal(backgroundJpg);
         });
         cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/account/resources/public/tech-bg.jpg | base64 -w 0",
+          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/account/resources/public/background.jpg | base64 -w 0",
         ).then(result => {
           expect(result.stdout).to.equal(backgroundJpg);
         });
