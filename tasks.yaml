@@ -140,7 +140,7 @@ tasks:
     description: "Build/Deploy custom slim dev bundle for integration testing"
     actions:
       - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
-      - cmd: cd uds-core && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization
+      - cmd: cd uds-core && mkdir -p build && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization
       - task: grafana-group-auth-build-deploy
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
       - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
