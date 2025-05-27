@@ -78,7 +78,8 @@ ARG REALM_FILE=realm.json
 COPY --chown=nonroot ${REALM_FILE} .
 
 # This provides the custom theme for the Keycloak instance
-COPY --chown=nonroot theme theme
+COPY theme/account theme/account
+COPY theme/login theme/login
 
 # This script is used to sync the files from the init container to the Keycloak container
 COPY --chown=nonroot sync.sh .

@@ -1,35 +1,37 @@
-/**
- * Copyright 2024 Defense Unicorns
- * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
- */
-
-/*@tailwind utilities;*/
-/*@reference "tailwindcss";*/
-
-@import "tailwindcss/utilities";
-
+/*! tailwindcss v4.1.7 | MIT License | https://tailwindcss.com */
+@layer properties;
+.relative {
+  position: relative;
+}
+.my-auto {
+  margin-block: auto;
+}
+.hidden {
+  display: none;
+}
+.transform {
+  transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+}
+.text-right {
+  text-align: right;
+}
 .pf-v5-c-page__header {
   border-bottom: 1px solid #747474;
   backdrop-filter: blur(4px);
   background-color: rgba(2, 25, 40, 0.85) !important;
   z-index: 1;
 }
-
 .pf-v5-c-page__header img {
   max-height: 55px;
   margin: 4px;
 }
-
-.pf-v5-c-page,
-.pf-v5-c-page__main-section {
+.pf-v5-c-page, .pf-v5-c-page__main-section {
   background: none;
 }
-
 #page-sidebar {
   background-color: rgba(2, 25, 40, 0.85) !important;
   backdrop-filter: blur(4px);
 }
-
 body {
   background: #010d17 url(../public/tech-bg.jpg) no-repeat center center fixed;
   color: #fff;
@@ -40,23 +42,17 @@ body {
   position: absolute;
   overflow-x: hidden;
 }
-
-.pf-v5-c-jump-links__link-text,
-.pf-v5-c-check__label,
-.pf-v5-c-content {
+.pf-v5-c-jump-links__link-text, .pf-v5-c-check__label, .pf-v5-c-content {
   color: #fff;
 }
-
 .pf-v5-c-card {
   background: none;
   border: 0;
   margin: 30px auto;
 }
-
 .pf-v5-c-card__title {
   align-content: flex-end;
 }
-
 .pf-v5-c-page__main {
   backdrop-filter: blur(4px);
   background: rgb(10 10 10 / 20%);
@@ -66,7 +62,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.25);
   margin: 50px;
 }
-
 .pf-v5-c-card {
   backdrop-filter: blur(4px);
   background: rgb(10 10 10 / 20%);
@@ -74,44 +69,30 @@ body {
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
-
-.pf-v5-c-form,
-.pf-v5-c-data-list__item {
+.pf-v5-c-form, .pf-v5-c-data-list__item {
   background-color: transparent !important;
   color: #fff;
 }
-
-.pf-v5-c-menu-toggle.pf-m-full-width,
-.pf-v5-c-menu-toggle__button,
-.pf-v5-c-text-input-group__text-input {
+.pf-v5-c-menu-toggle.pf-m-full-width, .pf-v5-c-menu-toggle__button, .pf-v5-c-text-input-group__text-input {
   background-color: #fff;
 }
-
 .pf-v5-c-button.pf-m-primary {
   background-color: transparent !important;
-  background-image: linear-gradient(to bottom,
-      rgb(95 110 173 / 10%) 0,
-      hsl(203.05deg 100% 70.39% / 36%) 100%) !important;
+  background-image: linear-gradient(to bottom, rgb(95 110 173 / 10%) 0, hsl(203.05deg 100% 70.39% / 36%) 100%) !important;
   border-color: #68c5ff !important;
   border-radius: 4px !important;
   color: #fff;
   text-transform: uppercase;
 }
-
 .pf-v5-c-button.pf-m-primary:hover {
-  background-image: linear-gradient(to top,
-      rgb(95 110 173 / 28%) 0,
-      hsl(203.05deg 100% 70.39% / 58%) 100%) !important;
+  background-image: linear-gradient(to top, rgb(95 110 173 / 28%) 0, hsl(203.05deg 100% 70.39% / 58%) 100%) !important;
 }
-
-.pf-v5-c-page__main a,
-.pf-m-link {
+.pf-v5-c-page__main a, .pf-m-link {
   color: #68c5ff !important;
   font-weight: 500;
   letter-spacing: 0.1rem;
   text-shadow: 2px 4px 3px rgba(0, 0, 0, 0.1);
 }
-
 .pf-v5-c-button.pf-m-secondary {
   color: #68c5ff !important;
   border-color: #68c5ff90 !important;
@@ -119,15 +100,43 @@ body {
   letter-spacing: 0.1rem;
   text-shadow: 2px 4px 3px rgba(0, 0, 0, 0.1);
 }
-
 #spinner_screen svg {
   background-color: transparent !important;
 }
-
 .pf-v5-c-form__group:has(input#location) {
   display: none;
 }
-
 .pf-v5-c-form__group:has(textarea#notes) {
   display: none;
+}
+@property --tw-rotate-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-y {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-z {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-y {
+  syntax: "*";
+  inherits: false;
+}
+@layer properties {
+  @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
+    *, ::before, ::after, ::backdrop {
+      --tw-rotate-x: initial;
+      --tw-rotate-y: initial;
+      --tw-rotate-z: initial;
+      --tw-skew-x: initial;
+      --tw-skew-y: initial;
+    }
+  }
 }

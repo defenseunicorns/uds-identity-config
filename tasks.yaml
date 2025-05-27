@@ -51,10 +51,19 @@ tasks:
   - name: dev-theme
     description: "Copy theme to Keycloak in dev cluster"
     actions:
+      - Description: "Install Tailwind CSS"
+        cmd: |
+          cd src/theme
+          npm install -D tailwindcss @tailwindcss/cli
+      - Description: "Build theme.css files"
+        cmd: |
+          cd src/theme
+          npm run build
       - cmd: |
           PV=$(kubectl get pvc keycloak-themes -n keycloak -o jsonpath='{.spec.volumeName}')
           THEME_PATH=$(kubectl get pv $PV -o jsonpath="{.spec.hostPath.path}")
-          docker cp src/theme k3d-uds-server-0:/$THEME_PATH
+          docker cp src/theme/account k3d-uds-server-0:/$THEME_PATH/account
+          docker cp src/theme/login k3d-uds-server-0:/$THEME_PATH/login
 
   - name: dev-plugin
     description: "Build and test Keycloak plugin source and create maven-surefire report"

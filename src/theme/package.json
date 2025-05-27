@@ -1,0 +1,14 @@
+{
+    "name": "uds-keycloak-theme",
+    "version": "1.0.0",
+    "description": "This is a basic Keycloak theme configuration for Defense Unicorns.",
+    "scripts": {
+        "account:build": "npx @tailwindcss/cli --input account/resources/css/styles.css --output account/resources/css/theme.css",
+        "login:build": "npx @tailwindcss/cli --input login/resources/css/styles.css --output login/resources/css/theme.css",
+        "build": "npm run account:build && npm run login:build"
+    },
+    "devDependencies": {
+        "@tailwindcss/cli": "^4.1.7",
+        "tailwindcss": "^4.1.7"
+    }
+}
