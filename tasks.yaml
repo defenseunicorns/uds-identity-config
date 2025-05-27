@@ -102,8 +102,6 @@ tasks:
   - name: uds-core-smoke-test
     description: "UDS Core + Identity Config smoke test with base realm.json"
     actions:
-      - description: "Create build output directory"
-        cmd: mkdir -p build
       - task: dev-build
       - task: clone-core
       - task: build-deploy-custom-slim
@@ -111,8 +109,6 @@ tasks:
   - name: uds-core-integration-tests
     description: "UDS Core + Identity Config Integration Testing"
     actions:
-      - description: "Create build output directory"
-        cmd: mkdir -p build
       - description: Build identity config image
         cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" -t uds-core-config:keycloak --no-cache src
       - task: clone-core
@@ -143,10 +139,8 @@ tasks:
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
     actions:
-      - description: "Create build output directory"
-        cmd: mkdir -p build
       - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
-      - cmd: cd uds-core && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization
+      - cmd: cd uds-core && mkdir -p build && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization
       - task: grafana-group-auth-build-deploy
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
       - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
