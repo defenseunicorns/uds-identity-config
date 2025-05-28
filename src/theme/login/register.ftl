@@ -19,6 +19,9 @@
                     </#if>
                 </#if>
                 <div class="row">
+                    <div class="alert alert-info">
+                        Use your company or government email address as your access will be based off of your validated email address.
+                    </div>
                     <div class="col-lg-6 form-group ${messagesPerField.printIfExists('firstName','has-error')}">
                         <label for="firstName" class="form-label">
                             ${msg("firstName")}

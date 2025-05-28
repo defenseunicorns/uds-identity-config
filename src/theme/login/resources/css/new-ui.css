@@ -9,6 +9,18 @@
     color: #ec7a08;
 }
 
+.alert.alert-info {
+    border-radius: 7px;
+    border-left: 2px solid #1C64F2;
+    border-bottom: 0px;
+    border-right: 0px;
+    border-top: 0px;
+    background-color: #1f2a37;
+    color: #D1D5DB;
+    display: flex;
+    align-items: center;
+}
+
 .instruction {
     font-weight: 100 !important;
     line-height: unset !important;
@@ -168,16 +180,6 @@ ul#kc-totp-supported-apps {
     justify-content: center;
     margin: 10vh auto 50px;
     max-width: 500px;
-}
-
-.info-box {
-    background-color: rgba(95, 164, 216, 0.15);
-    border: 1px solid transparent;
-    border-color: #0ba9d5;
-    border-radius: 6px;
-    color: #65ddff;
-    margin-bottom: 2rem;
-    padding: 1rem;
 }
 
 .row-group {
