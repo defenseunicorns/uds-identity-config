@@ -81,6 +81,7 @@
 
 html {
     background: 0 0 !important;
+    font-family: Inter;
 }
 
 ol#kc-totp-settings {
@@ -142,10 +143,9 @@ ul#kc-totp-supported-apps {
 
 .card #certificate_subjectdn,
 .card a {
-     color: #76A9FA !important;
+    color: #76A9FA !important;
     font-weight: 400;
     font-size: 12px;
-    letter-spacing: 0.1rem;
 }
 
 .app-logo {
@@ -153,9 +153,9 @@ ul#kc-totp-supported-apps {
 }
 
 .footer-text {
-    font-size: 0.85rem;
-    margin-top: 2rem;
     text-align: center;
+    font-weight: 400;
+    font-size: 12px;
 }
 
 .form-group {
@@ -239,7 +239,7 @@ ul#kc-totp-supported-apps {
 }
 
 body {
-    background: #010d17 url(../img/background.jpg) no-repeat center center fixed;
+    background: #010d17 url(../img/background.png) no-repeat center center fixed;
     background-size: cover;
     color: #fff;
     height: 100vh;
@@ -256,19 +256,11 @@ body > .container-fluid {
 
 .fixed-footer {
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 65px;
-    border-top: 1px solid #747474;
-    backdrop-filter: blur(4px);
-    background-color: rgba(100, 100, 100, 0.05) !important;
-    z-index: 1;
-}
-
-.fixed-footer img {
-    max-height: 55px;
-    margin: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    bottom: 1%;
+    z-index: -1;
 }
 
 .branding.card-header img {
