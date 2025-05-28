@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.14.1...v0.14.2) (2025-05-28)
+
+
+### Bug Fixes
+
+* version in upgrade docs ([#499](https://github.com/defenseunicorns/uds-identity-config/issues/499)) ([69ff8b3](https://github.com/defenseunicorns/uds-identity-config/commit/69ff8b3c9ae19f6aa1d2f0482995229565a946eb))
+
 ## [0.14.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.14.0...v0.14.1) (2025-05-27)
 
 
