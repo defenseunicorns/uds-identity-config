@@ -42,7 +42,7 @@ ${msg("loginTitle",(realm.displayName!''))}
 <body class="${properties.kcBodyClass!}">
     <div class="container-fluid">
         <div class="row justify-content-center">
-            <div class="col-xl-4 col-lg-7 col-md-10">
+            <div class="col-xl-5 col-lg-7 col-md-10">
                 <div class="card">
                     <div class="card-header branding row">
                         <div class="col-sm-5 p-0">

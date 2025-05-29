@@ -4,9 +4,15 @@
  */
 
 .alert.alert-warning {
-    background: rgba(227, 153, 79, 0.1);
     border-radius: 7px;
-    color: #ec7a08;
+    border-left: 2px solid #FACA15;
+    border-bottom: 0px;
+    border-right: 0px;
+    border-top: 0px;
+    background-color: #1f2a37;
+    color: #D1D5DB;
+    display: flex;
+    align-items: center;
 }
 
 .alert.alert-info {
@@ -19,6 +25,12 @@
     color: #D1D5DB;
     display: flex;
     align-items: center;
+}
+
+.col-alert-icon {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
 }
 
 .instruction {
@@ -171,7 +183,7 @@ ul#kc-totp-supported-apps {
 }
 
 .form-group {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
 }
 
 .header {
