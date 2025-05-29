@@ -30,55 +30,45 @@ describe("Theme customizations", () => {
         expect(footerPng).to.exist;
         expect(logoSvg).to.exist;
 
-        // logo.svg tests
+        // logo.png tests
         cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/logo.svg | base64 -w 0",
+          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/logo.png | base64 -w 0",
         ).then(result => {
           expect(result.stdout).to.equal(logoSvg);
         });
         cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/uds-logo.svg | base64 -w 0",
-        ).then(result => {
-          expect(result.stdout).to.equal(logoSvg);
-        });
-        cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/account/resources/public/logo.svg | base64 -w 0",
-        ).then(result => {
-          expect(result.stdout).to.equal(logoSvg);
-        });
-        cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/account/resources/public/uds-logo.svg | base64 -w 0",
+          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/account/resources/public/logo.png | base64 -w 0",
         ).then(result => {
           expect(result.stdout).to.equal(logoSvg);
         });
 
-        // background.jpg tests
+        // background.png tests
         cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/tech-bg.jpg | base64 -w 0",
+          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/background.png | base64 -w 0",
         ).then(result => {
           expect(result.stdout).to.equal(backgroundJpg);
         });
         cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/account/resources/public/tech-bg.jpg | base64 -w 0",
+          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/account/resources/public/background.png | base64 -w 0",
         ).then(result => {
           expect(result.stdout).to.equal(backgroundJpg);
         });
 
-        // favicon.svg tests
+        // favicon.png tests
         cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/favicon.svg | base64 -w 0",
+          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/favicon.png | base64 -w 0",
         ).then(result => {
           expect(result.stdout).to.equal(faviconSvg);
         });
 
         // footer.png tests
         cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/full-du-logo.png | base64 -w 0",
+          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/footer | base64 -w 0",
         ).then(result => {
           expect(result.stdout).to.equal(footerPng);
         });
         cy.exec(
-          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/full-du-logo.png | base64 -w 0",
+          "uds zarf tools kubectl exec keycloak-0 -n keycloak -- cat /opt/keycloak/themes/theme/login/resources/img/footer | base64 -w 0",
         ).then(result => {
           expect(result.stdout).to.equal(footerPng);
         });

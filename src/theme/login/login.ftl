@@ -7,6 +7,7 @@
                 </form>
             </#if>
             <#if realm.password && properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "true">
+                <h3>${msg("signIn")}</h3>
                 <form onsubmit="login.disabled=true;return true;" action="${url.loginAction}" method="post">
                     <div class="form-group">
                         <label class="form-label" for="username">
@@ -47,7 +48,7 @@
             <#if realm.password && social?? && social.providers?has_content && properties["SOCIAL_LOGIN_ENABLED"] == "true">
                 <div id="kc-social-providers" class="kc-social-section kc-social-gray">
                     <hr/>
-                    <h2>Sign in with:</h2>
+                    <h2>${msg("doLogInWith")}</h2>
 
                     <ul class="social-ul kc-social-links <#if social.providers?size gt 3>pf-l-grid kc-social-grid</#if>">
                         <#list social.providers as p>
@@ -69,7 +70,7 @@
             </#if>
             <#if properties["REGISTER_BUTTON_ENABLED"] == "true">
                 <div class="footer-text">
-                    No account? <a href="${url.registrationUrl}">Click here</a> to register now.<br>
+                    ${msg("noAccountYet")} <a href="${url.registrationUrl}">${msg("registerNow")}</a><br>
                 </div>
             </#if>
         </#if>
