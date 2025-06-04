@@ -1,4 +1,4 @@
-<#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false showAnotherWayIfPresent=true>
+<#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false showAnotherWayIfPresent=true headerText="">
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml" class="${properties.kcHtmlClass!}">
 
@@ -14,7 +14,7 @@
     <title>
 ${msg("loginTitle",(realm.displayName!''))}
 </title>
-    <link rel="icon" href="${url.resourcesPath}/img/favicon.svg" />
+    <link rel="icon" href="${url.resourcesPath}/img/favicon.png" />
     <#if properties.styles?has_content>
         <#list properties.styles?split(' ') as style>
             <link href="${url.resourcesPath}/${style}" rel="stylesheet" />
@@ -45,7 +45,7 @@ ${msg("loginTitle",(realm.displayName!''))}
                 <div class="card">
                     <div class="card-header branding row">
                         <div class="col-sm-5 p-0">
-                            <img src="${url.resourcesPath}/img/uds-logo.svg"/>
+                            <img src="${url.resourcesPath}/img/logo.png"/>
                         </div>
                         <div class="col-sm-1">&nbsp;</div>
                         <div class="col-sm-6 my-auto">
@@ -73,20 +73,36 @@ ${msg("loginTitle",(realm.displayName!''))}
                     </div>
                     <br>
                     <div class="card-body">
+                        <#if headerText?has_content>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <h3>${msg(headerText)}</h3>
+                                    <hr/>
+                                </div>
+                            </div>
+                        </#if>
+
                         <#-- App-initiated actions should not see warning messages about the need to complete the action -->
                         <#-- during login.                                                                               -->
                         <#if displayMessage && message?has_content && (message.type != ' warning' || !isAppInitiatedAction??)>
-                <div id="alert-error" class="error-messages alert alert-${message.type} ${properties.kcAlertClass!} alert-<#if message.type = 'error'>danger<#else>
-${message.type}
-</#if>">
-                    <span class="${properties.kcAlertTitleClass!}">
-                        ${kcSanitize(message.summary)?no_esc}
-                    </span>
-                </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div id="alert-error" class="alert alert-<#if message.type = 'error'>error<#else>warning</#if>">
+                                        <div class="row">
+                                            <div class="col-lg-1  d-flex align-items-center col-alert-icon">
+                                                <img src="${url.resourcesPath}/img/icon_<#if message.type = 'error'>error<#else>warning</#if>.png" />
+                                            </div>
+                                            <div class="col">
+                                                <p>${kcSanitize(message.summary)?no_esc}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
         </#if>
         <#nested "form">
             <#if displayInfo>
-                <div id="kc-info" class="${properties.kcSignUpClass!}">
+                <div id="kc-info" class="${properties.kcSignUpClass!} ">
                     <div id="kc-info-wrapper">
                         <#nested "info">
                     </div>
@@ -98,7 +114,7 @@ ${message.type}
             </div>
             </div>
             <footer class="fixed-footer">
-                <img src="${url.resourcesPath}/img/full-du-logo.png" />
+                <img src="${url.resourcesPath}/img/footer.png" />
             </footer>
             </body>
 

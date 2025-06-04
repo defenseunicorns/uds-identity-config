@@ -1,8 +1,28 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayInfo=true displayMessage=!messagesPerField.existsError('username'); section>
+<@layout.registrationLayout headerText="Reset your password" displayInfo=true displayMessage=!messagesPerField.existsError('username'); section>
     <#if section = "header">
         ${msg("emailForgotTitle")}
     <#elseif section = "form">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="alert alert-info">
+                    <div class="row">
+                        <div class="col-lg-1 d-flex align-items-center col-alert-icon">
+                            <img src="${url.resourcesPath}/img/icon_information.png"  />
+                        </div>
+                        <div class="col">
+                            <#if realm.duplicateEmailsAllowed>
+                                ${msg("emailInstructionUsername")}
+                            <#else>
+                                ${msg("emailInstruction")}
+                            </#if>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <form id="kc-reset-password-form" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
             <div class="${properties.kcFormGroupClass!}">
                 <div class="${properties.kcLabelWrapperClass!}">
@@ -29,11 +49,5 @@
                 </div>
             </div>
         </form>
-    <#elseif section = "info" >
-        <#if realm.duplicateEmailsAllowed>
-            ${msg("emailInstructionUsername")}
-        <#else>
-            ${msg("emailInstruction")}
-        </#if>
     </#if>
 </@layout.registrationLayout>

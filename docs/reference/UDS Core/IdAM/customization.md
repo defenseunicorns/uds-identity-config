@@ -47,28 +47,28 @@ packages:
               value:
                  resources:
                     images:
-                       - name: background.jpg
+                       - name: background.png
                          configmap:
                             name: keycloak-theme-overrides
-                       - name: logo.svg
+                       - name: logo.png
                          configmap:
                             name: keycloak-theme-overrides
                        - name: footer.png
                          configmap:
                             name: keycloak-theme-overrides
-                       - name: favicon.svg
+                       - name: favicon.png
                          configmap:
                             name: keycloak-theme-overrides
 ```
 
-The configuration supports only four potential keys: `background.jpg`, `logo.svg`, `footer.png`, and `favicon.svg` which are expected to exist in the corresponding ConfigMaps. In this example, all four images reside in the same ConfigMap named `keycloak-theme-overrides`. The values of these keys are base64 encoded images hosted as `binaryData` part of the ConfigMap. You can create it using the following command:
+The configuration supports only four potential keys: `background.png`, `logo.png`, `footer.png`, and `favicon.png` which are expected to exist in the corresponding ConfigMaps. In this example, all four images reside in the same ConfigMap named `keycloak-theme-overrides`. The values of these keys are base64 encoded images hosted as `binaryData` part of the ConfigMap. You can create it using the following command:
 
 ```bash
 kubectl create configmap keycloak-theme-overrides \
-  --from-file=background.jpg=path/to/local/directory/background.jpg \
-  --from-file=logo.svg=path/to/local/directory/logo.svg \
+  --from-file=background.png=path/to/local/directory/background.png \
+  --from-file=logo.png=path/to/local/directory/logo.png \
   --from-file=footer.png=path/to/local/directory/footer.png \
-  --from-file=favicon.svg=path/to/local/directory/favicon.svg
+  --from-file=favicon.png=path/to/local/directory/favicon.png
 ```
 
 ### Registration Form Fields

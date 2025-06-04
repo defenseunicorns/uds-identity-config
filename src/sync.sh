@@ -26,29 +26,27 @@ fi
 
 if [ -d /opt/keycloak/theme-overrides ]; then
     echo "Applying theme customizations"
-    if [ -f /opt/keycloak/theme-overrides/logo.svg ]; then
-      echo "Overriding logo.svg"
-      cp -fv /opt/keycloak/theme-overrides/logo.svg /opt/keycloak/themes/theme/login/resources/img/logo.svg
-      cp -fv /opt/keycloak/theme-overrides/logo.svg /opt/keycloak/themes/theme/login/resources/img/uds-logo.svg
-      cp -fv /opt/keycloak/theme-overrides/logo.svg /opt/keycloak/themes/theme/account/resources/public/logo.svg
-      cp -fv /opt/keycloak/theme-overrides/logo.svg /opt/keycloak/themes/theme/account/resources/public/uds-logo.svg
+    if [ -f /opt/keycloak/theme-overrides/logo.png ]; then
+      echo "Overriding logo.png"
+      cp -fv /opt/keycloak/theme-overrides/logo.png /opt/keycloak/themes/theme/login/resources/img/logo.png
+      cp -fv /opt/keycloak/theme-overrides/logo.png /opt/keycloak/themes/theme/account/resources/public/logo.png
     fi
 
-    if [ -f /opt/keycloak/theme-overrides/favicon.svg ]; then
-      echo "Overriding favicon.svg"
-      cp -fv /opt/keycloak/theme-overrides/favicon.svg /opt/keycloak/themes/theme/login/resources/img/favicon.svg
+    if [ -f /opt/keycloak/theme-overrides/favicon.png ]; then
+      echo "Overriding favicon.png"
+      cp -fv /opt/keycloak/theme-overrides/favicon.png /opt/keycloak/themes/theme/login/resources/img/favicon.png
+      cp -fv /opt/keycloak/theme-overrides/favicon.png /opt/keycloak/themes/theme/account/resources/img/favicon.png
     fi
 
-    if [ -f /opt/keycloak/theme-overrides/background.jpg ]; then
-      echo "Overriding background.jpg"
-      cp -fv /opt/keycloak/theme-overrides/background.jpg /opt/keycloak/themes/theme/login/resources/img/tech-bg.jpg
-      cp -fv /opt/keycloak/theme-overrides/background.jpg /opt/keycloak/themes/theme/account/resources/public/tech-bg.jpg
+    if [ -f /opt/keycloak/theme-overrides/background.png ]; then
+      echo "Overriding background.png"
+      cp -fv /opt/keycloak/theme-overrides/background.png /opt/keycloak/themes/theme/login/resources/img/background.png
+      cp -fv /opt/keycloak/theme-overrides/background.png /opt/keycloak/themes/theme/account/resources/public/background.png
     fi
 
     if [ -f /opt/keycloak/theme-overrides/footer.png ]; then
       echo "Overriding footer.png"
-      cp -fv /opt/keycloak/theme-overrides/footer.png /opt/keycloak/themes/theme/login/resources/img/full-du-logo.png
-      cp -fv /opt/keycloak/theme-overrides/footer.png /opt/keycloak/themes/theme/account/resources/public/full-du-logo.png
+      cp -fv /opt/keycloak/theme-overrides/footer.png /opt/keycloak/themes/theme/login/resources/img/footer
     fi
 fi
 

@@ -1,23 +1,59 @@
 <#import "template.ftl" as layout>
-    <@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm', 'affiliation', 'rank', 'organization', 'notes'); section>
+    <@layout.registrationLayout headerText="Register New Account" displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm', 'affiliation', 'rank', 'organization', 'notes'); section>
         <#if section="form">
             <form action="/chuck-norris-calendar-goes-straight-from-march-31st-to-april-2nd-because-no-one-fools-chuck-norris"
                 id="unicorn-registration-form" method="post">
+
                 <#if cacSubjectDN??>
-                    <div class="alert alert-info cac-info">
-                        <h2>DoD PKI User Registration</h2>
-                        <p>
-                            ${cacSubjectDN}
-                        </p>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="alert alert-info">
+                                <div class="row">
+                                    <div class="col-lg-1  d-flex align-items-center col-alert-icon">
+                                        <img src="${url.resourcesPath}/img/icon_information.png" />
+                                    </div>
+                                    <div class="col">
+                                        <h3>DoD PKI User Registration</h3>
+                                        <p>${cacSubjectDN}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 <#else>
                     <#if properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "false" && properties["X509_LOGIN_ENABLED"] == "true">
-                        <div class="alert alert-warning">
-                            <h2>Registration Requirement</h2>
-                            <p>No CAC detected. A DoD PKI CAC is required to complete registration.</p>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="alert alert-warning">
+                                    <div class="row">
+                                        <div class="col-lg-1  d-flex align-items-center col-alert-icon">
+                                            <img src="${url.resourcesPath}/img/icon_warning.png" />
+                                        </div>
+                                        <div class="col">
+                                            <h3>Registration Requirement</h3>
+                                            </p>No CAC detected. A DoD PKI CAC is required to complete registration.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </#if>
                 </#if>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-info">
+                            <div class="row">
+                                <div class="col-lg-1 d-flex align-items-center col-alert-icon">
+                                    <img src="${url.resourcesPath}/img/icon_information.png"  />
+                                </div>
+                                <div class="col">
+                                    <p>Use your company or government email address as your access will be based off of your validated email address.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-lg-6 form-group ${messagesPerField.printIfExists('firstName','has-error')}">
                         <label for="firstName" class="form-label">
@@ -156,7 +192,7 @@
                 <div class="location-input">
                     <div class="form-group">
                         <label for="location" class="form-label">Location</label>
-                        <input id="location" class="form-control" name="location" tabindex="-1 type=" text" />
+                        <input id="location" class="form-control" name="location" tabindex="-1" type="text" />
                     </div>
                 </div>
                 <#if !realm.registrationEmailAsUsername>
@@ -194,20 +230,27 @@
                 <#if properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "true">
                     <div class="form-group ${messagesPerField.printIfExists('password','has-error')}">
                         <#if cacSubjectDN??>
-                            <div class="alert alert-info cac-info text-white">
-                                ${msg("passwordCacMessage1")}
-                                <span class="note-important">
-                                    ${msg("passwordCacMessage2")}
-                                </span>
-                                ${msg("passwordCacMessage3")}
+                            <div class="col-lg-12">
+                                <div class="alert alert-warning">
+                                    <div class="row">
+                                        <div class="col-lg-1  d-flex align-items-center col-alert-icon">
+                                            <img src="${url.resourcesPath}/img/icon_warning.png" />
+                                        </div>
+                                        <div class="col">
+                                            <p>${msg("passwordCacMessage1")}</p>
+                                            <p><b>${msg("passwordCacMessage2")}</b></p>
+                                            <p>${msg("passwordCacMessage3")}</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <label for="password" class="form-label ">
                                 ${msg("passwordOptional")}
                             </label>
-                            <#else>
-                                <label for="password" class="form-label ">
-                                    ${msg("password")}
-                                </label>
+                        <#else>
+                            <label for="password" class="form-label ">
+                                ${msg("password")}
+                            </label>
                         </#if>
                         <input id="password" class="form-control " name="password"
                             type="password" autocomplete="new-password" />
@@ -239,6 +282,7 @@
                     </div>
                 </#if>
                 <div class="form-group">
+                    <br/>
                     <div id="kc-form-buttons">
                         <input id="do-register" disabled="disabled"
                             class="btn btn-primary btn-block"
