@@ -35,7 +35,7 @@ if [ -d /opt/keycloak/theme-overrides ]; then
     if [ -f /opt/keycloak/theme-overrides/favicon.png ]; then
       echo "Overriding favicon.png"
       cp -fv /opt/keycloak/theme-overrides/favicon.png /opt/keycloak/themes/theme/login/resources/img/favicon.png
-      cp -fv /opt/keycloak/theme-overrides/favicon.png /opt/keycloak/themes/theme/account/resources/img/favicon.png
+      cp -fv /opt/keycloak/theme-overrides/favicon.png /opt/keycloak/themes/theme/account/resources/public/favicon.png
     fi
 
     if [ -f /opt/keycloak/theme-overrides/background.png ]; then
@@ -46,7 +46,7 @@ if [ -d /opt/keycloak/theme-overrides ]; then
 
     if [ -f /opt/keycloak/theme-overrides/footer.png ]; then
       echo "Overriding footer.png"
-      cp -fv /opt/keycloak/theme-overrides/footer.png /opt/keycloak/themes/theme/login/resources/img/footer
+      cp -fv /opt/keycloak/theme-overrides/footer.png /opt/keycloak/themes/theme/login/resources/img/footer.png
     fi
 fi
 
