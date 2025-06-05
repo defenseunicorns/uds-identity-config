@@ -30,7 +30,7 @@ describe("CAC Registration Flow", () => {
 
 
     // Verify DoD PKI Detected Banner on Login page
-    cy.get(".form-group .alert-info").should("be.visible").contains("h2", "DoD PKI Detected");
+    cy.get(".form-group .alert-info").should("be.visible").contains("h3", "DoD PKI Detected");
     cy.get(".form-group #certificate_subjectDN")
       .should("be.visible")
       // FIPS and non-FIPS mode use different formats for the subject DN. That's why we check if all parts are present instead of
