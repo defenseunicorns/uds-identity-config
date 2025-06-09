@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.14.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.14.1...v0.14.2) (2025-06-09)
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.2.5 ([#498](https://github.com/defenseunicorns/uds-identity-config/issues/498)) ([cbeff00](https://github.com/defenseunicorns/uds-identity-config/commit/cbeff0073781d69928df4244e0db5f155845fdbf))
+* version in upgrade docs ([#499](https://github.com/defenseunicorns/uds-identity-config/issues/499)) ([69ff8b3](https://github.com/defenseunicorns/uds-identity-config/commit/69ff8b3c9ae19f6aa1d2f0482995229565a946eb))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#490](https://github.com/defenseunicorns/uds-identity-config/issues/490)) ([d3b346f](https://github.com/defenseunicorns/uds-identity-config/commit/d3b346fe7f086c6ef703316fe4c408822dce325a))
+* **deps:** update all dependencies ([#506](https://github.com/defenseunicorns/uds-identity-config/issues/506)) ([c9630c2](https://github.com/defenseunicorns/uds-identity-config/commit/c9630c24967f3770fb6803cc4d2b5de642a2587a))
+* **deps:** update dependency cypress to v14.4.1 ([#503](https://github.com/defenseunicorns/uds-identity-config/issues/503)) ([f014a1c](https://github.com/defenseunicorns/uds-identity-config/commit/f014a1cd1de4443a6480681ed9123c9b80874cc9))
+* **deps:** update docker image ghcr.io/zarf-dev/packages/init to v0.55.6 ([#501](https://github.com/defenseunicorns/uds-identity-config/issues/501)) ([81c14ea](https://github.com/defenseunicorns/uds-identity-config/commit/81c14ea9abccdd94d9b7eb72bfa3813c4189e662))
+* **deps:** update gha-deps to v0.27.6 ([#504](https://github.com/defenseunicorns/uds-identity-config/issues/504)) ([c821bd7](https://github.com/defenseunicorns/uds-identity-config/commit/c821bd7beae21bf9a46e5b8384c9106a637c21e8))
+
 ## [0.14.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.14.0...v0.14.1) (2025-05-27)
 
 
