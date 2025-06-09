@@ -40,9 +40,9 @@
 }
 
 .col-alert-icon {
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
 }
 
 .instruction {
@@ -143,6 +143,11 @@ ul#kc-totp-supported-apps {
 
 .btn-primary:hover {
     background-color: #1A56DB !important;
+}
+
+.btn-primary:disabled {
+    border-color: #1A56DB !important;
+    background-color: #374151 !important;
 }
 
 .location-input {

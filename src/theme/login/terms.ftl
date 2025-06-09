@@ -8,7 +8,7 @@
                         <div class="col-lg-12">
                             <div class="alert alert-warning">
                                 <div class="row">
-                                    <div class="col-lg-1  d-flex align-items-center col-alert-icon">
+                                    <div class="col-lg-1 d-flex align-items-start col-alert-icon">
                                         <img src="${url.resourcesPath}/img/icon_warning.png" />
                                     </div>
                                     <div class="col">

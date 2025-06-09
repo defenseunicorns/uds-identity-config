@@ -89,7 +89,7 @@ ${msg("loginTitle",(realm.displayName!''))}
                                 <div class="col-lg-12">
                                     <div id="alert-error" class="alert alert-<#if message.type = 'error'>error<#else>warning</#if>">
                                         <div class="row">
-                                            <div class="col-lg-1  d-flex align-items-center col-alert-icon">
+                                            <div class="col-lg-1 d-flex align-items-center col-alert-icon">
                                                 <img src="${url.resourcesPath}/img/icon_<#if message.type = 'error'>error<#else>warning</#if>.png" />
                                             </div>
                                             <div class="col">

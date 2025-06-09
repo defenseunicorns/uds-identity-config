@@ -44,7 +44,7 @@
                             <#if auth.selectedCredential?has_content>value="${auth.selectedCredential}"
                             </#if>/>
                         <input tabindex="4" class="btn btn-primary btn-block"
-                            name="login" id="kc-login" type="submit" value="${msg("doLogIn")}" />
+                            name="login" id="kc-login" type="submit" value="${msg("doLogIn")}" disabled="disabled" />
                     </div>
                 </form>
             </#if>
@@ -92,7 +92,7 @@
                     <div class="col-lg-12">
                         <div class="alert alert-info">
                             <div class="row">
-                                <div class="col-lg-1  d-flex align-items-center col-alert-icon">
+                                <div class="col-lg-1 d-flex align-items-start col-alert-icon">
                                     <img src="${url.resourcesPath}/img/icon_information.png" />
                                 </div>
                                 <div class="col">
@@ -113,7 +113,7 @@
                     <div class="col-lg-12">
                         <div class="alert alert-info">
                             <div class="row">
-                                <div class="col-lg-1  d-flex align-items-center col-alert-icon">
+                                <div class="col-lg-1 d-flex align-items-start col-alert-icon">
                                     <img src="${url.resourcesPath}/img/icon_information.png" />
                                 </div>
                                 <div class="col">
@@ -126,5 +126,27 @@
                 </div>
             `;
         }
+
+        // Gray the login button out until both fields are filled
+        function updateLoginButtonState() {
+            var username = document.getElementById('username');
+            var password = document.getElementById('password');
+            var loginBtn = document.getElementById('kc-login');
+            if (!username || !password || !loginBtn) return;
+            if (username.value.trim() && password.value.trim()) {
+                loginBtn.removeAttribute('disabled');
+            } else {
+                loginBtn.setAttribute('disabled', 'disabled');
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var username = document.getElementById('username');
+            var password = document.getElementById('password');
+            if (username && password) {
+                username.addEventListener('input', updateLoginButtonState);
+                password.addEventListener('input', updateLoginButtonState);
+                updateLoginButtonState();
+            }
+        });
     })();
     </script>

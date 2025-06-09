@@ -9,7 +9,7 @@
                         <div class="col-lg-12">
                             <div class="alert alert-info">
                                 <div class="row">
-                                    <div class="col-lg-1  d-flex align-items-center col-alert-icon">
+                                    <div class="col-lg-1 align-items-start d-flex col-alert-icon">
                                         <img src="${url.resourcesPath}/img/icon_information.png" />
                                     </div>
                                     <div class="col">
@@ -26,7 +26,7 @@
                             <div class="col-lg-12">
                                 <div class="alert alert-warning">
                                     <div class="row">
-                                        <div class="col-lg-1  d-flex align-items-center col-alert-icon">
+                                        <div class="col-lg-1 align-items-start d-flex col-alert-icon">
                                             <img src="${url.resourcesPath}/img/icon_warning.png" />
                                         </div>
                                         <div class="col">
@@ -118,7 +118,7 @@
                             </#if>
                         </div>
                         <div class="col-lg-6 form-group ${messagesPerField.printIfExists('rank','has-error')}">
-                            <label for="rank" class="form-label">Pay Grade</label>
+                            <label for="rank" class="form-label">Pay grade</label>
                             <select id="rank" name="rank" class="form-control">
                                 <option selected disabled hidden>Select your rank</option>
                                 <optgroup label="Enlisted">
@@ -231,10 +231,10 @@
                     <div class="form-group ${messagesPerField.printIfExists('password','has-error')}">
                         <#if cacSubjectDN??>
                             <div class="col-lg-12">
-                                <div class="alert alert-warning">
+                                <div class="alert alert-info">
                                     <div class="row">
-                                        <div class="col-lg-1  d-flex align-items-center col-alert-icon">
-                                            <img src="${url.resourcesPath}/img/icon_warning.png" />
+                                        <div class="col-lg-1 align-items-start d-flex col-alert-icon" style="margin-top: 1rem">
+                                            <img src="${url.resourcesPath}/img/icon_information.png"/>
                                         </div>
                                         <div class="col">
                                             <p>${msg("passwordCacMessage1")}</p>
