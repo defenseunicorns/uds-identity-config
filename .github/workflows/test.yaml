@@ -36,7 +36,8 @@ jobs:
           registry1Username: ${{ secrets.IRON_BANK_ROBOT_USERNAME }}
           registry1Password: ${{ secrets.IRON_BANK_ROBOT_PASSWORD }}
           ghToken: ${{ secrets.GITHUB_TOKEN }}
-          chainguardIdentity: ${{ secrets.CHAINGUARD_IDENTITY }}
+          rapidfortUsername: ${{ secrets.RAPIDFORT_USERNAME }}
+          rapidfortPassword: ${{ secrets.RAPIDFORT_PASSWORD }}
 
       - name: Test building the docker image
         run: uds run dev-build --no-progress
@@ -58,7 +59,8 @@ jobs:
           registry1Username: ${{ secrets.IRON_BANK_ROBOT_USERNAME }}
           registry1Password: ${{ secrets.IRON_BANK_ROBOT_PASSWORD }}
           ghToken: ${{ secrets.GITHUB_TOKEN }}
-          chainguardIdentity: ${{ secrets.CHAINGUARD_IDENTITY }}
+          rapidfortUsername: ${{ secrets.RAPIDFORT_USERNAME }}
+          rapidfortPassword: ${{ secrets.RAPIDFORT_PASSWORD }}
 
       - name: Test building a zarf package
         run: uds run build-zarf-pkg --no-progress
@@ -80,7 +82,8 @@ jobs:
           registry1Username: ${{ secrets.IRON_BANK_ROBOT_USERNAME }}
           registry1Password: ${{ secrets.IRON_BANK_ROBOT_PASSWORD }}
           ghToken: ${{ secrets.GITHUB_TOKEN }}
-          chainguardIdentity: ${{ secrets.CHAINGUARD_IDENTITY }}
+          rapidfortUsername: ${{ secrets.RAPIDFORT_USERNAME }}
+          rapidfortPassword: ${{ secrets.RAPIDFORT_PASSWORD }}
 
       - name: Set up JDK 17
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
@@ -108,7 +111,8 @@ jobs:
           registry1Username: ${{ secrets.IRON_BANK_ROBOT_USERNAME }}
           registry1Password: ${{ secrets.IRON_BANK_ROBOT_PASSWORD }}
           ghToken: ${{ secrets.GITHUB_TOKEN }}
-          chainguardIdentity: ${{ secrets.CHAINGUARD_IDENTITY }}
+          rapidfortUsername: ${{ secrets.RAPIDFORT_USERNAME }}
+          rapidfortPassword: ${{ secrets.RAPIDFORT_PASSWORD }}
 
       - name: Smoke Tests
         run: uds run uds-core-smoke-test --no-progress
@@ -140,7 +144,8 @@ jobs:
           registry1Username: ${{ secrets.IRON_BANK_ROBOT_USERNAME }}
           registry1Password: ${{ secrets.IRON_BANK_ROBOT_PASSWORD }}
           ghToken: ${{ secrets.GITHUB_TOKEN }}
-          chainguardIdentity: ${{ secrets.CHAINGUARD_IDENTITY }}
+          rapidfortUsername: ${{ secrets.RAPIDFORT_USERNAME }}
+          rapidfortPassword: ${{ secrets.RAPIDFORT_PASSWORD }}
 
       - name: Cypress Integration Tests
         run: uds run uds-core-integration-tests --no-progress

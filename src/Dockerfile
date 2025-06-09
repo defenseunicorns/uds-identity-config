@@ -57,7 +57,7 @@ RUN ./ca-to-jks.sh
 # Use busybox as the base image to perform the sync                               #
 #                                                                                 #
 ###################################################################################
-FROM cgr.dev/chainguard/busybox:latest
+FROM quay.io/rfcurated/busybox:1.37.0-musl-rf.1-rfcurated
 
 WORKDIR /home/nonroot
 
