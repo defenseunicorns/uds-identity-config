@@ -14,6 +14,12 @@ inputs:
   registry1Password:
     description: 'IRON_BANK_ROBOT_PASSWORD'
     required: true
+  rapidfortUsername:
+    description: "RAPIDFORT_USERNAME"
+    required: true
+  rapidfortPassword:
+    description: "RAPIDFORT_PASSWORD"
+    required: true
 
 runs:
   using: "composite"
@@ -48,3 +54,10 @@ runs:
         GH_TOKEN: ${{ inputs.ghToken }}
       run: echo "${{ env.GH_TOKEN }}" | uds zarf tools registry login -u "dummy" --password-stdin ghcr.io
       shell: bash
+
+    - name: Rapidfort Login
+      shell: bash
+      env:
+        RAPIDFORT_USERNAME: ${{ inputs.rapidfortUsername }}
+        RAPIDFORT_PASSWORD: ${{ inputs.rapidfortPassword }}
+      run: echo "${{ env.RAPIDFORT_PASSWORD }}" | uds zarf tools registry login -u "${{ env.RAPIDFORT_USERNAME }}" --password-stdin quay.io
