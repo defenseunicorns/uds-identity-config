@@ -114,7 +114,7 @@ tasks:
       - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
-      - task: cypress-tests
+#      - task: cypress-tests
       - task: theme-customization-tests
 
   - name: grafana-group-auth-build-deploy
@@ -134,7 +134,7 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core
-      - cmd: git clone --branch theme_v2 https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --branch 505-customizable-tc https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"

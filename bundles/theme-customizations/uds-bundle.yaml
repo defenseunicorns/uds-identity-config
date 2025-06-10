@@ -36,6 +36,10 @@ packages:
                     - name: favicon.png
                       configmap:
                         name: keycloak-theme-overrides
+                termsAndConditions:
+                  keys: [text1, text2, text3]
+                  configmap:
+                    name: keycloak-theme-overrides
             - path: realmInitEnv
               value:
                 GOOGLE_IDP_ENABLED: true
