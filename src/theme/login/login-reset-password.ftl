@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout headerText="Reset your password" displayInfo=true displayMessage=!messagesPerField.existsError('username'); section>
+<@layout.registrationLayout headerText="Reset your password" backLink=true displayInfo=true displayMessage=!messagesPerField.existsError('username'); section>
     <#if section = "header">
         ${msg("emailForgotTitle")}
     <#elseif section = "form">
@@ -38,16 +38,32 @@
                 </div>
             </div>
             <div class="${properties.kcFormGroupClass!} ${properties.kcFormSettingClass!}">
-                <div id="kc-form-options" class="${properties.kcFormOptionsClass!}">
-                    <div class="${properties.kcFormOptionsWrapperClass!}">
-                        <span><a href="${url.loginUrl}">${kcSanitize(msg("backToLogin"))?no_esc}</a></span>
-                    </div>
-                </div>
-
                 <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
-                    <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}"/>
+                    <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}" id="kc-reset" disabled="disabled"/>
                 </div>
             </div>
         </form>
+        <script>
+        // Gray the reset button out until both fields are filled
+        (function () {
+            function updateResetButtonState() {
+                var username = document.getElementById('username');
+                var resetBtn = document.getElementById('kc-reset');
+                if (!username || !resetBtn) return;
+                if (username.value.trim()) {
+                    resetBtn.removeAttribute('disabled');
+                } else {
+                    resetBtn.setAttribute('disabled', 'disabled');
+                }
+            }
+            document.addEventListener('DOMContentLoaded', function() {
+                var username = document.getElementById('username');
+                if (username) {
+                    username.addEventListener('input', updateResetButtonState);
+                    updateResetButtonState();
+                }
+            });
+        })();
+        </script>
     </#if>
 </@layout.registrationLayout>

@@ -136,6 +136,28 @@ ul#kc-totp-supported-apps {
     max-width: 150px;
 }
 
+.btn-text {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #76A9FA !important;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.btn-text:hover {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #76A9FA !important;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 400;
+}
+
 .btn-primary {
     background-color: #1A56DB !important;
     border: none !important;
@@ -145,7 +167,6 @@ ul#kc-totp-supported-apps {
 .btn-primary:hover {
     background-color: #6875F5 !important;
     border: none !important;
-
 }
 
 .btn-primary:disabled {

@@ -1,4 +1,4 @@
-<#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false showAnotherWayIfPresent=true headerText="">
+<#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false showAnotherWayIfPresent=true headerText="" backButton=false backLink=false>
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml" class="${properties.kcHtmlClass!}">
 
@@ -73,6 +73,24 @@ ${msg("loginTitle",(realm.displayName!''))}
                     </div>
                     <br>
                     <div class="card-body">
+                        <#if backButton || backLink>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <#if backButton>
+                                        <form class="" action="${url.loginAction}" method="post">
+                                            <img src="${url.resourcesPath}/img/icon_back.png" />
+                                            <input name="cancel" id="kc-cancel" type="submit" value="${kcSanitize(msg("backToLogin"))?no_esc}" class="btn-text" />
+                                        </form>
+                                    </#if>
+                                    <#if backLink>
+                                        <img src="${url.resourcesPath}/img/icon_back.png" />
+                                        <a type="submit" href="${url.loginUrl}">${kcSanitize(msg("backToLogin"))?no_esc}</a>
+                                    </#if>
+                                </div>
+                            </div>
+                            <br/>
+                        </#if>
+
                         <#if headerText?has_content>
                             <div class="row">
                                 <div class="col-lg-12">
@@ -89,7 +107,7 @@ ${msg("loginTitle",(realm.displayName!''))}
                                 <div class="col-lg-12">
                                     <div id="alert-error" class="alert alert-<#if message.type = 'error'>error<#else>warning</#if>">
                                         <div class="row">
-                                            <div class="col-lg-1 d-flex align-items-center col-alert-icon">
+                                            <div class="col-lg-1 align-items-start d-flex col-alert-icon" style="margin-top: 1rem">
                                                 <img src="${url.resourcesPath}/img/icon_<#if message.type = 'error'>error<#else>warning</#if>.png" />
                                             </div>
                                             <div class="col">

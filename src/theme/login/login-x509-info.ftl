@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-    <@layout.registrationLayout; section>
+    <@layout.registrationLayout backButton=true; section>
         <#if section="form">
             <form id="kc-x509-login-info" class="" action="${url.loginAction}" method="post">
                 <div class="form-group">
@@ -45,10 +45,7 @@
                 <div class="form-group">
                     <div id="kc-form-buttons" class="">
                         <div class="text-right">
-                            <input class="btn btn-primary" name="login" id="kc-login" type="submit" value="${msg("doContinue")}" autofocus />
-                            <#if x509.formData.isUserEnabled??>
-                                <input class="btn btn-light" name="cancel" id="kc-cancel" type="submit" value="${msg("doIgnore")}" />
-                            </#if>
+                            <input class="btn btn-primary btn-block" name="login" id="kc-login" type="submit" value="${msg("doContinue")}" autofocus />
                         </div>
                     </div>
                 </div>
