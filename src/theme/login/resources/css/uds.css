@@ -137,17 +137,21 @@ ul#kc-totp-supported-apps {
 }
 
 .btn-primary {
-    background-color: #374151 !important;
+    background-color: #1A56DB !important;
+    border: none !important;
     border-radius: 4px !important;
 }
 
 .btn-primary:hover {
-    background-color: #1A56DB !important;
+    background-color: #6875F5 !important;
+    border: none !important;
+
 }
 
 .btn-primary:disabled {
-    border-color: #1A56DB !important;
     background-color: #374151 !important;
+    border: none !important;
+    color: #9CA3AF
 }
 
 .location-input {
