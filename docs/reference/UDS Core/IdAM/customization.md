@@ -124,36 +124,36 @@ For example, this bundle override contains all the available overrides:
 
 ```yaml
 overrides:
-   keycloak:
-      keycloak:
-         values:
-            path: realmInitEnv
-            value:
-               GOOGLE_IDP_ENABLED: true
-               GOOGLE_IDP_ID: <fill in value here>
-               GOOGLE_IDP_SIGNING_CERT: <fill in value here>
-               GOOGLE_IDP_NAME_ID_FORMAT: <fill in value here>
-               GOOGLE_IDP_CORE_ENTITY_ID: <fill in value here>
-               GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
-               GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
-               EMAIL_VERIFICATION_ENABLED: true
-               TERMS_AND_CONDITIONS_ENABLED: true
-               PASSWORD_POLICY: <fill in value here>
-               X509_OCSP_FAIL_OPEN: true
-               ACCESS_TOKEN_LIFESPAN: 600
-               SSO_SESSION_LIFESPAN_TIMEOUT: 1200
-               SSO_SESSION_MAX_LIFESPAN: 36000
-            path: realmAuthFlows
-            value:
-               USERNAME_PASSWORD_AUTH_ENABLED: true
-               X509_AUTH_ENABLED: true
-               SOCIAL_AUTH_ENABLED: true
-               OTP_ENABLED: true
-               WEBAUTHN_ENABLED: true
-               X509_MFA_ENABLED: true
-            path: themeCustomizations.settings
-            value:
-               enableRegistrationFields: true
+  keycloak:
+    keycloak:
+      values:
+        - path: realmInitEnv
+          value:
+            GOOGLE_IDP_ENABLED: true
+            GOOGLE_IDP_ID: <fill in value here>
+            GOOGLE_IDP_SIGNING_CERT: <fill in value here>
+            GOOGLE_IDP_NAME_ID_FORMAT: <fill in value here>
+            GOOGLE_IDP_CORE_ENTITY_ID: <fill in value here>
+            GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
+            GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
+            EMAIL_VERIFICATION_ENABLED: true
+            TERMS_AND_CONDITIONS_ENABLED: true
+            PASSWORD_POLICY: <fill in value here>
+            X509_OCSP_FAIL_OPEN: true
+            ACCESS_TOKEN_LIFESPAN: 600
+            SSO_SESSION_LIFESPAN_TIMEOUT: 1200
+            SSO_SESSION_MAX_LIFESPAN: 36000
+        - path: realmAuthFlows
+          value:
+            USERNAME_PASSWORD_AUTH_ENABLED: true
+            X509_AUTH_ENABLED: true
+            SOCIAL_AUTH_ENABLED: true
+            OTP_ENABLED: true
+            WEBAUTHN_ENABLED: true
+            X509_MFA_ENABLED: true
+        - path: themeCustomizations.settings
+          value:
+            enableRegistrationFields: true
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).
