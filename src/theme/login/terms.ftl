@@ -29,12 +29,12 @@
 
                     <div class="row">
                         <div class="col-lg-12">
-                            <h5>By using this IS (which includes any device attached to this IS), you consent to the following
+                            <h5 class="tc-text">By using this IS (which includes any device attached to this IS), you consent to the following
                                 conditions:</h5>
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row tc-text">
                         <div class="col-lg-12">
                             <ul>
                                 <li>The USG routinely intercepts and monitors communications on this IS for purposes including, but
@@ -78,12 +78,44 @@
                 </div>
             </div>
             <hr>
-            <form class="form-actions text-right" action="${url.loginAction}" method="POST">
-                <input class="btn btn-primary"
-                    name="accept" id="kc-accept" type="submit" value="${msg("doAccept")}" />
-                <input class="btn btn-light"
-                    name="cancel" id="kc-decline" type="submit" value="${msg("doDecline")}" />
+            <form class="form-actions" action="${url.loginAction}" method="POST">
+                <div class="col-lg-12">
+                    <div class="row align-items-center">
+                        <input class="form-check" type="checkbox" id="termsCheckbox" name="termsCheckbox">
+                        <label for="termsCheckbox" style="margin-bottom: 0px">
+                            I agree to the terms and conditions as set out by the user agreement.
+                        </label>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <input class="btn btn-primary btn-block"
+                               name="accept" id="kc-accept" type="submit" value="${msg("doAccept")}" />
+                    </div>
+                </div>
             </form>
             <div class="clearfix"></div>
+            <script>
+                // Gray the reset button out until both fields are filled
+                (function () {
+                    function updateAcceptButtonState() {
+                        var terms = document.getElementById('termsCheckbox');
+                        var acceptBtn = document.getElementById('kc-accept');
+
+                        if (!terms) return;
+                        if (terms.checked) {
+                            acceptBtn.removeAttribute('disabled');
+                        } else {
+                            acceptBtn.setAttribute('disabled', 'disabled');
+                        }
+                    }
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var username = document.getElementById('termsCheckbox');
+                        if (username) {
+                            username.addEventListener('input', updateAcceptButtonState);
+                            updateAcceptButtonState();
+                        }
+                    });
+                })();
+            </script>
         </#if>
     </@layout.registrationLayout>
