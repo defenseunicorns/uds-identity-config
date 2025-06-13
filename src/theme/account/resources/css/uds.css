@@ -3,97 +3,118 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
+/* For more styling see https://github.com/patternfly/patternfly/blob/5.3.x/src/patternfly/sass-utilities/themes/dark/scss-variables.scss */
+
 .pf-v5-c-page__sidebar-body {
-  background-color: #1F2A37 !important;
-  border-right: 1px solid #374151;
+    background-color: #111827 !important;
+    border-right: 1px solid #374151;
 }
 
 .pf-v5-c-nav__link.pf-m-current,
 .pf-v5-c-nav__link.pf-m-current:hover,
 .pf-v5-c-toolbar {
-  background-color: #1F2A37 !important;
+    background-color: #111827 !important;
 }
 
 .pf-v5-c-masthead {
-  border-bottom: 1px solid #374151;
-  background-color: #1F2A37 !important;
-  z-index: 1;
+    border-bottom: 1px solid #374151;
+    background-color: #111827 !important;
+    z-index: 1;
 }
 
 .pf-v5-c-page,
 .pf-v5-c-page__main-section {
-  background: none;
+    background: none;
 }
 
+
 body {
-  background: #1F2A37 url(../public/background.png) no-repeat center center fixed;
-  background-size: cover;
-  color: #fff;
-  height: 100vh;
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  overflow-x: hidden;
+    background: #111827 url(../public/background.png) no-repeat center center fixed;
+    background-size: cover;
+    /*color: #fff;*/
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    overflow-x: hidden;
+    --pf-v5-global--BackgroundColor--100: #111827;
+    --pf-v5-global--BackgroundColor--150: #111827;
+    --pf-v5-global--BackgroundColor--200: #1F2A37;
+    --pf-v5-global--BackgroundColor--300: #1F2A37;
+    --pf-v5-global--BackgroundColor--400: #1F2A37;
+    --pf-v5-global--BorderColor--100: #374151;
+    --pf-v5-global--BorderColor--200: #374151;
+    --pf-v5-global--BorderColor--300: #374151;
+    --pf-v5-global--BorderColor--400: #374151;
 }
 
 .pf-v5-c-alert.pf-m-success {
-  --pf-v5-c-alert--BorderTopColor: #fff;
-  --pf-v5-c-alert__icon--Color: #fff;
-  --pf-v5-c-alert__title--Color: #fff;
+    --pf-v5-c-alert--BorderTopColor: #fff;
+    --pf-v5-c-alert__icon--Color: #fff;
+    --pf-v5-c-alert__title--Color: #fff;
 }
 
 .pf-v5-c-alert__title,
 .pf-v5-c-label__text,
 .pf-v5-c-label.pf-m-green {
-  background-color: #1F2A37 !important;
-  color: #fff;
+    background-color: #111827 !important;
+    color: #fff;
 }
 
 .pf-v5-c-jump-links__link-text,
 .pf-v5-c-check__label,
 .pf-v5-c-content {
-  color: #fff;
+    color: #fff;
 }
 
 .pf-v5-c-card {
-  background: none;
-  border: 0;
-  margin: 30px auto;
+    background: none;
+    border: 0;
+    margin: 30px auto;
 }
 
 .pf-v5-c-card__title {
-  align-content: flex-end;
+    align-content: flex-end;
 }
 
 .pf-v5-c-page__main {
-  background-color: #1F2A37 !important;
-  border-radius: 8px;
-  color: #fff;
-  text-align: left;
-  border: 1px solid #374151;
-  margin: 50px;
+    background-color: #111827 !important;
+    border-radius: 8px;
+
+    text-align: left;
+    border: 1px solid #374151;
+    margin: 50px;
+}
+
+.pf-v5-c-form-control {
+    cursor: not-allowed;
+}
+
+.pf-v5-c-form-control.pf-m-disabled {
+  --pf-v5-c-form-control--m-disabled--Color: #9CA3AF;
+  --pf-v5-c-form-control--BackgroundColor: #374151;
 }
 
 .pf-v5-c-form,
 .pf-v5-c-data-list__item {
-  background-color: #1F2A37 !important;
+  background-color: #111827 !important;
   color: #fff;
 }
 
 .pf-v5-c-button.pf-m-primary {
-  background-color: #374151 !important;
-  border-radius: 4px !important;
+    background-color: #374151 !important;
+    border-radius: 4px !important;
 }
 
 .pf-v5-c-button.pf-m-primary:hover {
-  background-color: #1A56DB !important;
+    background-color: #1A56DB !important;
 }
 
 .pf-v5-c-form__group:has(input#location) {
-  display: none;
+    display: none;
 }
 
 .pf-v5-c-form__group:has(textarea#notes) {
-  display: none;
+    display: none;
 }
