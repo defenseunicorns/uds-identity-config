@@ -71,6 +71,45 @@ kubectl create configmap keycloak-theme-overrides \
   --from-file=favicon.png=path/to/local/directory/favicon.png
 ```
 
+### Branding customizations
+
+In a similar theme to Branding customizations, the UDS Identity Config supports adjusting the Terms and Conditions (if enabled).
+
+These customizations require overriding the Keycloak Helm Chart provided by the UDS Core. Here's an example:
+
+```yaml
+packages:
+  - name: core
+    repository: oci://ghcr.io/defenseunicorns/packages/uds/core
+    ref: x.x.x
+    overrides:
+      keycloak:
+        keycloak:
+          values:
+            - path: themeCustomizations
+              value:
+                 resources:
+                    termsAndConditions:
+                    - name: text1
+                      configmap:
+                         name: keycloak-theme-overrides
+                    - name: text2
+                      configmap:
+                         name: keycloak-theme-overrides
+                    - name: text3
+                      configmap:
+                         name: keycloak-theme-overrides
+```
+
+The configuration supports three keys: `text1`, `text2`, and `text3` which are expected to exist in the corresponding ConfigMap. In this example, all three texts reside in the same ConfigMap named `keycloak-theme-overrides`. The values of these keys are base64 encoded text entries that correspond to theme overrides. The text follows the Keycloak Theme override format used in FTL files (for more information, see the [Keycloak documentation](https://www.keycloak.org/docs/latest/server_development/index.html)). You can create it using the following command:
+
+```bash
+kubectl create configmap keycloak-theme-overrides \
+  --from-file=text1=path/to/local/directory/text1.txt \
+  --from-file=text2=path/to/local/directory/text2.txt \
+  --from-file=text3=path/to/local/directory/text3.txt
+```
+
 ### Registration Form Fields
 
 Registration Form Fields, which by default are enabled, can be disabled to minimize the steps to register a new user. See [this section](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#templated-realm-values) for the example of disabling the registration form fields with the `themeCustomizations.settings.enableRegistrationFields` environment variable.

@@ -3,12 +3,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
+import { RegistrationFormData } from "../support/types";
+
 describe("Theme customizations", () => {
   it("Customization ConfigMap exists", () => {
     cy.exec("uds zarf tools kubectl get cm -n keycloak keycloak-theme-overrides").then(result => {
       expect(result.stdout).to.contain("keycloak-theme-overrides");
     });
   });
+
   it("UDS Identity Config has proper Volume Mounts", () => {
     cy.exec(
       "uds zarf tools kubectl get pod keycloak-0 -n keycloak -o yaml -o jsonpath='{.spec.initContainers[?(@.name==\"uds-config\")].volumeMounts}'",
@@ -16,6 +19,7 @@ describe("Theme customizations", () => {
       expect(result.stdout).to.contain("theme-overrides");
     });
   });
+
   it("Override files are properly copied", () => {
     cy.exec("uds zarf tools kubectl get cm -n keycloak keycloak-theme-overrides -o yaml").then(
       result => {
@@ -75,4 +79,38 @@ describe("Theme customizations", () => {
       },
     );
   });
+
+  it("Existing User", () => {
+    // existing user
+    const formData: RegistrationFormData = {
+      firstName: "Testing",
+      lastName: "User",
+      username: "testing_user",
+      password: "Testingpassword1!!",
+    };
+
+    cy.loginPage();
+    cy.loginUser(formData.username, formData.password);
+
+      cy.exec("uds zarf tools kubectl get cm -n keycloak keycloak-theme-overrides -o yaml").then(
+        result => {
+          const configMap = result.stdout;
+
+          const text1 = /text1:\s*(.*)/.exec(configMap)?.[1];
+          const decodedText1 = Buffer.from(text1, 'base64').toString('utf-8').trim();
+
+          const text2 = /text2:\s*(.*)/.exec(configMap)?.[1];
+          const decodedText2 = Buffer.from(text2, 'base64').toString('utf-8').trim();
+
+          const text3 = /text3:\s*(.*)/.exec(configMap)?.[1];
+          const decodedText3 = Buffer.from(text3, 'base64').toString('utf-8').trim();
+
+          //ensure the navigation has finished
+          cy.contains("h3", "Update to User Agreement").should("be.visible");
+          cy.contains("h4", decodedText1).should("be.visible");
+          cy.contains("h5", decodedText2).should("be.visible");
+          cy.contains(decodedText3).should("be.visible");
+        })
+  });
+
 });
