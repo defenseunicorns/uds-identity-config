@@ -24,18 +24,28 @@ packages:
               value:
                 resources:
                   images:
-                    - name: background.jpg
+                    - name: background.png
                       configmap:
                         name: keycloak-theme-overrides
-                    - name: logo.svg
+                    - name: logo.png
                       configmap:
                         name: keycloak-theme-overrides
                     - name: footer.png
                       configmap:
                         name: keycloak-theme-overrides
-                    - name: favicon.svg
+                    - name: favicon.png
                       configmap:
                         name: keycloak-theme-overrides
+                termsAndConditions:
+                  - name: text1
+                    configmap:
+                      name: keycloak-theme-overrides
+                  - name: text2
+                    configmap:
+                      name: keycloak-theme-overrides
+                  - name: text3
+                    configmap:
+                      name: keycloak-theme-overrides
             - path: realmInitEnv
               value:
                 GOOGLE_IDP_ENABLED: true
@@ -45,6 +55,7 @@ packages:
                 GOOGLE_IDP_CORE_ENTITY_ID: "https://sso.uds.dev/realms/uds"
                 GOOGLE_IDP_ADMIN_GROUP: "uds-core-dev-admin"
                 GOOGLE_IDP_AUDITOR_GROUP: "uds-core-dev-auditor"
+                TERMS_AND_CONDITIONS_ENABLED: true
             - path: realmAuthFlows
               value:
                 USERNAME_PASSWORD_AUTH_ENABLED: true
@@ -55,5 +66,3 @@ packages:
               value:
                 name: JAVA_OPTS_KC_HEAP
                 value: "-XX:MaxRAMPercentage=70 -XX:MinRAMPercentage=70 -XX:InitialRAMPercentage=50 -XX:MaxRAM=1G"
-            - path: fips
-              value: true
