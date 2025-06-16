@@ -104,7 +104,7 @@ packages:
 The configuration supports three keys: `text1`, `text2`, and `text3` which are expected to exist in the corresponding ConfigMap. In this example, all three texts reside in the same ConfigMap named `keycloak-theme-overrides`. The values of these keys are base64 encoded text entries that correspond to theme overrides. The text follows the Keycloak Theme override format used in FTL files (for more information, see the [Keycloak documentation](https://www.keycloak.org/docs/latest/server_development/index.html)). You can create it using the following command:
 
 ```bash
-kubectl create configmap keycloak-theme-overrides \
+kubectl create configmap keycloak-theme-overrides -n keycloak \
   --from-file=text1=path/to/local/directory/text1.txt \
   --from-file=text2=path/to/local/directory/text2.txt \
   --from-file=text3=path/to/local/directory/text3.txt
