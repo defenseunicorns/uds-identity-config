@@ -49,17 +49,17 @@
                 </form>
             </#if>
             <#if realm.password && social?? && social.providers?has_content && properties["SOCIAL_LOGIN_ENABLED"] == "true">
-                <div id="kc-social-providers" class="kc-social-section kc-social-gray">
+                <div id="kc-social-providers" class="kc-social-section kc-social">
                     <hr/>
                     <h2>${msg("doLogInWith")}</h2>
 
                     <ul class="social-ul kc-social-links <#if social.providers?size gt 3>pf-l-grid kc-social-grid</#if>">
                         <#list social.providers as p>
                             <li>
-                                <a id="social-${p.alias}" class="pf-c-button pf-m-control pf-m-block kc-social-item kc-social-gray <#if social.providers?size gt 3>pf-l-grid__item</#if>"
+                                <a id="social-${p.alias}" class="pf-c-button pf-m-control pf-m-block kc-social-item kc-social <#if social.providers?size gt 3>pf-l-grid__item</#if>"
                                         type="button" href="${p.loginUrl}">
                                     <#if p.iconClasses?has_content>
-                                        <i class="kc-social-provider-logo kc-social-gray ${p.iconClasses!}" aria-hidden="true"></i>
+                                        <i class="kc-social-provider-logo kc-social ${p.iconClasses!}" aria-hidden="true"></i>
                                         <span class="kc-social-provider-name kc-social-icon-text">${p.displayName!}</span>
                                     <#else>
                                         <span class="kc-social-provider-name">${p.displayName!}</span>

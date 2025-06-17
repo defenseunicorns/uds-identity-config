@@ -374,11 +374,10 @@ body.password .subtitle {
     float: left;
 }
 
-.kc-social-gray {
-    color: rgb(255, 255, 255);
+.kc-social {
 }
 
-.kc-social-gray h2 {
+.kc-social h2 {
     font-size: 1em;
 }
 
@@ -389,6 +388,8 @@ body.password .subtitle {
 
 .kc-social-provider-name {
     position: relative;
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 .kc-social-icon-text {

@@ -262,7 +262,11 @@
                     </div>
                     <div class="form-group ${messagesPerField.printIfExists('password-confirm','has-error')}">
                         <label for="password-confirm" class="form-label ">
-                            ${msg("passwordConfirm")}
+                            <#if cacSubjectDN??>
+                                ${msg("passwordConfirmOptional")}
+                            <#else>
+                                ${msg("passwordConfirm")}
+                            </#if>
                         </label>
                         <input id="password-confirm" class="form-control " name="password-confirm"
                             type="password" autocomplete="new-password" />
@@ -328,9 +332,14 @@
                 const register = document.getElementById('do-register');
                 const location = document.getElementById('location');
                 location.value = '42';
-                footer.parentNode.removeChild(footer);
+            <#if properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "true" || properties["X509_LOGIN_ENABLED"] == "false" || cacSubjectDN??>
                 form.setAttribute('action', '${url.registrationAction?no_esc}');
                 register.removeAttribute('disabled');
+                footer.parentNode.removeChild(footer);
+            <#else>
+                footer.innerHTML = '<p>Disabled registration due to a missing CAC</p>';
+            </#if>
+
             }
         }
     }());
