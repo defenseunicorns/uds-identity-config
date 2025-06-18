@@ -48,7 +48,7 @@
                                     <img src="${url.resourcesPath}/img/icon_information.png"  />
                                 </div>
                                 <div class="col">
-                                    <p>Use your company or government email address as your access will be based off of your validated email address.</p>
+                                    <p>Use your company or government email when registering.</p>
                                 </div>
                             </div>
                         </div>

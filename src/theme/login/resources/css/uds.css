@@ -236,23 +236,34 @@ ul#kc-totp-supported-apps {
     line-height: 3rem;
     margin-left: 2rem;
     text-align: left;
-    text-shadow: 2px 4px 3px rgba(0, 0, 0, 0.8);
+    text-shadow: 2px 4px 3px #111827;
     text-transform: none;
     white-space: normal;
 }
 
-input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    background-color: #111827;
-    border: 1px solid #FFFFFF;
-    width: 1rem;
-    height: 1rem;
-    margin: 0.15rem;
+.custom-checkbox input {
+    display: none;
 }
 
-input[type="checkbox"]:checked {
-    background-color: #D1D5DB;
+.custom-checkbox span {
+    border: 1px solid #D1D5DB;
+    float: right;
+    height: 20px;
+    width: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-checkbox:hover span,
+.custom-checkbox input:checked + span {
+    border: 1px solid #fff;
+}
+
+.custom-checkbox input:checked + span:before {
+    content: "✔";
 }
 
 .form-control {

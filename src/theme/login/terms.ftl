@@ -81,8 +81,11 @@
             <form class="form-actions" action="${url.loginAction}" method="POST">
                 <div class="col-lg-12">
                     <div class="row align-items-center">
-                        <input class="form-check" type="checkbox" id="termsCheckbox" name="termsCheckbox">
-                        <label for="termsCheckbox" style="margin-bottom: 0px">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="termsCheckbox">
+                            <span></span>
+                        </label>
+                        <label for="termsCheckbox" style="margin-left: 10px;">
                             I agree to the terms and conditions as set out by the user agreement.
                         </label>
                     </div>
