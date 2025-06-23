@@ -134,7 +134,7 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core
-      - cmd: git clone --branch main https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --branch 505-customizable-tc https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
@@ -178,8 +178,14 @@ tasks:
         cmd: uds zarf tools kubectl apply -f tasks/theme-customization-configmap.yaml
       - description: "Create the theme customization bundle"
         cmd: uds create bundles/theme-customizations --confirm --no-progress
+      - description: "Remove the existing package to enforce Keycloak Realm reinit (ignores errors if it doesn't exist)"
+        cmd: |
+          uds zarf package remove core-identity-authorization --confirm || true
+          uds zarf tools kubectl delete secret keycloak-admin-password -n keycloak --ignore-not-found
       - description: "Deploy the theme customization bundle"
         cmd: uds deploy bundles/theme-customizations/uds-bundle-theme-customization-tests-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
+      - description: "Recreate users"
+        task: create-users
       - description: "Run the theme customization tests"
         cmd: |
           # Should already be done... but just in case
