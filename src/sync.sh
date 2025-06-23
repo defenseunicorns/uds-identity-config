@@ -48,6 +48,14 @@ if [ -d /opt/keycloak/theme-overrides ]; then
       echo "Overriding footer.png"
       cp -fv /opt/keycloak/theme-overrides/footer.png /opt/keycloak/themes/theme/login/resources/img/footer.png
     fi
+
+    if [ -f /opt/keycloak/theme-overrides/tc.txt ]; then
+      echo "Overriding Terms and Conditions"
+      echo "# Terms and Conditions" >> /opt/keycloak/themes/theme/login/theme.properties
+      key="TC_TEXT"
+      value="$(cat /opt/keycloak/theme-overrides/tc.txt)"
+      echo "${key}=${value}" >> /opt/keycloak/themes/theme/login/theme.properties
+    fi
 fi
 
 # Check for environment variables and update login theme.properties

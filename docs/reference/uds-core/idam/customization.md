@@ -45,20 +45,20 @@ packages:
           values:
             - path: themeCustomizations
               value:
-                 resources:
-                    images:
-                       - name: background.png
-                         configmap:
-                            name: keycloak-theme-overrides
-                       - name: logo.png
-                         configmap:
-                            name: keycloak-theme-overrides
-                       - name: footer.png
-                         configmap:
-                            name: keycloak-theme-overrides
-                       - name: favicon.png
-                         configmap:
-                            name: keycloak-theme-overrides
+                resources:
+                  images:
+                    - name: background.png
+                      configmap:
+                       name: keycloak-theme-overrides
+                    - name: logo.png
+                      configmap:
+                        name: keycloak-theme-overrides
+                    - name: footer.png
+                      configmap:
+                        name: keycloak-theme-overrides
+                    - name: favicon.png
+                      configmap:
+                        name: keycloak-theme-overrides
 ```
 
 The configuration supports only four potential keys: `background.png`, `logo.png`, `footer.png`, and `favicon.png` which are expected to exist in the corresponding ConfigMaps. In this example, all four images reside in the same ConfigMap named `keycloak-theme-overrides`. The values of these keys are base64 encoded images hosted as `binaryData` part of the ConfigMap. You can create it using the following command:
@@ -70,6 +70,61 @@ kubectl create configmap keycloak-theme-overrides \
   --from-file=footer.png=path/to/local/directory/footer.png \
   --from-file=favicon.png=path/to/local/directory/favicon.png
 ```
+
+### Branding customizations
+
+In a similar theme to Branding customizations, the UDS Identity Config supports adjusting the Terms and Conditions (if enabled).
+
+These customizations require overriding the Keycloak Helm Chart provided by the UDS Core. Here's an example:
+
+```yaml
+packages:
+  - name: core
+    repository: oci://ghcr.io/defenseunicorns/packages/uds/core
+    ref: x.x.x
+    overrides:
+      keycloak:
+        keycloak:
+          values:
+            - path: themeCustomizations
+              value:
+                termsAndConditions:
+                  text:
+                    configmap:
+                      key: text
+                      name: keycloak-theme-overrides
+```
+
+The configuration uses a single text override within a customized Keycloak theme. Specifically, the example references a key named text in the `keycloak-theme-overrides` ConfigMap. This key holds the Terms and Conditions content as a base64-encoded string. Before encoding, the Terms and Conditions are written in HTML and follow the Keycloak theme override format used in FreeMarker Template Language (FTL) files (for more details, see the [Keycloak documentation](https://www.keycloak.org/docs/latest/server_development/index.html#_themes)).
+
+Before encoding, the HTML content uses backslashes (\) to stand in for line breaks so Keycloak can read and display it properly. For example, the original HTML:
+
+```html
+<ul>
+  <li>Terms</li>
+  <li>And</li>
+  <li>Conditions</li>
+</ul>
+```
+
+Would be transformed before base64 encoding into:
+
+```html
+<ul> \ <li>Terms</li> \ <li>And</li> \ <li>Conditions</li> \ </ul>
+```
+
+This format ensures that each HTML element is clearly delineated, while still residing within a single logical text blob, making it easier to manage in ConfigMaps and compatible with the FTL rendering system.
+
+You can create the ConfigMap using the following command:
+
+```bash
+kubectl create configmap keycloak-theme-overrides -n keycloak \
+  --from-file=text=path/to/local/directory/text.txt
+```
+
+:::tip
+In order to speed up the development process of the Customized Terms and Conditions, you can edit the `TC_TEXT` key in the `/opt/keycloak/themes/theme/login/theme.properties` file inside the Keycloak pod. This will allow you to see the changes immediately without needing to rebuild the image or redeploy the ConfigMap.
+:::
 
 ### Registration Form Fields
 
