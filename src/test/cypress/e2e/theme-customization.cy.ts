@@ -3,12 +3,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
+import { RegistrationFormData } from "../support/types";
+
 describe("Theme customizations", () => {
   it("Customization ConfigMap exists", () => {
     cy.exec("uds zarf tools kubectl get cm -n keycloak keycloak-theme-overrides").then(result => {
       expect(result.stdout).to.contain("keycloak-theme-overrides");
     });
   });
+
   it("UDS Identity Config has proper Volume Mounts", () => {
     cy.exec(
       "uds zarf tools kubectl get pod keycloak-0 -n keycloak -o yaml -o jsonpath='{.spec.initContainers[?(@.name==\"uds-config\")].volumeMounts}'",
@@ -16,6 +19,7 @@ describe("Theme customizations", () => {
       expect(result.stdout).to.contain("theme-overrides");
     });
   });
+
   it("Override files are properly copied", () => {
     cy.exec("uds zarf tools kubectl get cm -n keycloak keycloak-theme-overrides -o yaml").then(
       result => {
@@ -75,4 +79,31 @@ describe("Theme customizations", () => {
       },
     );
   });
+
+  it("Existing User", () => {
+    // existing user
+    const formData: RegistrationFormData = {
+      firstName: "Testing",
+      lastName: "User",
+      username: "testing_user",
+      password: "Testingpassword1!!",
+    };
+
+    cy.loginPage();
+    cy.loginUser(formData.username, formData.password);
+
+      cy.exec("uds zarf tools kubectl get cm -n keycloak keycloak-theme-overrides -o yaml").then(
+        result => {
+          const configMap = result.stdout;
+          const text = /text:\s*(.*)/.exec(configMap)?.[1];
+          const decodedText = Buffer.from(text, 'base64').toString('utf-8').trim();
+
+          expect(decodedText).contains("Terms").contains("And").contains("Conditions");
+        })
+
+    cy.contains("Terms").should("be.visible");
+    cy.contains("And").should("be.visible");
+    cy.contains("Conditions").should("be.visible");
+  });
+
 });
