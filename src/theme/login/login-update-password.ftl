@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout backLink=true displayMessage=!messagesPerField.existsError('password','password-confirm'); section>
+<@layout.registrationLayout headerText="updatePasswordTitle" backLink=true displayMessage=!messagesPerField.existsError('password','password-confirm'); section>
     <#if section = "header">
         ${msg("updatePasswordTitle")}
     <#elseif section = "form">
@@ -54,7 +54,7 @@
                                 <input type="checkbox" id="logout-sessions" name="logout-sessions" value="on">
                                 <span></span>
                             </label>
-                            <label for="termsCheckbox" style="margin-left: 10px;">
+                            <label for="logout-sessions" style="margin-left: 10px;">
                                 ${msg("logoutOtherSessions")}
                             </label>
                         </div>
@@ -84,6 +84,15 @@
                         submitButton.setAttribute('disabled', 'disabled');
                     }
                 }
+
+                const feedback = document.getElementById('alert-error');
+
+                // Remove the message sent by Keycloak. It's not needed here.
+                if (feedback && feedback.innerHTML.includes('You need to change your password.')) {
+                    feedback.innerHTML = '';
+                    feedback.outerHTML = '';
+                }
+
                 document.addEventListener('DOMContentLoaded', function() {
                     var password = document.getElementById('password-new');
                     var passwordConfirm = document.getElementById('password-confirm');

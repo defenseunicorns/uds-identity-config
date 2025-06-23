@@ -1,7 +1,7 @@
 <#import "template.ftl" as layout>
     <@layout.registrationLayout displayMessage=false; section>
         <#if section="form">
-            <div id="kc-terms-text" onclick="javscript:document.getElementById('kc-accept').focus()">
+            <div id="kc-terms-text" onclick="javscript:window.scrollTo(0, document.body.scrollHeight);">
 
                 <div class="col-lg-12">
                     <div class="row">
@@ -104,7 +104,6 @@
                         var terms = document.getElementById('termsCheckbox');
                         var acceptBtn = document.getElementById('kc-accept');
 
-                        if (!terms) return;
                         if (terms.checked) {
                             acceptBtn.removeAttribute('disabled');
                         } else {
@@ -112,9 +111,9 @@
                         }
                     }
                     document.addEventListener('DOMContentLoaded', function() {
-                        var username = document.getElementById('termsCheckbox');
-                        if (username) {
-                            username.addEventListener('input', updateAcceptButtonState);
+                        var terms = document.getElementById('termsCheckbox');
+                        if (terms) {
+                            terms.addEventListener('input', updateAcceptButtonState);
                             updateAcceptButtonState();
                         }
                     });
