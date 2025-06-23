@@ -25,10 +25,10 @@ Cypress.Commands.add("registrationPage", (formData: RegistrationFormData) => {
   cy.loginPage();
 
   // Verify the presence of the registration link and then click
-  cy.contains(".footer-text a", "Click here").should("be.visible").click();
+  cy.contains(".footer-text a", "Register now").should("be.visible").click();
 
   // Verify client cert has been loaded properly by this header being present
-  cy.contains("h2", "DoD PKI User Registration").should("be.visible");
+  cy.contains("h3", "DoD PKI User Registration").should("be.visible");
 
   // Fill Registration form inputs
   cy.get("label").contains("First name").next("input").type(formData.firstName);

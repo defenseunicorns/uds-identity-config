@@ -24,16 +24,16 @@ packages:
               value:
                 resources:
                   images:
-                    - name: background.jpg
+                    - name: background.png
                       configmap:
                         name: keycloak-theme-overrides
-                    - name: logo.svg
+                    - name: logo.png
                       configmap:
                         name: keycloak-theme-overrides
                     - name: footer.png
                       configmap:
                         name: keycloak-theme-overrides
-                    - name: favicon.svg
+                    - name: favicon.png
                       configmap:
                         name: keycloak-theme-overrides
             - path: realmInitEnv

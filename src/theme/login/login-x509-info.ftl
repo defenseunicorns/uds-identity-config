@@ -1,24 +1,35 @@
 <#import "template.ftl" as layout>
-    <@layout.registrationLayout; section>
+    <@layout.registrationLayout backButton=true; section>
         <#if section="form">
             <form id="kc-x509-login-info" class="" action="${url.loginAction}" method="post">
                 <div class="form-group">
-                    <div class="alert alert-info cac-info">
-                        <h2>DoD PKI Detected</h2>
-                        <#if x509.formData.subjectDN??>
-                            <p id="certificate_subjectDN" class="">
-                                ${(x509.formData.subjectDN!"")}
-                            </p>
-                        <#-- Properly display subjectDN on initial registration -->
-                        <#elseif x509.formData.cacSubjectDN??>
-                            <p id="certificate_subjectDN" class="">
-                                ${(x509.formData.cacSubjectDN!"")}
-                            </p>
-                        <#else>
-                            <p id="certificate_subjectDN" class="">
-                                ${msg("noCertificate")}
-                            </p>
-                        </#if>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="alert alert-info">
+                                <div class="row">
+                                    <div class="col-lg-1 d-flex align-items-start col-alert-icon">
+                                        <img src="${url.resourcesPath}/img/icon_information.png" />
+                                    </div>
+                                    <div class="col">
+                                        <h3>DoD PKI Detected</h3>
+                                        <#if x509.formData.subjectDN??>
+                                            <p id="certificate_subjectDN" class="">
+                                                ${(x509.formData.subjectDN!"")}
+                                            </p>
+                                        <#-- Properly display subjectDN on initial registration -->
+                                        <#elseif x509.formData.cacSubjectDN??>
+                                            <p id="certificate_subjectDN" class="">
+                                                ${(x509.formData.cacSubjectDN!"")}
+                                            </p>
+                                        <#else>
+                                            <p id="certificate_subjectDN" class="">
+                                                ${msg("noCertificate")}
+                                            </p>
+                                        </#if>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -34,10 +45,7 @@
                 <div class="form-group">
                     <div id="kc-form-buttons" class="">
                         <div class="text-right">
-                            <input class="btn btn-primary" name="login" id="kc-login" type="submit" value="${msg("doContinue")}" autofocus />
-                            <#if x509.formData.isUserEnabled??>
-                                <input class="btn btn-light" name="cancel" id="kc-cancel" type="submit" value="${msg("doIgnore")}" />
-                            </#if>
+                            <input class="btn btn-primary btn-block" name="login" id="kc-login" type="submit" value="${msg("doContinue")}" autofocus />
                         </div>
                     </div>
                 </div>
