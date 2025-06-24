@@ -23,7 +23,7 @@ Once `uds-core` has sucessfully deployed with your new image, viewing the Keyclo
 
 For other changes beyond these images you will need to build a custom theme and identity-config image. Changes can be made to the [src/theme](https://github.com/defenseunicorns/uds-identity-config/tree/main/src/theme) directory. At this time only Account and Login themes are included, but email, admin, and welcome themes could be added as well.
 
-### Branding customizations
+### Branding Customizations
 
 The UDS Identity Config supports a limited and opinionated set of branding customizations. This includes:
 
@@ -71,7 +71,7 @@ kubectl create configmap keycloak-theme-overrides \
   --from-file=favicon.png=path/to/local/directory/favicon.png
 ```
 
-### Branding customizations
+### Terms and Conditions Customizations
 
 In a similar theme to Branding customizations, the UDS Identity Config supports adjusting the Terms and Conditions (if enabled).
 
@@ -97,7 +97,7 @@ packages:
 
 The configuration uses a single text override within a customized Keycloak theme. Specifically, the example references a key named text in the `keycloak-theme-overrides` ConfigMap. This key holds the Terms and Conditions content as a base64-encoded string. Before encoding, the Terms and Conditions are written in HTML and follow the Keycloak theme override format used in FreeMarker Template Language (FTL) files (for more details, see the [Keycloak documentation](https://www.keycloak.org/docs/latest/server_development/index.html#_themes)).
 
-Before encoding, the HTML content uses backslashes (\) to stand in for line breaks so Keycloak can read and display it properly. For example, the original HTML:
+Before encoding, the HTML content uses backslashes (`\`) to stand in for line breaks so Keycloak can read and display it properly. For example, the original HTML:
 
 ```html
 <ul>
