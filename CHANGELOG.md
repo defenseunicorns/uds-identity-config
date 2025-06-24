@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.15.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.14.1...v0.15.0) (2025-06-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* The new Keycloak Theme provided by the UDS Identity config changes the template pages (and images it uses) in a non-compatible way. If you're using a forked version of the UDS Identity Config, you might want to either re-introduce your changes on top of the existing ones or completely replace the theme with your own.
+
+### Features
+
+* new Keycloak theme (https://github.com/defenseunicorns/uds-identity-config/pull/497) ([cd656f7](https://github.com/defenseunicorns/uds-identity-config/commit/cd656f753e984b92080ef34fc64bf5b252d98178))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.2.5 ([#498](https://github.com/defenseunicorns/uds-identity-config/issues/498)) ([cbeff00](https://github.com/defenseunicorns/uds-identity-config/commit/cbeff0073781d69928df4244e0db5f155845fdbf))
+* version in upgrade docs ([#499](https://github.com/defenseunicorns/uds-identity-config/issues/499)) ([69ff8b3](https://github.com/defenseunicorns/uds-identity-config/commit/69ff8b3c9ae19f6aa1d2f0482995229565a946eb))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#490](https://github.com/defenseunicorns/uds-identity-config/issues/490)) ([d3b346f](https://github.com/defenseunicorns/uds-identity-config/commit/d3b346fe7f086c6ef703316fe4c408822dce325a))
+* **deps:** update all dependencies ([#506](https://github.com/defenseunicorns/uds-identity-config/issues/506)) ([c9630c2](https://github.com/defenseunicorns/uds-identity-config/commit/c9630c24967f3770fb6803cc4d2b5de642a2587a))
+* **deps:** update all dependencies ([#510](https://github.com/defenseunicorns/uds-identity-config/issues/510)) ([38b00aa](https://github.com/defenseunicorns/uds-identity-config/commit/38b00aa7e409f99facfd5e6ca6cc217cd69c5ee0))
+* **deps:** update all dependencies ([#515](https://github.com/defenseunicorns/uds-identity-config/issues/515)) ([2202796](https://github.com/defenseunicorns/uds-identity-config/commit/2202796b112593544a0a799a0d02dc23f90bca56))
+* **deps:** update dependency cypress to v14.4.1 ([#503](https://github.com/defenseunicorns/uds-identity-config/issues/503)) ([f014a1c](https://github.com/defenseunicorns/uds-identity-config/commit/f014a1cd1de4443a6480681ed9123c9b80874cc9))
+* **deps:** update dependency defenseunicorns/uds-common to v1.16.2 ([#520](https://github.com/defenseunicorns/uds-identity-config/issues/520)) ([9139aac](https://github.com/defenseunicorns/uds-identity-config/commit/9139aaccd5268f667be267b36c2736c258b9ed82))
+* **deps:** update dependency prettier to v3.6.0 ([#516](https://github.com/defenseunicorns/uds-identity-config/issues/516)) ([01a4a83](https://github.com/defenseunicorns/uds-identity-config/commit/01a4a83e8726f6ee935fc47d2313f7a1663d03f6))
+* **deps:** update docker image ghcr.io/zarf-dev/packages/init to v0.55.6 ([#501](https://github.com/defenseunicorns/uds-identity-config/issues/501)) ([81c14ea](https://github.com/defenseunicorns/uds-identity-config/commit/81c14ea9abccdd94d9b7eb72bfa3813c4189e662))
+* **deps:** update gha-deps ([#514](https://github.com/defenseunicorns/uds-identity-config/issues/514)) ([6bec032](https://github.com/defenseunicorns/uds-identity-config/commit/6bec0327627cd6796ff6bf29c34922e3a4332ef3))
+* **deps:** update gha-deps to v0.27.6 ([#504](https://github.com/defenseunicorns/uds-identity-config/issues/504)) ([c821bd7](https://github.com/defenseunicorns/uds-identity-config/commit/c821bd7beae21bf9a46e5b8384c9106a637c21e8))
+* **docs:** sanitize doc naming schemes ([#494](https://github.com/defenseunicorns/uds-identity-config/issues/494)) ([61061d4](https://github.com/defenseunicorns/uds-identity-config/commit/61061d40246c27d8c585b38be874e640e56caeaa))
+* **docs:** value is a YAML sequence ([#512](https://github.com/defenseunicorns/uds-identity-config/issues/512)) ([f1cd32b](https://github.com/defenseunicorns/uds-identity-config/commit/f1cd32b6d710626f96a999c9224456899909b362))
+
 ## [0.14.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.14.0...v0.14.1) (2025-05-27)
 
 
