@@ -8,6 +8,21 @@ on:
     branches: [main]
     # labeled is added here to allow for "manual" triggering of CI on renovate PRs
     types: [milestoned, opened, reopened, synchronize, labeled]
+    paths-ignore:
+      - "**.md"
+      - "**.jpg"
+      - "**.png"
+      - "**.gif"
+      - "**.svg"
+      - docs/**
+      - .vscode/**
+      - .gitignore
+      - renovate.json
+      - .release-please-config.json
+      - .codespellrc
+      - release-please-config.json
+      - CODEOWNERS
+      - LICENSE
 
 # Abort prior jobs in the same workflow / PR
 concurrency:
@@ -85,8 +100,8 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
 
       - name: Plugin Unit Tests
         run: mvn -B package --file src/plugin/pom.xml

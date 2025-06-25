@@ -1,0 +1,74 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+name: Docs Shim
+
+on:
+  pull_request:
+    branches: [main]
+    # labeled is added here to allow for "manual" triggering of CI on renovate PRs
+    types: [milestoned, opened, reopened, synchronize, labeled]
+    paths:
+      - "**.md"
+      - "**.jpg"
+      - "**.png"
+      - "**.gif"
+      - "**.svg"
+      - docs/**
+      - .vscode/**
+      - .gitignore
+      - renovate.json
+      - .codespellrc
+      - .release-please-config.json
+      - release-please-config.json
+      - CODEOWNERS
+      - LICENSE
+
+# Abort prior jobs in the same workflow / PR
+concurrency:
+  group: shim-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  docker_build:
+    runs-on: ubuntu-latest
+    name: Test Docker Build
+    steps:
+      - name: Skipped
+        run: |
+          echo skipped
+
+  zarf_build:
+    runs-on: ubuntu-latest
+    name: Test Zarf Build
+    steps:
+      - name: Skipped
+        run: |
+          echo skipped
+
+  plugin_unit_tests:
+    runs-on: ubuntu-latest
+    name: Keycloak Plugin Unit Tests
+    steps:
+      - name: Skipped
+        run: |
+          echo skipped
+
+  uds_core_base_integration:
+    runs-on: ubuntu-latest
+    name: UDS Core + Identity Config smoke test with base realm.json
+    steps:
+      - name: Skipped
+        run: |
+          echo skipped
+
+  uds_core_cypress_integration:
+    runs-on: ubuntu-latest
+    name: UDS Core + Identity Config cypress integration tests
+    steps:
+      - name: Skipped
+        run: |
+          echo skipped
