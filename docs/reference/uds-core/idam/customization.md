@@ -61,7 +61,7 @@ packages:
                         name: keycloak-theme-overrides
 ```
 
-The configuration supports only four potential keys: `background.png`, `logo.png`, `footer.png`, and `favicon.png` which must exist in the corresponding ConfigMap(s). Note that you must pre-create this ConfigMap in the `keycloak` namespace before deploying/upgrading Core with these overrides. In the above example all images are in the same ConfigMap named `keycloak-theme-overrides`. An easy way to generate the ConfigMap manifest is using the following command (including whichever images you need and specifying the correct paths to your local images):
+The configuration supports four keys for different images: `background.png`, `logo.png`, `footer.png`, and `favicon.png`. You can set any or all of these images (you do not have to override all of them), and the corresponding key(s) must exist in your designated ConfigMap(s). Note that you must pre-create this ConfigMap in the `keycloak` namespace before deploying/upgrading Core with these overrides. In the above example all images are in the same ConfigMap named `keycloak-theme-overrides`. An easy way to generate the ConfigMap manifest is using the following command (including whichever images you need and specifying the correct paths to your local images):
 
 ```bash
 kubectl create configmap keycloak-theme-overrides \
