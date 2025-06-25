@@ -61,21 +61,42 @@ packages:
                         name: keycloak-theme-overrides
 ```
 
-The configuration supports only four potential keys: `background.png`, `logo.png`, `footer.png`, and `favicon.png` which are expected to exist in the corresponding ConfigMaps. In this example, all four images reside in the same ConfigMap named `keycloak-theme-overrides`. The values of these keys are base64 encoded images hosted as `binaryData` part of the ConfigMap. You can create it using the following command:
+The configuration supports only four potential keys: `background.png`, `logo.png`, `footer.png`, and `favicon.png` which must exist in the corresponding ConfigMap(s). Note that you must pre-create this ConfigMap in the `keycloak` namespace before deploying/upgrading Core with these overrides. In the above example all images are in the same ConfigMap named `keycloak-theme-overrides`. An easy way to generate the ConfigMap manifest is using the following command (including whichever images you need and specifying the correct paths to your local images):
 
 ```bash
 kubectl create configmap keycloak-theme-overrides \
   --from-file=background.png=path/to/local/directory/background.png \
   --from-file=logo.png=path/to/local/directory/logo.png \
   --from-file=footer.png=path/to/local/directory/footer.png \
-  --from-file=favicon.png=path/to/local/directory/favicon.png
+  --from-file=favicon.png=path/to/local/directory/favicon.png \
+  -n keycloak --dry-run=client -o=yaml > theme-image-cm.yaml
 ```
+
+To deploy this it is easiest to make a small zarf package referencing the manifest you just created:
+
+```yaml
+kind: ZarfPackageConfig
+metadata:
+  name: keycloak-theme-overrides
+  version: 0.1.0
+
+components:
+  - name: keycloak-theme-overrides
+    required: true
+    manifests:
+      - name: configmap
+        namespace: keycloak # Ensure this is in the Keycloak namespace
+        files:
+          - theme-image-cm.yaml # Update to the manifest you have locally
+```
+
+Then create and deploy this zarf package _prior_ to deploying/upgrading UDS Core/Keycloak.
 
 ### Terms and Conditions Customizations
 
 In a similar theme to Branding customizations, the UDS Identity Config supports adjusting the Terms and Conditions (if enabled).
 
-These customizations require overriding the Keycloak Helm Chart provided by the UDS Core. Here's an example:
+These customizations similarly require overriding the Keycloak Helm Chart provided by the UDS Core. Here's an example:
 
 ```yaml
 packages:
@@ -95,11 +116,10 @@ packages:
                       name: keycloak-theme-overrides
 ```
 
-The configuration uses a single text override within a customized Keycloak theme. Specifically, the example references a key named text in the `keycloak-theme-overrides` ConfigMap. This key holds the Terms and Conditions content as a base64-encoded string. Before encoding, the Terms and Conditions are written in HTML and follow the Keycloak theme override format used in FreeMarker Template Language (FTL) files (for more details, see the [Keycloak documentation](https://www.keycloak.org/docs/latest/server_development/index.html#_themes)).
-
-Before encoding, the HTML content uses backslashes (`\`) to stand in for line breaks so Keycloak can read and display it properly. For example, the original HTML:
+The configuration supports a single key (named however you want) which must exist in the corresponding ConfigMap(s). Note that you must pre-create this ConfigMap in the `keycloak` namespace before deploying/upgrading Core with these overrides. The contents of this key must be your custom Terms and Conditions content, formatted as a single line HTML string. As a basic example you might want some terms and conditions like the following HTML:
 
 ```html
+<h4>By logging in you agree to the following:</h4>
 <ul>
   <li>Terms</li>
   <li>And</li>
@@ -107,23 +127,54 @@ Before encoding, the HTML content uses backslashes (`\`) to stand in for line br
 </ul>
 ```
 
-Would be transformed before base64 encoding into:
+In order to properly format this you will need to replace any newlines with the literal newline character (`\n`), converting your HTML to a single line. Using the above example that would look like this (again note the use of `\n` in place of the newlines):
 
-```html
-<ul> \ <li>Terms</li> \ <li>And</li> \ <li>Conditions</li> \ </ul>
 ```
-
-This format ensures that each HTML element is clearly delineated, while still residing within a single logical text blob, making it easier to manage in ConfigMaps and compatible with the FTL rendering system.
-
-You can create the ConfigMap using the following command:
-
-```bash
-kubectl create configmap keycloak-theme-overrides -n keycloak \
-  --from-file=text=path/to/local/directory/text.txt
+<h4>By logging in you agree to the following:</h4>\n<ul>\n<li>Terms</li>\n<li>And</li>\n<li>Conditions</li>\n</ul>
 ```
 
 :::tip
-In order to speed up the development process of the Customized Terms and Conditions, you can edit the `TC_TEXT` key in the `/opt/keycloak/themes/theme/login/theme.properties` file inside the Keycloak pod. This will allow you to see the changes immediately without needing to rebuild the image or redeploy the ConfigMap.
+This replacement process can easily be done with a tool like `sed`:
+```bash
+# This will require GNU sed
+cat terms.html | sed ':a;N;$!ba;s/\n/\\n/g' > single-line.html
+```
+:::
+
+Your new single-line HTML file can be used to generate a properly formatted ConfigMap with the following command:
+
+```bash
+kubectl create configmap keycloak-theme-overrides \
+  --from-file=text=path/to/local/directory/single-line.html \
+  -n keycloak --dry-run=client -o=yaml > terms-and-confitions-cm.yaml
+```
+
+To deploy this it is easiest to make a small zarf package referencing the manifest you just created:
+
+```yaml
+kind: ZarfPackageConfig
+metadata:
+  name: keycloak-terms-and-conditions
+  version: 0.1.0
+
+components:
+  - name: keycloak-terms-and-conditions
+    required: true
+    manifests:
+      - name: configmap
+        namespace: keycloak # Ensure this is in the Keycloak namespace
+        files:
+          - terms-and-confitions-cm.yaml # Update to the manifest you have locally
+```
+
+Then create and deploy this zarf package _prior_ to deploying/upgrading UDS Core/Keycloak.
+
+:::tip
+In order to speed up the development process of the Customized Terms and Conditions, you can edit the ConfigMap in your cluster and then cycle the Keycloak pod to reload your updated Terms and Conditions. This will allow you to see the changes quicker without needing to rebuild/redeploy each time.
+:::
+
+:::note
+The default terms and conditions provided are based on the standard DoD Notice and Consent Banner. The source HTML for these terms is in the identity-config repository [here](hhttps://github.com/defenseunicorns/uds-identity-config/blob/v0.15.0/src/theme/login/terms.ftl#L25-L79) and could be used as a starting point for customizing. Note that you will need to follow the above steps to properly format this as single-line HTML and create a ConfigMap with its contents. There are some limitations and you won't be able to dynamically lookup resources (i.e. `${url.resourcesPath}`) due to the way this input is dynamically injected into the terms template so keep this in mind if trying to reference external images.
 :::
 
 ### Registration Form Fields
