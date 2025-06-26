@@ -20,6 +20,65 @@
     border-bottom: 1px solid #374151;
     background-color: #111827 !important;
     z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+}
+
+.pf-v5-c-masthead__content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.pf-v5-c-masthead__toggle {
+    display: flex;
+    align-items: center;
+}
+
+.pf-v5-c-masthead__main {
+    display: flex;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+    align-items: center;
+}
+
+/* Fix logo sizing and alignment - override built-in styles */
+.pf-v5-c-brand,
+.pf-v5-c-masthead img,
+.pf-v5-c-masthead__main img,
+[class*="brand"],
+[class*="_brand_"],
+.pf-v5-c-masthead a img {
+    width: auto !important;
+    height: 45px !important;
+    max-height: 45px !important;
+    min-height: unset !important;
+    display: block !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+    aspect-ratio: auto !important;
+}
+
+/* Ensure proper vertical alignment of all header elements */
+.pf-v5-c-masthead button,
+.pf-v5-c-masthead a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ensure proper spacing between elements */
+.pf-v5-c-masthead__toggle + .pf-v5-c-masthead__main {
+    margin-left: 1rem;
+}
+
+.pf-v5-c-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-left: auto;
 }
 
 .pf-v5-c-page,
@@ -203,6 +262,16 @@ input, select, textarea {
     
     .pf-v5-c-nav__link {
         padding: 0.75rem 0.5rem;
+    }
+
+    .pf-v5-c-brand,
+    .pf-v5-c-masthead img,
+    .pf-v5-c-masthead__main img,
+    [class*="brand"],
+    [class*="_brand_"],
+    .pf-v5-c-masthead a img {
+        height: 50px !important;
+        max-height: 50px !important;
     }
 }
 
