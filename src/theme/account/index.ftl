@@ -7,47 +7,6 @@
   <meta name="color-scheme" content="dark">
   <meta name="description" content="${properties.description!'The Account Console is a web-based interface for managing your account.'}">
   <title>${properties.title!'My Account'}</title>
-  <style>
-    body {
-      margin: 0;
-    }
-
-    body, #app {
-      height: 100%;
-    }
-
-    .container {
-      padding: 0;
-      margin: 0;
-      width: 100%;
-    }
-
-    .keycloak__loading-container {
-      height: 100vh;
-      width: 100%;
-      color: #151515;
-      background-color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      margin: 0;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      .keycloak__loading-container {
-        color: #e0e0e0;
-        background-color: #1b1d21;
-      }
-    }
-
-    #loading-text {
-      z-index: 1000;
-      font-size: 20px;
-      font-weight: 600;
-      padding-top: 32px;
-    }
-  </style>
   <script type="importmap">
     {
       "imports": {
