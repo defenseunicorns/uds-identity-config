@@ -45,11 +45,14 @@ ${msg("loginTitle",(realm.displayName!''))}
             <div class="col-xl-5 col-lg-7 col-md-10">
                 <div class="card">
                     <div class="card-header branding row">
-                        <div class="col-sm-5 p-0">
-                            <img src="${url.resourcesPath}/img/logo.png"/>
+                        <div class="col-12 text-center d-block d-sm-none mb-3">
+                            <img src="${url.resourcesPath}/img/logo.png" class="img-fluid" alt="Logo"/>
                         </div>
-                        <div class="col-sm-1">&nbsp;</div>
-                        <div class="col-sm-6 my-auto">
+                        <div class="col-sm-5 p-0 d-none d-sm-block">
+                            <img src="${url.resourcesPath}/img/logo.png" class="img-fluid" alt="Logo"/>
+                        </div>
+                        <div class="col-sm-1 d-none d-sm-block">&nbsp;</div>
+                        <div class="col-12 col-sm-6 my-auto text-center">
                             <#if client?? && client.name?has_content>
                                 <#-- Check if the client name matches the specific entry -->
                                 <#if client.name == "${" + "client_account-console" + "}">
@@ -66,11 +69,11 @@ ${msg("loginTitle",(realm.displayName!''))}
                                     </h2>
                                 </#if>
                             <#else>
-                                <h2>
+                                <h2 class="client-unique-name">
                                     ${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc}
                                 </h2>
                             </#if>
-                        </div>                        
+                        </div>
                     </div>
                     <br>
                     <div class="card-body">
@@ -133,7 +136,7 @@ ${msg("loginTitle",(realm.displayName!''))}
             </div>
             </div>
             <footer class="fixed-footer">
-                <img src="${url.resourcesPath}/img/footer.png" />
+                <img src="${url.resourcesPath}/img/footer.png" alt="Footer" />
             </footer>
             </body>
 
