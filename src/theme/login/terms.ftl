@@ -1,5 +1,9 @@
 <#import "template.ftl" as layout>
     <@layout.registrationLayout displayMessage=false; section>
+        <!-- Floating scroll to bottom button -->
+        <div id="scrollToBottomBtn">
+            <img src="${url.resourcesPath}/img/down-to-bottom.png" alt="Scroll to bottom">
+        </div>
         <#if section="form">
             <div id="kc-terms-text" onclick="javscript:window.scrollTo(0, document.body.scrollHeight);">
                 <#if properties["TC_TEXT"]?has_content>
@@ -84,13 +88,18 @@
             <form class="form-actions" action="${url.loginAction}" method="POST">
                 <div class="col-lg-12">
                     <div class="row align-items-center">
-                        <label class="custom-checkbox">
-                            <input type="checkbox" id="termsCheckbox">
-                            <span></span>
-                        </label>
-                        <label for="termsCheckbox" style="margin-left: 10px;">
-                            I agree to the terms and conditions as set out by the user agreement.
-                        </label>
+                        <div class="terms-checkbox-container">
+                            <div class="terms-checkbox-wrapper">
+                                <input type="checkbox" id="termsCheckbox" class="terms-checkbox">
+                                <span class="terms-checkbox-custom"></span>
+                                <svg class="terms-checkbox-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 6L9 17L4 12" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <label for="termsCheckbox" class="terms-checkbox-label">
+                                I agree to the terms and conditions as set out by the user agreement.
+                            </label>
+                        </div>
                     </div>
                     <br/>
                     <div class="row">
@@ -101,26 +110,76 @@
             </form>
             <div class="clearfix"></div>
             <script>
-                // Gray the reset button out until both fields are filled
-                (function () {
-                    function updateAcceptButtonState() {
-                        var terms = document.getElementById('termsCheckbox');
-                        var acceptBtn = document.getElementById('kc-accept');
+                // Handle checkbox state and styling
+                document.addEventListener('DOMContentLoaded', function() {
+                    const checkbox = document.getElementById('termsCheckbox');
+                    const checkmark = checkbox.nextElementSibling.nextElementSibling;
+                    const acceptBtn = document.getElementById('kc-accept');
 
-                        if (terms.checked) {
-                            acceptBtn.removeAttribute('disabled');
+                    // Initial state
+                    updateButtonState();
+
+                    // Toggle checkmark visibility and button state
+                    checkbox.addEventListener('change', function() {
+                        const svg = this.nextElementSibling.nextElementSibling;
+                        if (this.checked) {
+                            svg.style.display = 'block';
                         } else {
-                            acceptBtn.setAttribute('disabled', 'disabled');
+                            svg.style.display = 'none';
                         }
-                    }
-                    document.addEventListener('DOMContentLoaded', function() {
-                        var terms = document.getElementById('termsCheckbox');
-                        if (terms) {
-                            terms.addEventListener('input', updateAcceptButtonState);
-                            updateAcceptButtonState();
+                        updateButtonState();
+                    });
+
+                    // Handle label clicks through event delegation
+                    document.addEventListener('click', function(e) {
+                        if (e.target.closest('label[for="termsCheckbox"]')) {
+                            e.preventDefault();
+                            checkbox.checked = !checkbox.checked;
+                            const event = new Event('change');
+                            checkbox.dispatchEvent(event);
                         }
                     });
+
+                    function updateButtonState() {
+                        if (checkbox.checked) {
+                            acceptBtn.removeAttribute('disabled');
+                            acceptBtn.style.opacity = '1';
+                            acceptBtn.style.cursor = 'pointer';
+                            acceptBtn.style.backgroundColor = '#1A56DB';
+                        } else {
+                            acceptBtn.setAttribute('disabled', 'disabled');
+                            acceptBtn.style.opacity = '0.5';
+                            acceptBtn.style.cursor = 'not-allowed';
+                            acceptBtn.style.backgroundColor = '#374151';
+                        }
+                    }
                 })();
             </script>
         </#if>
     </@layout.registrationLayout>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollBtn = document.getElementById('scrollToBottomBtn');
+
+            function checkScroll() {
+                const scrollPosition = window.scrollY + window.innerHeight;
+                const pageHeight = document.documentElement.scrollHeight - 20;
+
+                scrollBtn.style.display = (scrollPosition >= pageHeight) ? 'none' : 'flex';
+            }
+
+            window.addEventListener('scroll', checkScroll, { passive: true });
+
+            scrollBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: document.documentElement.scrollHeight,
+                    behavior: 'smooth'
+                });
+                scrollBtn.style.display = 'none';
+            });
+
+            checkScroll();
+        });
+    </script>

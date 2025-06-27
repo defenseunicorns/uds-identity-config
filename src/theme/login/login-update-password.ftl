@@ -49,14 +49,21 @@
             <div class="${properties.kcFormGroupClass!}">
                 <div id="kc-form-options" class="${properties.kcFormOptionsClass!}">
                     <div class="col-lg-12">
-                        <div class="row align-items-center">
-                            <label class="custom-checkbox">
-                                <input type="checkbox" id="logout-sessions" name="logout-sessions" value="on">
-                                <span></span>
-                            </label>
-                            <label for="logout-sessions" style="margin-left: 10px;">
-                                ${msg("logoutOtherSessions")}
-                            </label>
+                        <div class="logout-sessions-container">
+                            <div class="checkbox-wrapper">
+                                <div class="logout-checkbox-wrapper">
+                                    <input type="checkbox" id="logout-sessions" name="logout-sessions" value="on" class="logout-checkbox">
+                                    <span class="logout-checkbox-custom"></span>
+                                </div>
+                            </div>
+                            <div class="logout-sessions-content">
+                                <label for="logout-sessions" class="logout-checkbox-label">
+                                    ${msg("logoutOtherSessions")}
+                                </label>
+                                <div class="checkbox-description">
+                                    This will end all your active sessions on other devices for security.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
