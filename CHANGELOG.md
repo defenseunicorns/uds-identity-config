@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.15.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.15.0...v0.15.1) (2025-06-27)
+
+
+### Bug Fixes
+
+* mobile responsiveness for kc theme ([#531](https://github.com/defenseunicorns/uds-identity-config/issues/531)) ([b614ebb](https://github.com/defenseunicorns/uds-identity-config/commit/b614ebb42db88e7f7955630d55d353d03c23eb4d))
+
+
+### Miscellaneous
+
+* add docs to release-please config ([#524](https://github.com/defenseunicorns/uds-identity-config/issues/524)) ([acda595](https://github.com/defenseunicorns/uds-identity-config/commit/acda59516b82b03caae2d01f34a4f5cfac910500))
+
+
+### Documentation
+
+* update t&c doc ([#523](https://github.com/defenseunicorns/uds-identity-config/issues/523)) ([f051503](https://github.com/defenseunicorns/uds-identity-config/commit/f051503ba7cbbdbe361ad67c9d4b5fc6f528c825))
+* update theme documentation, add doc shim ([#527](https://github.com/defenseunicorns/uds-identity-config/issues/527)) ([beabe41](https://github.com/defenseunicorns/uds-identity-config/commit/beabe416ea5ddf65055d9f97e80fefa825a799d1))
+
 ## [0.15.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.14.1...v0.15.0) (2025-06-23)
 
 
