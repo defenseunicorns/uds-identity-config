@@ -44,9 +44,9 @@
 }
 
 .col-alert-icon {
-    width: 45px;
-    min-width: 45px;
-    max-width: 45px;
+    width: 2.8125rem;
+    min-width: 2.8125rem;
+    max-width: 2.8125rem;
 }
 
 .instruction {
@@ -72,8 +72,8 @@
 }
 
 .navbar .upper-logo img {
-    max-height: 75px;
-    margin-right: 15px;
+    max-height: 4.6875rem;
+    margin-right: 0.9375rem;
 }
 
 .note-important {
@@ -121,23 +121,23 @@
 
 ol#kc-totp-settings {
     margin: 0;
-    padding-left: 20px;
+    padding-left: 1.25rem;
 }
 
 ul#kc-totp-supported-apps {
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
 }
 
 #kc-totp-secret-key {
     background-color: #fff;
     color: #333;
-    font-size: 16px;
-    padding: 10px 0;
+    font-size: 1rem;
+    padding: 0.625rem 0;
 }
 
 #kc-totp-secret-qr-code {
-    max-height: 150px;
-    max-width: 150px;
+    max-height: 9.375rem;
+    max-width: 9.375rem;
 }
 
 .btn-text {
@@ -147,7 +147,7 @@ ul#kc-totp-supported-apps {
     color: #76A9FA !important;
     text-decoration: none;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: 400;
 }
 
@@ -158,7 +158,7 @@ ul#kc-totp-supported-apps {
     color: #76A9FA !important;
     text-decoration: underline;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: 400;
 }
 
@@ -198,7 +198,7 @@ ul#kc-totp-supported-apps {
 .card a {
     color: #76A9FA !important;
     font-weight: 400;
-    font-size: 12px;
+    font-size: 0.75rem;
 }
 
 .app-logo {
@@ -208,7 +208,7 @@ ul#kc-totp-supported-apps {
 .footer-text {
     text-align: center;
     font-weight: 400;
-    font-size: 12px;
+    font-size: 0.75rem;
 }
 
 .form-group {
@@ -224,19 +224,19 @@ ul#kc-totp-supported-apps {
 }
 
 .row-group {
-    margin-left: -20px !important;
-    margin-right: -20px !important;
+    margin-left: -1.25rem !important;
+    margin-right: -1.25rem !important;
 }
 
 .title {
     box-sizing: border-box;
     color: #ededed;
-    font-size: 30px;
+    font-size: 1.875rem;
     letter-spacing: 0.5rem;
     line-height: 3rem;
     margin-left: 2rem;
     text-align: left;
-    text-shadow: 2px 4px 3px #111827;
+    text-shadow: 0.125rem 0.25rem 0.1875rem #111827;
     text-transform: none;
     white-space: normal;
 }
@@ -248,9 +248,9 @@ ul#kc-totp-supported-apps {
 .custom-checkbox span {
     border: 1px solid #D1D5DB;
     float: right;
-    height: 20px;
-    width: 20px;
-    border-radius: 5px;
+    height: 1.25rem;
+    width: 1.25rem;
+    border-radius: 0.3125rem;
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -285,18 +285,19 @@ ul#kc-totp-supported-apps {
 }
 
 .card .card-header {
-    min-height: 250px;
+    min-height: 15.625rem;
     align-content: flex-end;
 }
 
 .card .card-body {
     background: #111827;
     border-radius: 8px;
+    padding: 1.25rem;
 }
 
 .card.card-wide {
-    max-width: 650px;
-    margin-top: 100px;
+    max-width: 40.625rem;
+    margin-top: 6.25rem;
 }
 
 .card .table {
@@ -317,10 +318,11 @@ body {
     position: absolute;
     overflow-x: hidden;
     font-family: Inter;
+    font-size: 16px;
 }
 
 body > .container-fluid {
-    padding-bottom: 65px;
+    padding-bottom: 4.0625rem;
 }
 
 p {
@@ -379,9 +381,9 @@ body.password .subtitle {
 }
 
 .kc-social-provider-logo {
-    font-size: 23px;
-    width: 30px;
-    height: 25px;
+    font-size: 1.4375rem;
+    width: 1.875rem;
+    height: 1.5625rem;
     float: left;
 }
 
@@ -393,7 +395,7 @@ body.password .subtitle {
 }
 
 .kc-social-item {
-    font-size: 15px;
+    font-size: 0.9375rem;
     text-align: center;
 }
 
@@ -404,18 +406,18 @@ body.password .subtitle {
 }
 
 .kc-social-icon-text {
-    left: -15px;
+    left: -0.9375rem;
 }
 
 .kc-social-grid {
     display: grid;
-    grid-column-gap: 10px;
-    grid-row-gap: 5px;
+    grid-column-gap: 0.625rem;
+    grid-row-gap: 0.3125rem;
     grid-column-end: span 6;
 }
 
 .kc-social-grid .kc-social-icon-text {
-    left: -10px;
+    left: -0.625rem;
 }
 
 .kc-social-section {
@@ -423,8 +425,8 @@ body.password .subtitle {
 }
 
 .kc-social-section hr {
-    margin-bottom: 16px;
-    margin-top: 16px;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
 }
 
 #authenticateWebAuthnButton {
@@ -433,4 +435,112 @@ body.password .subtitle {
 
 #registerWebAuthn {
     display: block;
+}
+
+/* Ensure proper viewport settings */
+@viewport {
+    width: device-width;
+    zoom: 1.0;
+}
+
+.card {
+    background: none;
+    border: 0;
+    margin: 1.5rem auto;
+    max-width: 90%;
+    width: 1000px;
+}
+
+.card .card-header {
+    min-height: 15.625rem;
+}
+
+.card .card-body {
+    background: #111827;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+}
+
+.header {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 10vh auto 3rem;
+    max-width: 90%;
+    width: 1000px;
+}
+
+.title {
+    box-sizing: border-box;
+    color: #ededed;
+    font-size: 1.875rem;
+    letter-spacing: 0.5rem;
+    line-height: 3rem;
+    margin-left: 2rem;
+    text-shadow: 0.125rem 0.25rem 0.1875rem #111827;
+    text-transform: none;
+    white-space: normal;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    height: auto;
+}
+
+input, select, textarea {
+    font-size: 16px;
+}
+
+/* Mobile-first responsive styles */
+@media (max-width: 575.98px) {
+    body {
+        overflow-y: auto;
+    }
+    
+    .card {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        max-width: none;
+    }
+    
+    .card .card-header {
+        min-height: 8rem;
+    }
+    
+    .card .card-body {
+        border-radius: 0;
+        padding: 0.75rem;
+    }
+    
+    .header {
+        flex-direction: column;
+        margin: 5vh auto 1.5rem;
+        width: 100%;
+        padding: 0 1rem;
+    }
+    
+    .title {
+        font-size: 1.25rem;
+        letter-spacing: 0.15rem;
+        line-height: 1.75rem;
+        margin-left: 0;
+        text-align: center;
+        margin-top: 1rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .header {
+        flex-direction: row;
+    }
+    
+    .title {
+        margin-left: 1.5rem;
+        text-align: left;
+        margin-top: 0;
+    }
 }

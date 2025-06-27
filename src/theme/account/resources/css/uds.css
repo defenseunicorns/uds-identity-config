@@ -20,6 +20,65 @@
     border-bottom: 1px solid #374151;
     background-color: #111827 !important;
     z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+}
+
+.pf-v5-c-masthead__content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.pf-v5-c-masthead__toggle {
+    display: flex;
+    align-items: center;
+}
+
+.pf-v5-c-masthead__main {
+    display: flex;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+    align-items: center;
+}
+
+/* Fix logo sizing and alignment - override built-in styles */
+.pf-v5-c-brand,
+.pf-v5-c-masthead img,
+.pf-v5-c-masthead__main img,
+[class*="brand"],
+[class*="_brand_"],
+.pf-v5-c-masthead a img {
+    width: auto !important;
+    height: 45px !important;
+    max-height: 45px !important;
+    min-height: unset !important;
+    display: block !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+    aspect-ratio: auto !important;
+}
+
+/* Ensure proper vertical alignment of all header elements */
+.pf-v5-c-masthead button,
+.pf-v5-c-masthead a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ensure proper spacing between elements */
+.pf-v5-c-masthead__toggle + .pf-v5-c-masthead__main {
+    margin-left: 1rem;
+}
+
+.pf-v5-c-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-left: auto;
 }
 
 .pf-v5-c-page,
@@ -47,6 +106,16 @@ body {
     --pf-v5-global--BorderColor--200: #374151;
     --pf-v5-global--BorderColor--300: #374151;
     --pf-v5-global--BorderColor--400: #374151;
+}
+
+body, #app {
+    height: 100%;
+}
+
+.container {
+    padding: 0;
+    margin: 0;
+    width: 100%;
 }
 
 .pf-v5-c-alert.pf-m-success {
@@ -117,4 +186,145 @@ body {
 
 .pf-v5-c-form__group:has(textarea#notes) {
     display: none;
+}
+
+.card {
+    background: none;
+    border: 0;
+    margin: 1.5rem auto;
+    max-width: 90%;
+    width: 1000px;
+}
+
+.card .card-header {
+    min-height: 15.625rem;
+}
+
+.card .card-body {
+    background: #111827;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+}
+
+.header {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 10vh auto 3rem;
+    max-width: 90%;
+    width: 1000px;
+}
+
+.title {
+    box-sizing: border-box;
+    color: #ededed;
+    font-size: 1.875rem;
+    letter-spacing: 0.5rem;
+    line-height: 3rem;
+    margin-left: 2rem;
+    text-shadow: 0.125rem 0.25rem 0.1875rem #111827;
+    text-transform: none;
+    white-space: normal;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    height: auto;
+}
+
+input, select, textarea {
+    font-size: 16px;
+}
+
+/* Mobile-first responsive styles */
+@media (max-width: 575.98px) {
+    .pf-v5-c-page__main {
+        margin: 0;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+    }
+    
+    .pf-v5-c-page__sidebar-body {
+        padding: 0.5rem;
+    }
+    
+    .pf-v5-c-masthead {
+        padding: 0.5rem;
+    }
+    
+    .pf-v5-c-form {
+        padding: 0.5rem;
+    }
+    
+    .pf-v5-c-nav__link {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .pf-v5-c-brand,
+    .pf-v5-c-masthead img,
+    .pf-v5-c-masthead__main img,
+    [class*="brand"],
+    [class*="_brand_"],
+    .pf-v5-c-masthead a img {
+        height: 50px !important;
+        max-height: 50px !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .pf-v5-c-page__main {
+        margin: 1.5rem;
+        border-radius: 0.5rem;
+    }
+    
+    .pf-v5-c-page__sidebar {
+        width: auto;
+        max-width: 280px;
+    }
+    
+    .pf-v5-c-form {
+        padding: 1rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .pf-v5-c-page__main {
+        margin: 2rem;
+        border-radius: 0.5rem;
+    }
+    
+    .pf-v5-c-masthead {
+        padding: 0.75rem 1.5rem;
+    }
+}
+
+/* Loading container styles */
+.keycloak__loading-container {
+    height: 100vh;
+    width: 100%;
+    color: #151515;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .keycloak__loading-container {
+        color: #e0e0e0;
+        background-color: #1b1d21;
+    }
+}
+
+#loading-text {
+    z-index: 1000;
+    font-size: 20px;
+    font-weight: 600;
+    padding-top: 32px;
 }
