@@ -31,12 +31,6 @@
     width: 100%;
 }
 
-/* Mobile-specific masthead styles will be in media queries */
-
-/* Only apply logo sizing overrides for mobile */
-
-/* Mobile-specific alignment styles will be in media queries */
-
 .pf-v5-c-page,
 .pf-v5-c-page__main-section {
     background: none;
@@ -115,7 +109,6 @@ body, #app {
     padding: 1.5rem;
 }
 
-/* Reduce spacing between Personal info and General sections */
 .pf-v5-l-grid__item section[style*="margin-top"] {
     margin-top: 0.5rem !important;
 }
@@ -239,7 +232,6 @@ input, select, textarea {
     margin-left: auto;
 }
 
-/* Mobile-first responsive styles */
 @media (max-width: 575.98px) {
     .pf-v5-c-page__main {
         margin: 0;
