@@ -285,7 +285,7 @@ input, select, textarea {
         border-radius: 0.5rem;
     }
     
-    .pf-v5-c-page__sidebar {
+    .pf-v5-c-page__sidebar.pf-m-expanded {
         width: auto;
         min-width: 280px;
         max-width: 300px;
@@ -327,10 +327,10 @@ input, select, textarea {
 
 @media (min-width: 992px) {
     .pf-v5-c-page__main {
-        margin: 2rem;
+        margin: 3.125rem;
         border-radius: 0.5rem;
     }
-    
+
     .pf-v5-c-masthead {
         height: auto;
         min-height: 56px;
@@ -340,7 +340,7 @@ input, select, textarea {
         padding: 0;
     }
     
-    .pf-v5-c-page__sidebar {
+    .pf-v5-c-page__sidebar.pf-m-expanded {
         min-width: 280px;
     }
     
