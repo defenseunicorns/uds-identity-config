@@ -775,6 +775,40 @@ input, select, textarea {
     background-size: contain;
 }
 
+/* Back button styles */
+.back-button-container {
+    margin-bottom: 1rem;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: #76A9FA;
+    font-size: 0.875rem;
+    transition: color 0.2s ease;
+}
+
+.back-button:hover {
+    color: #93C5FD;
+    text-decoration: none;
+}
+
+.back-button img {
+    margin-right: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Form separator */
+.form-separator {
+    border: 0;
+    height: 1px;
+    background-color: #1F2A37;
+    margin: 1rem 0;
+    opacity: 0.5;
+}
+
 /* Mobile styles */
 @media (max-width: 767px) {
     .logout-sessions-container {

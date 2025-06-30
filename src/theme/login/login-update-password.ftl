@@ -1,8 +1,14 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout headerText="updatePasswordTitle" backLink=true displayMessage=!messagesPerField.existsError('password','password-confirm'); section>
-    <#if section = "header">
-        ${msg("updatePasswordTitle")}
-    <#elseif section = "form">
+<@layout.registrationLayout displayMessage=!messagesPerField.existsError('password','password-confirm'); section>
+    <div class="back-button-container">
+        <a href="#" onclick="history.back(); return false;" class="back-button">
+            <img src="${url.resourcesPath}/img/icon_back.svg" alt=""/>
+            <span>${msg("backToAccountConsole")}</span>
+        </a>
+    </div>
+    <h4>${msg("updatePasswordTitle")}</h4>
+    <hr class="form-separator">
+    <#if section = "form">
         <form id="kc-passwd-update-form" class="${properties.kcFormClass!}" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post">
             <div class="${properties.kcFormGroupClass!}">
                 <div class="${properties.kcLabelWrapperClass!}">
