@@ -93,7 +93,7 @@
                         <div class="alert alert-info">
                             <div class="row">
                                 <div class="col-lg-1 d-flex align-items-start col-alert-icon">
-                                    <img src="${url.resourcesPath}/img/icon_information.png" />
+                                    <img src="${url.resourcesPath}/img/icon_information.svg" />
                                 </div>
                                 <div class="col">
                                     <h3>New DoD PKI Detected</h3>
@@ -114,7 +114,7 @@
                         <div class="alert alert-info">
                             <div class="row">
                                 <div class="col-lg-1 d-flex align-items-start col-alert-icon">
-                                    <img src="${url.resourcesPath}/img/icon_information.png" />
+                                    <img src="${url.resourcesPath}/img/icon_information.svg" />
                                 </div>
                                 <div class="col">
                                     <h3>CAC Not Detected</h3>

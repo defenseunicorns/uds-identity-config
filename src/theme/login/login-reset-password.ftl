@@ -9,7 +9,7 @@
                 <div class="alert alert-info">
                     <div class="row">
                         <div class="col-lg-1 d-flex align-items-center col-alert-icon">
-                            <img src="${url.resourcesPath}/img/icon_information.png"  />
+                            <img src="${url.resourcesPath}/img/icon_information.svg"  />
                         </div>
                         <div class="col">
                             <#if realm.duplicateEmailsAllowed>

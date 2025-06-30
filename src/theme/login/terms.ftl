@@ -15,7 +15,7 @@
                                 <div class="alert alert-warning">
                                     <div class="row">
                                         <div class="col-lg-1 d-flex align-items-start col-alert-icon">
-                                            <img src="${url.resourcesPath}/img/icon_warning.png" />
+                                            <img src="${url.resourcesPath}/img/icon_warning.svg" />
                                         </div>
                                         <div class="col">
                                             <h3>Update to User Agreement</h3>

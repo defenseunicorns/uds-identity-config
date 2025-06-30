@@ -82,12 +82,12 @@ ${msg("loginTitle",(realm.displayName!''))}
                                 <div class="col-lg-12">
                                     <#if backButton>
                                         <form class="" action="${url.loginAction}" method="post">
-                                            <img src="${url.resourcesPath}/img/icon_back.png" />
+                                            <img src="${url.resourcesPath}/img/icon_back.svg" />
                                             <input name="cancel" id="kc-cancel" type="submit" value="${kcSanitize(msg("backToLogin"))?no_esc}" class="btn-text" />
                                         </form>
                                     </#if>
                                     <#if backLink>
-                                        <img src="${url.resourcesPath}/img/icon_back.png" />
+                                        <img src="${url.resourcesPath}/img/icon_back.svg" />
                                         <a type="submit" href="${url.loginUrl}">${kcSanitize(msg("backToLogin"))?no_esc}</a>
                                     </#if>
                                 </div>
@@ -112,7 +112,7 @@ ${msg("loginTitle",(realm.displayName!''))}
                                     <div id="alert-error" class="alert alert-<#if message.type = 'error'>error<#else>warning</#if>">
                                         <div class="row">
                                             <div class="col-lg-1 align-items-center d-flex col-alert-icon">
-                                                <img src="${url.resourcesPath}/img/icon_<#if message.type = 'error'>error<#else>warning</#if>.png" />
+                                                <img src="${url.resourcesPath}/img/icon_<#if message.type = 'error'>error<#else>warning</#if>.svg" />
                                             </div>
                                             <div class="col">
                                                 <p>${kcSanitize(message.summary)?no_esc}</p>

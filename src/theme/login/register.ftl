@@ -10,7 +10,7 @@
                             <div class="alert alert-info">
                                 <div class="row">
                                     <div class="col-lg-1 align-items-start d-flex col-alert-icon">
-                                        <img src="${url.resourcesPath}/img/icon_information.png" />
+                                        <img src="${url.resourcesPath}/img/icon_information.svg" />
                                     </div>
                                     <div class="col">
                                         <h3>DoD PKI User Registration</h3>
@@ -27,7 +27,7 @@
                                 <div class="alert alert-warning">
                                     <div class="row">
                                         <div class="col-lg-1 align-items-start d-flex col-alert-icon">
-                                            <img src="${url.resourcesPath}/img/icon_warning.png" />
+                                            <img src="${url.resourcesPath}/img/icon_warning.svg" />
                                         </div>
                                         <div class="col">
                                             <h3>Registration Requirement</h3>
@@ -45,7 +45,7 @@
                         <div class="alert alert-info">
                             <div class="row">
                                 <div class="col-lg-1 d-flex align-items-center col-alert-icon">
-                                    <img src="${url.resourcesPath}/img/icon_information.png"  />
+                                    <img src="${url.resourcesPath}/img/icon_information.svg"  />
                                 </div>
                                 <div class="col">
                                     <p>Use your company or government email when registering.</p>
@@ -234,7 +234,7 @@
                                 <div class="alert alert-info">
                                     <div class="row">
                                         <div class="col-lg-1 align-items-start d-flex col-alert-icon" style="margin-top: 1rem">
-                                            <img src="${url.resourcesPath}/img/icon_information.png"/>
+                                            <img src="${url.resourcesPath}/img/icon_information.svg"/>
                                         </div>
                                         <div class="col">
                                             <p>${msg("passwordCacMessage1")}</p>
