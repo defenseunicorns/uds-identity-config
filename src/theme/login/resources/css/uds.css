@@ -653,6 +653,10 @@ input, select, textarea {
         padding: 0.5rem 0.5rem 0.5rem 0.5rem;
     }
 
+    .alert .col {
+        align-content: center;
+    }
+
     .alert p {
         margin-top: 0;
         margin-bottom: 0;

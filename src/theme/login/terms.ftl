@@ -2,7 +2,7 @@
     <@layout.registrationLayout displayMessage=false; section>
         <!-- Floating scroll to bottom button -->
         <div id="scrollToBottomBtn">
-            <img src="${url.resourcesPath}/img/down-to-bottom.png" alt="Scroll to bottom">
+            <img src="${url.resourcesPath}/img/down-to-bottom.svg" alt="Scroll to bottom">
         </div>
         <#if section="form">
             <div id="kc-terms-text" onclick="javscript:window.scrollTo(0, document.body.scrollHeight);">
