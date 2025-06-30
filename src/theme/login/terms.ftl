@@ -153,7 +153,7 @@
                             acceptBtn.style.backgroundColor = '#374151';
                         }
                     }
-                })();
+                });
             </script>
         </#if>
     </@layout.registrationLayout>
