@@ -185,7 +185,7 @@ ul#kc-totp-supported-apps {
 }
 
 .btn-primary:hover {
-    background-color: #6875F5 !important;
+    background-color: var(--primary-800, #1E429F) !important;
     border: none !important;
 }
 
