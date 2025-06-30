@@ -13,7 +13,6 @@
     color: #D1D5DB;
     display: flex;
     align-items: center;
-    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 
 .alert.alert-info {
@@ -26,7 +25,6 @@
     color: #D1D5DB;
     display: flex;
     align-items: center;
-    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 
 .alert.alert-warning {
@@ -39,7 +37,6 @@
     color: #D1D5DB;
     display: flex;
     align-items: center;
-    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 
 .tc-text {
@@ -650,6 +647,15 @@ input, select, textarea {
 
     .form-actions .row.align-items-center {
         margin: 0;
+    }
+
+    .alert {
+        padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    }
+
+    .alert p {
+        margin-top: 0;
+        margin-bottom: 0;
     }
 }
 
