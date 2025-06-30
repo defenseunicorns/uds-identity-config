@@ -52,7 +52,7 @@
                         <div class="logout-sessions-container">
                             <div class="checkbox-wrapper">
                                 <div class="logout-checkbox-wrapper">
-                                    <input type="checkbox" id="logout-sessions" name="logout-sessions" value="on" class="logout-checkbox">
+                                    <input type="checkbox" id="logout-sessions" name="logout-sessions" value="on" class="logout-checkbox" checked>
                                     <span class="logout-checkbox-custom"></span>
                                 </div>
                             </div>

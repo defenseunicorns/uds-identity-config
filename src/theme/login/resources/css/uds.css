@@ -13,6 +13,7 @@
     color: #D1D5DB;
     display: flex;
     align-items: center;
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 
 .alert.alert-info {
@@ -25,6 +26,7 @@
     color: #D1D5DB;
     display: flex;
     align-items: center;
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 
 .alert.alert-warning {
@@ -37,6 +39,7 @@
     color: #D1D5DB;
     display: flex;
     align-items: center;
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 
 .tc-text {
@@ -536,8 +539,8 @@ input, select, textarea {
     justify-content: center;
     transition: all 0.3s ease;
     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    bottom: 1.5rem;
-    right: 0.6875rem;
+    bottom: 6.25rem;
+    right: 1.25rem;
 }
 
 #scrollToBottomBtn img {
