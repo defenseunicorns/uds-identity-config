@@ -163,8 +163,7 @@ ul#kc-totp-supported-apps {
 }
 
 .btn-primary {
-    background-color: #1A56DB;
-    border-color: #1A56DB;
+    background-color: #1A56DB !important;
     padding: 0.625rem 1.5rem;
     line-height: 1.25;
     height: 2.75rem; /* 44px */

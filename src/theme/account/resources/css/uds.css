@@ -129,12 +129,12 @@ body, #app {
 }
 
 .pf-v5-c-button.pf-m-primary {
-    background-color: #374151 !important;
+    background-color: #1A56DB !important;
     border-radius: 4px !important;
 }
 
 .pf-v5-c-button.pf-m-primary:hover {
-    background-color: #1A56DB !important;
+    background-color: var(--primary-800, #1E429F) !important;
 }
 
 .pf-v5-c-form__group:has(input#location) {
