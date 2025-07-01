@@ -3,7 +3,12 @@
         <#if section="form">
             <form action="/chuck-norris-calendar-goes-straight-from-march-31st-to-april-2nd-because-no-one-fools-chuck-norris"
                 id="unicorn-registration-form" method="post">
-
+                <div class="back-button-container">
+                    <a href="#" onclick="history.back(); return false;" class="back-button">
+                        <img src="${url.resourcesPath}/img/icon_back.svg" alt=""/>
+                        <span>${msg("backToLogin")}</span>
+                    </a>
+                </div>
                 <#if cacSubjectDN??>
                     <div class="row">
                         <div class="col-lg-12">
@@ -230,17 +235,12 @@
                 <#if properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "true">
                     <div class="form-group ${messagesPerField.printIfExists('password','has-error')}">
                         <#if cacSubjectDN??>
-                            <div class="col-lg-12">
-                                <div class="alert alert-info">
-                                    <div class="row">
-                                        <div class="col-lg-1 align-items-start d-flex col-alert-icon" style="margin-top: 1rem">
-                                            <img src="${url.resourcesPath}/img/icon_information.svg"/>
-                                        </div>
-                                        <div class="col">
-                                            <p>${msg("passwordCacMessage1")}</p>
-                                            <p><b>${msg("passwordCacMessage2")}</b></p>
-                                            <p>${msg("passwordCacMessage3")}</p>
-                                        </div>
+                            <div class="alert alert-info">
+                                <div class="row">
+                                    <div class="col">
+                                        <p>${msg("passwordCacMessage1")}</p>
+                                        <p><b>${msg("passwordCacMessage2")}</b></p>
+                                        <p>${msg("passwordCacMessage3")}</p>
                                     </div>
                                 </div>
                             </div>

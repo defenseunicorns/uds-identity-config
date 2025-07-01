@@ -43,6 +43,21 @@
     color: #D1D5DB;
 }
 
+.form-button-container,
+.form-group.form-button-container {
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.form-button-container .btn,
+.form-button-container .btn-primary,
+.form-button-container input[type="submit"] {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
 .col-alert-icon {
     width: 2.8125rem;
     min-width: 2.8125rem;
@@ -384,7 +399,6 @@ body.password .subtitle {
     border-top: 1px solid #374151;
 }
 
-/* Social */
 .pf-c-button .pf-m-control {
     border-color: rgba(230, 230, 230, 0.5);
 }
@@ -460,7 +474,6 @@ body.password .subtitle {
     display: block;
 }
 
-/* Ensure proper viewport settings */
 @viewport {
     width: device-width;
     zoom: 1.0;
@@ -471,13 +484,13 @@ body.password .subtitle {
     border: 0;
     margin: 1.5rem auto;
     width: 100%;
-    max-width: 48.125rem; /* 770px */
+    max-width: 48.125rem;
 }
 
 .card .card-header {
     min-height: 15.625rem;
     height: 15.625rem;
-    background-size: 50rem 15.625rem; /* 800x250 */
+    background-size: 50rem 15.625rem;
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -509,19 +522,10 @@ body.password .subtitle {
     white-space: normal;
 }
 
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-control {
-    height: auto;
-}
-
 input, select, textarea {
     font-size: 16px;
 }
 
-/* Scroll to bottom button */
 #scrollToBottomBtn {
     position: fixed;
     z-index: 99;
@@ -547,9 +551,6 @@ input, select, textarea {
     filter: brightness(0) invert(1);
 }
 
-/* ==============================================
-   Terms & Conditions Checkbox (Specific to Terms Page)
-   ============================================== */
 .terms-checkbox-container {
     display: flex;
     align-items: flex-start;
@@ -564,7 +565,7 @@ input, select, textarea {
     height: 1.25rem;
     margin: 0.125rem 0.75rem 0 0;
     flex-shrink: 0;
-    order: 1; /* Default: checkbox on left */
+    order: 1;
 }
 
 .terms-checkbox-container .terms-checkbox {
@@ -617,85 +618,18 @@ input, select, textarea {
     margin: 0;
     cursor: pointer;
     font-weight: 400;
-    order: 2; /* Label comes after checkbox on desktop */
+    order: 2;
 }
 
-/* Mobile styles */
-@media (max-width: 767px) {
-    .terms-checkbox-container {
-        flex-direction: row;
-        justify-content: space-between;
-        margin: 0.5rem 0.5rem;
-    }
-
-    .terms-checkbox-container .terms-checkbox-wrapper {
-        width: 2.25rem;
-        height: 2.25rem;
-        margin: 0 0 0 1rem;
-        order: 2;
-    }
-
-    .terms-checkbox-container .terms-checkbox-label {
-        order: 1;
-        flex: 1;
-        margin: 0;
-        text-align: left;
-    }
-
-    .form-actions .col-lg-12 {
-        padding: 0;
-    }
-
-    .form-actions .row.align-items-center {
-        margin: 0;
-    }
-
-    .alert {
-        padding: 0.5rem 0.5rem 0.5rem 0.5rem;
-    }
-
-    .alert .col {
-        align-content: center;
-    }
-
-    .alert p {
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-}
-
-/* Hide the SVG checkmark, we're using CSS for the checkmark */
 .terms-checkbox-container .terms-checkbox-icon {
     display: none;
 }
 
-/* ==============================================
-   Logout Sessions Checkbox (Password Update Page)
-   ============================================== */
 .logout-sessions-container {
     display: flex;
     align-items: flex-start;
     gap: 0;
     margin: 1.8rem 0;
-}
-
-/* Mobile styles for logout sessions checkbox */
-@media (max-width: 767px) {
-    .logout-sessions-container .logout-checkbox-wrapper {
-        width: 2.25rem;
-        height: 2.25rem;
-        margin: 0 0 0 1rem;
-    }
-
-    .logout-sessions-container .logout-checkbox-custom {
-        width: 100%;
-        height: 100%;
-    }
-
-    .logout-sessions-container .logout-checkbox:checked + .logout-checkbox-custom::after {
-        width: 1.5rem;
-        height: 1.5rem;
-    }
 }
 
 .checkbox-wrapper {
@@ -775,7 +709,6 @@ input, select, textarea {
     background-size: contain;
 }
 
-/* Back button styles */
 .back-button-container {
     margin-bottom: 1rem;
 }
@@ -800,7 +733,6 @@ input, select, textarea {
     height: 1rem;
 }
 
-/* Form separator */
 .form-separator {
     border: 0;
     height: 1px;
@@ -809,16 +741,6 @@ input, select, textarea {
     opacity: 0.5;
 }
 
-/* Mobile styles */
-@media (max-width: 767px) {
-    .logout-sessions-container {
-        flex-direction: row-reverse;
-    }
-}
-
-/* Moved below */
-
-/* Template specific styles */
 .card-header.branding .img-fluid {
     max-width: 100%;
 }
@@ -838,21 +760,73 @@ input, select, textarea {
     max-width: 100%;
 }
 
-/* Tablet and larger screens */
-@media (min-width: 768px) {
-    #scrollToBottomBtn {
-        bottom: 3.25rem;
-        right: 3.25rem;
+/* Mobile styles */
+@media (max-width: 767px) {
+    .terms-checkbox-container {
+        flex-direction: row;
+        justify-content: space-between;
+        margin: 0.5rem 0.5rem;
     }
-}
 
-/* Mobile-first responsive styles */
-@media (max-width: 575.98px) {
+    .terms-checkbox-container .terms-checkbox-wrapper {
+        width: 2.25rem;
+        height: 2.25rem;
+        margin: 0 0 0 1rem;
+        order: 2;
+    }
+
+    .terms-checkbox-container .terms-checkbox-label {
+        order: 1;
+        flex: 1;
+        margin: 0;
+        text-align: left;
+    }
+
+    .form-actions .col-lg-12 {
+        padding: 0;
+    }
+
+    .form-actions .row.align-items-center {
+        margin: 0;
+    }
+
+    .alert {
+        padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    }
+
+    .alert .col {
+        align-content: center;
+    }
+
+    .alert p {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
     body {
         overflow-y: auto;
     }
 
-    /* Terms page button margins */
+    .logout-sessions-container .logout-checkbox-wrapper {
+        width: 2.25rem;
+        height: 2.25rem;
+        margin: 0 0 0 1rem;
+    }
+
+    .logout-sessions-container .logout-checkbox-custom {
+        width: 100%;
+        height: 100%;
+    }
+
+    .logout-sessions-container .logout-checkbox:checked + .logout-checkbox-custom::after {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    .logout-sessions-container {
+        flex-direction: row-reverse;
+    }
+
     .form-actions .btn {
         margin-left: 1.25rem;
         margin-right: 1.25rem;
@@ -910,6 +884,11 @@ input, select, textarea {
 }
 
 @media (min-width: 768px) {
+    #scrollToBottomBtn {
+        bottom: 3.25rem;
+        right: 3.25rem;
+    }
+
     .header {
         flex-direction: row;
     }

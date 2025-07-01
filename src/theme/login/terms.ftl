@@ -19,7 +19,7 @@
                                         </div>
                                         <div class="col">
                                             <h3>Update to User Agreement</h3>
-                                            <p>Changes have been made to this IS user agreement. Please read and acknowledge the updated conditions</p>
+                                            <p>Changes have been made to this Information System user agreement. Please read and acknowledge the updated conditions</p>
                                         </div>
                                     </div>
                                 </div>

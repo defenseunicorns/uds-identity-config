@@ -87,8 +87,10 @@ ${msg("loginTitle",(realm.displayName!''))}
                                         </form>
                                     </#if>
                                     <#if backLink>
-                                        <img src="${url.resourcesPath}/img/icon_back.svg" />
-                                        <a type="submit" href="${url.loginUrl}">${kcSanitize(msg("backToLogin"))?no_esc}</a>
+                                        <a type="submit" href="${url.loginUrl}">
+                                            <img src="${url.resourcesPath}/img/icon_back.svg" />
+                                            ${kcSanitize(msg("backToLogin"))?no_esc}
+                                        </a>
                                     </#if>
                                 </div>
                             </div>

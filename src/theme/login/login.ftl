@@ -39,7 +39,7 @@
                             </a>
                         </#if>
                     </div>
-                    <div id="form-buttons" class="form-group">
+                    <div id="form-buttons" class="form-group form-button-container">
                         <input type="hidden" id="id-hidden-input" name="credentialId"
                             <#if auth.selectedCredential?has_content>value="${auth.selectedCredential}"
                             </#if>/>

@@ -37,7 +37,7 @@
                     </#if>
                 </div>
             </div>
-            <div class="${properties.kcFormGroupClass!} ${properties.kcFormSettingClass!}">
+            <div class="${properties.kcFormGroupClass!} ${properties.kcFormSettingClass!} form-button-container">
                 <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
                     <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}" id="kc-reset" disabled="disabled"/>
                 </div>
