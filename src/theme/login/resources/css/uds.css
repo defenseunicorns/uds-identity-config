@@ -773,6 +773,15 @@ input, select, textarea {
     max-width: 280px;
 }
 
+.no-padding-sides {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.forgot-password-container {
+    margin-bottom: 0.75rem !important;
+}
+
 .client-unique-name,
 .card-header.branding h2 {
     text-align: center;

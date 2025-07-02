@@ -25,7 +25,7 @@
                         <input tabindex="1" id="username" class="form-control " name="username"
                             value="${(login.username!'')}" type="text" autofocus autocomplete="off" />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group forgot-password-container">
                         <label for="password" class="form-label">
                             ${msg("password")}
                         </label>

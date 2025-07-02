@@ -54,7 +54,7 @@
 
             <div class="${properties.kcFormGroupClass!}">
                 <div id="kc-form-options" class="${properties.kcFormOptionsClass!}">
-                    <div class="col-lg-12">
+                    <div class="col-lg-12 no-padding-sides">
                         <div class="logout-sessions-container">
                             <div class="checkbox-wrapper">
                                 <div class="logout-checkbox-wrapper">
