@@ -1,7 +1,7 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('password','password-confirm'); section>
     <div class="back-button-container">
-        <a href="#" onclick="history.back(); return false;" class="back-button">
+        <a href="/realms/${realm.name}/account/" class="back-button">
             <img src="${url.resourcesPath}/img/icon_back.svg" alt=""/>
             <span>${msg("backToAccountConsole")}</span>
         </a>
