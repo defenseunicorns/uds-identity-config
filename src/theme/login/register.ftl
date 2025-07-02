@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-    <@layout.registrationLayout headerText="Register New Account" displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm', 'affiliation', 'rank', 'organization', 'notes'); section>
+    <@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm', 'affiliation', 'rank', 'organization', 'notes'); section>
         <#if section="form">
             <form action="/chuck-norris-calendar-goes-straight-from-march-31st-to-april-2nd-because-no-one-fools-chuck-norris"
                 id="unicorn-registration-form" method="post">
@@ -9,6 +9,8 @@
                         <span>${msg("backToLogin")}</span>
                     </a>
                 </div>
+                <h4>${msg("registerNewAccount")}</h4>
+                <hr class="form-separator">
                 <#if cacSubjectDN??>
                     <div class="row">
                         <div class="col-lg-12">
@@ -36,7 +38,7 @@
                                         </div>
                                         <div class="col">
                                             <h3>Registration Requirement</h3>
-                                            </p>No CAC detected. A DoD PKI CAC is required to complete registration.</p>
+                                            <p>No CAC detected. A DoD PKI CAC is required to complete registration.</p>
                                         </div>
                                     </div>
                                 </div>
