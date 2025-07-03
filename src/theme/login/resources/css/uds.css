@@ -3,6 +3,26 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
+select.form-control {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 4L6 8L10 4' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+}
+
+.alert.alert-info .row .col p {
+    margin-bottom: 1rem !important;
+    margin-top: 0;
+}
+
+.alert.alert-info .row .col p:last-child {
+    margin-bottom: 0 !important;
+}
+
 .alert.alert-error {
     border-radius: 7px;
     border-left: 2px solid #F05252;
@@ -13,6 +33,10 @@
     color: #D1D5DB;
     display: flex;
     align-items: center;
+}
+
+.alert.p {
+    padding: 0;
 }
 
 .alert.alert-info {
@@ -41,6 +65,21 @@
 
 .tc-text {
     color: #D1D5DB;
+}
+
+.form-button-container,
+.form-group.form-button-container {
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.form-button-container .btn,
+.form-button-container .btn-primary,
+.form-button-container input[type="submit"] {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 .col-alert-icon {
@@ -164,12 +203,27 @@ ul#kc-totp-supported-apps {
 
 .btn-primary {
     background-color: #1A56DB !important;
+    padding: 0.625rem 1.5rem;
+    line-height: 1.25;
+    height: 2.75rem; /* 44px */
+    min-height: 2.75rem;
     border: none !important;
     border-radius: 4px !important;
+    transition: all 0.2s ease;
+}
+
+#kc-accept {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+}
+
+/* Fix for empty ruleset */
+.alert.alert-warning {
+    margin-bottom: 1rem;
 }
 
 .btn-primary:hover {
-    background-color: #6875F5 !important;
+    background-color: var(--primary-800, #1E429F) !important;
     border: none !important;
 }
 
@@ -212,7 +266,7 @@ ul#kc-totp-supported-apps {
 }
 
 .form-group {
-    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .header {
@@ -245,11 +299,17 @@ ul#kc-totp-supported-apps {
     display: none;
 }
 
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
 .custom-checkbox span {
     border: 1px solid #D1D5DB;
-    float: right;
     height: 1.25rem;
     width: 1.25rem;
+    min-width: 1.25rem;
     border-radius: 0.3125rem;
     cursor: pointer;
     display: flex;
@@ -269,7 +329,12 @@ ul#kc-totp-supported-apps {
 .form-control {
     background-color: #1f2a37;
     border: 1px solid #374151;
-    color: #ffffff
+    color: #ffffff;
+    padding: 0.625rem 1rem;
+    line-height: 1.25;
+    height: 2.75rem; /* 44px */
+    min-height: 2.75rem;
+    border-radius: 4px !important;
 }
 
 .form-control:focus {
@@ -358,7 +423,6 @@ body.password .subtitle {
     border-top: 1px solid #374151;
 }
 
-/* Social */
 .pf-c-button .pf-m-control {
     border-color: rgba(230, 230, 230, 0.5);
 }
@@ -385,9 +449,6 @@ body.password .subtitle {
     width: 1.875rem;
     height: 1.5625rem;
     float: left;
-}
-
-.kc-social {
 }
 
 .kc-social h2 {
@@ -437,7 +498,6 @@ body.password .subtitle {
     display: block;
 }
 
-/* Ensure proper viewport settings */
 @viewport {
     width: device-width;
     zoom: 1.0;
@@ -447,12 +507,16 @@ body.password .subtitle {
     background: none;
     border: 0;
     margin: 1.5rem auto;
-    max-width: 90%;
-    width: 1000px;
+    width: 100%;
+    max-width: 48.125rem;
 }
 
 .card .card-header {
     min-height: 15.625rem;
+    height: 15.625rem;
+    background-size: 50rem 15.625rem;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .card .card-body {
@@ -482,47 +546,366 @@ body.password .subtitle {
     white-space: normal;
 }
 
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-control {
-    height: auto;
-}
-
 input, select, textarea {
     font-size: 16px;
 }
 
-/* Mobile-first responsive styles */
-@media (max-width: 575.98px) {
+#scrollToBottomBtn {
+    position: fixed;
+    z-index: 99;
+    cursor: pointer;
+    display: none;
+    background: var(--primary-700, #1A56DB);
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.25), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+    bottom: 6.25rem;
+    right: 1.25rem;
+    stroke-width: 1px;
+    stroke: rgba(255, 255, 255, 0.10);
+}
+
+#scrollToBottomBtn img {
+    width: 32px;
+    height: 32px;
+    filter: brightness(0) invert(1);
+}
+
+.terms-checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    margin: 0.5rem 0;
+}
+
+.terms-checkbox-container .terms-checkbox-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0.125rem 0.75rem 0 0;
+    flex-shrink: 0;
+    order: 1;
+}
+
+.terms-checkbox-container .terms-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.terms-checkbox-container .terms-checkbox-custom {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1F2937;
+    border: 1px solid #4B5563;
+    border-radius: 0.25rem;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+.terms-checkbox-container .terms-checkbox:checked + .terms-checkbox-custom {
+    background-color: #1E40AF;
+    border-color: #3B82F6;
+}
+
+.terms-checkbox-container .terms-checkbox:checked + .terms-checkbox-custom::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1.5rem;
+    height: 1.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 6L9 17L4 12' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+.terms-checkbox-container .terms-checkbox-label {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #F9FAFB;
+    margin: 0;
+    cursor: pointer;
+    font-weight: 400;
+    order: 2;
+}
+
+.terms-checkbox-container .terms-checkbox-icon {
+    display: none;
+}
+
+.logout-sessions-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin: 1.8rem 0;
+}
+
+.checkbox-wrapper {
+    flex-shrink: 0;
+}
+
+.logout-sessions-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.logout-sessions-content .logout-checkbox-label {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #F9FAFB;
+    margin: 0;
+    cursor: pointer;
+    font-weight: 400;
+}
+
+.logout-sessions-content .checkbox-description {
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    color: #9CA3AF;
+    margin: 0.25rem 0 0 0;
+}
+
+.logout-checkbox-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0.25rem 0.5rem 0 0;
+    flex-shrink: 0;
+}
+
+.logout-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.logout-checkbox-custom {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1F2937;
+    border: 1px solid #4B5563;
+    border-radius: 0.25rem;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+.logout-checkbox:checked + .logout-checkbox-custom {
+    background-color: #1E40AF;
+    border-color: #3B82F6;
+}
+
+.logout-checkbox:checked + .logout-checkbox-custom::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1rem;
+    height: 1rem;
+    background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.3334 4L6.00008 11.3333L2.66675 8' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E%0A");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+.back-button-container {
+    margin-bottom: 1rem;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: #76A9FA;
+    font-size: 0.875rem;
+    transition: color 0.2s ease;
+}
+
+.back-button:hover {
+    color: #93C5FD;
+    text-decoration: none;
+}
+
+.back-button img {
+    margin-right: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+}
+
+.form-separator {
+    border: 0;
+    height: 1px;
+    background-color: #1F2A37;
+    margin: 1rem 0;
+    opacity: 0.5;
+}
+
+.card-header.branding .img-fluid {
+    max-width: 100%;
+}
+
+.card-header.branding .d-block.d-sm-none .img-fluid {
+    max-width: 280px;
+}
+
+.no-padding-sides {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.forgot-password-container {
+    margin-bottom: 0.75rem !important;
+}
+
+.client-unique-name,
+.card-header.branding h2 {
+    text-align: center;
+    width: 100%;
+}
+
+.fixed-footer img {
+    width: 100%;
+    max-width: 100%;
+}
+
+.alert .col {
+    align-content: center;
+}
+
+.alert p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+    .terms-checkbox-container {
+        flex-direction: row;
+        justify-content: space-between;
+        margin: 0.5rem 0.5rem;
+    }
+
+    .terms-checkbox-container .terms-checkbox-wrapper {
+        width: 2.25rem;
+        height: 2.25rem;
+        margin: 0 0 0 1rem;
+        order: 2;
+    }
+
+    .terms-checkbox-container .terms-checkbox-label {
+        order: 1;
+        flex: 1;
+        margin: 0;
+        text-align: left;
+    }
+
+    .form-actions .col-lg-12 {
+        padding: 0;
+    }
+
+    .form-actions .row.align-items-center {
+        margin: 0;
+    }
+
+    .alert {
+        padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    }
+
     body {
         overflow-y: auto;
     }
-    
+
+    .logout-sessions-container .logout-checkbox-wrapper {
+        width: 2.25rem;
+        height: 2.25rem;
+        margin: 0 0 0 1rem;
+    }
+
+    .logout-sessions-container .logout-checkbox-custom {
+        width: 100%;
+        height: 100%;
+    }
+
+    .logout-sessions-container .logout-checkbox:checked + .logout-checkbox-custom::after {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    .logout-sessions-container {
+        flex-direction: row-reverse;
+    }
+
+    .form-actions .btn {
+        margin-left: 1.25rem;
+        margin-right: 1.25rem;
+        width: calc(100% - 30px) !important;
+    }
+
+    .align-items-center {
+        align-items: center !important;
+        display: flex !important;
+    }
+
+    .custom-checkbox {
+        margin-right: 10px;
+    }
+
+    label[for="termsCheckbox"] {
+        margin: 0;
+        line-height: 1.4;
+    }
+
     .card {
         width: 100%;
         margin: 0;
         border-radius: 0;
         max-width: none;
     }
-    
+
     .card .card-header {
-        min-height: 8rem;
+        min-height: 12.5rem;
+        height: auto;
+        background-size: contain;
+        padding: 1rem;
     }
-    
+
     .card .card-body {
         border-radius: 0;
         padding: 0.75rem;
     }
-    
+
     .header {
         flex-direction: column;
         margin: 5vh auto 1.5rem;
         width: 100%;
         padding: 0 1rem;
     }
-    
+
     .title {
         font-size: 1.25rem;
         letter-spacing: 0.15rem;
@@ -534,13 +917,26 @@ input, select, textarea {
 }
 
 @media (min-width: 768px) {
+    #scrollToBottomBtn {
+        bottom: 3.25rem;
+        right: 3.25rem;
+    }
+
     .header {
         flex-direction: row;
     }
-    
+
     .title {
         margin-left: 1.5rem;
         text-align: left;
         margin-top: 0;
+    }
+
+    .logout-sessions-container {
+        gap: .5rem;
+    }
+
+    form .form-group.text-right {
+        margin-bottom: 0.75rem;
     }
 }
