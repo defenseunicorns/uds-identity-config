@@ -109,11 +109,21 @@ tasks:
   - name: uds-core-integration-tests
     description: "UDS Core + Identity Config Integration Testing"
     actions:
+      - task: uds-core-integration-setup
+      - task: integration-tests
+
+  - name: uds-core-integration-setup
+    description: "UDS Core + Identity Config Integration Setup"
+    actions:
       - description: Build identity config image
         cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" -t uds-core-config:keycloak --no-cache src
       - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
+
+  - name: integration-tests
+    description: "Integration Tests"
+    actions:
       - task: cypress-tests
       - task: theme-customization-tests
 
