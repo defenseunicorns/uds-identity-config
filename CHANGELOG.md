@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.15.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.15.1...v0.15.2) (2025-07-03)
+
+
+### Bug Fixes
+
+* theming updates for mobile/desktop ([#533](https://github.com/defenseunicorns/uds-identity-config/issues/533)) ([8be09b2](https://github.com/defenseunicorns/uds-identity-config/commit/8be09b2088515c5f743af5cf5a5fc2acae151f52))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#526](https://github.com/defenseunicorns/uds-identity-config/issues/526)) ([42f0a63](https://github.com/defenseunicorns/uds-identity-config/commit/42f0a631d92ec093633dd2003922713491471db1))
+* **deps:** update all dependencies ([#535](https://github.com/defenseunicorns/uds-identity-config/issues/535)) ([228e107](https://github.com/defenseunicorns/uds-identity-config/commit/228e10775dbbf0d45aa32c793e3bb848d4896673))
+* **deps:** update gha-deps to v0.27.8 ([#538](https://github.com/defenseunicorns/uds-identity-config/issues/538)) ([4a2004a](https://github.com/defenseunicorns/uds-identity-config/commit/4a2004aa63324cbdfc85622309d403d754502ad7))
+* remove renovate-readiness, remove chainguard ref, break up integration test task ([#539](https://github.com/defenseunicorns/uds-identity-config/issues/539)) ([5e0201f](https://github.com/defenseunicorns/uds-identity-config/commit/5e0201f1cfa56fcf6587cba2be20bfa081dc6d28))
+
 ## [0.15.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.15.0...v0.15.1) (2025-06-27)
 
 
