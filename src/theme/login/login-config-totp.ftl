@@ -111,6 +111,7 @@
                             </#if>
                         </div>
                     </div>
+                    <div class="${properties.kcFormGroupClass!} form-button-container">
                     <#if isAppInitiatedAction??>
                         <input type="submit"
                             class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}"
@@ -125,6 +126,7 @@
                                 class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}"
                                 id="saveTOTPBtn" value="${msg("doSubmit")}" />
                     </#if>
+                    </div>
                 </form>
         </#if>
     </@layout.registrationLayout>
