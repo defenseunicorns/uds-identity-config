@@ -25,7 +25,7 @@
                         <input tabindex="1" id="username" class="form-control " name="username"
                             value="${(login.username!'')}" type="text" autofocus autocomplete="off" />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group forgot-password-container">
                         <label for="password" class="form-label">
                             ${msg("password")}
                         </label>
@@ -39,7 +39,7 @@
                             </a>
                         </#if>
                     </div>
-                    <div id="form-buttons" class="form-group">
+                    <div id="form-buttons" class="form-group form-button-container">
                         <input type="hidden" id="id-hidden-input" name="credentialId"
                             <#if auth.selectedCredential?has_content>value="${auth.selectedCredential}"
                             </#if>/>
@@ -93,7 +93,7 @@
                         <div class="alert alert-info">
                             <div class="row">
                                 <div class="col-lg-1 d-flex align-items-start col-alert-icon">
-                                    <img src="${url.resourcesPath}/img/icon_information.png" />
+                                    <img src="${url.resourcesPath}/img/icon_information.svg" />
                                 </div>
                                 <div class="col">
                                     <h3>New DoD PKI Detected</h3>
@@ -114,7 +114,7 @@
                         <div class="alert alert-info">
                             <div class="row">
                                 <div class="col-lg-1 d-flex align-items-start col-alert-icon">
-                                    <img src="${url.resourcesPath}/img/icon_information.png" />
+                                    <img src="${url.resourcesPath}/img/icon_information.svg" />
                                 </div>
                                 <div class="col">
                                     <h3>CAC Not Detected</h3>

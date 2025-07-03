@@ -10,6 +10,14 @@
     border-right: 1px solid #374151;
 }
 
+.pf-v5-c-page__sidebar {
+    background-color: #111827 !important;
+}
+
+.pf-v5-c-nav__link {
+    padding: 0.75rem 1.5rem;
+}
+
 .pf-v5-c-nav__link.pf-m-current,
 .pf-v5-c-nav__link.pf-m-current:hover,
 .pf-v5-c-toolbar {
@@ -20,65 +28,7 @@
     border-bottom: 1px solid #374151;
     background-color: #111827 !important;
     z-index: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 1rem;
-}
-
-.pf-v5-c-masthead__content {
-    display: flex;
-    justify-content: space-between;
     width: 100%;
-    align-items: center;
-}
-
-.pf-v5-c-masthead__toggle {
-    display: flex;
-    align-items: center;
-}
-
-.pf-v5-c-masthead__main {
-    display: flex;
-    justify-content: flex-start;
-    flex: 0 0 auto;
-    align-items: center;
-}
-
-/* Fix logo sizing and alignment - override built-in styles */
-.pf-v5-c-brand,
-.pf-v5-c-masthead img,
-.pf-v5-c-masthead__main img,
-[class*="brand"],
-[class*="_brand_"],
-.pf-v5-c-masthead a img {
-    width: auto !important;
-    height: 45px !important;
-    max-height: 45px !important;
-    min-height: unset !important;
-    display: block !important;
-    object-fit: contain !important;
-    object-position: left center !important;
-    aspect-ratio: auto !important;
-}
-
-/* Ensure proper vertical alignment of all header elements */
-.pf-v5-c-masthead button,
-.pf-v5-c-masthead a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Ensure proper spacing between elements */
-.pf-v5-c-masthead__toggle + .pf-v5-c-masthead__main {
-    margin-left: 1rem;
-}
-
-.pf-v5-c-toolbar {
-    display: flex;
-    justify-content: flex-end;
-    margin-left: auto;
 }
 
 .pf-v5-c-page,
@@ -150,10 +100,17 @@ body, #app {
 .pf-v5-c-page__main {
     background-color: #111827 !important;
     border-radius: 8px;
-
     text-align: left;
     border: 1px solid #374151;
-    margin: 50px;
+    margin: 80px;
+}
+
+.pf-v5-c-page__main-section {
+    padding: 1.5rem;
+}
+
+.pf-v5-l-grid__item section[style*="margin-top"] {
+    margin-top: 0.5rem !important;
 }
 
 .pf-v5-c-form-control {
@@ -172,12 +129,12 @@ body, #app {
 }
 
 .pf-v5-c-button.pf-m-primary {
-    background-color: #374151 !important;
+    background-color: #1A56DB !important;
     border-radius: 4px !important;
 }
 
 .pf-v5-c-button.pf-m-primary:hover {
-    background-color: #1A56DB !important;
+    background-color: var(--primary-800, #1E429F) !important;
 }
 
 .pf-v5-c-form__group:has(input#location) {
@@ -239,7 +196,42 @@ input, select, textarea {
     font-size: 16px;
 }
 
-/* Mobile-first responsive styles */
+/* Base styles for all screen sizes */
+.pf-v5-c-masthead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pf-v5-c-masthead__content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.pf-v5-c-masthead__toggle {
+    display: flex;
+    align-items: center;
+}
+
+.pf-v5-c-masthead__main {
+    display: flex;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+    align-items: center;
+}
+
+.pf-v5-c-masthead__toggle + .pf-v5-c-masthead__main {
+    margin-left: 1rem;
+}
+
+.pf-v5-c-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
 @media (max-width: 575.98px) {
     .pf-v5-c-page__main {
         margin: 0;
@@ -248,12 +240,11 @@ input, select, textarea {
         border-right: 0;
     }
     
-    .pf-v5-c-page__sidebar-body {
-        padding: 0.5rem;
-    }
-    
-    .pf-v5-c-masthead {
-        padding: 0.5rem;
+    /* Hide jump to section container and its parent containers on mobile */
+    .pf-v5-c-jump-links,
+    [aria-label="Jump to section"],
+    .pf-v5-l-grid__item[style*="Order"] {
+        display: none !important;
     }
     
     .pf-v5-c-form {
@@ -270,8 +261,21 @@ input, select, textarea {
     [class*="brand"],
     [class*="_brand_"],
     .pf-v5-c-masthead a img {
+        width: auto !important;
         height: 50px !important;
         max-height: 50px !important;
+        min-height: unset !important;
+        display: block !important;
+        object-fit: contain !important;
+        object-position: left center !important;
+        aspect-ratio: auto !important;
+    }
+    
+    .pf-v5-c-masthead button,
+    .pf-v5-c-masthead a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
@@ -281,9 +285,10 @@ input, select, textarea {
         border-radius: 0.5rem;
     }
     
-    .pf-v5-c-page__sidebar {
+    .pf-v5-c-page__sidebar.pf-m-expanded {
         width: auto;
-        max-width: 280px;
+        min-width: 280px;
+        max-width: 300px;
     }
     
     .pf-v5-c-form {
@@ -291,14 +296,68 @@ input, select, textarea {
     }
 }
 
-@media (min-width: 992px) {
+/* Add an intermediate breakpoint to fix layout issues between mobile and desktop */
+@media (min-width: 576px) and (max-width: 991.98px) {
+    /* Fix logo sizing for middle screen sizes */
+    .pf-v5-c-brand,
+    .pf-v5-c-masthead img,
+    .pf-v5-c-masthead__main img,
+    [class*="brand"],
+    [class*="_brand_"],
+    .pf-v5-c-masthead a img {
+        width: auto !important;
+        height: 45px !important;
+        max-height: 45px !important;
+        min-height: unset !important;
+        display: block !important;
+        object-fit: contain !important;
+        object-position: left center !important;
+        aspect-ratio: auto !important;
+    }
     .pf-v5-c-page__main {
-        margin: 2rem;
+        margin: 1rem;
         border-radius: 0.5rem;
     }
     
+    /* Fix username alignment */
+    .pf-v5-c-toolbar {
+        flex-wrap: nowrap;
+    }
+}
+
+@media (min-width: 992px) {
+    .pf-v5-c-page__main {
+        margin: 3.125rem;
+        border-radius: 0.5rem;
+    }
+
     .pf-v5-c-masthead {
-        padding: 0.75rem 1.5rem;
+        height: auto;
+        min-height: 56px;
+    }
+    
+    .pf-v5-c-masthead__content {
+        padding: 0;
+    }
+    
+    .pf-v5-c-page__sidebar.pf-m-expanded {
+        min-width: 280px;
+    }
+    
+    .pf-v5-c-brand,
+    .pf-v5-c-masthead img,
+    .pf-v5-c-masthead__main img,
+    [class*="brand"],
+    [class*="_brand_"],
+    .pf-v5-c-masthead a img {
+        width: auto !important;
+        height: 45px !important;
+        max-height: 45px !important;
+        min-height: unset !important;
+        display: block !important;
+        object-fit: contain !important;
+        object-position: left center !important;
+        aspect-ratio: auto !important;
     }
 }
 

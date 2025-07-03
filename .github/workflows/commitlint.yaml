@@ -24,10 +24,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check renovate readiness
-        if: startsWith(github.event.pull_request.head.ref, 'renovate/') # Only call for Renovate PRs
-        uses: ./.github/actions/renovate-readiness
-
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
 

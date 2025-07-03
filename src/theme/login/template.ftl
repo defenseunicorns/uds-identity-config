@@ -45,11 +45,14 @@ ${msg("loginTitle",(realm.displayName!''))}
             <div class="col-xl-5 col-lg-7 col-md-10">
                 <div class="card">
                     <div class="card-header branding row">
-                        <div class="col-sm-5 p-0">
-                            <img src="${url.resourcesPath}/img/logo.png"/>
+                        <div class="col-12 text-center d-block d-sm-none mb-3">
+                            <img src="${url.resourcesPath}/img/logo.png" class="img-fluid" alt="Logo"/>
                         </div>
-                        <div class="col-sm-1">&nbsp;</div>
-                        <div class="col-sm-6 my-auto">
+                        <div class="col-sm-5 p-0 d-none d-sm-block">
+                            <img src="${url.resourcesPath}/img/logo.png" class="img-fluid" alt="Logo"/>
+                        </div>
+                        <div class="col-sm-1 d-none d-sm-block">&nbsp;</div>
+                        <div class="col-12 col-sm-6 my-auto text-center">
                             <#if client?? && client.name?has_content>
                                 <#-- Check if the client name matches the specific entry -->
                                 <#if client.name == "${" + "client_account-console" + "}">
@@ -66,11 +69,11 @@ ${msg("loginTitle",(realm.displayName!''))}
                                     </h2>
                                 </#if>
                             <#else>
-                                <h2>
+                                <h2 class="client-unique-name">
                                     ${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc}
                                 </h2>
                             </#if>
-                        </div>                        
+                        </div>
                     </div>
                     <br>
                     <div class="card-body">
@@ -79,13 +82,15 @@ ${msg("loginTitle",(realm.displayName!''))}
                                 <div class="col-lg-12">
                                     <#if backButton>
                                         <form class="" action="${url.loginAction}" method="post">
-                                            <img src="${url.resourcesPath}/img/icon_back.png" />
+                                            <img src="${url.resourcesPath}/img/icon_back.svg" />
                                             <input name="cancel" id="kc-cancel" type="submit" value="${kcSanitize(msg("backToLogin"))?no_esc}" class="btn-text" />
                                         </form>
                                     </#if>
                                     <#if backLink>
-                                        <img src="${url.resourcesPath}/img/icon_back.png" />
-                                        <a type="submit" href="${url.loginUrl}">${kcSanitize(msg("backToLogin"))?no_esc}</a>
+                                        <a type="submit" href="${url.loginUrl}">
+                                            <img src="${url.resourcesPath}/img/icon_back.svg" />
+                                            ${kcSanitize(msg("backToLogin"))?no_esc}
+                                        </a>
                                     </#if>
                                 </div>
                             </div>
@@ -109,7 +114,7 @@ ${msg("loginTitle",(realm.displayName!''))}
                                     <div id="alert-error" class="alert alert-<#if message.type = 'error'>error<#else>warning</#if>">
                                         <div class="row">
                                             <div class="col-lg-1 align-items-center d-flex col-alert-icon">
-                                                <img src="${url.resourcesPath}/img/icon_<#if message.type = 'error'>error<#else>warning</#if>.png" />
+                                                <img src="${url.resourcesPath}/img/icon_<#if message.type = 'error'>error<#else>warning</#if>.svg" />
                                             </div>
                                             <div class="col">
                                                 <p>${kcSanitize(message.summary)?no_esc}</p>
@@ -133,7 +138,7 @@ ${msg("loginTitle",(realm.displayName!''))}
             </div>
             </div>
             <footer class="fixed-footer">
-                <img src="${url.resourcesPath}/img/footer.png" />
+                <img src="${url.resourcesPath}/img/footer.png" alt="Footer" />
             </footer>
             </body>
 

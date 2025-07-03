@@ -1,8 +1,14 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout headerText="updatePasswordTitle" backLink=true displayMessage=!messagesPerField.existsError('password','password-confirm'); section>
-    <#if section = "header">
-        ${msg("updatePasswordTitle")}
-    <#elseif section = "form">
+<@layout.registrationLayout displayMessage=!messagesPerField.existsError('password','password-confirm'); section>
+    <div class="back-button-container">
+        <a href="/realms/${realm.name}/account/" class="back-button">
+            <img src="${url.resourcesPath}/img/icon_back.svg" alt=""/>
+            <span>${msg("backToAccountConsole")}</span>
+        </a>
+    </div>
+    <h4>${msg("updatePasswordTitle")}</h4>
+    <hr class="form-separator">
+    <#if section = "form">
         <form id="kc-passwd-update-form" class="${properties.kcFormClass!}" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post">
             <div class="${properties.kcFormGroupClass!}">
                 <div class="${properties.kcLabelWrapperClass!}">
@@ -48,15 +54,22 @@
 
             <div class="${properties.kcFormGroupClass!}">
                 <div id="kc-form-options" class="${properties.kcFormOptionsClass!}">
-                    <div class="col-lg-12">
-                        <div class="row align-items-center">
-                            <label class="custom-checkbox">
-                                <input type="checkbox" id="logout-sessions" name="logout-sessions" value="on">
-                                <span></span>
-                            </label>
-                            <label for="logout-sessions" style="margin-left: 10px;">
-                                ${msg("logoutOtherSessions")}
-                            </label>
+                    <div class="col-lg-12 no-padding-sides">
+                        <div class="logout-sessions-container">
+                            <div class="checkbox-wrapper">
+                                <div class="logout-checkbox-wrapper">
+                                    <input type="checkbox" id="logout-sessions" name="logout-sessions" value="on" class="logout-checkbox" checked>
+                                    <span class="logout-checkbox-custom"></span>
+                                </div>
+                            </div>
+                            <div class="logout-sessions-content">
+                                <label for="logout-sessions" class="logout-checkbox-label">
+                                    ${msg("logoutOtherSessions")}
+                                </label>
+                                <div class="checkbox-description">
+                                    This will end all your active sessions on other devices for security.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

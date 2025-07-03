@@ -9,7 +9,7 @@
                 <div class="alert alert-info">
                     <div class="row">
                         <div class="col-lg-1 d-flex align-items-center col-alert-icon">
-                            <img src="${url.resourcesPath}/img/icon_information.png"  />
+                            <img src="${url.resourcesPath}/img/icon_information.svg"  />
                         </div>
                         <div class="col">
                             <#if realm.duplicateEmailsAllowed>
@@ -37,7 +37,7 @@
                     </#if>
                 </div>
             </div>
-            <div class="${properties.kcFormGroupClass!} ${properties.kcFormSettingClass!}">
+            <div class="${properties.kcFormGroupClass!} ${properties.kcFormSettingClass!} form-button-container">
                 <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
                     <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonBlockClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}" id="kc-reset" disabled="disabled"/>
                 </div>
