@@ -5,7 +5,7 @@
 
 import { defineConfig } from "cypress";
 
-const useCAC = process.env.USE_CAC === "true";
+const useCAC = true;//process.env.USE_CAC === "true";
 
 module.exports = defineConfig({
   clientCertificates: useCAC
@@ -27,7 +27,7 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    retries: 3,
+    retries: 0,
     specPattern: "e2e/**/*.cy.ts",
     supportFolder: "support/",
     supportFile: "support/e2e.ts",
