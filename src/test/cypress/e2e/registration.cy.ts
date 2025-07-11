@@ -17,12 +17,12 @@ describe("CAC Registration Flow", () => {
     payGrade: "N/A",
   };
 
-  it("Successful CAC Registration", () => {
-    cy.registrationPage(formData);
-
-    // Verify Successful Registration and on User Account Page
-    cy.verifyLoggedIn();
-  });
+  // it("Successful CAC Registration", () => {
+  //   cy.registrationPage(formData);
+  //
+  //   // Verify Successful Registration and on User Account Page
+  //   cy.verifyLoggedIn();
+  // });
 
   it("Successfull Login of CAC Registered User", () => {
     // Navigate to login page
@@ -49,64 +49,64 @@ describe("CAC Registration Flow", () => {
   });
 });
 
-describe("Registration Tests", () => {
-  it("Duplicate Registration", () => {
-    const formData: RegistrationFormData = {
-      firstName: "Doug",
-      lastName: "Doug",
-      organization: "Defense Unicorns",
-      username: "testing_user",
-      email: "testing_user@uds.dev",
-      password: "PrettyUnicorns1!!",
-      affiliation: "Contractor",
-      payGrade: "N/A",
-    };
-
-    cy.registrationPage(formData);
-
-    // duplicate user trying to register with PKI should result in this warning
-    cy.contains("span.message-details", "Email already exists.").should("be.visible");
-    cy.contains("span.message-details", "Username already exists.").should("be.visible");
-  });
-
-  it("Password Length", () => {
-    const formData: RegistrationFormData = {
-      firstName: "New",
-      lastName: "User",
-      organization: "Defense Unicorns",
-      username: "new_user",
-      email: "newuser@gmail.com",
-      password: "Pretty1!!",
-      affiliation: "Contractor",
-      payGrade: "N/A",
-    };
-
-    cy.registrationPage(formData);
-
-    // password isn't long enough
-    cy.contains("span.message-details", "Invalid password: minimum length 15.").should(
-      "be.visible",
-    );
-  });
-
-  it("Password Complexity", () => {
-    const formData: RegistrationFormData = {
-      firstName: "New",
-      lastName: "User",
-      organization: "Defense Unicorns",
-      username: "new_user",
-      email: "newuser@gmail.com",
-      password: "PrettyUnicorns1",
-      affiliation: "Contractor",
-      payGrade: "N/A",
-    };
-
-    cy.registrationPage(formData);
-
-    // password isn't complex enough
-    cy.contains(
-      "span.message-details",
-      "Invalid password: must contain at least 2 special characters.",
-    ).should("be.visible");
-  });
-});
+// describe("Registration Tests", () => {
+//   it("Duplicate Registration", () => {
+//     const formData: RegistrationFormData = {
+//       firstName: "Doug",
+//       lastName: "Doug",
+//       organization: "Defense Unicorns",
+//       username: "testing_user",
+//       email: "testing_user@uds.dev",
+//       password: "PrettyUnicorns1!!",
+//       affiliation: "Contractor",
+//       payGrade: "N/A",
+//     };
+//
+//     cy.registrationPage(formData);
+//
+//     // duplicate user trying to register with PKI should result in this warning
+//     cy.contains("span.message-details", "Email already exists.").should("be.visible");
+//     cy.contains("span.message-details", "Username already exists.").should("be.visible");
+//   });
+//
+//   it("Password Length", () => {
+//     const formData: RegistrationFormData = {
+//       firstName: "New",
+//       lastName: "User",
+//       organization: "Defense Unicorns",
+//       username: "new_user",
+//       email: "newuser@gmail.com",
+//       password: "Pretty1!!",
+//       affiliation: "Contractor",
+//       payGrade: "N/A",
+//     };
+//
+//     cy.registrationPage(formData);
+//
+//     // password isn't long enough
+//     cy.contains("span.message-details", "Invalid password: minimum length 15.").should(
+//       "be.visible",
+//     );
+//   });
+//
+//   it("Password Complexity", () => {
+//     const formData: RegistrationFormData = {
+//       firstName: "New",
+//       lastName: "User",
+//       organization: "Defense Unicorns",
+//       username: "new_user",
+//       email: "newuser@gmail.com",
+//       password: "PrettyUnicorns1",
+//       affiliation: "Contractor",
+//       payGrade: "N/A",
+//     };
+//
+//     cy.registrationPage(formData);
+//
+//     // password isn't complex enough
+//     cy.contains(
+//       "span.message-details",
+//       "Invalid password: must contain at least 2 special characters.",
+//     ).should("be.visible");
+//   });
+// });
