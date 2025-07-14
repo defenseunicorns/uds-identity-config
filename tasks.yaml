@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.16.3/tasks/lint.yaml
-  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.16.3/tasks/setup.yaml
+  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.16.4/tasks/lint.yaml
+  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.16.4/tasks/setup.yaml
 
 variables:
   - name: VERSION
@@ -19,7 +19,7 @@ variables:
   - name: CORE_VERSION
     description: UDS Core Version for Releases and Clone
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.45.1"
+    default: "v0.46.0"
 
 tasks:
   - name: build-and-publish
@@ -144,7 +144,7 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core
-      - cmd: git clone --branch main https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
