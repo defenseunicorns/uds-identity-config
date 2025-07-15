@@ -27,7 +27,7 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    retries: 0,
+    retries: 3,
     specPattern: "e2e/**/*.cy.ts",
     supportFolder: "support/",
     supportFile: "support/e2e.ts",

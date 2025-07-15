@@ -217,8 +217,6 @@ tasks:
         cmd: uds deploy bundles/external-loadbalancer/uds-bundle-external-loadbalancer-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
       - description: "Recreate users"
         task: create-users
-      - description: "Restart the Tenant Gateway to pick the new Number of Trusted Proxies up"
-        cmd: kubectl rollout restart deployment tenant-ingressgateway -n istio-tenant-gateway
       - description: "Setup the infrastructure for the external load balancer"
         cmd: uds run setup:external-loadbalancer
       - description: "Run Cypress tests with the external load balancer"
