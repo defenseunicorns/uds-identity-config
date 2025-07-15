@@ -47,7 +47,9 @@ tasks:
             haproxy:3.2-alpine
       - description: "Sanity check for HAProxy"
         cmd: |
-          STATUS_CODE=$(curl -s --cert src/test/cypress/certs/test.pfx --cert-type P12 https://sso.uds.dev -o /dev/null -w "%{http_code}" -s)
+          STATUS_CODE=$(curl --max-time 10 -s --cert src/test/cypress/certs/test.pfx --cert-type P12 https://sso.uds.dev -o /dev/null -w "%{http_code}" -s)
           if [ "$STATUS_CODE" != "301" ]; then
-            echo "\033[33m⚠️ Expected HTTP 301, got $STATUS. The setup may not work correctly. \033[0m"
+            echo "\033[33m⚠️ Expected HTTP 301, got $STATUS. The setup may not work correctly \033[0m"
+            echo "\033[33m⚠️ HAProxy logs \033[0m"
+            docker logs haproxy || true
           fi
