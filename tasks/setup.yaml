@@ -45,11 +45,12 @@ tasks:
             -p 80:80 \
             -p 443:443 \
             haproxy:3.2-alpine
+          sleep 3
       - description: "Sanity check for HAProxy"
         cmd: |
           set -x
-          curl -v --max-time 10 -s --cert src/test/cypress/certs/test.pfx --cert-type P12 https://sso.uds.dev
-          STATUS_CODE=$(curl --max-time 10 -s --cert src/test/cypress/certs/test.pfx --cert-type P12 https://sso.uds.dev -o /dev/null -w "%{http_code}" -s)
+          curl -v --max-time 10 -s --cert src/test/cypress/certs/test.pfx --cert-type P12 https://sso.uds.dev || true
+          STATUS_CODE=$(curl --max-time 10 -s --cert src/test/cypress/certs/test.pfx --cert-type P12 https://sso.uds.dev -o /dev/null -w "%{http_code}" -s || echo "unknown")
           if [ "$STATUS_CODE" != "301" ]; then
             echo "\033[33m⚠️ Expected HTTP 301, got $STATUS. The setup may not work correctly \033[0m"
             echo "\033[33m⚠️ HAProxy logs \033[0m"
