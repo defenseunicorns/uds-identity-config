@@ -30,7 +30,7 @@ tasks:
           if [ "$TENANT_IP" != "172.18.0.201" ]; then
             echo "\033[33m⚠️ Tenant Gateway external IP is not is not 172.18.0.201, got $TENANT_IP. The setup may not work correctly. \033[0m"
           fi
-      - description: "Kill k3d Load Balancer to release 443 and 80 ports up"
+      - description: "Kill k3d Load Balancer to release 443 and 80 ports up. See 0003-alb-testing.md for more details. "
         cmd: |
           docker kill k3d-uds-serverlb || true
       - description: "Start HAProxy"
