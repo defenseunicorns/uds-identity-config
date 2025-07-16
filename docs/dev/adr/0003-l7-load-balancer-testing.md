@@ -1,10 +1,14 @@
-# 3. ALB Testing
+# 3. L7 Load Balancer Testing
 
 Date: 2025-07-15
 
 ## Status
 
 Accepted
+
+## Terms used in this document
+
+An L7 Load Balancer capable of terminating TLS is a synonym for AWS ALB, GCP ALB and Azure Application Gateway
 
 ## Context
 
