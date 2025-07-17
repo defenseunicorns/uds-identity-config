@@ -5,7 +5,7 @@
 
 import { defineConfig } from "cypress";
 
-const useCAC = true;//process.env.USE_CAC === "true";
+const useCAC = process.env.USE_CAC === "true";
 
 module.exports = defineConfig({
   clientCertificates: useCAC
