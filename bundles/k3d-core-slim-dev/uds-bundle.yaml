@@ -27,6 +27,12 @@ packages:
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
     ref: 0.46.0
     overrides:
+      pepr-uds-core:
+        module:
+          values:
+            - path: additionalIgnoredNamespaces
+              value:
+                - uds-dev-stack
       istio-admin-gateway:
         uds-istio-config:
           variables:

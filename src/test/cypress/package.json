@@ -8,6 +8,7 @@
     "cy.run:registration": "cross-env USE_CAC=true cypress run --spec 'e2e/registration.cy.ts'",
     "cy.run:theme-customization": "cross-env cypress run --spec 'e2e/theme-customization.cy.ts'",
     "cy.run:others": "cross-env USE_CAC=false cypress run --spec 'e2e/**/*.cy.ts,!e2e/registration.cy.ts,!e2e/theme-customization.cy.ts'",
+    "cy.run:external-load-balancer": "cross-env USE_CAC=true cypress run --spec 'e2e/registration.cy.ts' && echo 'Other tests skipped because of k3d Load Balancer being down and replaced by HAProxy'",
     "prettier": "prettier --write **/*.ts"
   },
   "devDependencies": {
