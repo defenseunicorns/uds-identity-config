@@ -29,16 +29,12 @@ tasks:
           docker kill k3d-uds-serverlb || true
       - description: "Start HAProxy"
         cmd: |
-          TENANT_IP=$(uds zarf tools kubectl get svc tenant-ingressgateway -n istio-tenant-gateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}' || echo "172.18.0.201")
-          if [ "$TENANT_IP" != "172.18.0.201" ]; then
-            echo "\033[33m⚠️ Tenant Gateway external IP is not is not 172.18.0.201, got $TENANT_IP. The setup may not work correctly. \033[0m"
-            echo "\033[33m⚠️ Replacing the "172.18.0.201" in the haproxy.cfg \033[0m"
-            sed -i.bak "s/server server1 .*/server server1 $TENANT_IP:80 check/" tasks/haproxy.cfg
-          fi
+          TENANT_GATEWAY_IP="$(docker network inspect k3d-uds | uds zarf tools yq '.[]."IPAM"."Config".[]."Subnet"' | cut -d'.' -f1-3).201"
           # renovate: datasource=docker depName=haproxy versioning=docker
           docker run -d \
             --name haproxy \
             --network k3d-uds \
+            -e TENANT_GATEWAY_IP=${TENANT_GATEWAY_IP} \
             -v $(pwd)/tasks/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro \
             -v $(pwd)/tasks/haproxy.pem:/etc/haproxy/certs/haproxy.pem:ro \
             -v $(pwd)/tasks/haproxy.pem.key:/etc/haproxy/certs/haproxy.pem.key:ro \
