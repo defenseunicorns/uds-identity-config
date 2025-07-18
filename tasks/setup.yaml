@@ -26,7 +26,7 @@ tasks:
           yq -r '.tls.cacert' src/test/cypress/certs/tls_cacert.yaml | base64 -d > tasks/haproxy-client-ca.pem
       - description: "Kill k3d Load Balancer to release 443 and 80 ports up. See 0003-alb-testing.md for more details. "
         cmd: |
-          docker kill k3d-uds-serverlb || true
+          docker stop k3d-uds-serverlb || true
       - description: "Start HAProxy"
         cmd: |
           TENANT_GATEWAY_IP="$(docker network inspect k3d-uds | uds zarf tools yq '.[]."IPAM"."Config".[]."Subnet"' | cut -d'.' -f1-3).201"
@@ -51,4 +51,5 @@ tasks:
             echo "\033[33m⚠️ Expected HTTP 301, got $STATUS. The setup may not work correctly \033[0m"
             echo "\033[33m⚠️ HAProxy logs \033[0m"
             docker logs haproxy || true
+            exit 1
           fi
