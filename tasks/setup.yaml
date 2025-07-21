@@ -1,0 +1,56 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+tasks:
+  - name: restore-k3d-loadbalancer
+    Description: "Restores the k3d Load Balancer killed by the external-loadbalancer task"
+    actions:
+      - description: "Cleanup existing HAProxy containers"
+        cmd: |
+          docker kill haproxy || true
+          docker rm haproxy || true
+      - description: "Restore the k3d Load Balancer"
+        cmd: k3d cluster start uds
+
+  - name: external-loadbalancer
+    Description: "Setup HAProxy as an external load balancer for the test-infra namespace"
+    actions:
+      - description: "Cleanup existing HAProxy containers"
+        cmd: |
+          docker kill haproxy || true
+          docker rm haproxy || true
+      - description: "Prepare HAProxy certs"
+        cmd: |
+          yq -r '.tls.cert' uds-core/src/istio/values/config-tenant.yaml | base64 -d > tasks/haproxy.pem
+          yq -r '.tls.key' uds-core/src/istio/values/config-tenant.yaml | base64 -d > tasks/haproxy.pem.key
+          yq -r '.tls.cacert' src/test/cypress/certs/tls_cacert.yaml | base64 -d > tasks/haproxy-client-ca.pem
+      - description: "Kill k3d Load Balancer to release 443 and 80 ports up. See 0003-alb-testing.md for more details. "
+        cmd: |
+          docker stop k3d-uds-serverlb || true
+      - description: "Start HAProxy"
+        cmd: |
+          TENANT_GATEWAY_IP="$(docker network inspect k3d-uds | uds zarf tools yq '.[]."IPAM"."Config".[]."Subnet"' | cut -d'.' -f1-3).201"
+          # renovate: datasource=docker depName=haproxy versioning=docker
+          HAPROXY_VERSION=3.2-alpine
+          docker run -d \
+            --name haproxy \
+            --network k3d-uds \
+            -e TENANT_GATEWAY_IP=${TENANT_GATEWAY_IP} \
+            -v $(pwd)/tasks/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro \
+            -v $(pwd)/tasks/haproxy.pem:/etc/haproxy/certs/haproxy.pem:ro \
+            -v $(pwd)/tasks/haproxy.pem.key:/etc/haproxy/certs/haproxy.pem.key:ro \
+            -v $(pwd)/tasks/haproxy-client-ca.pem:/etc/haproxy/certs/haproxy-client-ca.pem:ro \
+            -p 80:80 \
+            -p 443:443 \
+            haproxy:${HAPROXY_VERSION}
+          echo "Waiting for HAProxy to start..."
+          sleep 3
+      - description: "Sanity check for HAProxy"
+        cmd: |
+          STATUS_CODE=$(curl --max-time 10 -s --cert src/test/cypress/certs/test.pfx --cert-type P12 https://sso.uds.dev -o /dev/null -w "%{http_code}" -s || echo "unknown")
+          if [ "$STATUS_CODE" != "301" ]; then
+            echo "\033[33m⚠️ Expected HTTP 301, got $STATUS. The setup may not work correctly \033[0m"
+            echo "\033[33m⚠️ HAProxy logs \033[0m"
+            docker logs haproxy || true
+            exit 1
+          fi

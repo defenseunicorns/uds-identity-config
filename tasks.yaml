@@ -4,6 +4,7 @@
 includes:
   - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.16.4/tasks/lint.yaml
   - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.16.4/tasks/setup.yaml
+  - setup: ./tasks/setup.yaml
 
 variables:
   - name: VERSION
@@ -126,6 +127,7 @@ tasks:
     actions:
       - task: cypress-tests
       - task: theme-customization-tests
+      - task: external-loadbalancer-tests
 
   - name: grafana-group-auth-build-deploy
     description: Configure existing uds-core/grafana package for group authz, build, deploy grafana
@@ -144,7 +146,7 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core
-      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --branch main https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
@@ -201,6 +203,29 @@ tasks:
           # Should already be done... but just in case
           npm --prefix src/test/cypress install
           npm --prefix src/test/cypress run cy.run:theme-customization
+
+  - name: external-loadbalancer-tests
+    description: "Runs External Load Balancer tests ( requires an existing deployed UDS Core Identity )"
+    actions:
+      - description: "Create the external load balancer bundle"
+        cmd: uds create bundles/external-loadbalancer --confirm --no-progress
+      - description: "Remove the existing package to enforce Keycloak Realm reinit (ignores errors if it doesn't exist)"
+        cmd: |
+          uds zarf package remove core-identity-authorization --confirm || true
+          uds zarf tools kubectl delete secret keycloak-admin-password -n keycloak --ignore-not-found
+      - description: "Deploy the theme customization bundle"
+        cmd: uds deploy bundles/external-loadbalancer/uds-bundle-external-loadbalancer-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
+      - description: "Recreate users"
+        task: create-users
+      - description: "Setup the infrastructure for the external load balancer"
+        cmd: uds run setup:external-loadbalancer
+      - description: "Run Cypress tests with the external load balancer"
+        cmd: |
+            # Should already be done... but just in case
+            npm --prefix src/test/cypress install
+            npm --prefix src/test/cypress run cy.run:external-load-balancer
+      - description: "Restore the k3d Load Balancer"
+        cmd: uds run setup:restore-k3d-loadbalancer
 
   - name: license
     actions:
