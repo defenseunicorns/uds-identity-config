@@ -4,7 +4,7 @@
 includes:
   - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.16.4/tasks/lint.yaml
   - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.16.4/tasks/setup.yaml
-  - setup: ./tasks/setup.yaml
+  - lb-setup: ./tasks/setup.yaml
 
 variables:
   - name: VERSION
@@ -218,14 +218,14 @@ tasks:
       - description: "Recreate users"
         task: create-users
       - description: "Setup the infrastructure for the external load balancer"
-        cmd: uds run setup:external-loadbalancer
+        cmd: uds run lb-setup:external-loadbalancer
       - description: "Run Cypress tests with the external load balancer"
         cmd: |
             # Should already be done... but just in case
             npm --prefix src/test/cypress install
             npm --prefix src/test/cypress run cy.run:external-load-balancer
       - description: "Restore the k3d Load Balancer"
-        cmd: uds run setup:restore-k3d-loadbalancer
+        cmd: uds run lb-setup:restore-k3d-loadbalancer
 
   - name: license
     actions:
