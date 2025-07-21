@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.0...v0.16.1) (2025-07-21)
+
+
+### Bug Fixes
+
+* task naming ([#553](https://github.com/defenseunicorns/uds-identity-config/issues/553)) ([d92edcf](https://github.com/defenseunicorns/uds-identity-config/commit/d92edcff4d78d3f0663cd2a30f93ac719c85da82))
+
 ## [0.16.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.15.2...v0.16.0) (2025-07-21)
 
 
