@@ -38,6 +38,8 @@ jobs:
         run: echo "$pull_request_title" | npx commitlint
 
   lint-check:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
