@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.16.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.0...v0.16.1) (2025-07-21)
+
+
+### Bug Fixes
+
+* task naming ([#553](https://github.com/defenseunicorns/uds-identity-config/issues/553)) ([d92edcf](https://github.com/defenseunicorns/uds-identity-config/commit/d92edcff4d78d3f0663cd2a30f93ac719c85da82))
+
+## [0.16.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.15.2...v0.16.0) (2025-07-21)
+
+
+### Features
+
+* aws alb support ([#541](https://github.com/defenseunicorns/uds-identity-config/issues/541)) ([5f3fc0c](https://github.com/defenseunicorns/uds-identity-config/commit/5f3fc0c8f9c0524671892a70cff2b7d209c6c924))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps ([#537](https://github.com/defenseunicorns/uds-identity-config/issues/537)) ([a85a1f9](https://github.com/defenseunicorns/uds-identity-config/commit/a85a1f98c0d69bcc8ec5e78addf0932b6cbd76cc))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#542](https://github.com/defenseunicorns/uds-identity-config/issues/542)) ([6ef6bc7](https://github.com/defenseunicorns/uds-identity-config/commit/6ef6bc72ddb841329cdff581518d868829aeed26))
+* **deps:** update dependency cypress to v14.5.2 ([#546](https://github.com/defenseunicorns/uds-identity-config/issues/546)) ([9507a0a](https://github.com/defenseunicorns/uds-identity-config/commit/9507a0a69dc37d26094a68f3d2e364e86b245d5b))
+* **deps:** update gha-deps to v0.27.9 ([#543](https://github.com/defenseunicorns/uds-identity-config/issues/543)) ([05c2bca](https://github.com/defenseunicorns/uds-identity-config/commit/05c2bcaf3271b2899e1126149f0ace14b77c9077))
+
 ## [0.15.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.15.1...v0.15.2) (2025-07-03)
 
 
