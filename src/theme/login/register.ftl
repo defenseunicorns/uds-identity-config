@@ -311,7 +311,7 @@
     (function() {
         let count = 0;
         // Mobile device detection
-        const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isMobile = window.innerWidth < 768;
         // Lower threshold for mobile devices
         const threshold = isMobile ? 150 : 250;
         let complete = false;
