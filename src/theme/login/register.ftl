@@ -309,8 +309,11 @@
         document.getElementById('rank').value = "${(register.formData['rank']!'')}";
     }
     (function() {
-        const threshold = 250;
         let count = 0;
+        // Mobile device detection
+        const isMobile = window.innerWidth < 768;
+        // Lower threshold for mobile devices
+        const threshold = isMobile ? 150 : 250;
         let complete = false;
         window.onload = tracker;
         window.onmousemove = tracker;
