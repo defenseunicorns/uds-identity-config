@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.2...v0.16.3) (2025-08-01)
+
+
+### Miscellaneous
+
+* **deps:** update dependency typescript to v5.9.2 ([#565](https://github.com/defenseunicorns/uds-identity-config/issues/565)) ([26c421d](https://github.com/defenseunicorns/uds-identity-config/commit/26c421defee6511e7ef8f35637521e1f904f358c))
+
 ## [0.16.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.1...v0.16.2) (2025-07-31)
 
 
