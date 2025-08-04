@@ -54,7 +54,7 @@ This ensures that realm configurations remain unchanged during upgrades, while o
 ## IdAM Contents
 
 1. [Custom Image Testing and Deployment](https://uds.defenseunicorns.com/reference/uds-core/idam/testing-deployment-customizations/)
-2. [Image Customizations](https://uds.defenseunicorns.com/reference/uds-core/idam/image-customizations/)
+2. [Image Customizations](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/)
 3. [Image Truststore Customization](https://uds.defenseunicorns.com/reference/uds-core/idam/truststore-customization/)
 4. [Authentication Flows Customization](https://uds.defenseunicorns.com/reference/uds-core/idam/authentication-flows/)
 5. [UDS Core Integration Testing](https://uds.defenseunicorns.com/reference/uds-core/idam/integration/)
