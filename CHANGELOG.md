@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.16.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.2...v0.16.3) (2025-08-07)
+
+
+### Miscellaneous
+
+* **deps:** update dependency defenseunicorns/uds-core to v0.48.0 ([#570](https://github.com/defenseunicorns/uds-identity-config/issues/570)) ([9e1cb71](https://github.com/defenseunicorns/uds-identity-config/commit/9e1cb71024fad3823c1760889a180a1b1effef09))
+* **deps:** update dependency typescript to v5.9.2 ([#565](https://github.com/defenseunicorns/uds-identity-config/issues/565)) ([26c421d](https://github.com/defenseunicorns/uds-identity-config/commit/26c421defee6511e7ef8f35637521e1f904f358c))
+* **deps:** update docker/login-action action to v3.5.0 ([#567](https://github.com/defenseunicorns/uds-identity-config/issues/567)) ([eb5450d](https://github.com/defenseunicorns/uds-identity-config/commit/eb5450d42ae74bd0486efac92d95eef8c3e95fef))
+* **docs:** fix broken link to EventListenerProvider ([#569](https://github.com/defenseunicorns/uds-identity-config/issues/569)) ([98f2dff](https://github.com/defenseunicorns/uds-identity-config/commit/98f2dffd3af8b3dece04dda866c6af71fbb55fe6))
+* **docs:** fix broken link to image customizations ([#568](https://github.com/defenseunicorns/uds-identity-config/issues/568)) ([dc16520](https://github.com/defenseunicorns/uds-identity-config/commit/dc165208d3f5860bbe96b87718f3a406fc92caac))
+
 ## [0.16.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.1...v0.16.2) (2025-07-31)
 
 
