@@ -161,6 +161,11 @@ tasks:
           group: "/UDS Core/Admin"
           username: "testing_admin"
           password: "Testingpassword1!!"
+      - description: "Create a User with no groups"
+        task: common-setup:keycloak-user
+        with:
+          username: "testing_user_no_groups"
+          password: "Testingpassword1!!"
 
   - name: cypress-tests
     description: "Run all cypress tests ( requires an existing deployed UDS Core Identity )"
