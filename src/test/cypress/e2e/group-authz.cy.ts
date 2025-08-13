@@ -25,9 +25,25 @@ describe('Group Authorization', () => {
     cy.url().should('include', 'https://grafana.admin.uds.dev');
   });
 
-  it('Grafana Auditor User - Failure', () => {
+  it('Grafana Auditor User - Success', () => {
     const formData: RegistrationFormData = {
       username: "testing_user",
+      password: "Testingpassword1!!",
+    };
+
+    // navigate to grafana dashboard
+    cy.accessGrafana();
+
+    // login user
+    cy.loginUser(formData.username, formData.password);
+
+    // Assert that auditor user was able to access grafana dashboard
+    cy.url().should('include', 'https://grafana.admin.uds.dev');
+  });
+
+  it('Grafana No Groups User - Failure', () => {
+    const formData: RegistrationFormData = {
+      username: "testing_user_no_groups",
       password: "Testingpassword1!!",
     };
 

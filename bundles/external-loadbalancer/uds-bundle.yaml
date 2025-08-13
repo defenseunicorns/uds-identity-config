@@ -11,7 +11,7 @@ packages:
   - name: core-base
     path: ../../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.48.0
+    ref: 0.48.1
     overrides:
       pepr-uds-core:
         module:
@@ -34,7 +34,7 @@ packages:
   - name: core-identity-authorization
     path: ../../uds-core/build/
     # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.48.0
+    ref: 0.48.1
     overrides:
       keycloak:
         keycloak:
