@@ -55,24 +55,6 @@
                                     <li>This IS includes security measures (e.g., authentication and access controls) to protect USG
                                         interests--not for your personal benefit or privacy.
                                     </li>
-                                    <li>NOTICE: There is the potential that information presented and exported from the UDS Platform
-                                        contains FOUO or Controlled Unclassified Information (CUI). It is the responsibility of all
-                                        users to ensure information extracted from UDS Platform is appropriately marked and properly
-                                        safeguarded. If you are not sure of the safeguards necessary for the information, contact your
-                                        functional lead or Information Security Officer.
-                                    </li>
-                                    <li>As a user of this IS, you may have access to USG’s UDS Platform. Third-party software publishers
-                                        (“Vendors”) provide proprietary software, applications, and/or source code (including any proprietary
-                                        data made available through such third-party software) (collectively, “Third-Party Software”) to the USG
-                                        solely in order for the USG to harden such Third-Party Software and make such hardened versions of the
-                                        Third Party Software available to users of UDS Platform. In the event you use the IS
-                                        (including UDS Platform) to access, download, execute, display and/or otherwise use (collectively, “Use”)
-                                        such Third-Party Software, by Using the IS (including UDS Platform) and/or such Third-Party Software,
-                                        you, on behalf of your organization, hereby agree that all Use of such Third-Party Software is governed by
-                                        the Vendor’s end user license agreement (“Vendor EULA”), which may be enforced directly by Vendor and/or USG.
-                                        If you do not agree to the entirety of the applicable vendor eula, you are prohibited from using all or any
-                                        portion of the third-party software in any manner.
-                                    </li>
                                     <li>Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI
                                         investigative searching or monitoring of the content of privileged communications, or work
                                         product, related to personal representation or services by attorneys, psychotherapists, or
