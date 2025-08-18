@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.16.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.2...v0.16.3) (2025-08-18)
+
+
+### Bug Fixes
+
+* pin actions, use common setup ([#590](https://github.com/defenseunicorns/uds-identity-config/issues/590)) ([d9c4afa](https://github.com/defenseunicorns/uds-identity-config/commit/d9c4afa3390da9c54433374363452278508acf77))
+* update login banner ([#580](https://github.com/defenseunicorns/uds-identity-config/issues/580)) ([327ed8b](https://github.com/defenseunicorns/uds-identity-config/commit/327ed8b5df9bfa61c557948e7f19936ac63f3baa))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#571](https://github.com/defenseunicorns/uds-identity-config/issues/571)) ([a2bd630](https://github.com/defenseunicorns/uds-identity-config/commit/a2bd630ee7d4d4f7537bf12a243332b9fd55057a))
+* **deps:** update all dependencies ([#576](https://github.com/defenseunicorns/uds-identity-config/issues/576)) ([039137b](https://github.com/defenseunicorns/uds-identity-config/commit/039137bbe432435fe7bdcb25948e8a1de981ca04))
+* **deps:** update dependency defenseunicorns/uds-core to v0.48.0 ([#570](https://github.com/defenseunicorns/uds-identity-config/issues/570)) ([9e1cb71](https://github.com/defenseunicorns/uds-identity-config/commit/9e1cb71024fad3823c1760889a180a1b1effef09))
+* **deps:** update dependency defenseunicorns/uds-core to v0.49.0 ([#579](https://github.com/defenseunicorns/uds-identity-config/issues/579)) ([a9a9955](https://github.com/defenseunicorns/uds-identity-config/commit/a9a99556b92a08a72f4a7300472429053dceb616))
+* **deps:** update dependency node to v22 ([#572](https://github.com/defenseunicorns/uds-identity-config/issues/572)) ([6519d04](https://github.com/defenseunicorns/uds-identity-config/commit/6519d046cb3ba55c99a26bade7bc9191935640df))
+* **deps:** update dependency typescript to v5.9.2 ([#565](https://github.com/defenseunicorns/uds-identity-config/issues/565)) ([26c421d](https://github.com/defenseunicorns/uds-identity-config/commit/26c421defee6511e7ef8f35637521e1f904f358c))
+* **deps:** update docker/login-action action to v3.5.0 ([#567](https://github.com/defenseunicorns/uds-identity-config/issues/567)) ([eb5450d](https://github.com/defenseunicorns/uds-identity-config/commit/eb5450d42ae74bd0486efac92d95eef8c3e95fef))
+* **deps:** update gha-deps ([#573](https://github.com/defenseunicorns/uds-identity-config/issues/573)) ([ec952a3](https://github.com/defenseunicorns/uds-identity-config/commit/ec952a38b8c021979bfeb8f57b3ef618642968b1))
+* **docs:** fix broken link to EventListenerProvider ([#569](https://github.com/defenseunicorns/uds-identity-config/issues/569)) ([98f2dff](https://github.com/defenseunicorns/uds-identity-config/commit/98f2dffd3af8b3dece04dda866c6af71fbb55fe6))
+* **docs:** fix broken link to image customizations ([#568](https://github.com/defenseunicorns/uds-identity-config/issues/568)) ([dc16520](https://github.com/defenseunicorns/uds-identity-config/commit/dc165208d3f5860bbe96b87718f3a406fc92caac))
+* remove grafana group auth task ([#577](https://github.com/defenseunicorns/uds-identity-config/issues/577)) ([28224ae](https://github.com/defenseunicorns/uds-identity-config/commit/28224ae89bf011786a37e7f9a6731a832675a170))
+
 ## [0.16.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.1...v0.16.2) (2025-07-31)
 
 
