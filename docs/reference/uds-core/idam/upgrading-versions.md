@@ -9,7 +9,7 @@ This doc contains important information for upgrading uds-identity-config versio
 <details open>
 <summary>Upgrade Details</summary>
 
-UDS Core v0.50.0 introduced a mechanism to limit the number of concurrent SSO sessions per user in the UDS Realm. This manually configure this:
+UDS Core v0.50.0 introduced a mechanism to limit the number of concurrent SSO sessions per user in the UDS Realm. To manually configure this:
     - Navigate to the `UDS` realm
     - Go to `Authentication` > `Flows` > `UDS Authentication`
     - Click `Add execution`
