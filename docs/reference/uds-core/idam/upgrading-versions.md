@@ -13,7 +13,9 @@ UDS Core v0.50.0 introduced a mechanism to limit the number of concurrent SSO se
     - Navigate to the `UDS` realm
     - Go to `Authentication` > `Flows` > `UDS Authentication`
     - Click `Add execution`
-    - Select `User Session Count Limiter` and configure the following:
+    - Select `User Session Count Limiter` :
+    - Select the gear icon next to the new `User Session Count Limiter` to configure the following:
+        - `Maximum concurrent sessions for each user within this realm`: Set to the desired maximum number of concurrent sessions per user. The value should be the same as the `SSO_SESSION_MAX_PER_USER` value in the `realmInitEnv`.
         - `Maximum concurrent sessions for each user within this realm`: Set to the desired maximum number of concurrent sessions per user. The value should be the same as the `SSO_SESSION_MAX_PER_USER` value in the `realmInitEnv`.
 
 </details>
