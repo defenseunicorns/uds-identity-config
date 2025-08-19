@@ -35,7 +35,7 @@ describe("Login Flow", () => {
     cy.contains("p", "Invalid username or password.").should("be.visible");
   });
 
-  it("REALM_SSO_SESSION_MAX_IN_FLIGHT_LOGINS_PER_USER configuratino test", () => {
+  it("REALM_SSO_SESSION_MAX_IN_FLIGHT_LOGINS_PER_USER configuration test", () => {
     cy.getValueFromSecret("keycloak", "keycloak-realm-env", "REALM_SSO_SESSION_MAX_IN_FLIGHT_LOGINS_PER_USER").then(decoded => {
       const secretLimit = parseInt((decoded || "").trim(), 10);
       expect(Number.isFinite(secretLimit), `Decoded secret value should be a number, got: '${decoded}'`).to.be.true;
