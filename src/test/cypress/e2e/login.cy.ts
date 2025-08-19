@@ -42,7 +42,7 @@ describe("Login Flow", () => {
 
       cy.exec("uds zarf tools kubectl get statefulset -n keycloak keycloak -o jsonpath='{.spec.template.spec.containers[0].args}'").then(stsResult => {
         const argsOutput = stsResult.stdout || "";
-        const match = /--spi-authentication-sessions-+map-+auth-sessions-limit(?:=|\s+)?(\d+)/.exec(argsOutput);
+        const match = /--spi-authentication-sessions--map--auth-sessions-limit(?:=|\s+)?(\d+)/.exec(argsOutput);
         expect(match, `Could not find '--spi-authentication-sessions--map--auth-sessions-limit' in args: ${argsOutput}`).to.exist;
 
         const argsLimit = parseInt(match?.[1] || "NaN", 10);
