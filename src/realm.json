@@ -2448,6 +2448,15 @@
                     "priority": 2,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
+                },
+                {
+                    "authenticatorConfig": "uds-user-session-count",
+                    "authenticator": "user-session-limits",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 3,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
                 }
             ]
         },
@@ -3110,6 +3119,15 @@
             "alias": "review profile config",
             "config": {
                 "update.profile.on.first.login": "missing"
+            }
+        },
+        {
+            "id": "b95557c6-31f0-48f9-80b3-52b799233967",
+            "alias": "uds-user-session-count",
+            "config": {
+                "userClientLimit": "0",
+                "behavior": "Deny new session",
+                "userRealmLimit": "${REALM_SSO_SESSION_MAX_PER_USER:0}"
             }
         }
     ],

@@ -80,6 +80,8 @@ packages:
                 GOOGLE_IDP_ADMIN_GROUP: "uds-core-dev-admin"
                 GOOGLE_IDP_AUDITOR_GROUP: "uds-core-dev-auditor"
                 X509_OCSP_FAIL_OPEN: "true"
+                SSO_SESSION_MAX_PER_USER: "10"
+                SSO_SESSION_MAX_IN_FLIGHT_LOGINS_PER_USER: "100"
             - path: realmAuthFlows
               value:
                 USERNAME_PASSWORD_AUTH_ENABLED: true

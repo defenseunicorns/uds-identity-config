@@ -4,6 +4,20 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
+## v0.17.0
+
+<details open>
+<summary>Upgrade Details</summary>
+
+UDS Core v0.50.0 introduced a mechanism to limit the number of concurrent SSO sessions per user in the UDS Realm. This manually configure this:
+    - Navigate to the `UDS` realm
+    - Go to `Authentication` > `Flows` > `UDS Authentication`
+    - Click `Add execution`
+    - Select `User Session Count Limiter` and configure the following:
+        - `Maximum concurrent sessions for each user within this realm`: Set to the desired maximum number of concurrent sessions per user. The value should be the same as the `SSO_SESSION_MAX_PER_USER` value in the `realmInitEnv`.
+
+</details>
+
 ## v0.14.1+
 
 <details open>
