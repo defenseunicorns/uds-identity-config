@@ -279,6 +279,24 @@ To ensure smooth session management, configure the idle timeout to be longer tha
 
 The UDS Identity Config includes a OpenTofu client that can be used to manage Keycloak resources programmatically. This client is disabled by default for security reasons.
 
+:::caution
+**Important Security Considerations**
+
+1. **Client Access Restrictions**:
+   - The `uds-opentofu-client` has elevated permissions to manage Keycloak resources
+   - Never modify or delete the `uds-operator` clients as they are critical for system operation
+
+2. **Deployment Order**:
+   - OpenTofu must be applied to configure authentication flows and groups **before** deploying any downstream applications with UIs
+   - Failure to do so may expose UIs without proper authentication
+   - For UDS Core, ensure OpenTofu completes successfully before deploying components like Neuvector and Grafana
+
+3. **Security Impact**:
+   - Misconfiguration can break authentication for all services
+   - Changes made through OpenTofu can have system-wide impact
+   - Always test changes in a non-production environment first
+:::
+
 #### Enabling the OpenTofu Client Bundle Override
 
 To enable the OpenTofu client, set the `OPENTOFU_CLIENT_ENABLED` environment variable to `true` in your Keycloak configuration:
@@ -295,7 +313,7 @@ overrides:
 
 #### OpenTofu Provider Configuration
 
-To use the OpenTofu client, you'll need to configure the Keycloak provider to use the OpenTofu client's `Client Secret`. Here's an example configuration that would create a new client called `example-client`:
+To use the OpenTofu client, you'll need to configure the [Keycloak provider](https://registry.terraform.io/providers/keycloak/keycloak/latest/docs) to use the OpenTofu client's `Client Secret`. Here's an example configuration that would create a new client called `example-client`:
 ```hcl
 terraform {
   required_providers {
