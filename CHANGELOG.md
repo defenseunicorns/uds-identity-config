@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.4](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.3...v0.16.4) (2025-08-20)
+
+
+### Miscellaneous
+
+* **deps:** update dependency defenseunicorns/uds-core to v0.50.0 ([#592](https://github.com/defenseunicorns/uds-identity-config/issues/592)) ([2f27c46](https://github.com/defenseunicorns/uds-identity-config/commit/2f27c464bcaf2bbb57a816d70bbd18310f4a8ed7))
+
 ## [0.16.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.2...v0.16.3) (2025-08-18)
 
 
