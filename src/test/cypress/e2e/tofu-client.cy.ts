@@ -7,13 +7,13 @@ describe("Tofu Client Management", () => {
     const testClientId = "example-client";
     const testRedirectUri = "https://example.com/*";
     const tfDir = "./test-tf";
-    const configuratorClientId = "uds-tofu-configurator";
+    const tofuClientName = "uds-opentofu-client";
 
     let credentials: { accessToken: string; clientSecret: string } | null = null;
 
     before(() => {
         // Get credentials once
-        return cy.getClientSecret(configuratorClientId).then((creds) => {
+        return cy.getClientSecret(tofuClientName).then((creds) => {
             credentials = creds;
 
             // Create test OpenTofu configuration
@@ -37,7 +37,7 @@ describe("Tofu Client Management", () => {
               }
 
               provider "keycloak" {
-                client_id     = "${configuratorClientId}"
+                client_id     = "${tofuClientName}"
                 client_secret = var.keycloak_client_secret
                 url           = "https://keycloak.admin.uds.dev"
                 realm         = "uds"
@@ -288,7 +288,7 @@ describe("Tofu Client Management", () => {
             }
 
             provider "keycloak" {
-                client_id     = "uds-tofu-configurator"
+                client_id     = "uds-opentofu-client"
                 client_secret = var.keycloak_client_secret
                 url           = "https://keycloak.admin.uds.dev"
                 realm         = "uds"

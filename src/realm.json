@@ -304,7 +304,7 @@
             ],
             "security-admin-console": [],
             "uds-operator": [],
-            "uds-tofu-configurator": [],
+            "uds-opentofu-client": [],
             "admin-cli": [],
             "account-console": [],
             "broker": [
@@ -494,9 +494,9 @@
         },
         {
             "id": "18a1ba13-f0f5-4c5b-a4e7-205a93caf6ba",
-            "username": "service-account-tofu-configurator",
+            "username": "service-account-opentofu-client",
             "enabled": true,
-            "serviceAccountClientId": "uds-tofu-configurator",
+            "serviceAccountClientId": "uds-opentofu-client",
             "clientRoles": {
                 "realm-management": [
                     "realm-admin"
@@ -864,11 +864,11 @@
         },
         {
             "id": "d70f0f89-1400-4197-a162-84c6b9cf335f",
-            "clientId": "uds-tofu-configurator",
-            "name": "uds-tofu-configurator",
+            "clientId": "uds-opentofu-client",
+            "name": "uds-opentofu-client",
             "description": "A client used for managing Keycloak via Tofu",
             "surrogateAuthRequired": false,
-            "enabled": "${REALM_OPENTOFU_CONFIGURATOR_ENABLED:false}",
+            "enabled": "${REALM_OPENTOFU_CLIENT_ENABLED:false}",
             "alwaysDisplayInConsole": false,
             "clientAuthenticatorType": "client-secret",
             "redirectUris": [],

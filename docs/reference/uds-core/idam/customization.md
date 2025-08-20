@@ -281,7 +281,7 @@ The UDS Identity Config includes a OpenTofu client that can be used to manage Ke
 
 #### Enabling the OpenTofu Client Bundle Override
 
-To enable the OpenTofu client, set the `OPENTOFU_CONFIGURATOR_ENABLED` environment variable to `true` in your Keycloak configuration:
+To enable the OpenTofu client, set the `OPENTOFU_CLIENT_ENABLED` environment variable to `true` in your Keycloak configuration:
 
 ```yaml
 overrides:
@@ -290,7 +290,7 @@ overrides:
       values:
         - path: realmInitEnv
           value:
-            OPENTOFU_CONFIGURATOR_ENABLED: true
+            OPENTOFU_CLIENT_ENABLED: true
 ```
 
 #### OpenTofu Provider Configuration
@@ -322,7 +322,7 @@ variable "keycloak_client_secret" {
 }
 
 provider "keycloak" {
-  client_id     = "uds-tofu-configurator"
+  client_id     = "uds-opentofu-client"
   client_secret = var.keycloak_client_secret
   url           = "https://keycloak.admin.uds.dev"
   realm         = "uds"
@@ -366,7 +366,7 @@ If you need to enable the OpenTofu client after deployment or verify its configu
 
 2. **Enable the Tofu Client**
    - In the left sidebar, click on "Clients"
-   - Find the `uds-opentofu-configurator` client
+   - Find the `uds-opentofu-client` client
    - Click on the client to open its settings
    - Toggle the "Enabled" switch to ON in the top right of the page
    - Click "Save" at the bottom of the page
@@ -385,8 +385,8 @@ If you need to setup the OpenTofu client manually, the following steps will prov
 2. **Create new Client**
    - In the left sidebar, click on "Clients"
    - Click `Create client`
-    - `Client ID` = `uds-opentofu-configurator`
-    - `Name` = `uds-opentofu-configurator`
+    - `Client ID` = `uds-opentofu-client`
+    - `Name` = `uds-opentofu-client`
     - `Description` = `A client used for managing Keycloak via Tofu`
   - Click `Next`
     - Enable `Client authentication`
