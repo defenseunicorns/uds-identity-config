@@ -16,13 +16,12 @@ UDS Core v0.50.0 introduced a mechanism to limit the number of concurrent SSO se
     - Select `User Session Count Limiter` :
     - Select the gear icon next to the new `User Session Count Limiter` to configure the following:
         - `Maximum concurrent sessions for each user within this realm`: Set to the desired maximum number of concurrent sessions per user. The value should be the same as the `SSO_SESSION_MAX_PER_USER` value in the `realmInitEnv`.
-        - `Maximum concurrent sessions for each user within this realm`: Set to the desired maximum number of concurrent sessions per user. The value should be the same as the `SSO_SESSION_MAX_PER_USER` value in the `realmInitEnv`.
 
 </details>
 
 ## v0.14.1+
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 UDS Core v0.42.0 switched Keycloak to run in Ambient Mode. In some cases, specifically in AWS environment that uses “Shared Address Space” (see RFC6598), this may result in HTTP 403 errors. In order to resolve this, uds-identity-config v0.14.1 requires setting "Require SSL" option to "None". To manually configure this:
@@ -34,7 +33,7 @@ UDS Core v0.42.0 switched Keycloak to run in Ambient Mode. In some cases, specif
 
 ## v0.14.0+
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 In uds-identity-config versions v0.14.0+, the UDS Identity Config has removed `Dynamic Client Registration`. Part of this means that we need to remove a couple of the `Trusted Hosts` configured in uds-identity-config. To manually configure this:
