@@ -163,24 +163,23 @@ Cypress.Commands.add("getAccessToken", () => {
  * The "key" parameter is required and must be non-empty; an error is thrown otherwise.
  */
 Cypress.Commands.add("getValueFromSecret", (namespace: string, secretName: string, key: string) => {
-  const ns = namespace;
   if (!key || key.trim().length === 0) {
     throw new Error('getValueFromSecret: "key" is required and cannot be empty');
   }
-  const cmd = `uds zarf tools kubectl get secret -n ${ns} ${secretName} -o json`;
+  const cmd = `uds zarf tools kubectl get secret -n ${namespace} ${secretName} -o json`;
   return cy.exec(cmd).then((result) => {
-    expect(result.code, `Failed to fetch Secret '${secretName}' in namespace '${ns}'`).to.eq(0);
+    expect(result.code, `Failed to fetch Secret '${secretName}' in namespace '${namespace}'`).to.eq(0);
 
     let parsed: any = {};
     try {
       parsed = JSON.parse(result.stdout || "{}");
     } catch (e) {
-      throw new Error(`Unable to parse Secret JSON for '${secretName}' in '${ns}': ${(e as Error).message}`);
+      throw new Error(`Unable to parse Secret JSON for '${secretName}' in '${namespace}': ${(e as Error).message}`);
     }
 
     const data = (parsed && parsed.data) || {};
     const b64Value = data[key];
-    expect(b64Value, `Secret '${secretName}' in ns '${ns}' must contain key '${key}'`).to.exist;
+    expect(b64Value, `Secret '${secretName}' in ns '${namespace}' must contain key '${key}'`).to.exist;
     const decoded = Buffer.from((b64Value || "").trim(), "base64").toString("utf-8");
     return decoded;
   });
