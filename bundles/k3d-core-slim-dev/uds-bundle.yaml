@@ -80,6 +80,7 @@ packages:
                 GOOGLE_IDP_ADMIN_GROUP: "uds-core-dev-admin"
                 GOOGLE_IDP_AUDITOR_GROUP: "uds-core-dev-auditor"
                 X509_OCSP_FAIL_OPEN: "true"
+                OPENTOFU_CONFIGURATOR_ENABLED: true
             - path: realmAuthFlows
               value:
                 USERNAME_PASSWORD_AUTH_ENABLED: true

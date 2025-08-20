@@ -4,9 +4,18 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
-## v0.14.1+
+## v0.17.0
 
 <details open>
+<summary>Upgrade Details</summary>
+
+UDS Identity Config introduced the OpenTofu client that can be used for managing Keycloak with OpenTofu. This new client is included in the realm.json, however if unable to re-initialize Keycloak in UDS Core you can find steps [here to manually configure the OpenTofu client](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/opentofu-client-configuration).
+
+</details>
+
+## v0.14.1+
+
+<details>
 <summary>Upgrade Details</summary>
 
 UDS Core v0.42.0 switched Keycloak to run in Ambient Mode. In some cases, specifically in AWS environment that uses “Shared Address Space” (see RFC6598), this may result in HTTP 403 errors. In order to resolve this, uds-identity-config v0.14.1 requires setting "Require SSL" option to "None". To manually configure this:
@@ -18,7 +27,7 @@ UDS Core v0.42.0 switched Keycloak to run in Ambient Mode. In some cases, specif
 
 ## v0.14.0+
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 In uds-identity-config versions v0.14.0+, the UDS Identity Config has removed `Dynamic Client Registration`. Part of this means that we need to remove a couple of the `Trusted Hosts` configured in uds-identity-config. To manually configure this:

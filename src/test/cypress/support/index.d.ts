@@ -22,5 +22,7 @@ declare namespace Cypress {
     verifyLoggedIn(): Chainable;
 
     getAccessToken(): Chainable;
+
+    getClientSecret(clientId: string): Chainable<{ accessToken: string; clientSecret: string }>;
   }
 }

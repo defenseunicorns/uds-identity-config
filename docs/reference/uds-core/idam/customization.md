@@ -274,3 +274,130 @@ overrides:
 The `SSO_SESSION_IDLE_TIMEOUT` specifies how long a session remains active without user activity, while the `ACCESS_TOKEN_LIFESPAN` defines the validity duration of an access token before it requires refreshing. The `SSO_SESSION_MAX_LIFESPAN` determines the maximum duration a session can remain active, regardless of user activity.
 
 To ensure smooth session management, configure the idle timeout to be longer than the access token lifespan (e.g., 10 minutes idle, 5 minutes lifespan) so tokens can be refreshed before the session expires, and ensure the max lifespan is set appropriately (e.g., 8 hours) to enforce session limits. Misalignment, such as setting a longer token lifespan than the idle timeout or not aligning the max lifespan with session requirements, can result in sessions ending unexpectedly or persisting longer than intended.
+
+### OpenTofu Client Configuration
+
+The UDS Identity Config includes a OpenTofu client that can be used to manage Keycloak resources programmatically. This client is disabled by default for security reasons.
+
+#### Enabling the OpenTofu Client Bundle Override
+
+To enable the OpenTofu client, set the `OPENTOFU_CONFIGURATOR_ENABLED` environment variable to `true` in your Keycloak configuration:
+
+```yaml
+overrides:
+  keycloak:
+    keycloak:
+      values:
+        - path: realmInitEnv
+          value:
+            OPENTOFU_CONFIGURATOR_ENABLED: true
+```
+
+#### OpenTofu Provider Configuration
+
+To use the OpenTofu client, you'll need to configure the Keycloak provider to use the OpenTofu client's `Client Secret`. Here's an example configuration that would create a new client called `example-client`:
+```hcl
+terraform {
+  required_providers {
+    keycloak = {
+      source  = "keycloak/keycloak"
+      version = "5.2.0"
+    }
+    kubernetes = {
+      source  = "opentofu/kubernetes"
+      version = "~> 2.23.0"
+    }
+  }
+  required_version = ">= 1.0.0"
+}
+
+provider "kubernetes" {
+  config_path = "~/.kube/config"
+}
+
+variable "keycloak_client_secret" {
+  type        = string
+  description = "Client secret for the Keycloak provider"
+  sensitive   = true
+}
+
+provider "keycloak" {
+  client_id     = "uds-tofu-configurator"
+  client_secret = var.keycloak_client_secret
+  url           = "https://keycloak.admin.uds.dev"
+  realm         = "uds"
+}
+
+resource "keycloak_openid_client" "example_client" {
+  realm_id  = "uds"
+  client_id = "example-client"
+  name      = "example-client"
+
+  access_type                  = "PUBLIC"
+  enabled                      = true
+  standard_flow_enabled        = true
+  direct_access_grants_enabled = true
+  service_accounts_enabled     = false
+
+  valid_redirect_uris = [
+    "https://example.com/*"
+  ]
+}
+```
+
+```bash
+# Use this tofu command to plan that Tofu with the client secret variable
+tofu plan -var="keycloak_client_secret=********"
+
+# Use this tofu command to apply the Tofu with the client secret variable
+tofu apply -auto-approve -var="keycloak_client_secret=********"
+```
+
+#### Enabling the OpenTofu Client via Keycloak Admin UI
+
+If you need to enable the OpenTofu client after deployment or verify its configuration, follow these steps in the Keycloak Admin Console:
+
+1. **Log in to Keycloak Admin Console**
+   - Navigate to your Keycloak admin URL (typically `https://<your-keycloak-url>/admin/`)
+   - Log in with administrative credentials
+   - **Important**: Ensure you're in the `UDS` realm (not the `master` realm)
+     - In the left sidecar, select `Manage Realms`
+     - Select `uds` from the `Manage Realms` page
+
+2. **Enable the Tofu Client**
+   - In the left sidebar, click on "Clients"
+   - Find the `uds-opentofu-configurator` client
+   - Click on the client to open its settings
+   - Toggle the "Enabled" switch to ON in the top right of the page
+   - Click "Save" at the bottom of the page
+
+#### Configure OpenTofu Client via Keycloak Admin UI
+
+If you need to setup the OpenTofu client manually, the following steps will provide the steps to do this:
+
+1. **Log in to Keycloak Admin Console**
+   - Navigate to your Keycloak admin URL (typically `https://<your-keycloak-url>/admin/`)
+   - Log in with administrative credentials
+   - **Important**: Ensure you're in the `UDS` realm (not the `master` realm)
+     - In the left sidecar, select `Manage Realms`
+     - Select `uds` from the `Manage Realms` page
+
+2. **Create new Client**
+   - In the left sidebar, click on "Clients"
+   - Click `Create client`
+    - `Client ID` = `uds-opentofu-configurator`
+    - `Name` = `uds-opentofu-configurator`
+    - `Description` = `A client used for managing Keycloak via Tofu`
+  - Click `Next`
+    - Enable `Client authentication`
+    - Disable `Standard flow`
+    - Enable `Service account roles`
+  - Click `Next`
+  - Click `Save`
+  - Click `Service account roles`
+    - Click `Assign role`
+      - Select `Client Roles`
+        - Seach for `realm-admin` and check the box
+        - `Assign`
+  - Click `Credentials`
+    - Copy the `Client Secret` and start applying Tofu
