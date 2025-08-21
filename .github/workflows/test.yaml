@@ -148,6 +148,12 @@ jobs:
           registry1Password: ${{ secrets.IRON_BANK_ROBOT_PASSWORD }}
           ghToken: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Setup Tofu
+        uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
+        with:
+          tofu_version: 1.8.2
+          tofu_wrapper: false
+
       - name: Cypress Integration Tests
         run: uds run uds-core-integration-tests --no-progress
 

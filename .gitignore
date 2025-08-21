@@ -20,3 +20,6 @@ src/extra-jars/
 src/plugin/target/**
 uds-docs/
 uds-docs/**
+**/haproxy-client-ca.pem
+**/haproxy.pem
+**/haproxy.pem.key
