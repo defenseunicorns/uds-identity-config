@@ -9,9 +9,9 @@ This doc contains important information for upgrading uds-identity-config versio
 <details open>
 <summary>Upgrade Details</summary>
 
-UDS Identity Config introduced the OpenTofu client that can be used for managing Keycloak with OpenTofu. This new client is included in the realm.json, however if unable to re-initialize Keycloak in UDS Core you can find steps [here to manually configure the OpenTofu client](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/opentofu-client-configuration).
+UDS Identity Config introduced the OpenTofu client that can be used for managing Keycloak with OpenTofu. This new client is included in the realm.json, however if unable to re-initialize Keycloak in UDS Core you can find steps [here to manually configure the OpenTofu client](/reference/uds-core/idam/customization#configure-opentofu-client-via-keycloak-admin-ui).
 
-UDS Core v0.50.0 introduced a mechanism to limit the number of concurrent SSO sessions per user in the UDS Realm. To manually configure this:
+UDS Core v0.51.0 introduced a mechanism to limit the number of concurrent SSO sessions per user in the UDS Realm. To manually configure this:
     - Navigate to the `UDS` realm
     - Go to `Authentication` > `Flows` > `UDS Authentication`
     - Click `Add execution`

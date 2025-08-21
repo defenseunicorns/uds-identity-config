@@ -301,6 +301,7 @@ The UDS Identity Config includes a OpenTofu client that can be used to manage Ke
 3. **Security Impact**:
    - Misconfiguration can break authentication for all services
    - Changes made through OpenTofu can have system-wide impact
+   - Always inspect the `tofu plan` output for changes before `tofu apply`
    - Always test changes in a non-production environment first
 :::
 
@@ -320,7 +321,11 @@ overrides:
 
 #### OpenTofu Provider Configuration
 
-To use the OpenTofu client, you'll need to configure the [Keycloak provider](https://registry.terraform.io/providers/keycloak/keycloak/latest/docs) to use the OpenTofu client's `Client Secret`. Here's an example configuration that would create a new client called `example-client`:
+To use the OpenTofu client, you'll need to configure the [Keycloak provider](https://registry.terraform.io/providers/keycloak/keycloak/latest/docs) to use the OpenTofu client's `Client Secret`.
+
+The OpenTofu client's secret can be retrieved via the Admin UI, navigate to the `UDS` Realm and select the `Clients` tab from the left sidebar, select the `uds-opentofu-client`, and click the `Credentials` tab to copy the secret value.
+
+Here's an example configuration that would create a new client called `example-client`:
 ```hcl
 terraform {
   required_providers {
@@ -328,16 +333,8 @@ terraform {
       source  = "keycloak/keycloak"
       version = "5.2.0"
     }
-    kubernetes = {
-      source  = "opentofu/kubernetes"
-      version = "~> 2.23.0"
-    }
   }
   required_version = ">= 1.0.0"
-}
-
-provider "kubernetes" {
-  config_path = "~/.kube/config"
 }
 
 variable "keycloak_client_secret" {
@@ -353,20 +350,48 @@ provider "keycloak" {
   realm         = "uds"
 }
 
-resource "keycloak_openid_client" "example_client" {
+# Create a new group in Keycloak
+resource "keycloak_group" "example_group" {
+  realm_id = "uds"
+  name     = "example-group"
+
+  # Optional attributes
+  attributes = {
+    description = "Example group created via Terraform"
+    created_by  = "terraform"
+  }
+
+  # Optional: Add lifecycle policy to prevent accidental deletion
+  lifecycle {
+    prevent_destroy = false  # Set to true in production after testing
+  }
+}
+
+# Create a nested group under example-group
+resource "keycloak_group" "nested_group" {
   realm_id  = "uds"
-  client_id = "example-client"
-  name      = "example-client"
+  name      = "nested-example-group"
+  parent_id = keycloak_group.example_group.id  # This makes it a child of example-group
 
-  access_type                  = "PUBLIC"
-  enabled                      = true
-  standard_flow_enabled        = true
-  direct_access_grants_enabled = true
-  service_accounts_enabled     = false
+  attributes = {
+    description = "Nested group under example-group"
+    created_by  = "terraform"
+  }
 
-  valid_redirect_uris = [
-    "https://example.com/*"
-  ]
+  lifecycle {
+    prevent_destroy = false  # Set to true in production after testing
+  }
+}
+
+# Output the group IDs for reference
+output "example_group_id" {
+  value       = keycloak_group.example_group.id
+  description = "The ID of the example group"
+}
+
+output "nested_group_id" {
+  value       = keycloak_group.nested_group.id
+  description = "The ID of the nested group"
 }
 ```
 
