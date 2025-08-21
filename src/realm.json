@@ -886,20 +886,7 @@
             "attributes": {},
             "authenticationFlowBindingOverrides": {},
             "fullScopeAllowed": true,
-            "nodeReRegistrationTimeout": 0,
-            "defaultClientScopes": [
-              "web-origins",
-              "acr",
-              "profile",
-              "roles",
-              "email"
-            ],
-            "optionalClientScopes": [
-              "address",
-              "phone",
-              "offline_access",
-              "microprofile-jwt"
-            ]
+            "nodeReRegistrationTimeout": 0
         }
     ],
     "clientScopes": [
