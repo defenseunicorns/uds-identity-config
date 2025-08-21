@@ -133,7 +133,7 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core
-      - cmd: git clone --branch ${CORE_VERSION} https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --branch main https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
@@ -165,6 +165,12 @@ tasks:
         task: common-setup:keycloak-user
         with:
           username: "testing_user_no_groups"
+          password: "Testingpassword1!!"
+      - description: "Create the Auditor User (testing_sessions) in the UDS Core realm for testing Session Limits"
+        task: common-setup:keycloak-user
+        with:
+          group: "/UDS Core/Auditor"
+          username: "testing_sessions"
           password: "Testingpassword1!!"
 
   - name: cypress-tests

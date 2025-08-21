@@ -249,6 +249,7 @@ overrides:
             ACCESS_TOKEN_LIFESPAN: 600
             SSO_SESSION_LIFESPAN_TIMEOUT: 1200
             SSO_SESSION_MAX_LIFESPAN: 36000
+            SSO_SESSION_MAX_PER_USER: 10
         - path: realmAuthFlows
           value:
             USERNAME_PASSWORD_AUTH_ENABLED: true
@@ -260,6 +261,8 @@ overrides:
         - path: themeCustomizations.settings
           value:
             enableRegistrationFields: true
+        - path: realmConfig.maxInFlightLoginsPerUser
+          value: 10
 ```
 
 > These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).
@@ -270,10 +273,14 @@ overrides:
 - **Fail-Open (`X509_OCSP_FAIL_OPEN:true`)**: More forgiving (users still log in if checks fail) but can allow revoked certificates if the OCSP server is down.
 :::
 
-### Customizing Session and Access Token Timeouts
+Values set in both `realmInitEnv` and `realmAuthFlows` are applied only during the initial import of the `uds` Keycloak Realm. Updating these values at runtime will not affect the running Keycloak instance; to apply changes, you must redeploy the Keycloak package. In contrast, values provided in `themeCustomizations.settings` and `realmConfig` are designed to be updated at runtime and do not require redeployment of the Keycloak package.
+
+### Customizing Session and Access Token Timeouts and limits
 The `SSO_SESSION_IDLE_TIMEOUT` specifies how long a session remains active without user activity, while the `ACCESS_TOKEN_LIFESPAN` defines the validity duration of an access token before it requires refreshing. The `SSO_SESSION_MAX_LIFESPAN` determines the maximum duration a session can remain active, regardless of user activity.
 
 To ensure smooth session management, configure the idle timeout to be longer than the access token lifespan (e.g., 10 minutes idle, 5 minutes lifespan) so tokens can be refreshed before the session expires, and ensure the max lifespan is set appropriately (e.g., 8 hours) to enforce session limits. Misalignment, such as setting a longer token lifespan than the idle timeout or not aligning the max lifespan with session requirements, can result in sessions ending unexpectedly or persisting longer than intended.
+
+The `SSO_SESSION_MAX_PER_USER` provides a limit on the number of active sessions a user can use. You can specify 0 to allow unlimited sessions per user, or set a specific number to limit concurrent sessions. This is useful for controlling resource usage and ensuring that users do not have an excessive number of active sessions at once.
 
 ### OpenTofu Client Configuration
 

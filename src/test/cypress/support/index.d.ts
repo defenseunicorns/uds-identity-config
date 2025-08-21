@@ -24,5 +24,11 @@ declare namespace Cypress {
     getAccessToken(): Chainable;
 
     getClientSecret(clientId: string): Chainable<{ accessToken: string; clientSecret: string }>;
+
+    /**
+     * Retrieve and base64-decode a value from a Kubernetes Secret by key.
+     * The "key" parameter is required and must be non-empty.
+     */
+    getValueFromSecret(namespace: string, secretName: string, key: string): Chainable<string>;
   }
 }
