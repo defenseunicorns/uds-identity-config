@@ -287,37 +287,67 @@ The `SSO_SESSION_MAX_PER_USER` provides a limit on the number of active sessions
 The UDS Identity Config includes a Keycloak client that can be used by OpenTofu to manage Keycloak resources programmatically. This client is disabled by default for security reasons.
 
 :::caution
-**Important Security Considerations**
+**Critical Security Requirements**
 
-1. **Client Access Restrictions**:
-   - The `uds-opentofu-client` has elevated permissions to manage Keycloak resources
+1. **Pre-Deployment Configuration**
+   - **You must configure authentication flows before deploying UDS Core**
+   - UDS Core will apply default authentication flows if not configured first
+   - This is a critical security step to prevent unauthorized access
+
+2. **Deployment Options**:
+
+   **Option 1: Disable All Flows (Recommended)**
+   This approach starts with maximum security by disabling all authentication methods:
+   ```yaml
+   overrides:
+     keycloak:
+       keycloak:
+         values:
+           - path: realmInitEnv
+             value:
+               OPENTOFU_CLIENT_ENABLED: true
+           - path: realmAuthFlows
+             value:
+               USERNAME_PASSWORD_AUTH_ENABLED: false
+               X509_AUTH_ENABLED: false
+               SOCIAL_AUTH_ENABLED: false
+               OTP_ENABLED: false
+               WEBAUTHN_ENABLED: false
+               X509_MFA_ENABLED: false
+   ```
+   This is the most secure approach but requires OpenTofu to enable specific authentication methods after deployment.
+
+   **Option 2: Configure Final Flows Upfront**
+   If you know your exact authentication requirements, you can configure them directly:
+   ```yaml
+   overrides:
+     keycloak:
+       keycloak:
+         values:
+           - path: realmInitEnv
+             value:
+               OPENTOFU_CLIENT_ENABLED: true
+           - path: realmAuthFlows
+             value:
+               USERNAME_PASSWORD_AUTH_ENABLED: true
+               X509_AUTH_ENABLED: false
+               SOCIAL_AUTH_ENABLED: false
+               OTP_ENABLED: true
+               WEBAUTHN_ENABLED: false
+               X509_MFA_ENABLED: false
+   ```
+   This approach is simpler initially but may require manual steps if your requirements change.
+
+3. **Security Considerations**
+   - The `uds-opentofu-client` has elevated permissions - protect its credentials
    - Never modify or delete the `uds-operator` clients as they are critical for system operation
+   - Monitor authentication logs after deployment for any unexpected access attempts
 
-2. **Deployment Order**:
-   - OpenTofu must be applied to configure authentication flows and groups **before** deploying any downstream applications with UIs
-   - Failure to do so may expose UIs without proper authentication
-   - For UDS Core, ensure OpenTofu completes successfully before deploying components like Neuvector and Grafana
-
-3. **Security Impact**:
-   - Misconfiguration can break authentication for all services
-   - Changes made through OpenTofu can have system-wide impact
-   - Always inspect the `tofu plan` output for changes before `tofu apply`
-   - Always test changes in a non-production environment first
+4. **Verification**
+   - Verify all auth flows are as expected before deploying UDS Core
+   - Test authentication in a non-production environment first
+   - For detailed information on available authentication flows, see [Authentication Flow Documentation](./authentication-flows.md)
 :::
-
-#### Enabling the OpenTofu Client Bundle Override
-
-To enable the OpenTofu client, set the `OPENTOFU_CLIENT_ENABLED` environment variable to `true` in your Keycloak configuration:
-
-```yaml
-overrides:
-  keycloak:
-    keycloak:
-      values:
-        - path: realmInitEnv
-          value:
-            OPENTOFU_CLIENT_ENABLED: true
-```
 
 #### OpenTofu Provider Configuration
 
