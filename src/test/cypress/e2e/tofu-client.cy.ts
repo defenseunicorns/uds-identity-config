@@ -24,16 +24,8 @@ describe("Tofu Client Management", () => {
                     source  = "keycloak/keycloak"
                     version = "5.2.0"
                   }
-                  kubernetes = {
-                    source  = "opentofu/kubernetes"
-                    version = "~> 2.23.0"
-                  }
                 }
                 required_version = ">= 1.0.0"
-              }
-
-              provider "kubernetes" {
-                config_path = "~/.kube/config"
               }
 
               provider "keycloak" {
