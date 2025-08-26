@@ -318,7 +318,7 @@ The UDS Identity Config includes a Keycloak client that can be used by OpenTofu 
    This is the most secure approach but requires OpenTofu to enable specific authentication methods after deployment.
 
    **Option 2: Configure Final Flows Upfront**
-   If you know your exact authentication requirements, you can configure them directly:
+   If you know your exact authentication requirements, you can configure them directly. For example, to enable Username/Password + OTP authentication only:
    ```yaml
    overrides:
      keycloak:
@@ -344,9 +344,8 @@ The UDS Identity Config includes a Keycloak client that can be used by OpenTofu 
    - Monitor authentication logs after deployment for any unexpected access attempts
 
 4. **Verification**
-   - Verify all auth flows are as expected before deploying UDS Core
    - Test authentication in a non-production environment first
-   - For detailed information on available authentication flows, see [Authentication Flow Documentation](./authentication-flows.md)
+   - For detailed information on available authentication flows, see [Authentication Flow Documentation](../authentication-flows)
 :::
 
 #### OpenTofu Provider Configuration
@@ -423,12 +422,13 @@ output "nested_group_id" {
 :::note
 **Security Note:**
 Passing sensitive values (such as `keycloak_client_secret`) via command line arguments can expose secrets in shell history and process lists. Instead, use a `.tfvars` file (e.g., `secrets.auto.tfvars`) to securely provide sensitive variables to Tofu.
+:::
 
 Create a file named `secrets.auto.tfvars` with the following content:
+
 ```hcl
 keycloak_client_secret = "your-actual-client-secret-here"
 ```
-:::
 
 Then run Tofu without passing the secret on the command line:
 
