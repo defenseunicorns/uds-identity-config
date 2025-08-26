@@ -282,9 +282,9 @@ To ensure smooth session management, configure the idle timeout to be longer tha
 
 The `SSO_SESSION_MAX_PER_USER` provides a limit on the number of active sessions a user can use. You can specify 0 to allow unlimited sessions per user, or set a specific number to limit concurrent sessions. This is useful for controlling resource usage and ensuring that users do not have an excessive number of active sessions at once.
 
-### OpenTofu Client Configuration
+### OpenTofu Keycloak Client Configuration
 
-The UDS Identity Config includes a OpenTofu client that can be used to manage Keycloak resources programmatically. This client is disabled by default for security reasons.
+The UDS Identity Config includes a Keycloak client that can be used by OpenTofu to manage Keycloak resources programmatically. This client is disabled by default for security reasons.
 
 :::caution
 **Important Security Considerations**
@@ -321,9 +321,9 @@ overrides:
 
 #### OpenTofu Provider Configuration
 
-To use the OpenTofu client, you'll need to configure the [Keycloak provider](https://registry.terraform.io/providers/keycloak/keycloak/latest/docs) to use the OpenTofu client's `Client Secret`.
+To use the OpenTofu Keycloak client, you'll need to configure the [Keycloak provider](https://registry.terraform.io/providers/keycloak/keycloak/latest/docs) to use the OpenTofu client's `Client Secret`.
 
-The OpenTofu client's secret can be retrieved via the Admin UI, navigate to the `UDS` Realm and select the `Clients` tab from the left sidebar, select the `uds-opentofu-client`, and click the `Credentials` tab to copy the secret value.
+The OpenTofu Keycloak client's secret can be retrieved via the Admin UI, navigate to the `UDS` Realm and select the `Clients` tab from the left sidebar, select the `uds-opentofu-client`, and click the `Credentials` tab to copy the secret value.
 
 Here's an example configuration that would create a new client called `example-client`:
 ```hcl
@@ -360,11 +360,6 @@ resource "keycloak_group" "example_group" {
     description = "Example group created via Terraform"
     created_by  = "terraform"
   }
-
-  # Optional: Add lifecycle policy to prevent accidental deletion
-  lifecycle {
-    prevent_destroy = false  # Set to true in production after testing
-  }
 }
 
 # Create a nested group under example-group
@@ -395,12 +390,24 @@ output "nested_group_id" {
 }
 ```
 
-```bash
-# Use this tofu command to plan that Tofu with the client secret variable
-tofu plan -var="keycloak_client_secret=********"
+:::note
+**Security Note:**
+Passing sensitive values (such as `keycloak_client_secret`) via command line arguments can expose secrets in shell history and process lists. Instead, use a `.tfvars` file (e.g., `secrets.auto.tfvars`) to securely provide sensitive variables to Tofu.
 
-# Use this tofu command to apply the Tofu with the client secret variable
-tofu apply -auto-approve -var="keycloak_client_secret=********"
+Create a file named `secrets.auto.tfvars` with the following content:
+```hcl
+keycloak_client_secret = "your-actual-client-secret-here"
+```
+:::
+
+Then run Tofu without passing the secret on the command line:
+
+```bash
+# Use this tofu command to plan the Tofu
+tofu plan
+
+# Use this tofu command to apply the Tofu
+tofu apply -auto-approve
 ```
 
 #### Enabling the OpenTofu Client via Keycloak Admin UI
