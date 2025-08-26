@@ -127,7 +127,7 @@ Cypress.Commands.add("avoidX509", () => {
 
 Cypress.Commands.add("getAccessToken", () => {
   return cy.exec('uds zarf tools kubectl get secret keycloak-client-secrets -n keycloak -o jsonpath="{.data.uds-operator}"').then((result) => {
-    expect(result.code).to.eq(0);
+    expect(result.exitCode).to.eq(0);
     expect(result.stdout).not.contains(" ");
 
     const clientSecret = Buffer.from(result.stdout, 'base64').toString('utf-8');
@@ -168,7 +168,7 @@ Cypress.Commands.add("getValueFromSecret", (namespace: string, secretName: strin
   }
   const cmd = `uds zarf tools kubectl get secret -n ${namespace} ${secretName} -o json`;
   return cy.exec(cmd).then((result) => {
-    expect(result.code, `Failed to fetch Secret '${secretName}' in namespace '${namespace}'`).to.eq(0);
+    expect(result.exitCode, `Failed to fetch Secret '${secretName}' in namespace '${namespace}'`).to.eq(0);
 
     let parsed: any = {};
     try {

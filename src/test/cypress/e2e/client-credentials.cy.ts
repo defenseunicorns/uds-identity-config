@@ -76,8 +76,8 @@ describe("UDS Operator Client Credentials", () => {
     });
 
     it("UDSClientPolicyPermissionsExecutor validates mappers and claims", () => {
-        cy.exec("uds zarf tools kubectl apply -f ./resources/test-package.yaml").its('code').should('eq', 0);
-        cy.exec("uds zarf tools kubectl wait --for=condition=Ready=false package/test-package -n test-package --timeout=300s").its('code').should('eq', 0);
+        cy.exec("uds zarf tools kubectl apply -f ./resources/test-package.yaml").its('exitCode').should('eq', 0);
+        cy.exec("uds zarf tools kubectl wait --for=condition=Ready=false package/test-package -n test-package --timeout=300s").its('exitCode').should('eq', 0);
         cy.exec("kubectl get events -n test-package")
           .its('stdout')
           .should('include', '{"error":"invalid_client","error_description":"The Protocol Mapper non-whitelisted-protocol-mapper is not allowed. Rejecting request."}');
