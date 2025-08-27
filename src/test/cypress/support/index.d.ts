@@ -8,6 +8,21 @@
  */
 
 declare namespace Cypress {
+  interface Exec {
+    /**
+     * Exit code of the command
+     */
+    exitCode: number;
+    /**
+     * A message when the exec cannot be parsed or the command errors
+     */
+    stderr: string;
+    /**
+     * Output to stdout by the command
+     */
+    stdout: string;
+  }
+
   interface Chainable {
     loginPage(): Chainable;
 
