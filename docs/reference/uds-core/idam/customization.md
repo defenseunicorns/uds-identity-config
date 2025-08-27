@@ -345,7 +345,7 @@ The UDS Identity Config includes a Keycloak client that can be used by OpenTofu 
 
 4. **Verification**
    - Test authentication in a non-production environment first
-   - For detailed information on available authentication flows, see [Authentication Flow Documentation](../authentication-flows)
+   - For detailed information on available authentication flows, see [Authentication Flow Documentation](/reference/uds-core/idam/authentication-flows)
 :::
 
 #### OpenTofu Provider Configuration
