@@ -9,13 +9,15 @@ This doc contains important information for upgrading uds-identity-config versio
 <details open>
 <summary>Upgrade Details</summary>
 
-UDS Core v0.50.0 introduced a mechanism to limit the number of concurrent SSO sessions per user in the UDS Realm. To manually configure this:
-    - Navigate to the `UDS` realm
-    - Go to `Authentication` > `Flows` > `UDS Authentication`
-    - Click `Add execution`
-    - Select `User Session Count Limiter` :
-    - Select the gear icon next to the new `User Session Count Limiter` to configure the following:
-        - `Maximum concurrent sessions for each user within this realm`: Set to the desired maximum number of concurrent sessions per user. The value should be the same as the `SSO_SESSION_MAX_PER_USER` value in the `realmInitEnv`.
+UDS Identity Config introduced the OpenTofu client that can be used for managing Keycloak with OpenTofu. This new client is included in the realm.json, however if unable to re-initialize Keycloak in UDS Core you can find steps [here to manually configure the OpenTofu client](/reference/uds-core/idam/customization#configure-opentofu-client-via-keycloak-admin-ui).
+
+UDS Core v0.51.0 introduced a mechanism to limit the number of concurrent SSO sessions per user in the UDS Realm. To manually configure this:
+   - Navigate to the `UDS` realm
+   - Go to `Authentication` > `Flows` > `UDS Authentication`
+   - Click `Add execution`
+   - Select `User Session Count Limiter` :
+   - Select the gear icon next to the new `User Session Count Limiter` to configure the following:
+      - `Maximum concurrent sessions for each user within this realm`: Set to the desired maximum number of concurrent sessions per user. The value should be the same as the `SSO_SESSION_MAX_PER_USER` value in the `realmInitEnv`.
 
 </details>
 
@@ -25,9 +27,9 @@ UDS Core v0.50.0 introduced a mechanism to limit the number of concurrent SSO se
 <summary>Upgrade Details</summary>
 
 UDS Core v0.42.0 switched Keycloak to run in Ambient Mode. In some cases, specifically in AWS environment that uses “Shared Address Space” (see RFC6598), this may result in HTTP 403 errors. In order to resolve this, uds-identity-config v0.14.1 requires setting "Require SSL" option to "None". To manually configure this:
-    - Navigate to the `UDS` realm
-    - Go to `Realm Settings` > `General` tab
-    - Switch `Require SSL` to `None`
+   - Navigate to the `UDS` realm
+   - Go to `Realm Settings` > `General` tab
+   - Switch `Require SSL` to `None`
 
 </details>
 

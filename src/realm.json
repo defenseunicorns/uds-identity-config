@@ -304,6 +304,7 @@
             ],
             "security-admin-console": [],
             "uds-operator": [],
+            "uds-opentofu-client": [],
             "admin-cli": [],
             "account-console": [],
             "broker": [
@@ -488,6 +489,17 @@
             "clientRoles": {
                 "realm-management": [
                     "manage-clients"
+                ]
+            }
+        },
+        {
+            "id": "18a1ba13-f0f5-4c5b-a4e7-205a93caf6ba",
+            "username": "service-account-opentofu-client",
+            "enabled": true,
+            "serviceAccountClientId": "uds-opentofu-client",
+            "clientRoles": {
+                "realm-management": [
+                    "realm-admin"
                 ]
             }
         }
@@ -849,6 +861,32 @@
                 "backchannel.logout.revoke.offline.tokens": "false"
             },
             "fullScopeAllowed": true
+        },
+        {
+            "id": "d70f0f89-1400-4197-a162-84c6b9cf335f",
+            "clientId": "uds-opentofu-client",
+            "name": "uds-opentofu-client",
+            "description": "A client used for managing Keycloak via Tofu",
+            "surrogateAuthRequired": false,
+            "enabled": "${REALM_OPENTOFU_CLIENT_ENABLED:false}",
+            "alwaysDisplayInConsole": false,
+            "clientAuthenticatorType": "client-secret",
+            "redirectUris": [],
+            "webOrigins": [],
+            "notBefore": 0,
+            "bearerOnly": false,
+            "consentRequired": false,
+            "standardFlowEnabled": false,
+            "implicitFlowEnabled": false,
+            "directAccessGrantsEnabled": false,
+            "serviceAccountsEnabled": true,
+            "publicClient": false,
+            "frontchannelLogout": false,
+            "protocol": "openid-connect",
+            "attributes": {},
+            "authenticationFlowBindingOverrides": {},
+            "fullScopeAllowed": true,
+            "nodeReRegistrationTimeout": 0
         }
     ],
     "clientScopes": [

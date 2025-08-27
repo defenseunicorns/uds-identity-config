@@ -80,6 +80,7 @@ packages:
                 GOOGLE_IDP_ADMIN_GROUP: "uds-core-dev-admin"
                 GOOGLE_IDP_AUDITOR_GROUP: "uds-core-dev-auditor"
                 X509_OCSP_FAIL_OPEN: "true"
+                OPENTOFU_CLIENT_ENABLED: true
                 SSO_SESSION_MAX_PER_USER: "10"
             - path: realmAuthFlows
               value:

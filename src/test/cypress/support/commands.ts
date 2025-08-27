@@ -125,6 +125,42 @@ Cypress.Commands.add("avoidX509", () => {
   });
 })
 
+/**
+ * Gets the client secret for a specified client from Keycloak
+ * @param clientId The client ID to get the secret for
+ * @returns {Promise<{accessToken: string, clientSecret: string}>} An object containing the access token and client secret
+ */
+Cypress.Commands.add("getClientSecret", (clientId: string) => {
+  return cy.getAccessToken().then((accessToken) => {
+    return cy.request({
+      method: 'GET',
+      url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${encodeURIComponent(clientId)}`,
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    }).then((response) => {
+      const client = response.body.find((c: any) => c.clientId === clientId);
+      if (!client) {
+        throw new Error(`Client with ID '${clientId}' not found`);
+      }
+      return cy.request({
+        method: 'GET',
+        url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients/${client.id}/client-secret`,
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }).then((secretResponse) => {
+        return {
+          accessToken,
+          clientSecret: secretResponse.body.value
+        };
+      });
+    });
+  });
+});
+
 Cypress.Commands.add("getAccessToken", () => {
   return cy.exec('uds zarf tools kubectl get secret keycloak-client-secrets -n keycloak -o jsonpath="{.data.uds-operator}"').then((result) => {
     expect(result.exitCode).to.eq(0);

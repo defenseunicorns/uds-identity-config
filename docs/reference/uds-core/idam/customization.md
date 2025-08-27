@@ -281,3 +281,210 @@ The `SSO_SESSION_IDLE_TIMEOUT` specifies how long a session remains active witho
 To ensure smooth session management, configure the idle timeout to be longer than the access token lifespan (e.g., 10 minutes idle, 5 minutes lifespan) so tokens can be refreshed before the session expires, and ensure the max lifespan is set appropriately (e.g., 8 hours) to enforce session limits. Misalignment, such as setting a longer token lifespan than the idle timeout or not aligning the max lifespan with session requirements, can result in sessions ending unexpectedly or persisting longer than intended.
 
 The `SSO_SESSION_MAX_PER_USER` provides a limit on the number of active sessions a user can use. You can specify 0 to allow unlimited sessions per user, or set a specific number to limit concurrent sessions. This is useful for controlling resource usage and ensuring that users do not have an excessive number of active sessions at once.
+
+### OpenTofu Keycloak Client Configuration
+
+The UDS Identity Config includes a Keycloak client that can be used by OpenTofu to manage Keycloak resources programmatically. This client is disabled by default for security reasons.
+
+:::caution
+**Critical Security Requirements**
+
+1. **Pre-Deployment Configuration**
+   - **You must configure authentication flows before deploying UDS Core**
+   - UDS Core will apply default authentication flows if not configured first
+   - This is a critical security step to prevent unauthorized access
+
+2. **Deployment Options**:
+
+   **Option 1: Disable All Flows (Recommended)**
+   This approach starts with maximum security by disabling all authentication methods:
+   ```yaml
+   overrides:
+     keycloak:
+       keycloak:
+         values:
+           - path: realmInitEnv
+             value:
+               OPENTOFU_CLIENT_ENABLED: true
+           - path: realmAuthFlows
+             value:
+               USERNAME_PASSWORD_AUTH_ENABLED: false
+               X509_AUTH_ENABLED: false
+               SOCIAL_AUTH_ENABLED: false
+               OTP_ENABLED: false
+               WEBAUTHN_ENABLED: false
+               X509_MFA_ENABLED: false
+   ```
+   This is the most secure approach but requires OpenTofu to enable specific authentication methods after deployment.
+
+   **Option 2: Configure Final Flows Upfront**
+   If you know your exact authentication requirements, you can configure them directly. For example, to enable Username/Password + OTP authentication only:
+   ```yaml
+   overrides:
+     keycloak:
+       keycloak:
+         values:
+           - path: realmInitEnv
+             value:
+               OPENTOFU_CLIENT_ENABLED: true
+           - path: realmAuthFlows
+             value:
+               USERNAME_PASSWORD_AUTH_ENABLED: true
+               X509_AUTH_ENABLED: false
+               SOCIAL_AUTH_ENABLED: false
+               OTP_ENABLED: true
+               WEBAUTHN_ENABLED: false
+               X509_MFA_ENABLED: false
+   ```
+   This approach is simpler initially but may require manual steps if your requirements change.
+
+3. **Security Considerations**
+   - The `uds-opentofu-client` has elevated permissions - protect its credentials
+   - Never modify or delete the `uds-operator` clients as they are critical for system operation
+   - Monitor authentication logs after deployment for any unexpected access attempts
+
+4. **Verification**
+   - Test authentication in a non-production environment first
+   - For detailed information on available authentication flows, see [Authentication Flow Documentation](../authentication-flows)
+:::
+
+#### OpenTofu Provider Configuration
+
+To use the OpenTofu Keycloak client, you'll need to configure the [Keycloak provider](https://registry.terraform.io/providers/keycloak/keycloak/latest/docs) to use the OpenTofu client's `Client Secret`.
+
+The OpenTofu Keycloak client's secret can be retrieved via the Admin UI, navigate to the `UDS` Realm and select the `Clients` tab from the left sidebar, select the `uds-opentofu-client`, and click the `Credentials` tab to copy the secret value.
+
+Here's an example configuration that would create a new client called `example-client`:
+```hcl
+terraform {
+  required_providers {
+    keycloak = {
+      source  = "keycloak/keycloak"
+      version = "5.2.0"
+    }
+  }
+  required_version = ">= 1.0.0"
+}
+
+variable "keycloak_client_secret" {
+  type        = string
+  description = "Client secret for the Keycloak provider"
+  sensitive   = true
+}
+
+provider "keycloak" {
+  client_id     = "uds-opentofu-client"
+  client_secret = var.keycloak_client_secret
+  url           = "https://keycloak.admin.uds.dev"
+  realm         = "uds"
+}
+
+# Create a new group in Keycloak
+resource "keycloak_group" "example_group" {
+  realm_id = "uds"
+  name     = "example-group"
+
+  # Optional attributes
+  attributes = {
+    description = "Example group created via Terraform"
+    created_by  = "terraform"
+  }
+}
+
+# Create a nested group under example-group
+resource "keycloak_group" "nested_group" {
+  realm_id  = "uds"
+  name      = "nested-example-group"
+  parent_id = keycloak_group.example_group.id  # This makes it a child of example-group
+
+  attributes = {
+    description = "Nested group under example-group"
+    created_by  = "terraform"
+  }
+
+  lifecycle {
+    prevent_destroy = false  # Set to true in production after testing
+  }
+}
+
+# Output the group IDs for reference
+output "example_group_id" {
+  value       = keycloak_group.example_group.id
+  description = "The ID of the example group"
+}
+
+output "nested_group_id" {
+  value       = keycloak_group.nested_group.id
+  description = "The ID of the nested group"
+}
+```
+
+:::note
+**Security Note:**
+Passing sensitive values (such as `keycloak_client_secret`) via command line arguments can expose secrets in shell history and process lists. Instead, use a `.tfvars` file (e.g., `secrets.auto.tfvars`) to securely provide sensitive variables to Tofu.
+:::
+
+Create a file named `secrets.auto.tfvars` with the following content:
+
+```hcl
+keycloak_client_secret = "your-actual-client-secret-here"
+```
+
+Then run Tofu without passing the secret on the command line:
+
+```bash
+# Use this tofu command to plan the Tofu
+tofu plan
+
+# Use this tofu command to apply the Tofu
+tofu apply -auto-approve
+```
+
+#### Enabling the OpenTofu Client via Keycloak Admin UI
+
+If you need to enable the OpenTofu client after deployment or verify its configuration, follow these steps in the Keycloak Admin Console:
+
+1. **Log in to Keycloak Admin Console**
+   - Navigate to your Keycloak admin URL (typically `https://<your-keycloak-url>/admin/`)
+   - Log in with administrative credentials
+   - **Important**: Ensure you're in the `UDS` realm (not the `master` realm)
+     - In the left sidecar, select `Manage Realms`
+     - Select `uds` from the `Manage Realms` page
+
+2. **Enable the Tofu Client**
+   - In the left sidebar, click on "Clients"
+   - Find the `uds-opentofu-client` client
+   - Click on the client to open its settings
+   - Toggle the "Enabled" switch to ON in the top right of the page
+   - Click "Save" at the bottom of the page
+
+#### Configure OpenTofu Client via Keycloak Admin UI
+
+If you need to setup the OpenTofu client manually, the following steps will provide the steps to do this:
+
+1. **Log in to Keycloak Admin Console**
+   - Navigate to your Keycloak admin URL (typically `https://<your-keycloak-url>/admin/`)
+   - Log in with administrative credentials
+   - **Important**: Ensure you're in the `UDS` realm (not the `master` realm)
+     - In the left sidecar, select `Manage Realms`
+     - Select `uds` from the `Manage Realms` page
+
+2. **Create new Client**
+   - In the left sidebar, click on "Clients"
+   - Click `Create client`
+    - `Client ID` = `uds-opentofu-client`
+    - `Name` = `uds-opentofu-client`
+    - `Description` = `A client used for managing Keycloak via Tofu`
+  - Click `Next`
+    - Enable `Client authentication`
+    - Disable `Standard flow`
+    - Enable `Service account roles`
+  - Click `Next`
+  - Click `Save`
+  - Click `Service account roles`
+    - Click `Assign role`
+      - Select `Client Roles`
+        - Seach for `realm-admin` and check the box
+        - `Assign`
+  - Click `Credentials`
+    - Copy the `Client Secret` and start applying Tofu
