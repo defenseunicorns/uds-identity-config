@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.17.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.3...v0.17.0) (2025-09-02)
+
+
+### Features
+
+* keycloak tofu client implementation ([#595](https://github.com/defenseunicorns/uds-identity-config/issues/595)) ([ea8a381](https://github.com/defenseunicorns/uds-identity-config/commit/ea8a38131895b923bde84cf4b8d33ee690a634b8))
+* limit the number of concurrent sessions ([#591](https://github.com/defenseunicorns/uds-identity-config/issues/591)) ([07be3d8](https://github.com/defenseunicorns/uds-identity-config/commit/07be3d80a602e0adcab2557a9e79429342b0ac64))
+
+
+### Bug Fixes
+
+* bump username length maximum ([#601](https://github.com/defenseunicorns/uds-identity-config/issues/601)) ([ff65cad](https://github.com/defenseunicorns/uds-identity-config/commit/ff65cad35b364461f687005b4620066d5a285919))
+* **deps:** update plugin-deps to v26.3.3 ([#596](https://github.com/defenseunicorns/uds-identity-config/issues/596)) ([6de068f](https://github.com/defenseunicorns/uds-identity-config/commit/6de068fa669204019b2b999f8872a2e7747e84c8))
+* docs link ([#599](https://github.com/defenseunicorns/uds-identity-config/issues/599)) ([08ec1fc](https://github.com/defenseunicorns/uds-identity-config/commit/08ec1fc95d98d10f823d509a486b2afaa4ccbcfc))
+
+
+### Miscellaneous
+
+* **deps:** update actions/setup-java action to v5 ([#598](https://github.com/defenseunicorns/uds-identity-config/issues/598)) ([55ac0a9](https://github.com/defenseunicorns/uds-identity-config/commit/55ac0a963a1f571e8f614a87cb1d39fe83172cd7))
+* **deps:** update all dependencies ([#597](https://github.com/defenseunicorns/uds-identity-config/issues/597)) ([684b273](https://github.com/defenseunicorns/uds-identity-config/commit/684b27341d878f9829f0691f1704a8a1d57bed04))
+* **deps:** update dependency defenseunicorns/uds-core to v0.50.0 ([#592](https://github.com/defenseunicorns/uds-identity-config/issues/592)) ([2f27c46](https://github.com/defenseunicorns/uds-identity-config/commit/2f27c464bcaf2bbb57a816d70bbd18310f4a8ed7))
+
+
+### Documentation
+
+* fix link for auth flows ([#602](https://github.com/defenseunicorns/uds-identity-config/issues/602)) ([8c01c99](https://github.com/defenseunicorns/uds-identity-config/commit/8c01c99ac56884f7f19656611046c2affd809f70))
+
 ## [0.16.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.2...v0.16.3) (2025-08-18)
 
 
