@@ -73,7 +73,7 @@ describe("Tofu Client Management", () => {
         cy.exec(`cd ${tfDir} && tofu destroy -auto-approve -var="keycloak_client_secret=${clientSecret}"`, {
             failOnNonZeroExit: false
         }).then((result) => {
-            expect(result.code).to.eq(0, "OpenTofu destroy should succeed");
+            expect(result.exitCode).to.eq(0, "OpenTofu destroy should succeed");
         });
 
         // Verify client is deleted
@@ -126,7 +126,7 @@ describe("Tofu Client Management", () => {
                 '-no-color -input=false -json',
                 { failOnNonZeroExit: false }
             ).then((applyResult) => {
-                if (applyResult.code !== 0) {
+                if (applyResult.exitCode !== 0) {
                     // Try to parse JSON output if available
                     let errorDetails = applyResult.stderr;
                     try {
@@ -137,11 +137,11 @@ describe("Tofu Client Management", () => {
                         errorDetails = applyResult.stderr || applyResult.stdout;
                     }
 
-                    throw new Error(`OpenTofu apply failed with code ${applyResult.code}.\n` +
+                    throw new Error(`OpenTofu apply failed with code ${applyResult.exitCode}.\n` +
                                   `ERROR DETAILS:\n${errorDetails}`);
                 }
 
-                expect(applyResult.code).to.eq(0, "OpenTofu apply should succeed");
+                expect(applyResult.exitCode).to.eq(0, "OpenTofu apply should succeed");
             });
         });
     });
@@ -196,7 +196,7 @@ describe("Tofu Client Management", () => {
             cy.log('OpenTofu apply result:', result);
 
             // Should fail with non-zero exit code
-            expect(result.code).not.to.eq(0);
+            expect(result.exitCode).not.to.eq(0);
 
             // Check for specific error message
             expect(result.stderr).to.include('401');
@@ -253,7 +253,7 @@ describe("Tofu Client Management", () => {
                 cy.log('OpenTofu apply result:', result);
 
                 // Should fail with non-zero exit code
-                expect(result.code).not.to.eq(0);
+                expect(result.exitCode).not.to.eq(0);
 
                 // Check for unauthorized error (401 or 403)
                 const errorOutput = result.stderr + result.stdout;
