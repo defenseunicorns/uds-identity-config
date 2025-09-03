@@ -6,12 +6,11 @@ metadata:
   name: theme-customization-tests
   description: A UDS Bundle designed to be deployed on top of `uds-bundle-k3d-core-slim-dev` to test theme customization
   version: "dev"
-
 packages:
   - name: core-identity-authorization
     path: ../../uds-core/build/
-    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.50.0
+    # This version will get automatically updated by build-deploy-custom-slim task
+    ref: dev
     overrides:
       keycloak:
         keycloak:

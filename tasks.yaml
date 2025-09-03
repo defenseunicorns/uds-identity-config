@@ -17,11 +17,6 @@ variables:
     description: "The repository + name for the published image"
     default: "ghcr.io/defenseunicorns/uds/identity-config"
 
-  - name: CORE_VERSION
-    description: UDS Core Version for Releases and Clone
-    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.50.0"
-
 tasks:
   - name: build-and-publish
     description: "Build and publish the multi-arch image"
@@ -138,6 +133,15 @@ tasks:
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
     actions:
+      - description: "Replace dev versions in the dev bundle with the VERSION variable"
+        cmd: |
+          VERSION=$(yq eval '.metadata.version' uds-core/bundles/k3d-standard/uds-bundle.yaml)
+          for f in "bundles/external-loadbalancer/uds-bundle.yaml" "bundles/k3d-core-slim-dev/uds-bundle.yaml" "bundles/theme-customizations/uds-bundle.yaml"
+          do
+            echo "Processing bundle versions in file $f"
+            yq eval --inplace ".packages[] |= (select(.path == \"../../uds-core/build/\").ref = \"${VERSION}\")" "$f"
+          done
+          echo "Processing complete"
       - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
       - cmd: cd uds-core && mkdir -p build && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization && uds run create:single-layer-callable --set LAYER=monitoring
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
