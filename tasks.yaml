@@ -136,10 +136,12 @@ tasks:
       - description: "Replace dev versions in the dev bundle with the VERSION variable"
         cmd: |
           VERSION=$(yq eval '.metadata.version' uds-core/bundles/k3d-standard/uds-bundle.yaml)
-          for f in "bundles/external-loadbalancer/uds-bundle.yaml" "bundles/k3d-core-slim-dev/uds-bundle.yaml" "bundles/theme-customizations/uds-bundle.yaml"
+          for original_file in "bundles/external-loadbalancer/uds-bundle.template.yaml" "bundles/k3d-core-slim-dev/uds-bundle.template.yaml" "bundles/theme-customizations/uds-bundle.template.yaml"
           do
-            echo "Processing bundle versions in file $f"
-            yq eval --inplace ".packages[] |= (select(.path == \"../../uds-core/build/\").ref = \"${VERSION}\")" "$f"
+            processed_file="${original_file%.template.yaml}.yaml"
+            cp "$original_file" "$processed_file"
+            echo "Processing bundle versions in file $original_file"
+            yq eval --inplace ".packages[] |= (select(.path == \"../../uds-core/build/\").ref = \"${VERSION}\")" "$processed_file"
           done
           echo "Processing complete"
       - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
