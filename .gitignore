@@ -23,3 +23,8 @@ uds-docs/**
 **/haproxy-client-ca.pem
 **/haproxy.pem
 **/haproxy.pem.key
+
+# Processed bundles
+bundles/external-loadbalancer/uds-bundle.yaml
+bundles/k3d-core-slim-dev/uds-bundle.yaml
+bundles/theme-customizations/uds-bundle.yaml

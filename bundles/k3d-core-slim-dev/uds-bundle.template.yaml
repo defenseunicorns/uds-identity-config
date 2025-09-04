@@ -1,17 +1,62 @@
-# Copyright 2025 Defense Unicorns
+# Copyright 2024 Defense Unicorns
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 kind: UDSBundle
 metadata:
-  name: theme-customization-tests
-  description: A UDS Bundle designed to be deployed on top of `uds-bundle-k3d-core-slim-dev` to test theme customization
+  name: k3d-core-slim-dev
+  description: A UDS bundle for deploying Istio from UDS Core on a development cluster
   version: "dev"
-
 packages:
+  - name: uds-k3d-dev
+    repository: ghcr.io/defenseunicorns/packages/uds-k3d
+    # renovate: datasource=github-tags depName=defenseunicorns/uds-k3d versioning=semver
+    ref: 0.16.0
+  - name: init
+    repository: ghcr.io/zarf-dev/packages/init
+    # renovate: datasource=github-tags depName=zarf-dev/zarf versioning=semver
+    ref: v0.61.0
+  - name: keycloak-identity-config
+    path: ../../
+    ref: dev
+  - name: core-base
+    path: ../../uds-core/build/
+    # This version will get automatically updated by build-deploy-custom-slim task
+    ref: dev
+    overrides:
+      pepr-uds-core:
+        module:
+          values:
+            - path: additionalIgnoredNamespaces
+              value:
+                - uds-dev-stack
+      istio-admin-gateway:
+        uds-istio-config:
+          variables:
+            - name: ADMIN_TLS_CACERT
+              description: "The CA cert for the tenant gateway (must be base64 encoded)"
+              path: tls.cacert
+      istio-tenant-gateway:
+        uds-istio-config:
+          variables:
+            - name: TENANT_TLS_CACERT
+              description: "The CA cert for the tenant gateway (must be base64 encoded)"
+              path: tls.cacert
+      istio-controlplane:
+        uds-global-istio-config:
+          values:
+            - path: classificationBanner.text
+              value: "UNCLASSIFIED" # Possible values: UNCLASSIFIED, CUI, CONFIDENTIAL, SECRET, TOP SECRET, TOP SECRET//SCI, UNKNOWN
+            - path: classificationBanner.addFooter
+              value: true
+            - path: classificationBanner.enabledHosts
+              value:
+                - keycloak.admin.{{ .Values.domain }}
+                - sso.{{ .Values.domain }}
+                - grafana.admin.{{ .Values.domain }}
   - name: core-identity-authorization
     path: ../../uds-core/build/
-    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    ref: 0.50.0
+    # This version will get automatically updated by build-deploy-custom-slim task
+    ref: dev
     overrides:
       keycloak:
         keycloak:
@@ -20,27 +65,6 @@ packages:
               description: "The keycloak config image to deploy plugin and initial setup configuration"
               path: configImage
           values:
-            - path: themeCustomizations
-              value:
-                resources:
-                  images:
-                    - name: background.png
-                      configmap:
-                        name: keycloak-theme-overrides
-                    - name: logo.png
-                      configmap:
-                        name: keycloak-theme-overrides
-                    - name: footer.png
-                      configmap:
-                        name: keycloak-theme-overrides
-                    - name: favicon.png
-                      configmap:
-                        name: keycloak-theme-overrides
-                termsAndConditions:
-                  text:
-                    configmap:
-                      key: text
-                      name: keycloak-theme-overrides
             - path: realmInitEnv
               value:
                 GOOGLE_IDP_ENABLED: true
@@ -50,14 +74,22 @@ packages:
                 GOOGLE_IDP_CORE_ENTITY_ID: "https://sso.uds.dev/realms/uds"
                 GOOGLE_IDP_ADMIN_GROUP: "uds-core-dev-admin"
                 GOOGLE_IDP_AUDITOR_GROUP: "uds-core-dev-auditor"
-                TERMS_AND_CONDITIONS_ENABLED: true
+                X509_OCSP_FAIL_OPEN: "true"
+                OPENTOFU_CLIENT_ENABLED: true
+                SSO_SESSION_MAX_PER_USER: "10"
             - path: realmAuthFlows
               value:
                 USERNAME_PASSWORD_AUTH_ENABLED: true
                 X509_AUTH_ENABLED: true
                 SOCIAL_AUTH_ENABLED: true
-                OTP_ENABLED: true
+                OTP_ENABLED: false
             - path: env[0]
               value:
                 name: JAVA_OPTS_KC_HEAP
                 value: "-XX:MaxRAMPercentage=70 -XX:MinRAMPercentage=70 -XX:InitialRAMPercentage=50 -XX:MaxRAM=1G"
+            - path: fips
+              value: true
+  - name: core-monitoring
+    path: ../../uds-core/build/
+    # This version will get automatically updated by build-deploy-custom-slim task
+    ref: dev
