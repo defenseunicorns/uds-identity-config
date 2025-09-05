@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.18.0/tasks/lint.yaml
-  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.18.0/tasks/setup.yaml
+  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.18.1/tasks/lint.yaml
+  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.18.1/tasks/setup.yaml
   - lb-setup: ./tasks/setup.yaml
 
 variables:
