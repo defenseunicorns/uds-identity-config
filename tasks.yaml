@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.18.0/tasks/lint.yaml
-  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.18.0/tasks/setup.yaml
+  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.18.1/tasks/lint.yaml
+  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.18.1/tasks/setup.yaml
   - lb-setup: ./tasks/setup.yaml
 
 variables:
@@ -16,11 +16,6 @@ variables:
   - name: IMAGE_NAME
     description: "The repository + name for the published image"
     default: "ghcr.io/defenseunicorns/uds/identity-config"
-
-  - name: CORE_VERSION
-    description: UDS Core Version for Releases and Clone
-    # renovate: datasource=github-tags depName=defenseunicorns/uds-core versioning=semver
-    default: "v0.50.0"
 
 tasks:
   - name: build-and-publish
@@ -138,6 +133,17 @@ tasks:
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
     actions:
+      - description: "Replace dev versions in the dev bundle with the VERSION variable"
+        cmd: |
+          VERSION=$(uds zarf tools yq eval '.metadata.version' uds-core/bundles/k3d-standard/uds-bundle.yaml)
+          for original_file in "bundles/external-loadbalancer/uds-bundle.template.yaml" "bundles/k3d-core-slim-dev/uds-bundle.template.yaml" "bundles/theme-customizations/uds-bundle.template.yaml"
+          do
+            processed_file="${original_file%.template.yaml}.yaml"
+            cp "$original_file" "$processed_file"
+            echo "Processing bundle versions in file $original_file"
+            uds zarf tools yq eval --inplace ".packages[] |= (select(.path == \"../../uds-core/build/\").ref = \"${VERSION}\")" "$processed_file"
+          done
+          echo "Processing complete"
       - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
       - cmd: cd uds-core && mkdir -p build && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization && uds run create:single-layer-callable --set LAYER=monitoring
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
