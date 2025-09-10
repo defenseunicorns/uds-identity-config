@@ -69,21 +69,6 @@
             <hr>
             <form class="form-actions" action="${url.loginAction}" method="POST">
                 <div class="col-lg-12">
-                    <div class="row align-items-center">
-                        <div class="terms-checkbox-container">
-                            <div class="terms-checkbox-wrapper">
-                                <input type="checkbox" id="termsCheckbox" class="terms-checkbox">
-                                <span class="terms-checkbox-custom"></span>
-                                <svg class="terms-checkbox-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M20 6L9 17L4 12" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <label for="termsCheckbox" class="terms-checkbox-label">
-                                I agree to the terms and conditions as set out by the user agreement.
-                            </label>
-                        </div>
-                    </div>
-                    <br/>
                     <div class="row">
                         <input class="btn btn-primary btn-block"
                                name="accept" id="kc-accept" type="submit" value="${msg("doAccept")}" />
@@ -91,52 +76,6 @@
                 </div>
             </form>
             <div class="clearfix"></div>
-            <script>
-                // Handle checkbox state and styling
-                document.addEventListener('DOMContentLoaded', function() {
-                    const checkbox = document.getElementById('termsCheckbox');
-                    const checkmark = checkbox.nextElementSibling.nextElementSibling;
-                    const acceptBtn = document.getElementById('kc-accept');
-
-                    // Initial state
-                    updateButtonState();
-
-                    // Toggle checkmark visibility and button state
-                    checkbox.addEventListener('change', function() {
-                        const svg = this.nextElementSibling.nextElementSibling;
-                        if (this.checked) {
-                            svg.style.display = 'block';
-                        } else {
-                            svg.style.display = 'none';
-                        }
-                        updateButtonState();
-                    });
-
-                    // Handle label clicks through event delegation
-                    document.addEventListener('click', function(e) {
-                        if (e.target.closest('label[for="termsCheckbox"]')) {
-                            e.preventDefault();
-                            checkbox.checked = !checkbox.checked;
-                            const event = new Event('change');
-                            checkbox.dispatchEvent(event);
-                        }
-                    });
-
-                    function updateButtonState() {
-                        if (checkbox.checked) {
-                            acceptBtn.removeAttribute('disabled');
-                            acceptBtn.style.opacity = '1';
-                            acceptBtn.style.cursor = 'pointer';
-                            acceptBtn.style.backgroundColor = '#1A56DB';
-                        } else {
-                            acceptBtn.setAttribute('disabled', 'disabled');
-                            acceptBtn.style.opacity = '0.5';
-                            acceptBtn.style.cursor = 'not-allowed';
-                            acceptBtn.style.backgroundColor = '#374151';
-                        }
-                    }
-                });
-            </script>
         </#if>
     </@layout.registrationLayout>
 
