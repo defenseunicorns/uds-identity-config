@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.18.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.17.0...v0.18.0) (2025-09-10)
+
+
+### Features
+
+* always tests against UDS Core main ([#614](https://github.com/defenseunicorns/uds-identity-config/issues/614)) ([b6b2e24](https://github.com/defenseunicorns/uds-identity-config/commit/b6b2e24b11cd0d09aca9943eaee59cafccb70692))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#613](https://github.com/defenseunicorns/uds-identity-config/issues/613)) ([cd0d803](https://github.com/defenseunicorns/uds-identity-config/commit/cd0d8032ff24e09b3cda41633622319f27a674bf))
+* **deps:** update all dependencies ([#616](https://github.com/defenseunicorns/uds-identity-config/issues/616)) ([a7b3c3c](https://github.com/defenseunicorns/uds-identity-config/commit/a7b3c3cd362cc8696c9c553fb208b0e83c7181e4))
+* **deps:** update all dependencies ([#619](https://github.com/defenseunicorns/uds-identity-config/issues/619)) ([95d19e8](https://github.com/defenseunicorns/uds-identity-config/commit/95d19e805ee68780f7ca17803166dc36ed04fb1a))
+* **deps:** update gha-deps ([#603](https://github.com/defenseunicorns/uds-identity-config/issues/603)) ([d7b8c14](https://github.com/defenseunicorns/uds-identity-config/commit/d7b8c1409a127982fa0c4b7fc439142dca0fa5fe))
+
 ## [0.17.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.3...v0.17.0) (2025-09-02)
 
 
