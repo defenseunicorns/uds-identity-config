@@ -92,7 +92,7 @@ If upgrading uds-core, be aware that Keycloak Admin manual configuration will pr
 To simplify the configuration of the available authentication flows, the following three environment variables have been exposed. These variables default to `true` in UDS Core, override their values in a bundle to disable.
 
 :::note
-These settings allow for enabling/disabling one or more of the Auth flows. Be aware that disabling all three will result in no options for registration and authentication (login).
+These settings allow for enabling/disabling one or more of the Auth flows. Be aware that disabling `USERNAME_PASSWORD_AUTH_ENABLED`, `X509_AUTH_ENABLED` and `SOCIAL_AUTH_ENABLED` will result in no options for registration and authentication (login). At the same time disabling both `USERNAME_PASSWORD_AUTH_ENABLED` and `X509_AUTH_ENABLED` also disables the User Registration feature. 
 :::
 
 | Setting | Description | Options |
@@ -110,7 +110,7 @@ These three variables handle the complexities of configuring the following envir
 Theme's cannot be clickops'ed, for these changes to take affect an upgrade or fresh deployment will be required. Another option is exec-ing into the the keycloak pod and copying in the new themes to the `/opt/keycloak/theme/themes/login/` directory. After copying in the theme changes, the theme changes depend on environment variables being defined in the [theme.properties file](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/theme/login/theme.properties). The above table demonstrates the different environment variables for the `theme.properties` file.
 
 #### Realm Configurations
-All Realm Configurations require accesss to the Keycloak admin portal.
+All Realm Configurations require access to the Keycloak admin portal.
 
 | Configuration | How to Configure |
 | - | - |
