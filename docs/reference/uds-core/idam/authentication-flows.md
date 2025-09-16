@@ -92,7 +92,7 @@ If upgrading uds-core, be aware that Keycloak Admin manual configuration will pr
 To simplify the configuration of the available authentication flows, the following three environment variables have been exposed. These variables default to `true` in UDS Core, override their values in a bundle to disable.
 
 :::note
-These settings allow for enabling/disabling one or more of the Auth flows. Be aware that disabling `USERNAME_PASSWORD_AUTH_ENABLED`, `X509_AUTH_ENABLED` and `SOCIAL_AUTH_ENABLED` will result in no options for registration and authentication (login). At the asme time disabling both `USERNAME_PASSWORD_AUTH_ENABLED`, `X509_AUTH_ENABLED` also disables the User Registration feature. 
+These settings allow for enabling/disabling one or more of the Auth flows. Be aware that disabling `USERNAME_PASSWORD_AUTH_ENABLED`, `X509_AUTH_ENABLED` and `SOCIAL_AUTH_ENABLED` will result in no options for registration and authentication (login). At the same time disabling both `USERNAME_PASSWORD_AUTH_ENABLED` and `X509_AUTH_ENABLED` also disables the User Registration feature. 
 :::
 
 | Setting | Description | Options |
