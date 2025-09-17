@@ -2163,7 +2163,7 @@
                 },
                 {
                     "authenticatorFlow": true,
-                    "requirement": "ALTERNATIVE",
+                    "requirement": "${X509_LOGIN_FLOW_ENABLED:ALTERNATIVE}",
                     "priority": 1,
                     "autheticatorFlow": true,
                     "flowAlias": "x509 Authentication",
