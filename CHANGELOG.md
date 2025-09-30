@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.18.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.17.0...v0.18.0) (2025-09-30)
+
+
+### Features
+
+* always tests against UDS Core main ([#614](https://github.com/defenseunicorns/uds-identity-config/issues/614)) ([b6b2e24](https://github.com/defenseunicorns/uds-identity-config/commit/b6b2e24b11cd0d09aca9943eaee59cafccb70692))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps ([#624](https://github.com/defenseunicorns/uds-identity-config/issues/624)) ([776ce3a](https://github.com/defenseunicorns/uds-identity-config/commit/776ce3a3dfa70e0bc929e3143b83fe8bcdcef078))
+* **deps:** update plugin-deps to v26.3.5 ([#634](https://github.com/defenseunicorns/uds-identity-config/issues/634)) ([dfaa33f](https://github.com/defenseunicorns/uds-identity-config/commit/dfaa33f955e027c4e372ea2b3f39b97cd1289931))
+* disable self-registration at the Realm level ([#627](https://github.com/defenseunicorns/uds-identity-config/issues/627)) ([c874c3d](https://github.com/defenseunicorns/uds-identity-config/commit/c874c3da47dac7e8775391aa13887389848723cb))
+* hide the 'Or sign in with' in social login block when password login is disabled ([#621](https://github.com/defenseunicorns/uds-identity-config/issues/621)) ([09d08d4](https://github.com/defenseunicorns/uds-identity-config/commit/09d08d498f1ec84c63fbcd24398ddcf3d17b77a0))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#613](https://github.com/defenseunicorns/uds-identity-config/issues/613)) ([cd0d803](https://github.com/defenseunicorns/uds-identity-config/commit/cd0d8032ff24e09b3cda41633622319f27a674bf))
+* **deps:** update all dependencies ([#616](https://github.com/defenseunicorns/uds-identity-config/issues/616)) ([a7b3c3c](https://github.com/defenseunicorns/uds-identity-config/commit/a7b3c3cd362cc8696c9c553fb208b0e83c7181e4))
+* **deps:** update all dependencies ([#619](https://github.com/defenseunicorns/uds-identity-config/issues/619)) ([95d19e8](https://github.com/defenseunicorns/uds-identity-config/commit/95d19e805ee68780f7ca17803166dc36ed04fb1a))
+* **deps:** update all dependencies ([#630](https://github.com/defenseunicorns/uds-identity-config/issues/630)) ([3607289](https://github.com/defenseunicorns/uds-identity-config/commit/3607289436f82f978df263ddb8c7f58a57ade608))
+* **deps:** update dependency cross-env to v10.1.0 ([#639](https://github.com/defenseunicorns/uds-identity-config/issues/639)) ([76c5ada](https://github.com/defenseunicorns/uds-identity-config/commit/76c5adaa2d8df71ca21e9fa2f437df1817ddc21c))
+* **deps:** update dependency cypress to v15.3.0 ([#633](https://github.com/defenseunicorns/uds-identity-config/issues/633)) ([e79353e](https://github.com/defenseunicorns/uds-identity-config/commit/e79353ebcd220684910e575f0e155f5e6a394ad2))
+* **deps:** update dependency defenseunicorns/lula to v0.5.0 ([#638](https://github.com/defenseunicorns/uds-identity-config/issues/638)) ([b1c66cb](https://github.com/defenseunicorns/uds-identity-config/commit/b1c66cb1ca0303661d190da74f43029901ee0a66))
+* **deps:** update dependency defenseunicorns/uds-common to v1.20.1 ([#623](https://github.com/defenseunicorns/uds-identity-config/issues/623)) ([54ede8a](https://github.com/defenseunicorns/uds-identity-config/commit/54ede8a3ae77538e819c5a4f87b97ce85f8de31c))
+* **deps:** update dependency defenseunicorns/uds-common to v1.20.2 ([#628](https://github.com/defenseunicorns/uds-identity-config/issues/628)) ([ddeef48](https://github.com/defenseunicorns/uds-identity-config/commit/ddeef48738711b4fd9fbff7127147710b97e90bf))
+* **deps:** update gha-deps ([#603](https://github.com/defenseunicorns/uds-identity-config/issues/603)) ([d7b8c14](https://github.com/defenseunicorns/uds-identity-config/commit/d7b8c1409a127982fa0c4b7fc439142dca0fa5fe))
+* **deps:** update gha-deps ([#617](https://github.com/defenseunicorns/uds-identity-config/issues/617)) ([42076c7](https://github.com/defenseunicorns/uds-identity-config/commit/42076c7fa8ed649507e72e22d5b73edef23244b9))
+* lula workflow ([#632](https://github.com/defenseunicorns/uds-identity-config/issues/632)) ([4ab1253](https://github.com/defenseunicorns/uds-identity-config/commit/4ab12532ea3d32fc63b06c50f03aff965bed3967))
+
 ## [0.17.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.16.3...v0.17.0) (2025-09-02)
 
 
