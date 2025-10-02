@@ -54,6 +54,22 @@ RUN ./ca-to-jks.sh
 
 ###################################################################################
 #                                                                                 #
+# Convert JSON5 realm file to JSON                                               #
+#                                                                                 #
+###################################################################################
+FROM node:21-alpine AS json5-converter
+
+WORKDIR /convert
+
+# Install json5 CLI tool
+RUN npm install -g json5
+
+# Copy the JSON5 file and convert it to JSON
+COPY realm.json5 .
+RUN json5 -c realm.json5 > realm.json
+
+###################################################################################
+#                                                                                 #
 # Use busybox as the base image to perform the sync                               #
 #                                                                                 #
 ###################################################################################
@@ -74,8 +90,7 @@ COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
 COPY --chown=nonroot --from=truststore /home/build/certs ./certs
 
 # The realm.json is loaded into Keycloak on startup only if the realm does not exist
-ARG REALM_FILE=realm.json
-COPY --chown=nonroot ${REALM_FILE} .
+COPY --chown=nonroot --from=json5-converter /convert/realm.json .
 
 # This provides the custom theme for the Keycloak instance
 COPY --chown=nonroot theme theme
