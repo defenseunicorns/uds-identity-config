@@ -62,7 +62,7 @@ FROM node:24-alpine AS json5-converter
 WORKDIR /convert
 
 # Install json5 CLI tool
-RUN npm install -g json5
+RUN npm install -g json5@2.2.3
 
 # Copy the JSON5 file and convert it to JSON
 COPY realm.json5 .
