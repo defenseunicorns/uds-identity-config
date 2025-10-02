@@ -66,7 +66,7 @@ RUN npm install -g json5@2.2.3
 
 # Copy the JSON5 file and convert it to JSON
 COPY realm.json5 .
-RUN json5 -c realm.json5 > realm.json
+RUN json5 -c --out-file realm.json realm.json5
 
 ###################################################################################
 #                                                                                 #
