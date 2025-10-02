@@ -64,7 +64,6 @@ ARG REALM_FILE=realm.json5
 WORKDIR /convert
 
 # Install json5 CLI tool
-# renovate: datasource=npm depName=json5
 RUN npm install -g json5@2.2.3
 
 # Copy the realm file and convert it to JSON if it's JSON5, otherwise just copy
