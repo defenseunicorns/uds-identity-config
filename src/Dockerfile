@@ -57,7 +57,7 @@ RUN ./ca-to-jks.sh
 # Convert JSON5 realm file to JSON                                               #
 #                                                                                 #
 ###################################################################################
-FROM node:21-alpine AS json5-converter
+FROM node:24-alpine AS json5-converter
 
 WORKDIR /convert
 
