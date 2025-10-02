@@ -59,14 +59,21 @@ RUN ./ca-to-jks.sh
 ###################################################################################
 FROM node:24-alpine AS json5-converter
 
+ARG REALM_FILE=realm.json5
+
 WORKDIR /convert
 
 # Install json5 CLI tool
+# renovate: datasource=npm depName=json5
 RUN npm install -g json5@2.2.3
 
-# Copy the JSON5 file and convert it to JSON
-COPY realm.json5 .
-RUN json5 -c --out-file realm.json realm.json5
+# Copy the realm file and convert it to JSON if it's JSON5, otherwise just copy
+COPY ${REALM_FILE} input_realm_file
+RUN if [ "${REALM_FILE##*.}" = "json5" ]; then \
+        json5 -c --out-file realm.json input_realm_file; \
+    else \
+        cp input_realm_file realm.json; \
+    fi
 
 ###################################################################################
 #                                                                                 #
