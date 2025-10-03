@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.18.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.18.0...v0.18.1) (2025-10-03)
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.4.0 ([#641](https://github.com/defenseunicorns/uds-identity-config/issues/641)) ([5a27942](https://github.com/defenseunicorns/uds-identity-config/commit/5a27942ff9acf8c67c92801a78635c56fb4a93ae))
+
+
+### Miscellaneous
+
+* convert realm.json to realm.json5 to support comments ([#651](https://github.com/defenseunicorns/uds-identity-config/issues/651)) ([848aa04](https://github.com/defenseunicorns/uds-identity-config/commit/848aa04015b4269d70225e668e8f50d5bdd7e8c9))
+* **deps:** update dependency @commitlint/cli to v20.1.0 ([#640](https://github.com/defenseunicorns/uds-identity-config/issues/640)) ([0ee83b6](https://github.com/defenseunicorns/uds-identity-config/commit/0ee83b67dbd2b2b145e3f32400dda13a9104178d))
+* **deps:** update dependency typescript to v5.9.3 ([#643](https://github.com/defenseunicorns/uds-identity-config/issues/643)) ([d856590](https://github.com/defenseunicorns/uds-identity-config/commit/d856590f1a9040ddd083fbbec66866e6185fb12f))
+
 ## [0.18.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.17.0...v0.18.0) (2025-09-30)
 
 
