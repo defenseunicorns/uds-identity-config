@@ -5,41 +5,74 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.eventListeners;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventType;
 import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.events.admin.AuthDetails;
 import org.keycloak.events.admin.OperationType;
 import org.keycloak.events.admin.ResourceType;
+import org.keycloak.models.*;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class JSONLogEventListenerProviderTest {
 
     @Mock
-    private Logger logger;
+    private KeycloakSession session;
 
+    @Mock
+    private RealmProvider realmProvider;
+
+    @Mock
+    private UserProvider userProvider;
+
+    @Mock
+    private RealmModel realmModel;
+
+    @Mock
+    private UserModel userModel;
+
+    @Mock
+    private GroupModel groupModel;
+
+    @Mock
+    private GroupModel parentGroupModel;
+
+    @InjectMocks
     private JSONLogEventListenerProvider provider;
+
     private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     private final PrintStream originalSystemOut = System.out;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        provider = new JSONLogEventListenerProvider();
         System.setOut(new PrintStream(outputStream));
+        // common session mocks used by addGroups()
+        when(session.realms()).thenReturn(realmProvider);
+        when(session.users()).thenReturn(userProvider);
     }
 
     @After
@@ -58,7 +91,6 @@ public class JSONLogEventListenerProviderTest {
         // Use reflection to call the private convertUserEvent method
         Method convertUserEventMethod = JSONLogEventListenerProvider.class.getDeclaredMethod("convertUserEvent", Event.class);
         convertUserEventMethod.setAccessible(true);
-        ObjectMapper objectMapper = new ObjectMapper();
         String expectedJson = objectMapper.writeValueAsString(convertUserEventMethod.invoke(provider, event));
 
         provider.onEvent(event);
@@ -78,12 +110,72 @@ public class JSONLogEventListenerProviderTest {
         // Use reflection to call the private convertAdminEvent method
         Method convertAdminEventMethod = JSONLogEventListenerProvider.class.getDeclaredMethod("convertAdminEvent", AdminEvent.class);
         convertAdminEventMethod.setAccessible(true);
-        ObjectMapper objectMapper = new ObjectMapper();
         String expectedJson = objectMapper.writeValueAsString(convertAdminEventMethod.invoke(provider, adminEvent));
 
         provider.onEvent(adminEvent, true);
 
         String actualJson = outputStream.toString().trim();
         assertEquals(expectedJson, actualJson);
+    }
+
+    @Test
+    public void testAddingGroupsWithUDSCoreAdmin() throws Exception {
+        // Given
+        String realmId = UUID.randomUUID().toString();
+        String userId = UUID.randomUUID().toString();
+        AdminEvent adminEvent = new AdminEvent();
+        adminEvent.setResourceType(ResourceType.USER);
+        adminEvent.setOperationType(OperationType.CREATE);
+        adminEvent.setAuthDetails(new AuthDetails());
+        adminEvent.setRealmId(realmId);
+        adminEvent.setRepresentation("{\"id\":\"" + userId + "\"}");
+
+        when(realmProvider.getRealm(eq(realmId))).thenReturn(realmModel);
+        when(userProvider.getUserById(eq(realmModel), eq(userId))).thenReturn(userModel);
+
+        when(userModel.getGroupsStream()).thenReturn(Stream.of(groupModel));
+        when(groupModel.getName()).thenReturn("Admin");
+        when(groupModel.getParent()).thenReturn(parentGroupModel);
+        when(parentGroupModel.getName()).thenReturn("UDS Core");
+        when(parentGroupModel.getParent()).thenReturn(null);
+
+        // When
+        provider.onEvent(adminEvent, true);
+        String actualJson = outputStream.toString().trim();
+
+        // Then
+        JsonNode parsed = objectMapper.readTree(actualJson);
+        assertTrue(parsed.has("representation"));
+        JsonNode rep = objectMapper.readTree(parsed.get("representation").asText());
+        assertTrue(rep.has("groups"));
+        assertEquals("/UDS Core/Admin", rep.get("groups").get(0).asText());
+    }
+
+    @Test
+    public void testAddingGroupsWithNoGroups() throws Exception {
+        // Given
+        String realmId = UUID.randomUUID().toString();
+        String userId = UUID.randomUUID().toString();
+        AdminEvent adminEvent = new AdminEvent();
+        adminEvent.setResourceType(ResourceType.USER);
+        adminEvent.setOperationType(OperationType.CREATE);
+        adminEvent.setAuthDetails(new AuthDetails());
+        adminEvent.setRealmId(realmId);
+        adminEvent.setRepresentation("{\"id\":\"" + userId + "\"}");
+
+        when(realmProvider.getRealm(eq(realmId))).thenReturn(realmModel);
+        when(userProvider.getUserById(eq(realmModel), eq(userId))).thenReturn(userModel);
+
+        when(userModel.getGroupsStream()).thenReturn(Stream.empty());
+
+        // When
+        provider.onEvent(adminEvent, true);
+        String actualJson = outputStream.toString().trim();
+
+        // Then
+        JsonNode parsed = objectMapper.readTree(actualJson);
+        JsonNode rep = objectMapper.readTree(parsed.get("representation").asText());
+        assertTrue(rep.has("groups"));
+        assertEquals(0, rep.get("groups").size());
     }
 }
