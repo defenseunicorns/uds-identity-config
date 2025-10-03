@@ -15,7 +15,7 @@ public class JSONLogEventListenerProviderFactory implements EventListenerProvide
 
     @Override
     public EventListenerProvider create(KeycloakSession session) {
-        return new JSONLogEventListenerProvider();
+        return new JSONLogEventListenerProvider(session);
     }
 
     @Override
