@@ -82,8 +82,8 @@ public class JSONLogEventListenerProvider implements EventListenerProvider {
                             .collect(Collectors.toCollection(ArrayList::new));
                     logger.debug("groups: {}", groups);
                     representationAsMap.putIfAbsent("groups", groups);
+                    adminEvent.setRepresentation(objectMapper.writeValueAsString(representationAsMap));
                 }
-                adminEvent.setRepresentation(objectMapper.writeValueAsString(representationAsMap));
             } catch (Exception e) {
                 logger.warn("Failed to append Group to the User. Grafana alerts might not be fully accurate. Skipping...", e);
             }
