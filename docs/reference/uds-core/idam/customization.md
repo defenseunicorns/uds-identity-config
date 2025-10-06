@@ -204,7 +204,7 @@ Once that cluster is up and healthy and after making theme changes, utilize this
 
 ## Customizing Realm
 
-The `UDS Identity` realm is defined in the realm.json found in [src/realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json). This can be modified and will require a new `uds-identity-config` image for `uds-core`.
+The `UDS Identity` realm is defined in the realm.json found in [src/realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json5). This can be modified and will require a new `uds-identity-config` image for `uds-core`.
 
 :::note
 Be aware that changing values in the realm may also need to be updated throughout the configuration of Keycloak and Authservice in `uds-core`. For example, changing the realm name will break a few different things within Keycloak unless those values are changed in `uds-core` as well.
@@ -265,7 +265,7 @@ overrides:
           value: 10
 ```
 
-> These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json).
+> These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json5).
 
 :::note
 **Important**: By allowing certificates to pass when no revocation check is performed, you accept the **risk** of potentially allowing revoked certificates to authenticate. This can pose a significant security threat depending on your organization’s compliance requirements and threat model.
