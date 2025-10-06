@@ -9,7 +9,9 @@
     "refreshTokenMaxReuse": 0,
     "accessTokenLifespan": "${REALM_ACCESS_TOKEN_LIFESPAN:60}",
     "accessTokenLifespanForImplicitFlow": 900,
+    // @lulaStart 251f6498-05a3-416c-b6eb-b9fadd776704
     "ssoSessionIdleTimeout": "${REALM_SSO_SESSION_IDLE_TIMEOUT:600}",
+    // @lulaEnd 251f6498-05a3-416c-b6eb-b9fadd776704
     "ssoSessionMaxLifespan": "${REALM_SSO_SESSION_MAX_LIFESPAN:36000}",
     "ssoSessionIdleTimeoutRememberMe": 0,
     "ssoSessionMaxLifespanRememberMe": 0,
