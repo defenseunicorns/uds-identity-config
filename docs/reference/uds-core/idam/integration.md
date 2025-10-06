@@ -10,7 +10,7 @@ title: Integration Testing
 
 | Test Name (link) | Test Description |
 |------------------|------------------|
-| [Login Existing User](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/login.cy.ts) | Login in existing user that is created in the testing [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/realm.json) |
+| [Login Existing User](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/login.cy.ts) | Login in existing user that is created in the testing [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/realm.json5) |
 | [Login Nonexistant User / Incorrect creds](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/login.cy.ts) | User cannot login / authenticate with incorrect creds or without account |
 | [Successfuly CAC Registration](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/registration.cy.ts) | New user can successfully register with CAC |
 | [CAC User Login](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/test/cypress/e2e/registration.cy.ts) | New user can successfully login with CAC |
