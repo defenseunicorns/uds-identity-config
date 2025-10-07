@@ -3167,7 +3167,9 @@
             "config": {
                 "userClientLimit": "0",
                 "behavior": "Deny new session",
+                // @lulaStart ef276ec4-7921-4287-a18c-80dec5f8e742
                 "userRealmLimit": "${REALM_SSO_SESSION_MAX_PER_USER:0}"
+                // @lulaEnd ef276ec4-7921-4287-a18c-80dec5f8e742
             }
         }
     ],
