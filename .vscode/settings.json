@@ -29,5 +29,6 @@
       "Sysctls",
       "Velero"
     ],
-    "cSpell.enabled": true
+    "cSpell.enabled": true,
+    "python.defaultInterpreterPath": "/Users/mitchellmurphy/.local/share/mise/installs/python/3.13.5/bin/python"
   }

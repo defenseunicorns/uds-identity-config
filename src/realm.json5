@@ -429,6 +429,25 @@
                     "parentId": "53521ed0-aa44-4007-9727-0015d5281c3e"
                 }
             ]
+        },
+        {
+            "id": "5696FBD0-B114-445F-9F54-B874F1A43BBC",
+            "name": "ARGO_COS_PRO",
+            "path": "/ARGO_COS_PRO",
+            "subGroups": [
+                {
+                    "id": "70F0B010-E80A-4976-A28F-D9E0CBFCBBB9",
+                    "name": "NUMARSS_COS_PRO",
+                    "path": "/ARGO_COS_PRO/NUMARSS_COS_PRO",
+                    "parentId": "5696FBD0-B114-445F-9F54-B874F1A43BBC"
+                },
+                {
+                    "id": "52732BBE-6D9C-4B5D-96F5-8F9A6562A789",
+                    "name": "CLEER_COS_PRO",
+                    "path": "/ARGO_COS_PRO/CLEER_COS_PRO",
+                    "parentId": "5696FBD0-B114-445F-9F54-B874F1A43BBC"
+                }
+            ]
         }
     ],
     "defaultRole": {
