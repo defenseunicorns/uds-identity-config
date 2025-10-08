@@ -54,7 +54,7 @@ RUN ./ca-to-jks.sh
 
 ###################################################################################
 #                                                                                 #
-# Convert JSON5 realm file to JSON                                               #
+# Convert JSON5 realm file to JSON                                                #
 #                                                                                 #
 ###################################################################################
 FROM node:24-alpine AS json5-converter
@@ -73,6 +73,18 @@ RUN if [ "${REALM_FILE##*.}" = "json5" ]; then \
     else \
         cp input_realm_file realm.json; \
     fi
+
+###################################################################################
+#                                                                                 #
+# Process the realm file and replace environment variables                        #
+#                                                                                 #
+###################################################################################
+FROM node:24-alpine AS realm-processor
+
+COPY --from=json5-converter /convert/realm.json /home/nonroot/input-realm.json
+
+RUN apk add --no-cache gettext && \
+    envsubst < /home/nonroot/input-realm.json > /home/nonroot/realm.json
 
 ###################################################################################
 #                                                                                 #

@@ -2127,6 +2127,72 @@
                     ]
                 }
             }
+        ],
+        "org.keycloak.storage.UserStorageProvider": [
+            {
+                "name": "ad",
+                "providerId": "ldap",
+                "config": {
+                    "vendor": ["ad"],
+                    "connectionUrl": ["${LDAP_PROTOCOL}://${LDAP_HOST}:${LDAP_PORT}"],
+                    "bindDn": ["CN=Service Account,OU=Users,DC=RAD,DC=SPACEFORCE,DC=MIL"],
+                    "bindCredential": ["${LDAP_BIND_PASSWORD}"],
+                    "usersDn": ["${LDAP_USER_DN}"],
+                    "customUserSearchFilter": ["(&(objectClass=user)(|(memberOf=CN=CDD,OU=Groups,OU=EPIC,DC=RAD,DC=SPACEFORCE,DC=MIL)(memberOf=${LDAP_MEMBER_OF_FILTER})))"],
+                    "searchScope": ["2"],
+                    "useTruststoreSpi": ["never"],
+                    "connectionPooling": ["true"],
+                    "pagination": ["true"],
+                    "allowKerberosAuthentication": ["false"],
+                    "syncRegistrations": ["false"],
+                    "importEnabled": ["true"],
+                    "editMode": ["READ_ONLY"],
+                    "usernameLDAPAttribute": ["sAMAccountName"],
+                    "rdnLDAPAttribute": ["cn"],
+                    "uuidLDAPAttribute": ["objectGUID"],
+                    "userObjectClasses": ["person, organizationalPerson, user"],
+                    "startTls": ["false"]
+                },
+                "subComponents": {
+                    "org.keycloak.storage.ldap.mappers.LDAPStorageMapper": [
+                        {
+                            "name": "ldap-roles-rbac-matrix",
+                            "providerId": "role-ldap-mapper",
+                            "config": {
+                                "roles.dn": ["OU=Roles,OU=RBAC Matrix,OU=EPIC,DC=RAD,DC=SPACEFORCE,DC=MIL"],
+                                "role.name.ldap.attribute": ["cn"],
+                                "role.object.classes": ["group"],
+                                "membership.ldap.attribute": ["member"],
+                                "membership.attribute.type": ["DN"],
+                                "roles.ldap.filter": ["(objectClass=group)"],
+                                "mode": ["READ_ONLY"],
+                                "use.realm.roles.mapping": ["true"],
+                                "user.roles.retrieve.strategy": ["LOAD_GROUPS_BY_MEMBER_ATTRIBUTE"]
+                            }
+                        },
+                        {
+                            "name": "ldap-groups-projects",
+                            "providerId": "group-ldap-mapper",
+                            "config": {
+                                "groups.dn": ["OU=Projects,DC=RAD,DC=SPACEFORCE,DC=MIL"],
+                                "group.name.ldap.attribute": ["cn"],
+                                "group.object.classes": ["group"],
+                                "preserve.group.inheritance": ["true"],
+                                "ignore.missing.groups": ["true"],
+                                "membership.ldap.attribute": ["member"],
+                                "membership.attribute.type": ["DN"],
+                                "membership.user.ldap.attribute": ["cn"],
+                                "groups.ldap.filter": ["(&(objectClass=group)(|(cn=ArgoCD_*)(cn=ARGO_*)(cn=*_*_PRO)))"],
+                                "mode": ["READ_ONLY"],
+                                "user.roles.retrieve.strategy": ["LOAD_GROUPS_BY_MEMBER_ATTRIBUTE"],
+                                "memberof.ldap.attribute": ["memberOf"],
+                                "groups.path": ["/groups"],
+                                "drop.non.existing.groups.during.sync": ["false"]
+                            }
+                        }
+                    ]
+                },
+            }
         ]
     },
     "internationalizationEnabled": false,
