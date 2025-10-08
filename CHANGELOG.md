@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.19.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.18.0...v0.19.0) (2025-10-08)
+
+
+### Features
+
+* always log groups in Admin Events related to users ([#652](https://github.com/defenseunicorns/uds-identity-config/issues/652)) ([1f4463a](https://github.com/defenseunicorns/uds-identity-config/commit/1f4463ae82c1aac47d0fac99f07d3c36af32a21a))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.4.0 ([#641](https://github.com/defenseunicorns/uds-identity-config/issues/641)) ([5a27942](https://github.com/defenseunicorns/uds-identity-config/commit/5a27942ff9acf8c67c92801a78635c56fb4a93ae))
+
+
+### Miscellaneous
+
+* add lula compliance mapping ([#657](https://github.com/defenseunicorns/uds-identity-config/issues/657)) ([eb5d57a](https://github.com/defenseunicorns/uds-identity-config/commit/eb5d57a0b025de2292efc4e0a1207038acd98646))
+* add mapping ([#654](https://github.com/defenseunicorns/uds-identity-config/issues/654)) ([658340b](https://github.com/defenseunicorns/uds-identity-config/commit/658340b2c196eed15ee0ff75772e700cfd9fdfcc))
+* convert realm.json to realm.json5 to support comments ([#651](https://github.com/defenseunicorns/uds-identity-config/issues/651)) ([848aa04](https://github.com/defenseunicorns/uds-identity-config/commit/848aa04015b4269d70225e668e8f50d5bdd7e8c9))
+* **deps:** update dependency @commitlint/cli to v20.1.0 ([#640](https://github.com/defenseunicorns/uds-identity-config/issues/640)) ([0ee83b6](https://github.com/defenseunicorns/uds-identity-config/commit/0ee83b67dbd2b2b145e3f32400dda13a9104178d))
+* **deps:** update dependency typescript to v5.9.3 ([#643](https://github.com/defenseunicorns/uds-identity-config/issues/643)) ([d856590](https://github.com/defenseunicorns/uds-identity-config/commit/d856590f1a9040ddd083fbbec66866e6185fb12f))
+* **deps:** update gha-deps ([#653](https://github.com/defenseunicorns/uds-identity-config/issues/653)) ([39c1228](https://github.com/defenseunicorns/uds-identity-config/commit/39c12286c0b4c66521ac347a4b0d309367b55feb))
+* update docs reference to realm.json5 file ([#655](https://github.com/defenseunicorns/uds-identity-config/issues/655)) ([df1b0f3](https://github.com/defenseunicorns/uds-identity-config/commit/df1b0f3ca18a4477c3abc41001df1a5f4002fb0f))
+
 ## [0.18.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.17.0...v0.18.0) (2025-09-30)
 
 
