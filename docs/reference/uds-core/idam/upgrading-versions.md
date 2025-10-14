@@ -21,7 +21,7 @@ Keycloak 26.4.0 introduced a breaking change to the ServerInfo endpoint and does
 
 ## v0.17.0
 
-<details open>
+<details>
 <summary>Upgrade Details</summary>
 
 UDS Identity Config introduced the OpenTofu client that can be used for managing Keycloak with OpenTofu. This new client is included in the realm.json, however if unable to re-initialize Keycloak in UDS Core you can find steps [here to manually configure the OpenTofu client](/reference/uds-core/idam/customization#configure-opentofu-client-via-keycloak-admin-ui).
