@@ -196,6 +196,7 @@
                                 "manage-realm",
                                 "manage-identity-providers",
                                 "view-users",
+                                "view-system",
                                 "manage-events",
                                 "manage-clients",
                                 "manage-users",
@@ -245,6 +246,15 @@
                     "id": "df80d4c8-5414-4fef-863f-2567e9ed3c06",
                     "name": "manage-identity-providers",
                     "description": "${role_manage-identity-providers}",
+                    "composite": false,
+                    "clientRole": true,
+                    "containerId": "910f78e7-980f-4072-8e80-a9bbbf9c5ca2",
+                    "attributes": {}
+                },
+                {
+                    "id": "f2513a92-b8c5-47fa-8786-b4385d332f20",
+                    "name": "view-system",
+                    "description": "Enables displaying SystemInfo through the ServerInfo endpoint",
                     "composite": false,
                     "clientRole": true,
                     "containerId": "910f78e7-980f-4072-8e80-a9bbbf9c5ca2",
@@ -3167,7 +3177,9 @@
             "config": {
                 "userClientLimit": "0",
                 "behavior": "Deny new session",
+                // @lulaStart ef276ec4-7921-4287-a18c-80dec5f8e742
                 "userRealmLimit": "${REALM_SSO_SESSION_MAX_PER_USER:0}"
+                // @lulaEnd ef276ec4-7921-4287-a18c-80dec5f8e742
             }
         }
     ],
