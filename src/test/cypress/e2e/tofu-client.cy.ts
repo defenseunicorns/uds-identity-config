@@ -22,7 +22,7 @@ describe("Tofu Client Management", () => {
                 required_providers {
                   keycloak = {
                     source  = "keycloak/keycloak"
-                    version = "5.2.0"
+                    version = "5.5.0"
                   }
                 }
                 required_version = ">= 1.0.0"
@@ -212,7 +212,7 @@ describe("Tofu Client Management", () => {
                 required_providers {
                     keycloak = {
                         source  = "keycloak/keycloak"
-                        version = "5.2.0"
+                        version = "5.5.0"
                     }
                 }
             }

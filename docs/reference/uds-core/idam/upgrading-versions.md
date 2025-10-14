@@ -4,9 +4,24 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
-## v0.17.0
+## v0.19.0+
 
 <details open>
+<summary>Upgrade Details</summary>
+
+Keycloak 26.4.0 introduced a breaking change to the ServerInfo endpoint and does not render SystemInfo without additional permissions. This change will cause OpenTofu to fail with a "Malformed version" (see [Keycloak Terraform Provider #1342](https://github.com/keycloak/terraform-provider-keycloak/issues/1342#issuecomment-3398650912)). In oder to resolve the issue, you need to perform the following steps:
+- Navigate to the `UDS` realm
+- Go to `Clients` > `realm-management` > `Client Roles` > `Roles` and click `Create Role`
+- Use `view-system` as the Role Name and `Enables displaying SystemInfo through the ServerInfo endpoint` for the Description and click `Save`
+- Go back to the `realm-management` Roles by clicking the `Client details` breadcrumb and find the `realm-admin` Role. Click on it
+- Go to `Associated roles` tab and click `Assign role` > `Client Roles`
+- Find the `view-system` role you created earlier, select it and click `Assign`
+
+</details>
+
+## v0.17.0
+
+<details>
 <summary>Upgrade Details</summary>
 
 UDS Identity Config introduced the OpenTofu client that can be used for managing Keycloak with OpenTofu. This new client is included in the realm.json, however if unable to re-initialize Keycloak in UDS Core you can find steps [here to manually configure the OpenTofu client](/reference/uds-core/idam/customization#configure-opentofu-client-via-keycloak-admin-ui).
