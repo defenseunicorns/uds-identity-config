@@ -50,7 +50,7 @@
             </#if>
             <#if realm.password && social?? && social.providers?has_content && properties["SOCIAL_LOGIN_ENABLED"] == "true">
                 <div id="kc-social-providers" class="kc-social-section kc-social">
-                    <#if properties["USERNAME_PASSWORD_AUTH_ENABLED"] != "true">
+                    <#if properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "true">
                     <hr/>
                     <h2>${msg("doLogInWith")}</h2>
                     </#if>
