@@ -420,6 +420,7 @@
             ]
         }
     },
+    // @lulaStart 4147b6a6-3339-4d5d-b10a-f16502b52206
     "groups": [
         {
             "id": "53521ed0-aa44-4007-9727-0015d5281c3e",
@@ -441,6 +442,7 @@
             ]
         }
     ],
+    // @lulaEnd 4147b6a6-3339-4d5d-b10a-f16502b52206
     "defaultRole": {
         "id": "43896191-186c-4fbb-8ca5-cc912b5bc1ad",
         "name": "default-roles-uds",
