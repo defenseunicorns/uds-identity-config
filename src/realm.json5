@@ -31,7 +31,9 @@
     "oauth2DevicePollingInterval": 5,
     "enabled": true,
     "sslRequired": "none",
+    // @lulaStart 96b7aa1b-b307-45c0-af40-8b57f3726693
     "registrationAllowed": "${REGISTER_BUTTON_ENABLED:true}",
+    // @lulaEnd 96b7aa1b-b307-45c0-af40-8b57f3726693
     "registrationEmailAsUsername": false,
     "rememberMe": false,
     "verifyEmail": true,
