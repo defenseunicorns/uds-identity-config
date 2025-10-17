@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.19.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.19.0...v0.19.1) (2025-10-17)
+
+
+### Bug Fixes
+
+* logic to display 'or sign in with' ([#666](https://github.com/defenseunicorns/uds-identity-config/issues/666)) ([2fca2cc](https://github.com/defenseunicorns/uds-identity-config/commit/2fca2cc392ee4036e4d6e9f2e5f470d77c346307))
+
+
+### Miscellaneous
+
+* add compliance mapping ([#665](https://github.com/defenseunicorns/uds-identity-config/issues/665)) ([7493a52](https://github.com/defenseunicorns/uds-identity-config/commit/7493a52268040885f8a05b6819bba087460a251c))
+* uds-compliance-66 ([#664](https://github.com/defenseunicorns/uds-identity-config/issues/664)) ([d15ff75](https://github.com/defenseunicorns/uds-identity-config/commit/d15ff756a35133a04f7692aacbdff758f293ca83))
+
 ## [0.19.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.18.0...v0.19.0) (2025-10-14)
 
 
