@@ -36,7 +36,7 @@
     // @lulaEnd 96b7aa1b-b307-45c0-af40-8b57f3726693
     "registrationEmailAsUsername": false,
     "rememberMe": false,
-    "verifyEmail": true,
+    "verifyEmail": "${REALM_EMAIL_VERIFICATION_ENABLED:false}",
     "loginWithEmailAllowed": true,
     "duplicateEmailsAllowed": false,
     "resetPasswordAllowed": "${USERNAME_PASSWORD_AUTH_ENABLED:true}",
