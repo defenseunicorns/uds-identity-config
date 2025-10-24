@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.19.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.19.0...v0.19.1) (2025-10-21)
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.4.1 ([#673](https://github.com/defenseunicorns/uds-identity-config/issues/673)) ([25a7283](https://github.com/defenseunicorns/uds-identity-config/commit/25a7283fe7b1a01dd2fb09dacbfaaa92edc5fe2a))
+* logic to display 'or sign in with' ([#666](https://github.com/defenseunicorns/uds-identity-config/issues/666)) ([2fca2cc](https://github.com/defenseunicorns/uds-identity-config/commit/2fca2cc392ee4036e4d6e9f2e5f470d77c346307))
+
+
+### Miscellaneous
+
+* add compliance mapping ([#665](https://github.com/defenseunicorns/uds-identity-config/issues/665)) ([7493a52](https://github.com/defenseunicorns/uds-identity-config/commit/7493a52268040885f8a05b6819bba087460a251c))
+* **deps:** update all dependencies ([#671](https://github.com/defenseunicorns/uds-identity-config/issues/671)) ([1446f8b](https://github.com/defenseunicorns/uds-identity-config/commit/1446f8b2bf6637d1dd9cfae3dceba3cc8db53870))
+* **deps:** update gha-deps ([#667](https://github.com/defenseunicorns/uds-identity-config/issues/667)) ([a4c1dd7](https://github.com/defenseunicorns/uds-identity-config/commit/a4c1dd74ec6c34157bef4ad67d0167d0bc28cd3d))
+* fix mapping placement ([#679](https://github.com/defenseunicorns/uds-identity-config/issues/679)) ([2edc25b](https://github.com/defenseunicorns/uds-identity-config/commit/2edc25b48c80a721e276df03abaefc4630cf4cde))
+* uds-compliance-66 ([#664](https://github.com/defenseunicorns/uds-identity-config/issues/664)) ([d15ff75](https://github.com/defenseunicorns/uds-identity-config/commit/d15ff756a35133a04f7692aacbdff758f293ca83))
+
 ## [0.19.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.18.0...v0.19.0) (2025-10-14)
 
 
