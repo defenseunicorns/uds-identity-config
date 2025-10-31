@@ -19,8 +19,8 @@ cp -fv *.jar /opt/keycloak/providers/
 cp -fv certs/* /opt/keycloak/conf/truststores
 
 # if USE_FIPS is true
-if [ "${FIPS_ENABLED}" = "true" ]; then
-    echo "FIPS mode enabled, copying FIPS libraries"
+if [ "${FIPS_ENABLED}" = "true" ] && [ "${INSTALL_FIPS_PROVIDERS:-true}" = "true" ]; then
+    echo "FIPS mode enabled and INSTALL_FIPS_PROVIDERS=true, copying FIPS libraries"
     cp -fv ./fips/libs/*.jar /opt/keycloak/providers/
 fi
 
