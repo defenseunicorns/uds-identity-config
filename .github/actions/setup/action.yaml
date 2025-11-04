@@ -21,7 +21,7 @@ runs:
     - name: Use Node.js latest
       uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
       with:
-        node-version: 22
+        node-version: 24
 
     - name: Install k3d
       shell: bash
@@ -32,7 +32,7 @@ runs:
       uses: defenseunicorns/setup-uds@ab842abcad1f7a3305c2538e3dd1950d0daacfa5 # v1.0.1
       with:
         # renovate: datasource=github-tags depName=defenseunicorns/uds-cli versioning=semver
-        version: v0.27.16
+        version: v0.27.17
 
     - name: Iron Bank Login
       if: ${{ inputs.registry1Username != '' }}
