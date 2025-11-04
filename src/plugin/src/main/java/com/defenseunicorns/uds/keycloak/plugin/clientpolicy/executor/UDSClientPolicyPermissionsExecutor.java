@@ -67,7 +67,8 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             AddressMapper.PROVIDER_ID,
             new SHA256PairwiseSubMapper().getId(),
             RoleListMapper.PROVIDER_ID,
-            CustomAWSSAMLGroupMapper.PROVIDER_ID
+            CustomAWSSAMLGroupMapper.PROVIDER_ID,
+            org.keycloak.protocol.oidc.mappers.GroupMembershipMapper.PROVIDER_ID
     );
 
     public static final List<String> DEFAULT_ALLOWED_CLIENT_SCOPES = List.of(
