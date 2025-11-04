@@ -20,6 +20,7 @@ import org.keycloak.protocol.oidc.mappers.UserPropertyMapper;
 import org.keycloak.protocol.oidc.mappers.FullNameMapper;
 import org.keycloak.protocol.oidc.mappers.AddressMapper;
 import org.keycloak.protocol.oidc.mappers.SHA256PairwiseSubMapper;
+import org.keycloak.protocol.oidc.mappers.HardcodedClaim;
 import org.keycloak.protocol.saml.mappers.RoleListMapper;
 import org.keycloak.protocol.saml.mappers.UserAttributeStatementMapper;
 import org.keycloak.protocol.saml.mappers.UserPropertyAttributeStatementMapper;
@@ -67,7 +68,9 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             AddressMapper.PROVIDER_ID,
             new SHA256PairwiseSubMapper().getId(),
             RoleListMapper.PROVIDER_ID,
-            CustomAWSSAMLGroupMapper.PROVIDER_ID
+            CustomAWSSAMLGroupMapper.PROVIDER_ID,
+            HardcodedClaim.PROVIDER_ID,
+            org.keycloak.protocol.oidc.mappers.GroupMembershipMapper.PROVIDER_ID
     );
 
     public static final List<String> DEFAULT_ALLOWED_CLIENT_SCOPES = List.of(
