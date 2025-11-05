@@ -70,11 +70,12 @@
                             </li>
                         </#list>
                     </ul>
-                    <hr/>
+
                 </div>
             </#if>
             <#if properties["REGISTER_BUTTON_ENABLED"] == "true">
-                <div class="footer-text">
+                <div class="footer-text" id="registration-footer">
+                    <hr/>
                     ${msg("noAccountYet")} <a href="${url.registrationUrl}">${msg("registerNow")}</a><br>
                 </div>
             </#if>
@@ -90,23 +91,37 @@
             if (feedback.innerHTML.includes('X509 certificate') && feedback.innerHTML.includes('Invalid user')) {
                 feedback.outerHTML = ``;
                 formContainer.innerHTML = `
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="alert alert-info">
-                            <div class="row">
-                                <div class="col-lg-1 d-flex align-items-start col-alert-icon">
-                                    <img src="${url.resourcesPath}/img/icon_information.svg" />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="alert alert-info">
+                                <div class="row">
+                                    <div class="col-lg-1 d-flex align-items-start col-alert-icon">
+                                        <img src="${url.resourcesPath}/img/icon_information.svg" />
+                                    </div>
+                                    <div class="col">
+                                        <h3>New DoD PKI Detected</h3>
+                                        <p>Your CAC has been detected, but no account is associated with it</p>
+                                    </div>
                                 </div>
-                                <div class="col">
-                                    <h3>New DoD PKI Detected</h3>
-                                    <p>Your CAC has been detected, but no account is associated with it</p>
+                                <div class="row">
+                                    <div class="col form-group form-button-container">
+                                        <a class="btn btn-primary btn-block" id="kc-register-with-cac" href="${url.registrationUrl}">${msg("registerWithCac")}</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
-
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h3>${msg("signInWithOtherMethods")}</h3>
+                            <hr/>
+                        </div>
+                    </div>
+                `;
+                const regFooter = document.getElementById('registration-footer');
+                if (regFooter) {
+                    regFooter.remove();
+                }
             }
         } else if('${properties["X509_LOGIN_ENABLED"]}' == "true" && '${properties["SOCIAL_LOGIN_ENABLED"]}' == "false" && '${properties["USERNAME_PASSWORD_AUTH_ENABLED"]}' == "false"){
             // No CAC detected
