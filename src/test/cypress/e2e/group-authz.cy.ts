@@ -55,6 +55,7 @@ describe('Group Authorization', () => {
 
     // Assert that the user couldn't access the grafana dashboard
     cy.url().should('include', 'https://sso.uds.dev');
-    cy.contains('p.instruction', 'Your account has not been granted access to this application group yet.').should('be.visible');
+    // Matches uds_access_denied_client in messages_en.properties
+    cy.contains('p.instruction', 'You do not have access to this application. Please contact your administrator.').should('be.visible');
   });
 });
