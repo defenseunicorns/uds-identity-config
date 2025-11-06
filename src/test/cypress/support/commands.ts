@@ -27,9 +27,9 @@ Cypress.Commands.add("registrationPage", (formData: RegistrationFormData, expect
   // The CAC registration has two variants - if a new user tries to register, it shows a link to the
   // registration in the alerts panel. If it some other case - in the footer
   if (expectNewUser) {
-    cy.contains("a", "Register with CAC").should("be.visible").click();
+    cy.contains("a", "Create account with CAC").should("be.visible").click();
   } else {
-    cy.contains(".footer-text a", "Register now").should("be.visible").click();
+    cy.contains(".footer-text a", "Create account").should("be.visible").click();
   }
 
   // Verify client cert has been loaded properly by this header being present

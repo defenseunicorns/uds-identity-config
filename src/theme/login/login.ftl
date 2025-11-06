@@ -113,7 +113,7 @@
                     </div>
                     <div class="row">
                         <div class="col-lg-12">
-                            <h3>${msg("signInWithOtherMethods")}</h3>
+                            <h3>${msg("signIn")}</h3>
                             <hr/>
                         </div>
                     </div>
@@ -121,6 +121,10 @@
                 const regFooter = document.getElementById('registration-footer');
                 if (regFooter) {
                     regFooter.remove();
+                }
+                const regHeader = document.getElementById('header-text');
+                if (regHeader) {
+                    regHeader.remove();
                 }
             }
         } else if('${properties["X509_LOGIN_ENABLED"]}' == "true" && '${properties["SOCIAL_LOGIN_ENABLED"]}' == "false" && '${properties["USERNAME_PASSWORD_AUTH_ENABLED"]}' == "false"){
