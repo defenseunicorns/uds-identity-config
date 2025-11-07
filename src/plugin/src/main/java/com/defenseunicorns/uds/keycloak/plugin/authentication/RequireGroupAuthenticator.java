@@ -14,6 +14,8 @@ import org.keycloak.authentication.Authenticator;
 import org.keycloak.models.*;
 import com.defenseunicorns.uds.keycloak.plugin.Common;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.core.Response;
+import org.keycloak.forms.login.LoginFormsProvider;
 
 /**
  * Simple {@link Authenticator} that checks if a user is a member of a given {@link GroupModel Group}.
@@ -51,9 +53,9 @@ public class RequireGroupAuthenticator implements Authenticator {
 
         Groups groups = parseGroupsAttribute(groupsAttribute);
         if (groups == null) {
-            LOGGER.warn("Failed to parse groups JSON");
-            context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-            return;
+          LOGGER.warn("Failed to parse groups JSON for client groups attribute, denying access (403)");
+          accessDenied(context, "accessDenied");
+          return;
         }
 
         RealmModel realm = context.getRealm();
@@ -73,13 +75,13 @@ public class RequireGroupAuthenticator implements Authenticator {
         }
 
         if (foundGroup) {
-            LOGGER.warn("User is not a member of the required group(s)");
-            context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
-            return;
+          LOGGER.warn("User is not a member of the required group(s), denying access (403)");
+          accessDenied(context, "accessDenied");
+          return;
         }
 
-        LOGGER.warnf("Required group(s) %s do not exist in realm", Arrays.toString(groups.anyOf));
-        context.failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+        LOGGER.warnf("Required group(s) %s do not exist in realm, denying access (403)", Arrays.toString(groups.anyOf));
+         accessDenied(context, "accessDenied");
     }
 
     private Groups parseGroupsAttribute(String groupsAttribute) {
@@ -119,6 +121,27 @@ public class RequireGroupAuthenticator implements Authenticator {
             currentGroup = currentGroup.getParent();
         }
         return path.toString();
+    }
+
+     private void accessDenied(final AuthenticationFlowContext context, final String messageKey) {
+      LoginFormsProvider form = context.form();
+      if (form != null) {
+        String clientDisplay = "<unknown>";
+        if (context.getAuthenticationSession() != null && context.getAuthenticationSession().getClient() != null) {
+          ClientModel c = context.getAuthenticationSession().getClient();
+          String name = c.getName();
+          clientDisplay = (name != null && !name.isBlank()) ? name : c.getClientId();
+        }
+        // Set the error first, then create the page (avoid relying on chained return value)
+        form.setError("uds_access_denied_client", clientDisplay);
+        Response challenge = form.createErrorPage(Response.Status.FORBIDDEN);
+        // Force a 403 challenge without marking the flow as a failure to avoid brute-force increments
+        context.forceChallenge(challenge);
+      } else {
+        // Fallback: build a minimal 403 response and force the challenge
+        Response challenge = Response.status(Response.Status.FORBIDDEN).build();
+        context.forceChallenge(challenge);
+      }
     }
 
     protected void success(final AuthenticationFlowContext context, final UserModel user) {
