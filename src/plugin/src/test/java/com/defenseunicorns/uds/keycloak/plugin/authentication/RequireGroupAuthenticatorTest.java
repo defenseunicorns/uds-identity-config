@@ -13,6 +13,8 @@ import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.models.*;
 import org.keycloak.sessions.AuthenticationSessionModel;
 import org.keycloak.sessions.RootAuthenticationSessionModel;
+import org.keycloak.forms.login.LoginFormsProvider;
+import jakarta.ws.rs.core.Response;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.InjectMocks;
@@ -60,6 +62,12 @@ public class RequireGroupAuthenticatorTest {
     @Mock
     private GroupProvider groupProvider;
 
+    @Mock
+    private LoginFormsProvider formProvider;
+
+    @Mock
+    private Response response;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -71,6 +79,10 @@ public class RequireGroupAuthenticatorTest {
         when(context.getAuthenticationSession()).thenReturn(authenticationSession);
         when(authenticationSession.getClient()).thenReturn(client);
         when(authenticationSession.getParentSession()).thenReturn(parentAuthenticationSession);
+
+        // default form provider mocks for error page path
+        when(context.form()).thenReturn(formProvider);
+        when(formProvider.createErrorPage(Response.Status.FORBIDDEN)).thenReturn(response);
 
         when(group.getName()).thenReturn("Admin");
         when(group.getParent()).thenReturn(parentGroup);
@@ -85,7 +97,7 @@ public class RequireGroupAuthenticatorTest {
 
         authenticator.authenticate(context);
 
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+        verify(context).forceChallenge(any(Response.class));
     }
 
     @Test
@@ -96,7 +108,7 @@ public class RequireGroupAuthenticatorTest {
 
         authenticator.authenticate(context);
 
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+        verify(context).forceChallenge(any(Response.class));
     }
 
     @Test
@@ -135,7 +147,7 @@ public class RequireGroupAuthenticatorTest {
 
         authenticator.authenticate(context);
 
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+        verify(context).forceChallenge(any(Response.class));
     }
 
     @Test
@@ -153,7 +165,7 @@ public class RequireGroupAuthenticatorTest {
 
         authenticator.authenticate(context);
 
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+        verify(context).forceChallenge(any(Response.class));
     }
 
     @Test
@@ -162,7 +174,7 @@ public class RequireGroupAuthenticatorTest {
 
         authenticator.authenticate(context);
 
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+        verify(context).forceChallenge(any(Response.class));
     }
 
     @Test
@@ -171,7 +183,7 @@ public class RequireGroupAuthenticatorTest {
 
         authenticator.authenticate(context);
 
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+        verify(context).forceChallenge(any(Response.class));
     }
 
     @Test
@@ -185,7 +197,7 @@ public class RequireGroupAuthenticatorTest {
 
         authenticator.authenticate(context);
 
-        verify(context).failure(AuthenticationFlowError.INVALID_CLIENT_SESSION);
+        verify(context).forceChallenge(any(Response.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
