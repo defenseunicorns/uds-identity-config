@@ -76,7 +76,7 @@
             <#if properties["REGISTER_BUTTON_ENABLED"] == "true">
                 <div class="footer-text" id="registration-footer">
                     <hr/>
-                    ${msg("noAccountYet")} <a href="${url.registrationUrl}">${msg("registerNow")}</a><br>
+                    ${msg("noAccountYet")} <a href="${url.registrationUrl}">${msg("createAccount")}</a><br>
                 </div>
             </#if>
         </#if>
