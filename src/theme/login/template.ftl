@@ -98,7 +98,7 @@ ${msg("loginTitle",(realm.displayName!''))}
                         </#if>
 
                         <#if headerText?has_content>
-                            <div class="row">
+                            <div class="row" id="header-text">
                                 <div class="col-lg-12">
                                     <h3>${msg(headerText)}</h3>
                                     <hr/>

@@ -9,7 +9,7 @@
                         <span>${msg("backToLogin")}</span>
                     </a>
                 </div>
-                <h4>${msg("registerNewAccount")}</h4>
+                <h4>${msg("createYourAccount")}</h4>
                 <hr class="form-separator">
                 <#if cacSubjectDN??>
                     <div class="row">
