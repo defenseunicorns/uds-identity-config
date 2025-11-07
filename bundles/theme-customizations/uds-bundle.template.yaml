@@ -21,7 +21,6 @@ packages:
           values:
             - path: themeCustomizations
               value:
-                enableAccessRequestNotes: true
                 resources:
                   images:
                     - name: background.png
