@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.20.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.19.1...v0.20.0) (2025-11-07)
+
+
+### Features
+
+* cac registration moved to the top of the login page ([#699](https://github.com/defenseunicorns/uds-identity-config/issues/699)) ([b8dcd02](https://github.com/defenseunicorns/uds-identity-config/commit/b8dcd02bc11ab8420c6a86bde05701331efebcda))
+* conditional access request notes ([#704](https://github.com/defenseunicorns/uds-identity-config/issues/704)) ([6ac1c81](https://github.com/defenseunicorns/uds-identity-config/commit/6ac1c817c18985767e9a5d3b2f3f72e50cbb30ad))
+
+
+### Bug Fixes
+
+* add oidc group membership mapper ([#692](https://github.com/defenseunicorns/uds-identity-config/issues/692)) ([4758be8](https://github.com/defenseunicorns/uds-identity-config/commit/4758be8101cbb8a68b54a32dbdfc85be4cc050f8))
+* **deps:** update plugin-deps to v26.4.2 ([#680](https://github.com/defenseunicorns/uds-identity-config/issues/680)) ([d4e4e4f](https://github.com/defenseunicorns/uds-identity-config/commit/d4e4e4fc36f619364a302bf73ea4818ecfc17a09))
+* **deps:** update plugin-deps to v26.4.4 ([#706](https://github.com/defenseunicorns/uds-identity-config/issues/706)) ([bc3efe2](https://github.com/defenseunicorns/uds-identity-config/commit/bc3efe2c04113112de0dd2e72a41dacdac60047a))
+* group authenticator doesn't count towards failure attempts ([#702](https://github.com/defenseunicorns/uds-identity-config/issues/702)) ([aa57602](https://github.com/defenseunicorns/uds-identity-config/commit/aa5760264984c8c089da17c3d02fe2cef27b5fe2))
+* remove hardcoded claim mapper ([#703](https://github.com/defenseunicorns/uds-identity-config/issues/703)) ([d6477e2](https://github.com/defenseunicorns/uds-identity-config/commit/d6477e2a83717a33ead57696359631b959ea3930))
+* use newer release-please-action ([#695](https://github.com/defenseunicorns/uds-identity-config/issues/695)) ([357a630](https://github.com/defenseunicorns/uds-identity-config/commit/357a630fc186d42bcf8391ed8287ceb827db5f9c))
+
+
+### Miscellaneous
+
+* **config:** migrate config renovate.json ([#693](https://github.com/defenseunicorns/uds-identity-config/issues/693)) ([e181b79](https://github.com/defenseunicorns/uds-identity-config/commit/e181b7998bb12640fb105ebdecee52e6033fec05))
+* **deps:** update all dependencies ([#684](https://github.com/defenseunicorns/uds-identity-config/issues/684)) ([5c321e0](https://github.com/defenseunicorns/uds-identity-config/commit/5c321e09e10d8106aab0025a8299bcce0e598ded))
+* **deps:** update all dependencies ([#687](https://github.com/defenseunicorns/uds-identity-config/issues/687)) ([08ff36c](https://github.com/defenseunicorns/uds-identity-config/commit/08ff36c8cc3733190a1062c52fffd4cd539e2983))
+* **deps:** update dependency defenseunicorns/uds-common to v1.21.1 ([#686](https://github.com/defenseunicorns/uds-identity-config/issues/686)) ([d2c1850](https://github.com/defenseunicorns/uds-identity-config/commit/d2c18507b9a91c2da0a91794eec5fe7ab559f51d))
+* **deps:** update dependency defenseunicorns/uds-common to v1.21.3 ([#701](https://github.com/defenseunicorns/uds-identity-config/issues/701)) ([44ad41a](https://github.com/defenseunicorns/uds-identity-config/commit/44ad41a46778d2272005a1db0ff321abf05b9865))
+* **deps:** update dependency opentofu/opentofu to v1.10.7 ([#705](https://github.com/defenseunicorns/uds-identity-config/issues/705)) ([ddb3946](https://github.com/defenseunicorns/uds-identity-config/commit/ddb394620d99f7f45e970fe35e1fe17c42ed1c38))
+* **deps:** update gha-deps ([#696](https://github.com/defenseunicorns/uds-identity-config/issues/696)) ([262170c](https://github.com/defenseunicorns/uds-identity-config/commit/262170cc17de3869e163b749a998b7fe3e0dfe40))
+* renovate unlimited PRs and case on group name ([#694](https://github.com/defenseunicorns/uds-identity-config/issues/694)) ([37a6ed6](https://github.com/defenseunicorns/uds-identity-config/commit/37a6ed69da4535d561e47ae0fb454fd4a68a2ce2))
+
 ## [0.19.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.19.0...v0.19.1) (2025-10-21)
 
 
