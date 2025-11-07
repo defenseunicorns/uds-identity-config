@@ -5,6 +5,13 @@
 
 import { RegistrationFormData } from "../support/types";
 
+// Implemented as a test suite so that it is easy to run it with Cypress UI
+describe("Test preparation", () => {
+  it("Removing existing test accounts (to ensure repeatable runs)", () => {
+    cy.deleteUserByUsername('john_doe');
+  });
+});
+
 describe("CAC Registration Flow", () => {
   const formData: RegistrationFormData = {
     firstName: "John",
@@ -24,7 +31,7 @@ describe("CAC Registration Flow", () => {
     cy.verifyLoggedIn();
   });
 
-  it("Successfull Login of CAC Registered User", () => {
+  it("Successful Login of CAC Registered User", () => {
     // Navigate to login page
     cy.visit("https://sso.uds.dev");
 
@@ -35,7 +42,8 @@ describe("CAC Registration Flow", () => {
       .should("be.visible")
       // FIPS and non-FIPS mode use different formats for the subject DN. That's why we check if all parts are present instead of
       // a full string match.
-      .contains("C=US").contains("ST=Colorado").contains("L=Colorado Springs").contains("O=Defense Unicorns").contains("CN=uds.dev")
+      .contains("C=US").contains("O=U.S. Government").contains("CN=UNICORN.DOUG.ROCKSTAR.1234567890")
+
 
     // Verify that PKI User information is correct
     cy.get(".form-group").contains("label", "You will be logged in as:").should("be.visible");
