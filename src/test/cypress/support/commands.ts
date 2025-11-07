@@ -29,7 +29,7 @@ Cypress.Commands.add("registrationPage", (formData: RegistrationFormData, expect
   if (expectNewUser) {
     cy.contains("a", "Create account with CAC").should("be.visible").click();
   } else {
-    cy.contains(".footer-text a", "Create account").should("be.visible").click();
+    cy.contains(".footer-text a", "Create Account").should("be.visible").click();
   }
 
   // Verify client cert has been loaded properly by this header being present
