@@ -21,11 +21,16 @@ Cypress.Commands.add("loginPage", () => {
 /**
  * Navigate to the registration page, supply form data, and attempt to register user
  */
-Cypress.Commands.add("registrationPage", (formData: RegistrationFormData) => {
+Cypress.Commands.add("registrationPage", (formData: RegistrationFormData, expectNewUser: boolean) => {
   cy.loginPage();
 
-  // Verify the presence of the registration link and then click
-  cy.contains(".footer-text a", "Register now").should("be.visible").click();
+  // The CAC registration has two variants - if a new user tries to register, it shows a link to the
+  // registration in the alerts panel. If it some other case - in the footer
+  if (expectNewUser) {
+    cy.contains("a", "Create account with CAC").should("be.visible").click();
+  } else {
+    cy.contains(".footer-text a", "Create Account").should("be.visible").click();
+  }
 
   // Verify client cert has been loaded properly by this header being present
   cy.contains("h3", "DoD PKI User Registration").should("be.visible");

@@ -31,7 +31,7 @@
                         <span>${msg("backToLogin")}</span>
                     </a>
                 </div>
-                <h4>${msg("registerNewAccount")}</h4>
+                <h4>${msg("createYourAccount")}</h4>
                 <hr class="form-separator">
                 <#if cacSubjectDN??>
                     <div class="row">
@@ -250,12 +250,14 @@
                         </span>
                     </#if>
                 </div>
-                <div class="form-group ${messagesPerField.printIfExists('notes','has-error')}">
-                    <label for="notes" class="form-label ">
-                        ${msg("accessRequest")}
-                    </label>
-                    <textarea id="notes" class="form-control " name="notes"></textarea>
-                </div>
+                <#if properties["ENABLE_REGISTRATION_ACCESS_REQUEST_NOTES"] == "true">
+                    <div class="form-group ${messagesPerField.printIfExists('notes','has-error')}">
+                        <label for="notes" class="form-label ">
+                            ${msg("accessRequest")}
+                        </label>
+                        <textarea id="notes" class="form-control " name="notes"></textarea>
+                    </div>
+                </#if>
                 <#if properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "true">
                     <div class="form-group ${messagesPerField.printIfExists('password','has-error')}">
                         <#if cacSubjectDN??>

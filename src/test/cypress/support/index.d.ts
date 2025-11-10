@@ -28,7 +28,7 @@ declare namespace Cypress {
 
     loginUser(username: string, password: string): Chainable;
 
-    registrationPage(formData: any): Chainable;
+    registrationPage(formData: any, expectNewUser: boolean): Chainable;
 
     accessGrafana(): Chainable;
 

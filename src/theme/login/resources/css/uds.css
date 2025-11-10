@@ -48,7 +48,14 @@ select.form-control {
     background-color: #1f2a37;
     color: #D1D5DB;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+}
+
+.alert.alert-info .form-button-container {
+    margin: 0 !important;
 }
 
 .alert.alert-warning {
@@ -223,7 +230,7 @@ ul#kc-totp-supported-apps {
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-800, #1E429F) !important;
+    background-color: #1E429F !important;
     border: none !important;
 }
 
@@ -231,6 +238,12 @@ ul#kc-totp-supported-apps {
     background-color: #374151 !important;
     border: none !important;
     color: #9CA3AF
+}
+
+/* Ensure buttons in the alert box have white text color */
+.alert .form-button-container .btn,
+.alert .form-button-container .btn-primary {
+    color: #FFFFFF !important;
 }
 
 .location-input {
