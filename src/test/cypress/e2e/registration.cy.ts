@@ -35,7 +35,7 @@ describe("CAC Registration Flow", () => {
   };
 
   it("Successful CAC Registration", () => {
-    cy.registrationPage(formData);
+    cy.registrationPage(formData, true);
 
     // Verify Successful Registration and on User Account Page
     cy.verifyLoggedIn();
@@ -80,7 +80,7 @@ describe("Registration Tests", () => {
       payGrade: "N/A",
     };
 
-    cy.registrationPage(formData);
+    cy.registrationPage(formData, false);
 
     // duplicate user trying to register with PKI should result in this warning
     cy.contains("span.message-details", "Email already exists.").should("be.visible");
@@ -99,7 +99,7 @@ describe("Registration Tests", () => {
       payGrade: "N/A",
     };
 
-    cy.registrationPage(formData);
+    cy.registrationPage(formData, false);
 
     // password isn't long enough
     cy.contains("span.message-details", "Invalid password: minimum length 15.").should(
@@ -119,7 +119,7 @@ describe("Registration Tests", () => {
       payGrade: "N/A",
     };
 
-    cy.registrationPage(formData);
+    cy.registrationPage(formData, false);
 
     // password isn't complex enough
     cy.contains(
