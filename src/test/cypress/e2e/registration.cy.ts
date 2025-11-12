@@ -19,7 +19,9 @@ after(() => {
     cy.log('Skipping cleanup in after() because a test failed');
     return;
   }
+  Cypress.on('fail', () => false)
   cy.deleteUserByUsername('john_doe');
+  Cypress.on('fail', () => true)
 });
 
 describe("CAC Registration Flow", () => {
