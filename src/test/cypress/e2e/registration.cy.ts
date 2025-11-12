@@ -5,11 +5,21 @@
 
 import { RegistrationFormData } from "../support/types";
 
-// Implemented as a test suite so that it is easy to run it with Cypress UI
-describe("Test preparation", () => {
-  it("Removing existing test accounts (to ensure repeatable runs)", () => {
-    cy.deleteUserByUsername('john_doe');
-  });
+// Below mechanism is purely a convenience option that helps to rerun this test multiple times without
+// having to clean up things manually.
+let __anyTestFailed = false;
+afterEach(function () {
+  if (this.currentTest && this.currentTest.state === 'failed') {
+    __anyTestFailed = true;
+  }
+});
+
+after(() => {
+  if (__anyTestFailed) {
+    cy.log('Skipping cleanup in after() because a test failed');
+    return;
+  }
+  cy.deleteUserByUsername('john_doe');
 });
 
 describe("CAC Registration Flow", () => {
