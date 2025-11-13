@@ -28,6 +28,8 @@ declare namespace Cypress {
 
     loginUser(username: string, password: string): Chainable;
 
+    loginUserWithEmail(email: string, password: string): Chainable;
+
     registrationPage(formData: any, expectNewUser: boolean): Chainable;
 
     accessGrafana(): Chainable;

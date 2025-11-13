@@ -79,6 +79,18 @@ Cypress.Commands.add("loginUser", (username: string, password: string) => {
 });
 
 /**
+ * Supply the login page user creds (specifically email) and attempt to login
+ */
+Cypress.Commands.add("loginUserWithEmail", (email: string, password: string) => {
+  // fill in user creds
+  cy.get("#username").should("be.visible").type(email);
+  cy.get("#password").should("be.visible").type(password);
+
+  // click login button
+  cy.get("#kc-login").should("be.visible").click();
+});
+
+/**
  * Verify User is logged into user account portal
  */
 Cypress.Commands.add("verifyLoggedIn", () => {
