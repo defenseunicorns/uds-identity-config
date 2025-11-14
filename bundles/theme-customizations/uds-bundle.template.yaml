@@ -21,6 +21,7 @@ packages:
           values:
             - path: themeCustomizations
               value:
+                enableAccessRequestNotes: true
                 resources:
                   images:
                     - name: background.png
@@ -50,6 +51,7 @@ packages:
                 GOOGLE_IDP_ADMIN_GROUP: "uds-core-dev-admin"
                 GOOGLE_IDP_AUDITOR_GROUP: "uds-core-dev-auditor"
                 TERMS_AND_CONDITIONS_ENABLED: true
+                EMAIL_AS_USERNAME: true
             - path: realmAuthFlows
               value:
                 USERNAME_PASSWORD_AUTH_ENABLED: true

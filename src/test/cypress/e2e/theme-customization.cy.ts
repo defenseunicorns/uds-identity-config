@@ -85,12 +85,13 @@ describe("Theme customizations", () => {
     const formData: RegistrationFormData = {
       firstName: "Testing",
       lastName: "User",
-      username: "testing_user",
+      email: "testing_user@uds.dev",
       password: "Testingpassword1!!",
     };
 
     cy.loginPage();
-    cy.loginUser(formData.username, formData.password);
+    // The bundle/theme-customizations/uds-bundle.template.yaml uses logins with email
+    cy.loginUser(formData.email, formData.password);
 
       cy.exec("uds zarf tools kubectl get cm -n keycloak keycloak-theme-overrides -o yaml").then(
         result => {
