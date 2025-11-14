@@ -36,11 +36,12 @@ Disadvantages:
 
 2. Introduce the `/UDS Core/Admin/Service Account` and `/UDS Core/Auditor/Service Account` groups, and automatically add the appropriate `groups` claim to Service Account tokens
 
-This approach relies on extending the existing Group/Permission model in UDS Core down to Service Accounts. With this approach, every Service Account that belongs to `/UDS Core/Auditor/Service Account` is automatically a member of the `/UDS Core/Auditor` group, which makes the Package CR configuration simpler. An additional Protocol Mapper would be automatically added to every Keycloak Client that has Service Account enabled, which would add the `groups` claim with proper values based on the Service Account group membership.
+This approach relies on extending the existing Group/Permission model in UDS Core down to Service Accounts. With this approach, every Service Account that belongs to `/UDS Core/Auditor/Service Account` is automatically a member of the `/UDS Core/Auditor` group, which makes the Package CR configuration simpler. A newly created `UDS Service Account` Protocol Mapper would be automatically added to every Keycloak Client that has Service Account enabled, and would add the `groups` claim with proper values based on the Service Account group membership.
 
 Advantages:
 
 - Fine-level control over Service Account permissions
+- Doesn't require the `Hardcoded claim` Protocol Mapper as a new UDS-specific Protocol Mapper would be created
 
 Disadvantages:
 
@@ -58,11 +59,18 @@ Advantages:
 Disadvantages:
 
 - Slightly more complex configuration for end users
+- Doesn't solve the problem for the applications that expect the `groups` claim to be present in the Service Account tokens
 
 ## Decision
 
-TBD
+We will pursue the first option: Rely on adding the `groups` claim to the Service Accounts via the Package CR configuration and the `Hardcoded claim` Protocol Mapper.
+
+Option 2 has been rejected due to the complexity of extending the existing Group/Permission model of the UDS Core Platform and the need to re-evaluate the Threat Model. 
+Option 3 has been rejected due to not solving the problem for the applications that expect the `groups` claim to be present in the Service Account tokens.
 
 ## Consequences
 
-TBD
+The above decision requires:
+
+- Pursuing "Expose a way to add additional Claims and Protocol Mappers to the allows list for UDSClientPolicyPermissionsExecutor [#697](https://github.com/defenseunicorns/uds-identity-config/issues/697)"
+- Adding a documentation example on how to configure the `Hardcoded claim` Protocol Mapper via the Package CR to add the `groups` claim to Service Account tokens
