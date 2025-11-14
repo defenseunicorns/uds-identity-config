@@ -36,7 +36,7 @@ Disadvantages:
 
 2. Introduce the `/UDS Core/Admin/Service Account` and `/UDS Core/Auditor/Service Account` groups, and automatically add the appropriate `groups` claim to Service Account tokens
 
-This approach relies on extending the existing Group/Permission model in UDS Core down to Service Accounts. With this approach every Service Account that belongs `/UDS Core/Auditor/Service Account` is automatically member of the `/UDS Core/Auditor` group which makes the Package CR configuration simpler. An additional Protocol Mapper would be automatically added to every Keycloak Client that has Service Account enabled, which would add the `groups` claim with proper values based on the Service Account group membership.
+This approach relies on extending the existing Group/Permission model in UDS Core down to Service Accounts. With this approach, every Service Account that belongs to `/UDS Core/Auditor/Service Account` is automatically a member of the `/UDS Core/Auditor` group, which makes the Package CR configuration simpler. An additional Protocol Mapper would be automatically added to every Keycloak Client that has Service Account enabled, which would add the `groups` claim with proper values based on the Service Account group membership.
 
 Advantages:
 
