@@ -14,7 +14,7 @@ Discussion
 
 ## Context
 
-The UDS Core exposes a standard way of configuring Keycloak Service Accounts via the Package CR (see the [UDS Core docs](https://uds.defenseunicorns.com/reference/configuration/single-sign-on/service-account/)). Tokens obtained with the Client Credentials grant associated with these Service Accounts do not include the `groups` claim. The primary reason for this behaviour is that Service Accounts do not have a user identity as they represent an application tied with a Keycloak Client. Keycloak doesn't provide any tools around managing Service Account Groups as it uses Client Roles as a primary mechanism for controlling permissions associated with them. 
+The UDS Core exposes a standard way of configuring Keycloak Service Accounts via the Package CR (see the [UDS Core docs](https://uds.defenseunicorns.com/reference/configuration/single-sign-on/service-account/)). Tokens obtained with the Client Credentials grant associated with these Service Accounts do not include the `groups` claim. The primary reason for this behavior is that Service Accounts do not have a user identity as they represent an application tied with a Keycloak Client. Keycloak doesn't provide any tools around managing Service Account Groups as it uses Client Roles as a primary mechanism for controlling permissions associated with them. 
 
 The lack of `groups` claim makes enforcing the [Group Protection](https://uds.defenseunicorns.com/reference/configuration/single-sign-on/group-based-auth/) impossible. Additionally, the Delivery Team has identified that there are certain applications (that are out of our control) that expect the `groups` claim to be present in tokens issued to Service Accounts.
 
