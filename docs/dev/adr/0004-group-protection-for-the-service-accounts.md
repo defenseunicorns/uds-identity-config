@@ -48,7 +48,7 @@ Disadvantages:
 
 3. Extend the existing Package CR `sso` spec with a protection mechanism based on custom claims
 
-The implementation assumes extending the Package CR `sso` spec with a new mechanism custom claims checks, such as `azp` (that contains the name of the Service Account) or `preferred_username` (usually `service-account-<client-id>`). The UDS Core would adjust the `RequestAuthentication` to inspect the `@request.auth.claims.groups` (as described in the [Istio documentation](https://istio.io/latest/docs/tasks/security/authentication/jwt-route/#configuring-ingress-routing-based-on-jwt-claims)) and grant request access based on the presence of specific custom claims.
+The implementation assumes extending the Package CR `sso` spec with a new mechanism for custom claims checks, such as `azp` (that contains the name of the Service Account) or `preferred_username` (usually `service-account-<client-id>`). The UDS Core would adjust the `RequestAuthentication` to inspect the `@request.auth.claims.groups` (as described in the [Istio documentation](https://istio.io/latest/docs/tasks/security/authentication/jwt-route/#configuring-ingress-routing-based-on-jwt-claims)) and grant request access based on the presence of specific custom claims.
 
 Advantages:
 
