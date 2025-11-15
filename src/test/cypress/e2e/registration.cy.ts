@@ -5,6 +5,25 @@
 
 import { RegistrationFormData } from "../support/types";
 
+// Below mechanism is purely a convenience option that helps to rerun this test multiple times without
+// having to clean up things manually.
+let __anyTestFailed = false;
+afterEach(function () {
+  if (this.currentTest && this.currentTest.state === 'failed') {
+    __anyTestFailed = true;
+  }
+});
+
+after(() => {
+  if (__anyTestFailed) {
+    cy.log('Skipping cleanup in after() because a test failed');
+    return;
+  }
+  Cypress.on('fail', () => false)
+  cy.deleteUserByUsername('john_doe');
+  Cypress.on('fail', () => true)
+});
+
 describe("CAC Registration Flow", () => {
   const formData: RegistrationFormData = {
     firstName: "John",
@@ -24,7 +43,7 @@ describe("CAC Registration Flow", () => {
     cy.verifyLoggedIn();
   });
 
-  it("Successfull Login of CAC Registered User", () => {
+  it("Successful Login of CAC Registered User", () => {
     // Navigate to login page
     cy.visit("https://sso.uds.dev");
 
@@ -35,7 +54,8 @@ describe("CAC Registration Flow", () => {
       .should("be.visible")
       // FIPS and non-FIPS mode use different formats for the subject DN. That's why we check if all parts are present instead of
       // a full string match.
-      .contains("C=US").contains("ST=Colorado").contains("L=Colorado Springs").contains("O=Defense Unicorns").contains("CN=uds.dev")
+      .contains("C=US").contains("O=U.S. Government").contains("CN=UNICORN.DOUG.ROCKSTAR.1234567890")
+
 
     // Verify that PKI User information is correct
     cy.get(".form-group").contains("label", "You will be logged in as:").should("be.visible");

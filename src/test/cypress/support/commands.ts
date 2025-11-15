@@ -34,6 +34,15 @@ Cypress.Commands.add("registrationPage", (formData: RegistrationFormData, expect
 
   // Verify client cert has been loaded properly by this header being present
   cy.contains("h3", "DoD PKI User Registration").should("be.visible");
+  cy.get("#certificate_subjectDN")
+    .should("be.visible")
+    // FIPS and non-FIPS mode use different formats for the subject DN. That's why we check if all parts are present instead of
+    // a full string match.
+    .contains("C=US").contains("O=U.S. Government").contains("CN=UNICORN.DOUG.ROCKSTAR.1234567890")
+
+  // Pre-filled user registration information based on CAC
+  cy.get('#firstName').should('be.visible').and('have.value', 'Doug');
+  cy.get('#lastName').should('be.visible').and('have.value', 'Unicorn');
 
   // Fill Registration form inputs
   cy.get("label").contains("First name").next("input").type(formData.firstName);
@@ -166,7 +175,48 @@ Cypress.Commands.add("getClientSecret", (clientId: string) => {
   });
 });
 
-Cypress.Commands.add("getAccessToken", () => {
+type TokenSubject = 'UDS_OPERATOR' | 'KEYCLOAK_ADMIN';
+
+Cypress.Commands.add("getAccessToken", (subject?: TokenSubject) => {
+  const which: TokenSubject = subject || 'UDS_OPERATOR';
+
+  if (which === 'KEYCLOAK_ADMIN') {
+    // Use admin username/password from the keycloak-admin-password Secret in the keycloak namespace
+    return cy
+      .getValueFromSecret('keycloak', 'keycloak-admin-password', 'username')
+      .then((adminUsername) => {
+        expect(adminUsername, 'admin username from secret').to.be.a('string').and.not.be.empty;
+        return cy
+          .getValueFromSecret('keycloak', 'keycloak-admin-password', 'password')
+          .then((adminPassword) => ({ adminUsername, adminPassword }));
+      })
+      .then(({ adminUsername, adminPassword }) => {
+        return cy.request({
+          method: 'POST',
+          url: 'https://keycloak.admin.uds.dev/realms/master/protocol/openid-connect/token',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          form: true,
+          body: {
+            client_id: 'admin-cli',
+            grant_type: 'password',
+            username: adminUsername,
+            password: adminPassword,
+          },
+          failOnStatusCode: false,
+        }).then((response) => {
+          if (response.status !== 200) {
+            throw new Error(`Failed to obtain KEYCLOAK_ADMIN token: HTTP ${response.status}`);
+          }
+          const accessToken = response.body && response.body.access_token;
+          expect(accessToken, 'access token (admin)').to.be.a('string').and.not.be.empty;
+          return accessToken as string;
+        });
+      });
+  }
+
+  // Default: UDS_OPERATOR client credentials flow
   return cy.exec('uds zarf tools kubectl get secret keycloak-client-secrets -n keycloak -o jsonpath="{.data.uds-operator}"').then((result) => {
     expect(result.exitCode).to.eq(0);
     expect(result.stdout).not.contains(" ");
@@ -223,5 +273,71 @@ Cypress.Commands.add("getValueFromSecret", (namespace: string, secretName: strin
     expect(b64Value, `Secret '${secretName}' in ns '${namespace}' must contain key '${key}'`).to.exist;
     const decoded = Buffer.from((b64Value || "").trim(), "base64").toString("utf-8");
     return decoded;
+  });
+});
+/**
+ * Delete a Keycloak user by username using the Admin API. This command is idempotent:
+ * it will not fail the test if the user does not exist.
+ */
+Cypress.Commands.add("deleteUserByUsername", (username: string) => {
+  if (!username || username.trim().length === 0) {
+    // No-op for empty usernames, but keep consistent Chainable
+    cy.log("deleteUserByUsername: empty username provided — skipping");
+    return cy.wrap(undefined);
+  }
+
+  return cy.getAccessToken("KEYCLOAK_ADMIN").then((accessToken) => {
+    return cy
+      .request({
+        method: "GET",
+        url: `https://keycloak.admin.uds.dev/admin/realms/uds/users`,
+        qs: { username, exact: true },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        failOnStatusCode: false,
+      })
+      .then((response) => {
+        if (response.status !== 200) {
+          // Do not fail test — just log and exit
+          cy.log(
+            `deleteUserByUsername: user search returned status ${response.status}; skipping delete for '${username}'`
+          );
+          return;
+        }
+
+        const users = (response.body as any[]) || [];
+        if (!Array.isArray(users) || users.length === 0) {
+          cy.log(`deleteUserByUsername: user '${username}' not found — nothing to delete`);
+          return;
+        }
+
+        const user = users[0];
+        const userId = user.id;
+        if (!userId) {
+          cy.log(`deleteUserByUsername: user '${username}' has no id — skipping delete`);
+          return;
+        }
+
+        return cy.request({
+          method: "DELETE",
+          url: `https://keycloak.admin.uds.dev/admin/realms/uds/users/${userId}`,
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          failOnStatusCode: false,
+        }).then((delResp) => {
+          if (delResp.status === 204) {
+            cy.log(`deleteUserByUsername: user '${username}' deleted`);
+          } else if (delResp.status === 404) {
+            cy.log(`deleteUserByUsername: user '${username}' not found at delete time`);
+          } else {
+            cy.log(
+              `deleteUserByUsername: unexpected status ${delResp.status} while deleting '${username}'`
+            );
+          }
+        });
+      });
   });
 });

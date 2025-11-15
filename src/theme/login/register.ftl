@@ -1,6 +1,28 @@
 <#import "template.ftl" as layout>
     <@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm', 'affiliation', 'rank', 'organization', 'notes'); section>
         <#if section="form">
+            <#-- Parse CAC SubjectDN to prefill names -->
+            <#assign cacFirstName=""><#assign cacLastName="">
+            <#if cacSubjectDN??>
+                <#assign dn = cacSubjectDN?trim>
+                <#assign cnPart = "">
+                <#-- RFC2253-style: comma-separated -->
+                <#list dn?split(",") as seg>
+                    <#assign s = seg?trim>
+                    <#if s?starts_with("CN=")>
+                        <#assign cnPart = s?substring(3)>
+                    </#if>
+                </#list>
+                <#assign cnPart = cnPart?trim>
+                <#if cnPart?length gt 0>
+                    <#-- CN format: LAST.FIRST[.MIDDLE].EDI/PI -->
+                    <#assign tokens = cnPart?split(".")>
+                    <#if tokens?size gt 2>
+                        <#assign cacLastName = (tokens[0]?trim)?lower_case?cap_first>
+                        <#assign cacFirstName = (tokens[1]?trim)?lower_case?cap_first>
+                    </#if>
+                </#if>
+            </#if>
             <form action="/chuck-norris-calendar-goes-straight-from-march-31st-to-april-2nd-because-no-one-fools-chuck-norris"
                 id="unicorn-registration-form" method="post">
                 <div class="back-button-container">
@@ -21,7 +43,7 @@
                                     </div>
                                     <div class="col">
                                         <h3>DoD PKI User Registration</h3>
-                                        <p>${cacSubjectDN}</p>
+                                        <p id="certificate_subjectDN">${cacSubjectDN}</p>
                                     </div>
                                 </div>
                             </div>
@@ -67,7 +89,7 @@
                             ${msg("firstName")}
                         </label>
                         <input type="text" id="firstName" class="form-control" name="firstName"
-                            value="${(register.formData.firstName!'')}" />
+                            value="${(register.formData.firstName! (cacFirstName!''))}" />
                         <#if messagesPerField.existsError('firstName')>
                             <span class="message-details" aria-live="polite">
                                 ${kcSanitize(messagesPerField.get('firstName'))?no_esc}
@@ -79,7 +101,7 @@
                             ${msg("lastName")}
                         </label>
                         <input type="text" id="lastName" class="form-control" name="lastName"
-                            value="${(register.formData.lastName!'')}" />
+                            value="${(register.formData.lastName! (cacLastName!''))}" />
                         <#if messagesPerField.existsError('lastName')>
                             <span class="message-details" aria-live="polite">
                                 ${kcSanitize(messagesPerField.get('lastName'))?no_esc}

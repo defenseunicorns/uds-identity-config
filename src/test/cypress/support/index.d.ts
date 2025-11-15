@@ -36,9 +36,20 @@ declare namespace Cypress {
 
     verifyLoggedIn(): Chainable;
 
-    getAccessToken(): Chainable;
+    /**
+     * Retrieve an access token for Keycloak APIs.
+     * - Default (or when subject is 'UDS_OPERATOR'): uses client credentials for the 'uds-operator' client
+     * - When subject is 'KEYCLOAK_ADMIN': uses admin username/password from the 'keycloak-admin-password' Secret
+     */
+    getAccessToken(subject?: 'UDS_OPERATOR' | 'KEYCLOAK_ADMIN'): Chainable<string>;
 
     getClientSecret(clientId: string): Chainable<{ accessToken: string; clientSecret: string }>;
+
+    /**
+     * Delete a Keycloak user by username using the Admin API. This command is idempotent
+     * and will not fail if the user is not found.
+     */
+    deleteUserByUsername(username: string): Chainable;
 
     /**
      * Retrieve and base64-decode a value from a Kubernetes Secret by key.
