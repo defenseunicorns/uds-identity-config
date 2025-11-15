@@ -1,2 +1,3 @@
 com.defenseunicorns.uds.keycloak.plugin.CustomGroupPathMapper
 com.defenseunicorns.uds.keycloak.plugin.CustomAWSSAMLGroupMapper
+com.defenseunicorns.uds.keycloak.plugin.CustomAWSSAMLAttributeMapper
