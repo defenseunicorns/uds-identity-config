@@ -1794,6 +1794,29 @@
                         "user.attribute": "department",
                         "attribute.name": "https://aws.amazon.com/SAML/Attributes/PrincipalTag:department",
                     }
+                },
+                {
+                    "id": "c7395a61-38a1-4e3d-b120-4f05cd2ddb8d",
+                    "name": "aws-session-name-mapper",
+                    "protocol": "saml",
+                    "protocolMapper": "saml-user-property-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.attribute": "email",
+                        "attribute.name": "https://aws.amazon.com/SAML/Attributes/RoleSessionName",
+                    }
+                },
+                {
+                    "id": "86f80fca-4d19-4e67-bfc1-65885f6d0bd2",
+                    "name": "common-name-mapper",
+                    "protocol": "saml",
+                    "protocolMapper": "saml-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.attribute": "usercertificateCN",
+                        "aggregate.attrs": "false",
+                        "attribute.name": "https://aws.amazon.com/SAML/Attributes/PrincipalTag:commonName",
+                    }
                 }
             ]
         }
