@@ -113,18 +113,26 @@ public class RegistrationValidationTest {
 
     @Test
     public void testBuildPage() {
+        String testSubjectDN = "subjectDN";
+        String testFirstName = "firstName";
+        String testLastName = "lastName";
+        String testEmail = "email";
+
         RegistrationValidation subject = new RegistrationValidation();
         FormContext context = mock(FormContext.class);
         LoginFormsProvider form = mock(LoginFormsProvider.class);
 
         // Mock the X509Tools to return a non-null value for getX509SubjectDN
         PowerMockito.mockStatic(X509Tools.class);
-        when(X509Tools.getX509SubjectDN(any(FormContext.class))).thenReturn("subjectDN");
+        when(X509Tools.getCACInfo(any(FormContext.class))).thenReturn(new CACInfo(testSubjectDN, testFirstName, testLastName, testEmail));
 
         subject.buildPage(context, form);
 
         // Verify that the setAttribute method was called with the expected arguments
-        verify(form).setAttribute("cacSubjectDN", "subjectDN");
+        verify(form).setAttribute(Common.FORM_CAC_SUBJECT_DN, testSubjectDN);
+        verify(form).setAttribute(Common.FORM_CAC_FIRST_NAME, testFirstName);
+        verify(form).setAttribute(Common.FORM_CAC_LAST_NAME, testLastName);
+        verify(form).setAttribute(Common.FORM_CAC_EMAIL, testEmail);
     }
 
     @Test
