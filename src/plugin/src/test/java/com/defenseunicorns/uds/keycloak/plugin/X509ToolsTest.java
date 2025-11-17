@@ -187,9 +187,9 @@ public class X509ToolsTest {
     }
 
     @Test
-    public void testParseCACInfoTypical() {
+    public void testParseCACInfoLastNameFirstNameFormat() {
         String subjectDN = "CN=login.dso.mil,O=Department of Defense";
-        String commonName = "john.doe";
+        String commonName = "doe.john";
         String email = "john.doe@dso.mil";
 
         CACInfo info = X509Tools.parseCACInfo(subjectDN, commonName, email);
@@ -208,20 +208,9 @@ public class X509ToolsTest {
 
         CACInfo info = X509Tools.parseCACInfo(subjectDN, commonName, email);
 
-        Assert.assertEquals("Jane", info.firstName());
+        Assert.assertEquals(email, info.email());
+        Assert.assertNull(info.firstName());
         Assert.assertNull(info.lastName());
-    }
-
-    @Test
-    public void testParseCACInfoCapitalizationAndTrim() {
-        String subjectDN = "CN=example";
-        String commonName = "  ALICE .  O'BRIEN   ";
-        String email = "alice.obrien@example.mil";
-
-        CACInfo info = X509Tools.parseCACInfo(subjectDN, commonName, email);
-
-        Assert.assertEquals("Alice", info.firstName());
-        Assert.assertEquals("O'brien", info.lastName());
     }
 
     @Test

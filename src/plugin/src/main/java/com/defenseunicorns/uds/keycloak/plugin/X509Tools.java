@@ -346,31 +346,11 @@ public final class X509Tools {
         String firstName = null;
         String lastName = null;
         if (!isBlank(commonName)) {
-            // Split by '.' and normalize/trim tokens, discarding empties
-            String[] parts = Stream.of(commonName.split("\\."))
-                    .map(p -> p == null ? null : p.trim())
-                    .filter(p -> p != null && !p.isEmpty())
-                    .toArray(String[]::new);
-
-            if (parts.length >= 1) {
-                boolean subjectIndicatesDoD = subjectDN != null && subjectDN.contains("OU=DoD");
-                boolean hasEdiLikeSuffix = parts.length >= 3 && parts[parts.length - 1].matches("\\d{6,}");
-                boolean useDoDMapping = subjectIndicatesDoD || hasEdiLikeSuffix;
-
-                if (parts.length >= 2) {
-                    if (useDoDMapping) {
-                        // DoD profile CN format: LAST.FIRST[.MIDDLE][.EDI]
-                        lastName = capitalize(parts[0]);
-                        firstName = capitalize(parts[1]);
-                    } else {
-                        // Generic format: FIRST.LAST
-                        firstName = capitalize(parts[0]);
-                        lastName = capitalize(parts[1]);
-                    }
-                } else {
-                    // Single-token CN: treat as first name only
-                    firstName = capitalize(parts[0]);
-                }
+            // DoD profile CN format: LAST.FIRST[.MIDDLE][.EDI]
+            String[] parts = commonName.split("\\.");
+            if (parts.length >= 2) {
+                lastName = capitalize(parts[0]);
+                firstName = capitalize(parts[1]);
             }
         }
         return new CACInfo(subjectDN, firstName, lastName, email);
