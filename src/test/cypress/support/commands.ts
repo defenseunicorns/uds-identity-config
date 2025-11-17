@@ -41,9 +41,11 @@ Cypress.Commands.add("registrationPage", (formData: RegistrationFormData, expect
     .contains(formData.cac_c).contains(formData.cac_o).contains(formData.cac_cn)
 
   // Pre-filled user registration information based on CAC
-  cy.get('#firstName').should('be.visible').and('have.value', formData.firstName);
-  cy.get('#lastName').should('be.visible').and('have.value', formData.lastName);
-  cy.get('#email').should('be.visible').and('have.value', formData.email);
+  if (expectNewUser) {
+    cy.get('#firstName').should('be.visible').and('have.value', formData.firstName);
+    cy.get('#lastName').should('be.visible').and('have.value', formData.lastName);
+    cy.get('#email').should('be.visible').and('have.value', formData.email);
+  }
 
   // Fill Registration form inputs
   cy.get("label").contains("First name").next("input").clear().type(formData.firstName);
