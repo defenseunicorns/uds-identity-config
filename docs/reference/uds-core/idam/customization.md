@@ -250,6 +250,7 @@ overrides:
             SSO_SESSION_LIFESPAN_TIMEOUT: 1200
             SSO_SESSION_MAX_LIFESPAN: 36000
             SSO_SESSION_MAX_PER_USER: 10
+            MAX_TEMPORARY_LOCKOUTS: 3
         - path: realmAuthFlows
           value:
             USERNAME_PASSWORD_AUTH_ENABLED: true
