@@ -83,6 +83,9 @@ describe("Registration Tests", () => {
       password: "PrettyUnicorns1!!",
       affiliation: "Contractor",
       payGrade: "N/A",
+      cac_c: "C=US",
+      cac_o: "O=U.S. Government",
+      cac_cn: "CN=UNICORN.DOUG.ROCKSTAR.1234567890",
     };
 
     cy.registrationPage(formData, false);
@@ -125,6 +128,9 @@ describe("Registration Tests", () => {
       password: "PrettyUnicorns1",
       affiliation: "Contractor",
       payGrade: "N/A",
+      cac_c: "C=US",
+      cac_o: "O=U.S. Government",
+      cac_cn: "CN=UNICORN.DOUG.ROCKSTAR.1234567890",
     };
 
     cy.registrationPage(formData, false);
