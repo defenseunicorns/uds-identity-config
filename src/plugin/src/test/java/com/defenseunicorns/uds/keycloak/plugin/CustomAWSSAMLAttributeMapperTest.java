@@ -23,11 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class CustomAWSSAMLAttributeMapperTest {
@@ -55,7 +52,7 @@ public class CustomAWSSAMLAttributeMapperTest {
 
         // Use a config that sets the user attribute and SAML attribute name for AWS PrincipalTag
         config = new HashMap<>();
-        config.put("user.attribute", "department");
+        config.put(CustomAWSSAMLAttributeMapper.USER_ATTRIBUTE, "department");
         config.put(AttributeStatementHelper.SAML_ATTRIBUTE_NAME,
                 "https://aws.amazon.com/SAML/Attributes/PrincipalTag:department");
         when(mockMappingModel.getConfig()).thenReturn(config);
@@ -83,7 +80,7 @@ public class CustomAWSSAMLAttributeMapperTest {
     @Test
     public void testTransformAttributeStatement_nonAwsAttributeSkipped() {
         // Configure for non-AWS attribute (missing PrincipalTag prefix)
-        config.put("user.attribute", "department");
+        config.put(CustomAWSSAMLAttributeMapper.USER_ATTRIBUTE, "department");
         config.put(AttributeStatementHelper.SAML_ATTRIBUTE_NAME, "department");
 
         when(mockUser.getAttributeStream("department")).thenReturn(Stream.of("engineering"));
@@ -130,7 +127,7 @@ public class CustomAWSSAMLAttributeMapperTest {
 
     @Test
     public void testTransformAttributeStatement_userAndGroupAttributes() {
-        config.put("user.attribute", "title");
+        config.put(CustomAWSSAMLAttributeMapper.USER_ATTRIBUTE, "title");
         config.put(AttributeStatementHelper.SAML_ATTRIBUTE_NAME,
                 "https://aws.amazon.com/SAML/Attributes/PrincipalTag:title");
 
@@ -161,19 +158,16 @@ public class CustomAWSSAMLAttributeMapperTest {
     }
 
     @Test
-    public void testTransformAttributeStatement_attributeWithColonThrowsException() {
+    public void testTransformAttributeStatement_attributeWithColonSkipped() {
         // User has attribute with colon (invalid for AWS)
         when(mockUser.getAttributeStream("department")).thenReturn(Stream.of("engineering:platform"));
         when(mockUser.getGroupsStream()).thenReturn(Stream.empty());
 
-        try {
-            mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel,
-                    mockSession, mockUserSession, mockClientSession);
-            fail("Expected IllegalArgumentException to be thrown");
-        } catch (IllegalArgumentException e) {
-            assertEquals("User attribute contains invalid character ':'. Attribute: department, Value: engineering:platform",
-                    e.getMessage());
-        }
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel,
+                mockSession, mockUserSession, mockClientSession);
+
+        // Verify attribute was NOT added because value contains colon
+        verify(mockAttributeStatement, never()).addAttribute(any());
     }
 
     @Test
@@ -204,7 +198,7 @@ public class CustomAWSSAMLAttributeMapperTest {
 
     @Test
     public void testTransformAttributeStatement_emptyUserAttribute() {
-        config.put("user.attribute", "");
+        config.put(CustomAWSSAMLAttributeMapper.USER_ATTRIBUTE, "");
         config.put(AttributeStatementHelper.SAML_ATTRIBUTE_NAME,
                 "https://aws.amazon.com/SAML/Attributes/PrincipalTag:department");
 
@@ -217,7 +211,7 @@ public class CustomAWSSAMLAttributeMapperTest {
 
     @Test
     public void testTransformAttributeStatement_nullSamlAttributeName() {
-        config.put("user.attribute", "department");
+        config.put(CustomAWSSAMLAttributeMapper.USER_ATTRIBUTE, "department");
         config.remove(AttributeStatementHelper.SAML_ATTRIBUTE_NAME);
         // SAML_ATTRIBUTE_NAME is not set
 
@@ -233,7 +227,7 @@ public class CustomAWSSAMLAttributeMapperTest {
 
     @Test
     public void testTransformAttributeStatement_parentGroupAttributes() {
-        config.put("user.attribute", "costCenter");
+        config.put(CustomAWSSAMLAttributeMapper.USER_ATTRIBUTE, "costCenter");
         config.put(AttributeStatementHelper.SAML_ATTRIBUTE_NAME,
                 "https://aws.amazon.com/SAML/Attributes/PrincipalTag:costCenter");
 

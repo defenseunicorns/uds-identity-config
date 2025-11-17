@@ -6,8 +6,6 @@
 package com.defenseunicorns.uds.keycloak.plugin;
 
 import org.keycloak.dom.saml.v2.assertion.AttributeStatementType;
-import org.keycloak.dom.saml.v2.assertion.AttributeType;
-import org.keycloak.dom.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.keycloak.models.AuthenticatedClientSessionModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.ProtocolMapperModel;
@@ -18,8 +16,10 @@ import org.keycloak.protocol.saml.mappers.AbstractSAMLProtocolMapper;
 import org.keycloak.protocol.saml.mappers.AttributeStatementHelper;
 import org.keycloak.protocol.saml.mappers.SAMLAttributeStatementMapper;
 import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.saml.common.constants.JBossSAMLURIConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,8 +27,11 @@ import java.util.stream.Collectors;
 
 public class CustomAWSSAMLAttributeMapper extends AbstractSAMLProtocolMapper implements SAMLAttributeStatementMapper {
 
+    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     public static final String PROVIDER_ID = "aws-saml-attribute-mapper";
     private static final String AWS_PRINCIPAL_TAG_PREFIX = "https://aws.amazon.com/SAML/Attributes/PrincipalTag:";
+    public static final String USER_ATTRIBUTE = "user.attribute";
 
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
 
@@ -36,7 +39,7 @@ public class CustomAWSSAMLAttributeMapper extends AbstractSAMLProtocolMapper imp
         ProviderConfigProperty property;
 
         property = new ProviderConfigProperty();
-        property.setName("user.attribute");
+        property.setName(USER_ATTRIBUTE);
         property.setLabel("User Attribute");
         property.setHelpText("Name of the user attribute to map.");
         configProperties.add(property);
@@ -73,7 +76,7 @@ public class CustomAWSSAMLAttributeMapper extends AbstractSAMLProtocolMapper imp
     public void transformAttributeStatement(AttributeStatementType attributeStatement, ProtocolMapperModel mappingModel,
             KeycloakSession session, UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
 
-        String userAttributeName = mappingModel.getConfig().get("user.attribute");
+        String userAttributeName = mappingModel.getConfig().get(USER_ATTRIBUTE);
         String samlAttributeName = mappingModel.getConfig().get(AttributeStatementHelper.SAML_ATTRIBUTE_NAME);
 
         // Only process if this is an AWS PrincipalTag attribute
@@ -87,23 +90,25 @@ public class CustomAWSSAMLAttributeMapper extends AbstractSAMLProtocolMapper imp
 
         UserModel user = userSession.getUser();
 
-        // Retrieve all values for the attribute from user and groups (with aggregation)
         Collection<String> attributeValues = KeycloakModelUtils.resolveAttribute(user, userAttributeName, true);
-        List<String> values = new ArrayList<>(attributeValues);
+        List<String> values = attributeValues instanceof List ? (List<String>) attributeValues : new ArrayList<>(attributeValues);
 
         if (!values.isEmpty()) {
-            // Ensure no value contains the invalid character ':'
-            for (String value : values) {
-                if (value.contains(":")) {
-                    throw new IllegalArgumentException(
-                            "User attribute contains invalid character ':'. Attribute: " + userAttributeName + ", Value: " + value);
-                }
+            List<String> sanitizedValues = values.stream()
+                .filter(value -> {
+                    if (value.contains(":")) {
+                        logger.warn("Skipping value for attribute '{}' because it contains ':': {}", userAttributeName, value);
+                        return false;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+
+            if (sanitizedValues.isEmpty()) {
+                return;
             }
 
-            // Concatenate all values into a single string separated by colons
-            String concatenatedValue = String.join(":", values);
-
-            // Add the attribute using the standard helper which respects all config options
+            String concatenatedValue = String.join(":", sanitizedValues);
             AttributeStatementHelper.addAttribute(attributeStatement, mappingModel, concatenatedValue);
         }
     }

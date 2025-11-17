@@ -20,13 +20,18 @@ import org.keycloak.saml.common.constants.JBossSAMLURIConstants;
 import org.keycloak.models.ProtocolMapperModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.ModelToRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CustomAWSSAMLGroupMapper extends AbstractSAMLProtocolMapper implements SAMLAttributeStatementMapper {
+
+    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static final String PROVIDER_ID = "aws-saml-group-mapper";
 
@@ -99,16 +104,21 @@ public class CustomAWSSAMLGroupMapper extends AbstractSAMLProtocolMapper impleme
                 .collect(Collectors.toList());
 
         if (!groupPaths.isEmpty()) {
-            // Ensure no group path contains the invalid character ':'
-            for (String groupPath : groupPaths) {
-                if (groupPath.contains(":")) {
-                    throw new IllegalArgumentException(
-                            "Group name contains invalid character ':'. Group name: " + groupPath);
-                }
+            List<String> sanitizedGroupPaths = groupPaths.stream()
+                .filter(groupPath -> {
+                    if (groupPath.contains(":")) {
+                        logger.warn("Skipping group path because it contains ':': {}", groupPath);
+                        return false;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+
+            if (sanitizedGroupPaths.isEmpty()) {
+                return;
             }
 
-            // Concatenate the group paths into a single string separated by colons
-            String groupsString = String.join(":", groupPaths);
+            String groupsString = String.join(":", sanitizedGroupPaths);
 
             // Create a new SAML attribute
             AttributeType attribute = new AttributeType(
