@@ -38,21 +38,22 @@ Cypress.Commands.add("registrationPage", (formData: RegistrationFormData, expect
     .should("be.visible")
     // FIPS and non-FIPS mode use different formats for the subject DN. That's why we check if all parts are present instead of
     // a full string match.
-    .contains("C=US").contains("O=U.S. Government").contains("CN=UNICORN.DOUG.ROCKSTAR.1234567890")
+    .contains(formData.cac_c).contains(formData.cac_o).contains(formData.cac_cn)
 
   // Pre-filled user registration information based on CAC
-  cy.get('#firstName').should('be.visible').and('have.value', 'Doug');
-  cy.get('#lastName').should('be.visible').and('have.value', 'Unicorn');
+  cy.get('#firstName').should('be.visible').and('have.value', formData.firstName);
+  cy.get('#lastName').should('be.visible').and('have.value', formData.lastName);
+  cy.get('#email').should('be.visible').and('have.value', formData.email);
 
   // Fill Registration form inputs
-  cy.get("label").contains("First name").next("input").type(formData.firstName);
-  cy.get("label").contains("Last name").next("input").type(formData.lastName);
+  cy.get("label").contains("First name").next("input").clear().type(formData.firstName);
+  cy.get("label").contains("Last name").next("input").clear().type(formData.lastName);
   cy.get("label")
     .contains("Unit, Organization or Company Name")
     .next("input")
     .type(formData.organization);
-  cy.get("label").contains("Username").next("input").type(formData.username);
-  cy.get("label").contains("Email").next("input").type(formData.email);
+  cy.get("label").contains("Username").next("input").clear().type(formData.username);
+  cy.get("label").contains("Email").next("input").clear().type(formData.email);
 
   // only use password fields if not using CAC registration
   if (formData.password != "CAC") {

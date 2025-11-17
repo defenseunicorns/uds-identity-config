@@ -20,20 +20,23 @@ after(() => {
     return;
   }
   Cypress.on('fail', () => false)
-  cy.deleteUserByUsername('john_doe');
+  cy.deleteUserByUsername('doug.unicorn');
   Cypress.on('fail', () => true)
 });
 
 describe("CAC Registration Flow", () => {
   const formData: RegistrationFormData = {
-    firstName: "John",
-    lastName: "Doe",
+    firstName: "Doug",
+    lastName: "Unicorn",
     organization: "Defense Unicorns",
-    username: "john_doe",
-    email: "johndoe@defenseunicorns.com",
+    username: "doug.unicorn",
+    email: "doug.unicorn@uds.dev",
     password: "CAC",
     affiliation: "Contractor",
     payGrade: "N/A",
+    cac_c: "C=US",
+    cac_o: "O=U.S. Government",
+    cac_cn: "CN=UNICORN.DOUG.ROCKSTAR.1234567890",
   };
 
   it("Successful CAC Registration", () => {
@@ -59,7 +62,7 @@ describe("CAC Registration Flow", () => {
 
     // Verify that PKI User information is correct
     cy.get(".form-group").contains("label", "You will be logged in as:").should("be.visible");
-    cy.get(".form-group #username").should("be.visible").contains("john_doe");
+    cy.get(".form-group #username").should("be.visible").contains(formData.username);
 
     // Sign in using the PKI
     cy.get("#kc-login").should("be.visible").click();
@@ -99,6 +102,9 @@ describe("Registration Tests", () => {
       password: "Pretty1!!",
       affiliation: "Contractor",
       payGrade: "N/A",
+      cac_c: "C=US",
+      cac_o: "O=U.S. Government",
+      cac_cn: "CN=UNICORN.DOUG.ROCKSTAR.1234567890",
     };
 
     cy.registrationPage(formData, false);
