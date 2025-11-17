@@ -46,6 +46,7 @@ Advantages:
 Disadvantages:
 
 - Extends the existing Group/Permission model of the UDS Core Platform, which requires re-evaluating the Threat Model
+- There's no guarantee that proposed groups would cover the user application groups hierarchy
 
 3. Extend the existing Package CR `sso` spec with a protection mechanism based on custom claims
 
