@@ -242,6 +242,7 @@ overrides:
             GOOGLE_IDP_CORE_ENTITY_ID: <fill in value here>
             GOOGLE_IDP_ADMIN_GROUP: <fill in value here>
             GOOGLE_IDP_AUDITOR_GROUP: <fill in value here>
+            EMAIL_AS_USERNAME: true
             EMAIL_VERIFICATION_ENABLED: true
             TERMS_AND_CONDITIONS_ENABLED: true
             PASSWORD_POLICY: <fill in value here>
@@ -265,7 +266,20 @@ overrides:
           value: 10
 ```
 
-> These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json5).
+> These environment variables can be found in the [realm.json](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/realm.json5) and the table below summarizes their purpose:
+
+| Option                       | Default value                                                                                                                                                                                        | Purpose                                                               |
+|------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| GOOGLE_IDP_*                 | false, unset                                                                                                                                                                                         | Google SAML Identity Provider configuration settings.                 |
+| EMAIL_AS_USERNAME            | false                                                                                                                                                                                                | Treat the user's email as their username in the realm.                |
+| EMAIL_VERIFICATION_ENABLED   | false                                                                                                                                                                                                | Require users to verify their email address before using the account. |
+| TERMS_AND_CONDITIONS_ENABLED | false                                                                                                                                                                                                | Enable the Terms and Conditions screen that users must accept.        |
+| PASSWORD_POLICY              | hashAlgorithm(pbkdf2-sha256) and forceExpiredPasswordChange(60) and specialChars(2) and digits(1) and lowerCase(1) and upperCase(1) and passwordHistory(5) and length(15) and notUsername(undefined) | Define the Keycloak password policy applied to users in the realm.    |
+| X509_OCSP_FAIL_OPEN          | false                                                                                                                                                                                                | Control OCSP fail behavior for X.509 certificate authentication       |
+| ACCESS_TOKEN_LIFESPAN        | 60                                                                                                                                                                                                   | Access token validity period in seconds.                              |
+| SSO_SESSION_LIFESPAN_TIMEOUT | 600                                                                                                                                                                                                  | Session idle timeout in seconds.                                      |
+| SSO_SESSION_MAX_LIFESPAN     | 36000                                                                                                                                                                                                | Maximum absolute session lifespan in seconds, regardless of activity. |
+| SSO_SESSION_MAX_PER_USER     | 0                                                                                                                                                                                                    | Maximum number of concurrent active sessions per user.                |
 
 :::note
 **Important**: By allowing certificates to pass when no revocation check is performed, you accept the **risk** of potentially allowing revoked certificates to authenticate. This can pose a significant security threat depending on your organization’s compliance requirements and threat model.
