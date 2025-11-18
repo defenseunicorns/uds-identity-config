@@ -1740,17 +1740,83 @@
             "name": "aws-groups",
             "description": "SAML custom scope for formatting user groups for AWS",
             "protocol": "saml",
-            "attributes": {
-                "include.in.token.scope": "true",
-                "display.on.consent.screen": "true"
-            },
             "protocolMappers": [
                 {
                     "id": "a87cb1d0-214b-4e92-8b93-562efb69f36d",
                     "name": "aws-groups",
                     "protocol": "saml",
                     "protocolMapper": "aws-saml-group-mapper",
-                    "consentRequired": false
+                    "consentRequired": false,
+                    "config": {
+                        "attribute.name": "https://aws.amazon.com/SAML/Attributes/PrincipalTag:groups",
+                    }
+                },
+                {
+                    "id": "b98dc2e1-325c-5a03-9c04-673fga70g47e",
+                    "name": "title",
+                    "protocol": "saml",
+                    "protocolMapper": "aws-saml-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.attribute": "title",
+                        "attribute.name": "https://aws.amazon.com/SAML/Attributes/PrincipalTag:title",
+                    }
+                },
+                {
+                    "id": "c09ed3f2-436d-6b14-0d15-784ghb81h58f",
+                    "name": "costCenter",
+                    "protocol": "saml",
+                    "protocolMapper": "aws-saml-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.attribute": "costCenter",
+                        "attribute.name": "https://aws.amazon.com/SAML/Attributes/PrincipalTag:costCenter",
+                    }
+                },
+                {
+                    "id": "d10fe4g3-547e-7c25-1e26-895hic92i69g",
+                    "name": "userType",
+                    "protocol": "saml",
+                    "protocolMapper": "aws-saml-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.attribute": "userType",
+                        "attribute.name": "https://aws.amazon.com/SAML/Attributes/PrincipalTag:userType",
+                    }
+                },
+                {
+                    "id": "e21gf5h4-658f-8d36-2f37-906ijd03j70h",
+                    "name": "department",
+                    "protocol": "saml",
+                    "protocolMapper": "aws-saml-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.attribute": "department",
+                        "attribute.name": "https://aws.amazon.com/SAML/Attributes/PrincipalTag:department",
+                    }
+                },
+                {
+                    "id": "c7395a61-38a1-4e3d-b120-4f05cd2ddb8d",
+                    "name": "aws-session-name-mapper",
+                    "protocol": "saml",
+                    "protocolMapper": "saml-user-property-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.attribute": "email",
+                        "attribute.name": "https://aws.amazon.com/SAML/Attributes/RoleSessionName",
+                    }
+                },
+                {
+                    "id": "86f80fca-4d19-4e67-bfc1-65885f6d0bd2",
+                    "name": "common-name-mapper",
+                    "protocol": "saml",
+                    "protocolMapper": "saml-user-attribute-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.attribute": "usercertificateCN",
+                        "aggregate.attrs": "false",
+                        "attribute.name": "https://aws.amazon.com/SAML/Attributes/PrincipalTag:commonName",
+                    }
                 }
             ]
         }

@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
@@ -111,22 +109,19 @@ public class CustomAWSSAMLGroupMapperTest {
     }
 
     @Test
-    public void testTransformAttributeStatement_groupNameWithColonThrowsException() {
+    public void testTransformAttributeStatement_groupNameWithColonSkipped() {
         GroupModel group = mock(GroupModel.class);
-        // Group name contains "-aws-" and also a colon to trigger the exception.
+        // Group name contains "-aws-" and also a colon (invalid)
         when(group.getName()).thenReturn("Admin-aws-IT:Test");
         when(group.getParent()).thenReturn(null);
 
         when(mockUser.getGroupsStream()).thenReturn(Stream.of(group));
 
-        try {
-            mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel,
-                    mockSession, mockUserSession, mockClientSession);
-            fail("Expected IllegalArgumentException to be thrown");
-        } catch (IllegalArgumentException e) {
-            // Expected exception message
-            assertEquals("Group name contains invalid character ':'. Group name: /Admin-aws-IT:Test", e.getMessage());
-        }
+        mapper.transformAttributeStatement(mockAttributeStatement, mockMappingModel,
+                mockSession, mockUserSession, mockClientSession);
+
+        // Verify attribute was NOT added because group name contains colon
+        verify(mockAttributeStatement, never()).addAttribute(any(ASTChoiceType.class));
     }
 
     @Test
