@@ -87,23 +87,7 @@ overrides:
 
 4. Save and test with a non-production account.
 
-### Compliance mapping
-
-* DISA STIG (APP3510.1 / V-222432) requires:
-  * Lockout after 3 invalid attempts.
-  * A minimum 15‑minute lockout.
-  * STIG does not require the lockout to be permanent.
-
-* UDS Core provides two STIG‑compliant options, both of which satisfy these requirements:
-  1. Permanent lockout only (`MAX_TEMPORARY_LOCKOUTS = 0`)
-  1. Temporary‑then‑permanent lockout (`MAX_TEMPORARY_LOCKOUTS > 0` with proper Failure Reset Time)
-
-* NIST SP 800‑53 AC‑7 requires defining and enforcing a lockout policy. Both supported UDS Core options meet this requirement.
-
-### Compliance impact if changed if changed
-
-* `failureFactor` > 3 violates STIG expectations.
-* `maxDeltaTimeSeconds` < 900 breaks the “3 attempts in 15 minutes” requirement.
-* `waitIncrementSeconds` < 900 non‑compliant with the 15‑minute lockout minimum.
-* Increasing `maxTemporaryLockouts` changes the escalation behavior; allowed but must be documented.
-* Turning off permanent lockout is allowed, but alters the operational model and must be documented.
+## Compliance
+:::caution
+There may be compliance impacts when modifying lockout behavior, be aware of any environment specific requirements (NIST controls or STIG requirements) for brute-force protection.
+:::
