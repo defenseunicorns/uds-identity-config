@@ -281,6 +281,7 @@ overrides:
 | SSO_SESSION_LIFESPAN_TIMEOUT | 600                                                                                                                                                                                                  | Session idle timeout in seconds.                                      |
 | SSO_SESSION_MAX_LIFESPAN     | 36000                                                                                                                                                                                                | Maximum absolute session lifespan in seconds, regardless of activity. |
 | SSO_SESSION_MAX_PER_USER     | 0                                                                                                                                                                                                    | Maximum number of concurrent active sessions per user.                |
+| MAX_TEMPORARY_LOCKOUTS       | 0                                                                                                                                                                                                    | Number of temporary lockouts that occur before a permanent lockout.   |
 
 :::note
 **Important**: By allowing certificates to pass when no revocation check is performed, you accept the **risk** of potentially allowing revoked certificates to authenticate. This can pose a significant security threat depending on your organization’s compliance requirements and threat model.
