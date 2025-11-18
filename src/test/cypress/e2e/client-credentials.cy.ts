@@ -76,9 +76,9 @@ describe("UDS Operator Client Credentials", () => {
     });
 
     it("UDSClientPolicyPermissionsExecutor validates mappers and claims", () => {
-        cy.exec("uds zarf tools kubectl apply -f ./resources/test-package.yaml").its('exitCode').should('eq', 0);
-        cy.exec("uds zarf tools kubectl wait --for=condition=Ready=false package/test-package -n test-package --timeout=300s").its('exitCode').should('eq', 0);
-        cy.exec("kubectl get events -n test-package")
+        cy.exec("uds zarf tools kubectl apply -f ./resources/test-package-not-passing-validation.yaml").its('exitCode').should('eq', 0);
+        cy.exec("uds zarf tools kubectl wait --for=condition=Ready=false package/test-package-not-passing-validation -n test-package-not-passing-validation --timeout=300s").its('exitCode').should('eq', 0);
+        cy.exec("kubectl get events -n test-package-not-passing-validation")
           .its('stdout')
           .should('include', '{"error":"invalid_client","error_description":"The Protocol Mapper non-whitelisted-protocol-mapper is not allowed. Rejecting request."}');
 
@@ -92,11 +92,16 @@ describe("UDS Operator Client Credentials", () => {
                 },
             }).then((response) => {
                 expect(response.status).to.eq(200);
-                const testClient = response.body.find((client: any) => client.clientId === "uds-core-admin-test");
+                const testClient = response.body.find((client: any) => client.clientId === "test-package-not-passing-validation");
                 // Ensure that this Client hasn't been created
                 expect(testClient).to.be.undefined;
             });
         });
+    });
+
+    it("UDSClientPolicyPermissionsExecutor supports adding additional Protocol Mappers declaratively", () => {
+      cy.exec("uds zarf tools kubectl apply -f ./resources/test-package-allowed-protocol-mapper.yaml").its('exitCode').should('eq', 0);
+      cy.exec("uds zarf tools kubectl wait --for=condition=Ready=true package/test-package-allowed-protocol-mapper -n test-package-allowed-protocol-mapper --timeout=300s").its('exitCode').should('eq', 0);
     });
 
     it("Dynamic Client Registration is disabled", () => {

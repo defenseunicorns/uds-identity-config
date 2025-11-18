@@ -3321,7 +3321,12 @@
                 "executors": [
                     {
                         "executor": "uds-operator-permissions",
-                        "configuration": {}
+                        "configuration": {
+                          "allowed-protocol-mappers-as-string": "${REALM_SECURITY_HARDENING_ADDITIONAL_PROTOCOL_MAPPERS:}",
+                          "use-default-allowed-protocol-mappers": "true",
+                          "use-default-allowed-client-scopes": "true",
+                          "allowed-client-scopes-as-string": "${REALM_SECURITY_HARDENING_ADDITIONAL_CLIENT_SCOPES:}"
+                        }
                     }
                 ]
             }

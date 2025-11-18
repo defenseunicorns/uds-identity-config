@@ -180,4 +180,27 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         assertTrue(resultingConfiguration.isUseDefaultAllowedClientScopes());
         assertEquals(UDSClientPolicyPermissionsExecutor.DEFAULT_ALLOWED_CLIENT_SCOPES.size() + 1, resultingConfiguration.getAllowedClientScopes().size());
     }
+
+    @Test
+    public void shouldAddStringifiedProtocolMappersAndClientScopes() {
+        //given
+        UDSClientPolicyPermissionsExecutorConfiguration config = new UDSClientPolicyPermissionsExecutorConfiguration();
+        config.setUseDefaultAllowedProtocolMappers(false);
+        config.setUseDefaultAllowedClientScopes(false);
+        config.setAllowedProtocolMappersAsString("mapper1 , mapper2 , mapper3"); //intentional test of trimming whitespaces
+        config.setAllowedClientScopesAsString("scope1, scope2 ,scope3");
+
+        //when
+        executor.setupConfiguration(config);
+
+        //then
+        assertEquals(executor.configuration.getAllowedProtocolMappers().size(), 3);
+        assertTrue(executor.configuration.getAllowedProtocolMappers().contains("mapper1"));
+        assertTrue(executor.configuration.getAllowedProtocolMappers().contains("mapper2"));
+        assertTrue(executor.configuration.getAllowedProtocolMappers().contains("mapper3"));
+        assertEquals(executor.configuration.getAllowedClientScopes().size(), 3);
+        assertTrue(executor.configuration.getAllowedClientScopes().contains("scope1"));
+        assertTrue(executor.configuration.getAllowedClientScopes().contains("scope2"));
+        assertTrue(executor.configuration.getAllowedClientScopes().contains("scope3"));
+    }
 }

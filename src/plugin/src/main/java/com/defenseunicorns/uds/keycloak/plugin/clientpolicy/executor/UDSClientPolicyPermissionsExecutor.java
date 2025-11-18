@@ -7,6 +7,7 @@ package com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor;
 
 import com.defenseunicorns.uds.keycloak.plugin.CustomAWSSAMLGroupMapper;
 import com.defenseunicorns.uds.keycloak.plugin.CustomGroupPathMapper;
+import com.defenseunicorns.uds.keycloak.plugin.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.keycloak.events.Errors;
 import org.keycloak.models.ClientModel;
@@ -30,11 +31,13 @@ import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
 import org.keycloak.services.clientpolicy.executor.ClientPolicyExecutorProvider;
 import org.keycloak.services.clientpolicy.executor.FullScopeDisabledExecutorFactory;
+import org.keycloak.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -182,6 +185,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     @Override
     public void setupConfiguration(UDSClientPolicyPermissionsExecutorConfiguration config) {
+        List<String> allowedProtocolMappers = new ArrayList<>();
         if (config.isUseDefaultAllowedProtocolMappers()) {
             List<String> defenseUnicornsProtocolMappers = this.keycloakSession.getKeycloakSessionFactory().
                     getProviderFactoriesStream(ProtocolMapper.class)
@@ -189,23 +193,26 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                     .map(o -> o.getId())
                     .toList();
 
-            List<String> allowedProtocolMappers = new ArrayList<>();
             allowedProtocolMappers.addAll(DEFAULT_ALLOWED_PROTOCOL_MAPPERS);
             allowedProtocolMappers.addAll(defenseUnicornsProtocolMappers);
-            if (config.getAllowedProtocolMappers() != null)
-                allowedProtocolMappers.addAll(config.getAllowedProtocolMappers());
-            config.setAllowedProtocolMappers(allowedProtocolMappers);
         }
+        if (StringUtils.isNotBlank(config.getAllowedProtocolMappersAsString()))
+            allowedProtocolMappers.addAll(StringUtils.parseCommaSeparatedStringToList(config.getAllowedProtocolMappersAsString()));
+        if (config.getAllowedProtocolMappers() != null)
+            allowedProtocolMappers.addAll(config.getAllowedProtocolMappers());
+        config.setAllowedProtocolMappers(allowedProtocolMappers);
 
+        List<String> allowedClientScopes = new ArrayList<>();
         if (config.isUseDefaultAllowedClientScopes()) {
-            List<String> allowedClientScopes = new ArrayList<>();
             allowedClientScopes.addAll(DEFAULT_ALLOWED_CLIENT_SCOPES);
             // Add Realm defaults
             allowedClientScopes.addAll(this.keycloakSession.getContext().getRealm().getDefaultClientScopesStream(true).map(ClientScopeModel::getName).collect(Collectors.toList()));
-            if (config.getAllowedClientScopes() != null)
-                allowedClientScopes.addAll(config.getAllowedClientScopes());
-            config.setAllowedClientScopes(allowedClientScopes);
         }
+        if (StringUtils.isNotBlank(config.getAllowedClientScopesAsString()))
+            allowedClientScopes.addAll(StringUtils.parseCommaSeparatedStringToList(config.getAllowedClientScopesAsString()));
+        if (config.getAllowedClientScopes() != null)
+            allowedClientScopes.addAll(config.getAllowedClientScopes());
+        config.setAllowedClientScopes(allowedClientScopes);
 
         logger.debug("Initializing with configuration: {}", config);
         this.configuration = config;
