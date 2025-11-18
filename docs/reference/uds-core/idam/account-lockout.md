@@ -28,14 +28,14 @@ overrides:
 
 #### 1. Default UDS Core behavior: **permanent lockout** (`MAX_TEMPORARY_LOCKOUTS = 0`)
 
-1. User fails login **3 times** within a 15 minute window.
+1. User fails login **3 times** within a 12 hour window.
 1. Keycloak applies a **permanent lockout** once the threshold is hit.
 1. The account remains locked until an administrator manually unlocks it.
 
 #### 1. Optional: temporary then permanent mode (`MAX_TEMPORARY_LOCKOUTS > 0`)
 
 1. Configure `MAX_TEMPORARY_LOCKOUTS` to a non‑zero value.
-1. User fails login **3 times within the 15 minute window** → Keycloak applies a **temporary lockout** for 15 minutes.
+1. User fails login **3 times within the 12 hour window** → Keycloak applies a **temporary lockout** for 15 minutes.
 1. After the temporary lockout expires, the account unlocks.
 1. If the user triggers more temporary lockouts than allowed by the configured `MAX_TEMPORARY_LOCKOUTS` value, Keycloak escalates the account to a **permanent lockout**. The user has **up to 12 hours** during which additional lockouts count toward this limit. For example:
 
