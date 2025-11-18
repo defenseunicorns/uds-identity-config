@@ -61,8 +61,8 @@ overrides:
    * Quick Login Check (ms): `1000`
      If repeated failed attempts occur faster than this interval, Keycloak treats them as rapid-attack behavior and applies the minimum quick-login wait.
 
-   * Max Delta Time (s): `900`
-     A rolling 15-minute window during which failed login attempts count toward the failure threshold.
+   * Max Delta Time (s): `43200`
+     A rolling 12-hour window during which failed login attempts count toward the failure threshold.
 
    * Wait Increment (s): `900`
      The duration of a temporary lockout (15 minutes) after the failure threshold is reached.

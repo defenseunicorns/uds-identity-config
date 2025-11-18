@@ -49,7 +49,7 @@
     "minimumQuickLoginWaitSeconds": 60,                           // minimum delay when rapid login failures are detected
     "waitIncrementSeconds": 900,                                  // base temporary lockout duration after reaching failureFactor (15 minutes)
     "quickLoginCheckMilliSeconds": 1000,                          // time window for detecting rapid failed attempts (1 second)
-    "maxDeltaTimeSeconds": 900,                                   // failure counting window (15 minutes)
+    "maxDeltaTimeSeconds": 43200,                                 // failure counting window (12 hours)
     "failureFactor": 3,                                           // number of failed attempts required to trigger a lockout
     "roles": {
         "realm": [
