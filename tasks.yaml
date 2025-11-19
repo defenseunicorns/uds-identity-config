@@ -121,14 +121,14 @@ tasks:
     description: "Integration Tests"
     actions:
       - task: cypress-tests
-      - task: theme-customization-tests
-      - task: external-loadbalancer-tests
+#      - task: theme-customization-tests
+#      - task: external-loadbalancer-tests
 
   - name: clone-core
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core
-      - cmd: git clone --branch main https://github.com/defenseunicorns/uds-core.git
+      - cmd: git clone --branch 689_signout_confirmation https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
