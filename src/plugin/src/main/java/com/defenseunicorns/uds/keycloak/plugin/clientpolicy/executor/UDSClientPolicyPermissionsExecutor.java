@@ -36,9 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.keycloak.common.util.CollectionUtil.*;
@@ -185,7 +183,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     @Override
     public void setupConfiguration(UDSClientPolicyPermissionsExecutorConfiguration config) {
-        List<String> allowedProtocolMappers = new ArrayList<>();
+        Set<String> allowedProtocolMappers = new HashSet<>();
         if (config.isUseDefaultAllowedProtocolMappers()) {
             List<String> defenseUnicornsProtocolMappers = this.keycloakSession.getKeycloakSessionFactory().
                     getProviderFactoriesStream(ProtocolMapper.class)
@@ -200,9 +198,9 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             allowedProtocolMappers.addAll(StringUtils.parseCommaSeparatedStringToList(config.getAllowedProtocolMappersAsString()));
         if (config.getAllowedProtocolMappers() != null)
             allowedProtocolMappers.addAll(config.getAllowedProtocolMappers());
-        config.setAllowedProtocolMappers(allowedProtocolMappers);
+        config.setAllowedProtocolMappers(new ArrayList<>(allowedProtocolMappers));
 
-        List<String> allowedClientScopes = new ArrayList<>();
+        Set<String> allowedClientScopes = new HashSet<>();
         if (config.isUseDefaultAllowedClientScopes()) {
             allowedClientScopes.addAll(DEFAULT_ALLOWED_CLIENT_SCOPES);
             // Add Realm defaults
@@ -212,7 +210,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             allowedClientScopes.addAll(StringUtils.parseCommaSeparatedStringToList(config.getAllowedClientScopesAsString()));
         if (config.getAllowedClientScopes() != null)
             allowedClientScopes.addAll(config.getAllowedClientScopes());
-        config.setAllowedClientScopes(allowedClientScopes);
+        config.setAllowedClientScopes(new ArrayList<>(allowedClientScopes));
 
         logger.debug("Initializing with configuration: {}", config);
         this.configuration = config;

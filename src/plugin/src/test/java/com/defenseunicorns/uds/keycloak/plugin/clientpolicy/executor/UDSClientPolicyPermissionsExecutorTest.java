@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.events.Errors;
 import org.keycloak.models.*;
+import org.keycloak.protocol.oidc.mappers.HardcodedClaim;
 import org.keycloak.protocol.saml.mappers.UserAttributeStatementMapper;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
@@ -149,6 +150,8 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
     @Test
     public void shouldConfigureWithDefaults() {
         // given
+        class TestProtocolMapper extends HardcodedClaim{}
+
         UDSClientPolicyPermissionsExecutor executor = new UDSClientPolicyPermissionsExecutor(session);
         UDSClientPolicyPermissionsExecutorConfiguration config = new UDSClientPolicyPermissionsExecutorConfiguration();
         config.setUseDefaultAllowedProtocolMappers(true);
@@ -156,7 +159,7 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
 
         {
             doReturn(factory).when(session).getKeycloakSessionFactory();
-            doReturn(Stream.of(new CustomGroupPathMapper())).when(factory).getProviderFactoriesStream(any());
+            doReturn(Stream.of(new TestProtocolMapper())).when(factory).getProviderFactoriesStream(any());
         }
 
         {
@@ -164,7 +167,7 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
             doReturn(realm).when(keycloakContext).getRealm();
 
             ClientScopeModel additionalScope = mock(ClientScopeModel.class);
-            doReturn(CustomGroupPathMapper.GROUPS_CLAIM).when(additionalScope).getName();
+            doReturn("New Claim").when(additionalScope).getName();
 
             doReturn(Stream.of(additionalScope)).when(realm).getDefaultClientScopesStream(anyBoolean());
         }
