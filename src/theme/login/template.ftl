@@ -88,22 +88,22 @@ ${msg("loginTitle",(realm.displayName!''))}
                                     </#if>
                                     <#if backLink>
                                         <#if pageRedirectUri?has_content>
-                                            <a type="submit" href="${pageRedirectUri}" id="kc-back-link" class="btn-text">
+                                            <a href="${pageRedirectUri}" id="kc-back-link" class="btn-text">
                                                 <img src="${url.resourcesPath}/img/icon_back.svg" />
                                                 ${kcSanitize(msg("backToLogin"))?no_esc}
                                             </a>
                                         <#elseif actionUri?has_content>
-                                            <a type="submit" href="${actionUri}" id="kc-back-link" class="btn-text">
+                                            <a href="${actionUri}" id="kc-back-link" class="btn-text">
                                                 <img src="${url.resourcesPath}/img/icon_back.svg" />
                                                 ${kcSanitize(msg("backToLogin"))?no_esc}
                                             </a>
                                         <#elseif (client.baseUrl)?has_content>
-                                            <a type="submit" href="${client.baseUrl}" id="kc-back-link" class="btn-text">
+                                            <a href="${client.baseUrl}" id="kc-back-link" class="btn-text">
                                                 <img src="${url.resourcesPath}/img/icon_back.svg" />
                                                 ${kcSanitize(msg("backToLogin"))?no_esc}
                                             </a>
                                         <#else>
-                                            <a type="submit" href="/" id="kc-back-link" class="btn-text">
+                                            <a href="/" id="kc-back-link" class="btn-text">
                                                 <img src="${url.resourcesPath}/img/icon_back.svg" />
                                                 ${kcSanitize(msg("backToLogin"))?no_esc}
                                             </a>
