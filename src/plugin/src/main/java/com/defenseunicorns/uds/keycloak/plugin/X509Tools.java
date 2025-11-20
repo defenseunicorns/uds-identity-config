@@ -29,6 +29,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 public final class X509Tools {
@@ -40,7 +42,6 @@ public final class X509Tools {
     }
 
     private static boolean isX509Registered(final KeycloakSession session, final HttpRequest httpRequest, final RealmModel realm) {
-
         String logPrefix = getLogPrefix(session.getContext().getAuthenticationSession(), "IS_X509_REGISTERED");
         String username = getX509Username(session, httpRequest, realm);
         LOG.infof("{} X509 ID: {}", logPrefix, username);
@@ -54,9 +55,6 @@ public final class X509Tools {
 
     /**
      * Determine if x509 is registered from form context.
-     *
-     * @param context
-     * @return boolean
      */
     public static boolean isX509Registered(final FormContext context) {
         return isX509Registered(context.getSession(), context.getHttpRequest(), context.getRealm());
@@ -64,9 +62,6 @@ public final class X509Tools {
 
     /**
      * Determine if x509 is registered from required action.
-     *
-     * @param context
-     * @return boolean
      */
     public static boolean isX509Registered(final RequiredActionContext context) {
         return isX509Registered(context.getSession(), context.getHttpRequest(), context.getRealm());
@@ -74,14 +69,8 @@ public final class X509Tools {
 
     /**
      * Get x509 username from identity.
-     *
-     * @param session
-     * @param httpRequest
-     * @param realm
-     * @return String
      */
     private static String getX509Username(final KeycloakSession session, final HttpRequest httpRequest, final RealmModel realm) {
-
         Object identity = getX509Identity(session, httpRequest, realm);
         if (identity != null && !identity.toString().isEmpty()) {
             return identity.toString();
@@ -91,19 +80,13 @@ public final class X509Tools {
 
     /**
      * Get x509 username from form context.
-     *
-     * @param context a Keycloak form context
-     * @return String
      */
     public static String getX509Username(final FormContext context) {
         return getX509Username(context.getSession(), context.getHttpRequest(), context.getRealm());
     }
 
     /**
-     * Get x509 user name from required action context.
-     *
-     * @param context a Keycloak required action context
-     * @return String
+     * Get x509 username from required action context.
      */
     public static String getX509Username(final RequiredActionContext context) {
         return getX509Username(context.getSession(), context.getHttpRequest(), context.getRealm());
@@ -111,11 +94,6 @@ public final class X509Tools {
 
     /**
      * Get x509 certificate policy.
-     *
-     * @param cert                 x509 CA certificate
-     * @param certificatePolicyPos an Integer
-     * @param policyIdentifierPos  an Integer
-     * @return String
      */
     public static String getCertificatePolicyId(final X509Certificate cert, final int certificatePolicyPos, final int policyIdentifierPos) throws IOException {
         byte[] extPolicyBytes = cert.getExtensionValue(Common.CERTIFICATE_POLICY_OID);
@@ -147,14 +125,8 @@ public final class X509Tools {
 
     /**
      * Get x509 identity from cert chain.
-     *
-     * @param certs                 an array of CA certs
-     * @param realm                 a Keycloak realm model
-     * @param authenticationSession a Keycloak authentication session
-     * @return Object
      */
     public static Object getX509IdentityFromCertChain(final X509Certificate[] certs, final RealmModel realm, final AuthenticationSessionModel authenticationSession) {
-
         String logPrefix = getLogPrefix(authenticationSession, "GET_X509_IDENTITY_FROM_CHAIN");
 
         if (certs == null || certs.length == 0) {
@@ -199,7 +171,6 @@ public final class X509Tools {
     }
 
     private static Object getX509Identity(final KeycloakSession session, final HttpRequest httpRequest, final RealmModel realm) {
-
         try {
             if (session == null || httpRequest == null || realm == null) {
                 return null;
@@ -223,9 +194,6 @@ public final class X509Tools {
 
     /**
      * Get x509 subject DN from form context.
-     *
-     * @param context a Keycloak form context
-     * @return String
      */
     public static String getX509SubjectDN(final FormContext context) {
         if (context.getSession() == null || context.getHttpRequest() == null || context.getSession().getProvider(X509ClientCertificateLookup.class) == null) {
@@ -235,11 +203,8 @@ public final class X509Tools {
         return getX509SubjectDN(context.getSession(), context.getHttpRequest(), context.getSession().getProvider(X509ClientCertificateLookup.class));
     }
 
-        /**
+    /**
      * Get x509 subject DN from form context.
-     *
-     * @param context a Keycloak form context
-     * @return String
      */
     public static String getX509SubjectDN(RequiredActionContext context) {
         if (context.getSession() == null || context.getHttpRequest() == null || context.getSession().getProvider(X509ClientCertificateLookup.class) == null) {
@@ -250,53 +215,82 @@ public final class X509Tools {
     }
 
     /**
-     * Get x509 subject DN from form context.
-     *
-     * @param Keycloak form keycloak session
-     * @param Keycloak form context http request
-     * @param Keycloak form keycloak session provider certificate lookup
-     * @return String
+     * Gets x509 subject DN using provided Keycloak session/request/provider.
      */
-    public static String getX509SubjectDN(KeycloakSession session, HttpRequest httpRequest,
-            X509ClientCertificateLookup provider) {
-
-                try {
-                    X509Certificate[] certs = provider.getCertificateChain(httpRequest);
-                    if (certs != null && certs.length > 0) {
-                        return certs[0].getSubjectX500Principal().getName();
-                    }
-                } catch (GeneralSecurityException e) {
-                    LOG.error(e.getMessage());
-                }
-                return null;
+    public static String getX509SubjectDN(final KeycloakSession session, final HttpRequest httpRequest,
+                                          final X509ClientCertificateLookup provider) {
+        try {
+            X509Certificate[] certs = provider.getCertificateChain(httpRequest);
+            if (certs != null && certs.length > 0) {
+                return certs[0].getSubjectX500Principal().getName();
+            }
+        } catch (GeneralSecurityException e) {
+            LOG.error(e.getMessage());
+        }
+        return null;
     }
 
     /**
-     * Extract the User's Common Name (CN) from the subject DN of the x509 certificate.
-     *
-     * @param context a Keycloak form context
-     * @return String representing the User's CN, or null if not found
+     * Extracts the User's Common Name (CN) from the subject DN of the x509 certificate.
      */
     public static String getX509CommonName(final FormContext context) {
         return getX509CommonName(context.getSession(), context.getHttpRequest());
     }
 
     /**
-     * Extract the User's Common Name (CN) from the subject DN of the x509 certificate.
-     *
-     * @param context a Keycloak required action context
-     * @return String representing the User's CN, or null if not found
+     * Extracts the User's Common Name (CN) from the subject DN of the x509 certificate.
      */
     public static String getX509CommonName(final RequiredActionContext context) {
         return getX509CommonName(context.getSession(), context.getHttpRequest());
     }
 
     /**
-     * Extract the User's Common Name (CN) from the subject DN of the x509 certificate.
-     *
-     * @param session the Keycloak session
-     * @param httpRequest the HttpRequest
-     * @return String representing the User's CN, or null if not found
+     * Extracts the first email address from the certificate Subject Alternative Name (SAN).
+     * Stops at the first rfc822Name (type 1). Returns null when unavailable.
+     */
+    public static String getX509Email(final FormContext context) {
+        return getX509Email(context.getSession(), context.getHttpRequest());
+    }
+
+    /**
+     * Extracts the first email address from the certificate Subject Alternative Name (SAN).
+     * Stops at the first rfc822Name (type 1). Returns null when unavailable.
+     */
+    public static String getX509Email(final RequiredActionContext context) {
+        return getX509Email(context.getSession(), context.getHttpRequest());
+    }
+
+    /**
+     * Extracts the first email address from the certificate Subject Alternative Name (SAN).
+     * Stops at the first rfc822Name (type 1). Returns null when unavailable
+     */
+    public static String getX509Email(final KeycloakSession session, final HttpRequest httpRequest) {
+        try {
+            X509ClientCertificateLookup provider = session != null ? session.getProvider(X509ClientCertificateLookup.class) : null;
+            X509Certificate[] certs = provider != null ? provider.getCertificateChain(httpRequest) : null;
+            if (certs != null && certs.length > 0 && certs[0] != null) {
+                Collection<List<?>> san = certs[0].getSubjectAlternativeNames();
+                if (san != null) {
+                    for (List<?> entry : san) {
+                        if (entry == null || entry.size() < 2) continue;
+                        Object type = entry.get(0);
+                        Object value = entry.get(1);
+                        if (type instanceof Integer && ((Integer) type) == 1 && value instanceof String email) { // rfc822Name
+                            if (!isBlank(email)) {
+                                return email;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.errorf(e, "Error extracting SAN email");
+        }
+        return null;
+    }
+
+    /**
+     * Extracts the User's Common Name (CN) from the subject DN of the x509 certificate.
      */
     public static String getX509CommonName(final KeycloakSession session, final HttpRequest httpRequest) {
         try {
@@ -320,5 +314,55 @@ public final class X509Tools {
             LOG.error("Error extracting user's CN from subject DN: " + e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Extracts CAC info from x509 certificate.
+     */
+    public static CACInfo getCACInfo(RequiredActionContext context) {
+        String subjectDN = getX509SubjectDN(context);
+        String commonName = getX509CommonName(context);
+        String email = getX509Email(context);
+        return parseCACInfo(subjectDN, commonName, email);
+    }
+
+    /**
+     * Extracts CAC info from x509 certificate.
+     */
+    public static CACInfo getCACInfo(final FormContext context) {
+        if (context.getSession() == null || context.getHttpRequest() == null || context.getSession().getProvider(X509ClientCertificateLookup.class) == null) {
+            return null;
+        }
+        String subjectDN = getX509SubjectDN(context);
+        String commonName = getX509CommonName(context);
+        String email = getX509Email(context);
+        return parseCACInfo(subjectDN, commonName, email);
+    }
+
+    /**
+     * Parses CAC info from subjectDN, commonName, and email.
+     */
+    public static CACInfo parseCACInfo(String subjectDN, String commonName, String email) {
+        String firstName = null;
+        String lastName = null;
+        if (!isBlank(commonName)) {
+            // DoD profile CN format: LAST.FIRST[.MIDDLE][.EDI]
+            String[] parts = commonName.split("\\.");
+            if (parts.length >= 2) {
+                lastName = capitalize(parts[0]);
+                firstName = capitalize(parts[1]);
+            }
+        }
+        return new CACInfo(subjectDN, firstName, lastName, email);
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private static String capitalize(String s) {
+        if (isBlank(s)) return s;
+        String lower = s.toLowerCase();
+        return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
     }
 }

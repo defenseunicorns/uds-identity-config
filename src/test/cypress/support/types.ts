@@ -15,4 +15,7 @@ export interface RegistrationFormData {
   password?: string;
   affiliation?: string;
   payGrade?: string;
+  cac_c?: string;
+  cac_o?: string;
+  cac_cn?: string;
 }

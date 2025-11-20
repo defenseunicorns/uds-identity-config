@@ -47,7 +47,6 @@ public class UpdateX509 implements RequiredActionProvider, RequiredActionFactory
         if (!X509Tools.isX509Registered(context)) {
             context.getUser().addRequiredAction(PROVIDER_ID);
         }
-
     }
 
     /**
@@ -56,16 +55,21 @@ public class UpdateX509 implements RequiredActionProvider, RequiredActionFactory
     @Override
     public void requiredActionChallenge(final RequiredActionContext context) {
         MultivaluedMap<String, String> formData = new MultivaluedHashMap<>();
-        formData.add("username", context.getUser() != null ? context.getUser().getUsername() : "unknown user");
+        formData.add(Common.FORM_USERNAME, context.getUser() != null ? context.getUser().getUsername() : "unknown user");
         formData.add("  ", X509Tools.getX509Username(context));
-        formData.add("isUserEnabled", "true");
+        formData.add(Common.FORM_IS_USER_ENABLED, "true");
 
-        // add subjectDN for when Keycloak default subjectDN fails
-        String subjectDN = X509Tools.getX509SubjectDN(context);
-        if (subjectDN != null) {
-            formData.add("cacSubjectDN", subjectDN);
+        // Prefill CAC-specific optional fields
+        // Note that in practice this should never be null. However, PowerMock tests make it extremely hard to call
+        // it without mocking (and not rewriting most of the tests).
+        // This piece should be refactored as part of https://github.com/defenseunicorns/uds-identity-config/issues/721
+        CACInfo cac = X509Tools.getCACInfo(context);
+        if (cac != null) {
+            formData.add(Common.FORM_CAC_SUBJECT_DN, cac.subjectDN());
+            formData.add(Common.FORM_CAC_FIRST_NAME, cac.firstName());
+            formData.add(Common.FORM_CAC_LAST_NAME, cac.lastName());
+            formData.add(Common.FORM_CAC_EMAIL, cac.email());
         }
-
         context.form().setFormData(formData);
 
         Response challenge = context.form().createX509ConfirmPage();

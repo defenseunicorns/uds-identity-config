@@ -82,7 +82,9 @@ tasks:
       - cmd: |
           openssl genrsa -out test.pem 2048
           openssl genrsa -out ca.pem 2048
-          openssl req -x509 -new -nodes -key ca.pem -sha256 -days 1825 -out ca.cer -subj "/C=US/O=U.S. Government/OU=DoD/OU=PKI/CN=DOD ID CA-59 FAKE TEST"
+          # The CN uses the following format: LAST_NAME.FIRST_NAME.MIDDLE_NAME.EDI/PI
+          # See https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/pdf/unclass-dod_pki_nipr_cert_profiles.pdf
+          openssl req -x509 -new -nodes -key ca.pem -sha256 -days 1825 -out ca.cer -nameopt RFC2253 -subj "/C=US/O=U.S. Government/OU=CONTRACTOR/OU=DoD/OU=PKI/CN=UNICORN.DOUG.ROCKSTAR.1234567890"
           openssl req -new -key test.pem -out test.csr -config src/csr.conf -batch
           openssl x509 -req -in test.csr -CA ca.cer -CAkey ca.pem -CAcreateserial -out test.cer -days 365 -extensions v3_ext -extfile src/csr.conf
           openssl pkcs12 -export -out test.pfx -inkey test.pem -in test.cer -certfile ca.cer -passout pass:
