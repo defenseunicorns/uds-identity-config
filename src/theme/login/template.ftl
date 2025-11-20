@@ -123,44 +123,6 @@ ${msg("loginTitle",(realm.displayName!''))}
                             </div>
                         </#if>
 
-                        <#-- App-initiated actions should not see warning messages about the need to complete the action -->
-                        <#-- during login.
-                          <!-- DEBUG: dump FreeMarker data model -->
-<#--                        <#list .data_model?keys as key>-->
-<#--                            ${key}-->
-<#--                        </#list>-->
-                        <#--                        url.loginUrl=${url.loginUrl}-->
-<#--                        client.baseUrl=${client}-->
-                        <#-- Print all URL query params (tries request parameter map and raw query as fallback) -->
-                        <#if request?has_content>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <h5>Query parameters</h5>
-                                    <#if request.getParameterMap()?size gt 0>
-                                        <ul>
-                                            <#list request.getParameterMap()?keys as key>
-                                                <#assign vals = request.getParameterValues(key)>
-                                                <li>
-                                                    ${kcSanitize(key)?no_esc} =
-                                                    <#if vals?size gt 1>
-                                                        <#list vals as v>${kcSanitize(v)?no_esc}<#if v_has_next>, </#if></#list>
-                                                    <#else>
-                                                        ${kcSanitize(vals[0])?no_esc}
-                                                    </#if>
-                                                </li>
-                                            </#list>
-                                        </ul>
-                                    <#elseif request.getQueryString()?has_content>
-                                        <p>Raw query: ${kcSanitize(request.getQueryString())?no_esc}</p>
-                                    <#else>
-                                        <p>No query parameters</p>
-                                    </#if>
-                                </div>
-                            </div>
-                        <#else>
-                            No content
-                        </#if>
-
                         <#if displayMessage && message?has_content && (message.type != ' warning' || !isAppInitiatedAction??)>
                             <div class="row">
                                 <div class="col-lg-12">

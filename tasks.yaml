@@ -121,8 +121,8 @@ tasks:
     description: "Integration Tests"
     actions:
       - task: cypress-tests
-#      - task: theme-customization-tests
-#      - task: external-loadbalancer-tests
+      - task: theme-customization-tests
+      - task: external-loadbalancer-tests
 
   - name: clone-core
     description: "Clone UDS Core for integration testing"
