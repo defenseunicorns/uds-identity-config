@@ -155,6 +155,37 @@ ${msg("loginTitle",(realm.displayName!''))}
             <footer class="fixed-footer">
                 <img src="${url.resourcesPath}/img/footer.png" alt="Footer" />
             </footer>
+            <script>
+                (function () {
+                    try {
+                        var backLink = document.getElementById('kc-back-link');
+                        if (!backLink) return;
+
+                        // Resolve the current href of the back link
+                        var resolvedHref = new URL(backLink.getAttribute('href') || '', window.location.href);
+
+                        // If the back link points to root ("/") then try to use post_logout_redirect_uri instead
+                        var pointsToRoot = resolvedHref.pathname === '/';
+                        if (!pointsToRoot) return;
+
+                        var params = new URLSearchParams(window.location.search);
+                        var redirect = params.get('post_logout_redirect_uri');
+                        if (!redirect) return;
+
+                        // Update the back link to use the redirect value
+                        // Accept absolute or relative URLs
+                        try {
+                            var target = new URL(redirect, window.location.href);
+                            backLink.setAttribute('href', target.href);
+                        } catch (e) {
+                            // Fallback: set raw value if URL construction fails
+                            backLink.setAttribute('href', redirect);
+                        }
+                    } catch (e) {
+                        // no-op: do not block the page if something goes wrong
+                    }
+                })();
+            </script>
             </body>
 
     </html>
