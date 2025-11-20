@@ -21,7 +21,7 @@
                                     </div>
                                     <div class="col">
                                         <h3>DoD PKI User Registration</h3>
-                                        <p>${cacSubjectDN}</p>
+                                        <p id="certificate_subjectDN">${cacSubjectDN}</p>
                                     </div>
                                 </div>
                             </div>
@@ -67,7 +67,7 @@
                             ${msg("firstName")}
                         </label>
                         <input type="text" id="firstName" class="form-control" name="firstName"
-                            value="${(register.formData.firstName!'')}" />
+                            value="${(register.formData.firstName!(cacFirstName!''))}" />
                         <#if messagesPerField.existsError('firstName')>
                             <span class="message-details" aria-live="polite">
                                 ${kcSanitize(messagesPerField.get('firstName'))?no_esc}
@@ -79,7 +79,7 @@
                             ${msg("lastName")}
                         </label>
                         <input type="text" id="lastName" class="form-control" name="lastName"
-                            value="${(register.formData.lastName!'')}" />
+                            value="${(register.formData.lastName!(cacLastName!''))}" />
                         <#if messagesPerField.existsError('lastName')>
                             <span class="message-details" aria-live="polite">
                                 ${kcSanitize(messagesPerField.get('lastName'))?no_esc}
@@ -221,7 +221,7 @@
                         ${msg("email")}
                     </label>
                     <input id="email" class="form-control" name="email" type="text"
-                        value="${(register.formData.email!'')}" autocomplete="email" />
+                        value="${(register.formData.email!(cacEmail!''))}" autocomplete="email" />
                     <#if messagesPerField.existsError('email')>
                         <span class="message-details" aria-live="polite">
                             ${kcSanitize(messagesPerField.get('email'))?no_esc}

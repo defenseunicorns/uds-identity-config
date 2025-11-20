@@ -42,14 +42,15 @@
     "resetPasswordAllowed": "${USERNAME_PASSWORD_AUTH_ENABLED:true}",
     "editUsernameAllowed": false,
     "bruteForceProtected": true,
-    "permanentLockout": true,
-    "maxTemporaryLockouts": 0,
-    "maxFailureWaitSeconds": 900,
-    "minimumQuickLoginWaitSeconds": 60,
-    "waitIncrementSeconds": 60,
-    "quickLoginCheckMilliSeconds": 1000,
-    "maxDeltaTimeSeconds": 43200,
-    "failureFactor": 3,
+    "permanentLockout": true,                                     // When true, permanently disables the user once the permanent threshold is reached; admin must re-enable.
+    "maxTemporaryLockouts": "${REALM_MAX_TEMPORARY_LOCKOUTS:0}",  // Number of temporary lockouts allowed before permanent lockout; 0 means no temporary lockouts—reaching failureFactor can immediately trigger permanent lockout when permanentLockout is true.
+    "bruteForceStrategy": "MULTIPLE",                             // Lockout calculation strategy; MULTIPLE applies wait in steps—each failureFactor failures adds waitIncrementSeconds (capped by maxFailureWaitSeconds).
+    "maxFailureWaitSeconds": 86400,                               // Maximum temporary lockout duration; the effective wait never exceeds this cap.
+    "minimumQuickLoginWaitSeconds": 60,                           // Minimum wait applied for rapid consecutive failures (before reaching failureFactor) to throttle quick retries.
+    "waitIncrementSeconds": 900,                                  // Base temporary lockout applied when failures reach failureFactor within the window; further failures may add more increments up to the cap.
+    "quickLoginCheckMilliSeconds": 1000,                          // Time window to detect rapid failures for quick-login throttling (used with minimumQuickLoginWaitSeconds).
+    "maxDeltaTimeSeconds": 43200,                                 // Failure aggregation window; if time since the previous failure is greater than this, failure counters (including temporary lockout count) are cleared.
+    "failureFactor": 3,                                           // Number of failed attempts within maxDeltaTimeSeconds required to trigger a temporary lockout.
     "roles": {
         "realm": [
             {

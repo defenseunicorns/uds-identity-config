@@ -251,6 +251,7 @@ overrides:
             SSO_SESSION_LIFESPAN_TIMEOUT: 1200
             SSO_SESSION_MAX_LIFESPAN: 36000
             SSO_SESSION_MAX_PER_USER: 10
+            MAX_TEMPORARY_LOCKOUTS: 3
         - path: realmAuthFlows
           value:
             USERNAME_PASSWORD_AUTH_ENABLED: true
@@ -280,6 +281,7 @@ overrides:
 | SSO_SESSION_LIFESPAN_TIMEOUT                   | 600                                                                                                                                                                                                  | Session idle timeout in seconds.                                       |
 | SSO_SESSION_MAX_LIFESPAN                       | 36000                                                                                                                                                                                                | Maximum absolute session lifespan in seconds, regardless of activity.  |
 | SSO_SESSION_MAX_PER_USER                       | 0                                                                                                                                                                                                    | Maximum number of concurrent active sessions per user.                 |
+| MAX_TEMPORARY_LOCKOUTS                         | 0                                                                                                                                                                                                    | Number of temporary lockouts that occur before a permanent lockout.    |
 | SECURITY_HARDENING_ADDITIONAL_PROTOCOL_MAPPERS | unset                                                                                                                                                                                                | Additional Protocol Mappers added to the allow list for UDS hardening. |
 | SECURITY_HARDENING_ADDITIONAL_CLIENT_SCOPES    | unset                                                                                                                                                                                                | Additional Client Scopes added to the allow list for UDS hardening.    |
 

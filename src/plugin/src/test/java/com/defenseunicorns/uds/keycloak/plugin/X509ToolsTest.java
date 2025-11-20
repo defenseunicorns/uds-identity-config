@@ -185,4 +185,81 @@ public class X509ToolsTest {
         boolean isRegistered = X509Tools.isX509Registered(requiredActionContext);
         Assert.assertFalse(isRegistered);
     }
+
+    @Test
+    public void testParseCACInfoLastNameFirstNameFormat() {
+        String subjectDN = "CN=login.dso.mil,O=Department of Defense";
+        String commonName = "doe.john";
+        String email = "john.doe@dso.mil";
+
+        CACInfo info = X509Tools.parseCACInfo(subjectDN, commonName, email);
+
+        Assert.assertEquals(subjectDN, info.subjectDN());
+        Assert.assertEquals("John", info.firstName());
+        Assert.assertEquals("Doe", info.lastName());
+        Assert.assertEquals(email, info.email());
+    }
+
+    @Test
+    public void testParseCACInfoOnlyFirstName() {
+        String subjectDN = "CN=example";
+        String commonName = "jane"; // no last name
+        String email = "jane@example.mil";
+
+        CACInfo info = X509Tools.parseCACInfo(subjectDN, commonName, email);
+
+        Assert.assertEquals(email, info.email());
+        Assert.assertNull(info.firstName());
+        Assert.assertNull(info.lastName());
+    }
+
+    @Test
+    public void testParseCACInfoNullOrBlankCommonName() {
+        String subjectDN = "CN=example";
+        String email = "noreply@example.mil";
+
+        // null commonName
+        CACInfo infoNull = X509Tools.parseCACInfo(subjectDN, null, email);
+        Assert.assertNull(infoNull.firstName());
+        Assert.assertNull(infoNull.lastName());
+
+        // blank commonName
+        CACInfo infoBlank = X509Tools.parseCACInfo(subjectDN, "   ", email);
+        Assert.assertNull(infoBlank.firstName());
+        Assert.assertNull(infoBlank.lastName());
+    }
+
+    @Test
+    public void testParseCACInfoWithMiddleName() {
+        String subjectDN = "/C=US/O=U.S. Government/OU=CONTRACTOR/OU=DoD/OU=PKI/CN=UNICORN.DOUG.ROCKSTAR.1234567890";
+        String commonName = "UNICORN.DOUG.ROCKSTAR.1234567890";
+
+        CACInfo info = X509Tools.parseCACInfo(subjectDN, commonName, null);
+
+        Assert.assertEquals("Doug", info.firstName());
+        Assert.assertEquals("Unicorn", info.lastName());
+        Assert.assertEquals(subjectDN, info.subjectDN());
+    }
+
+    @Test
+    public void testParseCACInfoWithNoMiddleName() {
+        String subjectDN = "/C=US/O=U.S. Government/OU=CONTRACTOR/OU=DoD/OU=PKI/CN=UNICORN.DOUG.1234567890";
+        String commonName = "UNICORN.DOUG.1234567890";
+
+        CACInfo info = X509Tools.parseCACInfo(subjectDN, commonName, "unicorn.doug@example.mil");
+
+        Assert.assertEquals("Doug", info.firstName());
+        Assert.assertEquals("Unicorn", info.lastName());
+    }
+
+    @Test
+    public void testParseCACInfoWithNoEDI() {
+        String subjectDN = "/C=US/O=U.S. Government/OU=CONTRACTOR/OU=DoD/OU=PKI/CN=UNICORN.DOUG";
+        String commonName = "UNICORN.DOUG";
+
+        CACInfo info = X509Tools.parseCACInfo(subjectDN, commonName, null);
+
+        Assert.assertEquals("Doug", info.firstName());
+        Assert.assertEquals("Unicorn", info.lastName());
+    }
 }

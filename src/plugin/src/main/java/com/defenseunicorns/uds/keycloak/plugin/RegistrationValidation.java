@@ -69,9 +69,13 @@ public class RegistrationValidation extends RegistrationUserCreation {
 
     @Override
     public void buildPage(final FormContext context, final LoginFormsProvider form) {
-        String subjectDN = X509Tools.getX509SubjectDN(context);
-        if (subjectDN != null) {
-            form.setAttribute("cacSubjectDN", subjectDN);
+        // Prefill CAC-specific optional fields
+        CACInfo cac = X509Tools.getCACInfo(context);
+        if (cac != null) {
+            form.setAttribute(Common.FORM_CAC_SUBJECT_DN, cac.subjectDN());
+            form.setAttribute(Common.FORM_CAC_FIRST_NAME, cac.firstName());
+            form.setAttribute(Common.FORM_CAC_LAST_NAME, cac.lastName());
+            form.setAttribute(Common.FORM_CAC_EMAIL, cac.email());
         }
     }
 

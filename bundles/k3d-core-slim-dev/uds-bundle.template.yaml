@@ -9,8 +9,7 @@ metadata:
 packages:
   - name: uds-k3d-dev
     repository: ghcr.io/defenseunicorns/packages/uds-k3d
-    # renovate: datasource=github-tags depName=defenseunicorns/uds-k3d versioning=semver
-    ref: 0.19.1
+    ref: 0.19.1-airgap
   - name: init
     repository: ghcr.io/zarf-dev/packages/init
     # renovate: datasource=github-tags depName=zarf-dev/zarf versioning=semver
