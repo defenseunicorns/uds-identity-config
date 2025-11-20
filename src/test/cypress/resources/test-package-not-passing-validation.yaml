@@ -4,17 +4,17 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: test-package
+  name: test-package-not-passing-validation
 ---
 apiVersion: uds.dev/v1alpha1
 kind: Package
 metadata:
-  name: test-package
-  namespace: test-package
+  name: test-package-not-passing-validation
+  namespace: test-package-not-passing-validation
 spec:
   sso:
     - name: Test
-      clientId: uds-core-admin-test
+      clientId: test-package-not-passing-validation
       redirectUris:
         - "https://test-package.admin.uds.dev/openId_auth"
       protocolMappers:

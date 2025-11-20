@@ -35,7 +35,9 @@ public class UDSClientPolicyPermissionsExecutorFactory implements ClientPolicyEx
     public static final String PROVIDER_ID = "uds-operator-permissions";
 
     public static final String ADDITIONAL_ALLOWED_PROTOCOL_MAPPER_TYPES = "allowed-protocol-mappers";
+    public static final String ADDITIONAL_ALLOWED_PROTOCOL_MAPPER_TYPES_AS_STRING = "allowed-protocol-mappers-as-string";
     public static final String ADDITIONAL_ALLOWED_CLIENT_SCOPES = "allowed-client-scopes";
+    public static final String ADDITIONAL_ALLOWED_CLIENT_SCOPES_AS_STRING = "allowed-client-scopes-as-string";
     public static final String USE_DEFAULT_ALLOWED_PROTOCOL_MAPPER_TYPES = "use-default-allowed-protocol-mappers";
     public static final String USE_DEFAULT_ALLOWED_CLIENT_SCOPES = "use-default-allowed-client-scopes";
 

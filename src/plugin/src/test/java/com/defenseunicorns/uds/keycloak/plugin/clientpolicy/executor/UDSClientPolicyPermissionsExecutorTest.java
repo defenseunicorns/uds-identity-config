@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.events.Errors;
 import org.keycloak.models.*;
+import org.keycloak.protocol.oidc.mappers.HardcodedClaim;
 import org.keycloak.protocol.saml.mappers.UserAttributeStatementMapper;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
@@ -149,6 +150,8 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
     @Test
     public void shouldConfigureWithDefaults() {
         // given
+        class TestProtocolMapper extends HardcodedClaim{}
+
         UDSClientPolicyPermissionsExecutor executor = new UDSClientPolicyPermissionsExecutor(session);
         UDSClientPolicyPermissionsExecutorConfiguration config = new UDSClientPolicyPermissionsExecutorConfiguration();
         config.setUseDefaultAllowedProtocolMappers(true);
@@ -156,7 +159,7 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
 
         {
             doReturn(factory).when(session).getKeycloakSessionFactory();
-            doReturn(Stream.of(new CustomGroupPathMapper())).when(factory).getProviderFactoriesStream(any());
+            doReturn(Stream.of(new TestProtocolMapper())).when(factory).getProviderFactoriesStream(any());
         }
 
         {
@@ -164,7 +167,7 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
             doReturn(realm).when(keycloakContext).getRealm();
 
             ClientScopeModel additionalScope = mock(ClientScopeModel.class);
-            doReturn(CustomGroupPathMapper.GROUPS_CLAIM).when(additionalScope).getName();
+            doReturn("New Claim").when(additionalScope).getName();
 
             doReturn(Stream.of(additionalScope)).when(realm).getDefaultClientScopesStream(anyBoolean());
         }
@@ -179,5 +182,28 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
 
         assertTrue(resultingConfiguration.isUseDefaultAllowedClientScopes());
         assertEquals(UDSClientPolicyPermissionsExecutor.DEFAULT_ALLOWED_CLIENT_SCOPES.size() + 1, resultingConfiguration.getAllowedClientScopes().size());
+    }
+
+    @Test
+    public void shouldAddStringifiedProtocolMappersAndClientScopes() {
+        //given
+        UDSClientPolicyPermissionsExecutorConfiguration config = new UDSClientPolicyPermissionsExecutorConfiguration();
+        config.setUseDefaultAllowedProtocolMappers(false);
+        config.setUseDefaultAllowedClientScopes(false);
+        config.setAllowedProtocolMappersAsString("mapper1 , mapper2 , mapper3"); //intentional test of trimming whitespaces
+        config.setAllowedClientScopesAsString("scope1, scope2 ,scope3");
+
+        //when
+        executor.setupConfiguration(config);
+
+        //then
+        assertEquals(executor.configuration.getAllowedProtocolMappers().size(), 3);
+        assertTrue(executor.configuration.getAllowedProtocolMappers().contains("mapper1"));
+        assertTrue(executor.configuration.getAllowedProtocolMappers().contains("mapper2"));
+        assertTrue(executor.configuration.getAllowedProtocolMappers().contains("mapper3"));
+        assertEquals(executor.configuration.getAllowedClientScopes().size(), 3);
+        assertTrue(executor.configuration.getAllowedClientScopes().contains("scope1"));
+        assertTrue(executor.configuration.getAllowedClientScopes().contains("scope2"));
+        assertTrue(executor.configuration.getAllowedClientScopes().contains("scope3"));
     }
 }

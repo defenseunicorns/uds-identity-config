@@ -1,0 +1,28 @@
+# Copyright 2025 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-package-allowed-protocol-mapper
+---
+apiVersion: uds.dev/v1alpha1
+kind: Package
+metadata:
+  name: test-package-allowed-protocol-mapper
+  namespace: test-package-allowed-protocol-mapper
+spec:
+  sso:
+    - name: Test
+      clientId: test-package-allowed-protocol-mapper
+      redirectUris:
+        - "https://test-package.admin.uds.dev/openId_auth"
+      protocolMappers:
+        - name: hardcoded-sub-claim
+          protocol: openid-connect
+          protocolMapper: oidc-hardcoded-claim-mapper
+          config:
+            claim.name: groups
+            claim.value: "/UDS Core/Auditor"
+            jsonType.label: String
+            access.token.claim: "true"
