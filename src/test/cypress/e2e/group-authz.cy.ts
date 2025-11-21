@@ -23,6 +23,9 @@ describe('Group Authorization', () => {
 
     // Assert that admin user was able to access grafana dashboard
     cy.url().should('include', 'https://grafana.admin.uds.dev');
+
+    // Logout of Grafana and verify redirection to SSO login page
+    cy.logoutGrafana();
   });
 
   it('Grafana Auditor User - Success', () => {

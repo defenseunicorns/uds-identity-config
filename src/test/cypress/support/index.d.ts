@@ -36,6 +36,8 @@ declare namespace Cypress {
 
     verifyLoggedIn(): Chainable;
 
+    logoutGrafana(): Chainable;
+
     /**
      * Retrieve an access token for Keycloak APIs.
      * - Default (or when subject is 'UDS_OPERATOR'): uses client credentials for the 'uds-operator' client

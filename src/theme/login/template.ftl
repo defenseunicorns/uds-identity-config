@@ -165,24 +165,15 @@ ${msg("loginTitle",(realm.displayName!''))}
                         var resolvedHref = new URL(backLink.getAttribute('href') || '', window.location.href);
 
                         // If the back link points to root ("/") then try to use post_logout_redirect_uri instead
-                        var pointsToRoot = resolvedHref.pathname === '/';
-                        if (!pointsToRoot) return;
+                        if (resolvedHref.pathname !== '/') return;
 
                         var params = new URLSearchParams(window.location.search);
-                        var redirect = params.get('post_logout_redirect_uri');
+                        const redirect = params.get('uds_post_logout_redirect_uri') ?? params.get('post_logout_redirect_uri');
                         if (!redirect) return;
 
-                        // Update the back link to use the redirect value
-                        // Accept absolute or relative URLs
-                        try {
-                            var target = new URL(redirect, window.location.href);
-                            backLink.setAttribute('href', target.href);
-                        } catch (e) {
-                            // Fallback: set raw value if URL construction fails
-                            backLink.setAttribute('href', redirect);
-                        }
+                        backLink.href = redirect;
                     } catch (e) {
-                        // no-op: do not block the page if something goes wrong
+                        console.error('Error adjusting back link URL:', e);
                     }
                 })();
             </script>

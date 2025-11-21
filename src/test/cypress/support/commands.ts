@@ -143,6 +143,30 @@ Cypress.Commands.add("avoidX509", () => {
 })
 
 /**
+ * Logout from Grafana and verify we are redirected to the SSO login page
+ */
+Cypress.Commands.add("logoutGrafana", () => {
+  // Open the profile menu in Grafana and click Sign out
+  cy.get('button[aria-label="Profile"]').should('be.visible').click();
+  cy.contains('span', 'Sign out').should('be.visible').click();
+
+  // After logout, we should be redirected through SSO
+  cy.url({ timeout: 15000 }).should('match', /sso\.uds\.dev/);
+
+  // Avoid potential x509 popup, if present
+  cy.avoidX509();
+
+  // Verify we're at the Keycloak login page
+  cy.contains('p', 'You are logged out').should('be.visible');
+
+  // Verify the back link points to Grafana login page
+  cy.get('a#kc-back-link')
+    .should('be.visible')
+    .and('have.attr', 'href', 'https://grafana.admin.uds.dev/login')
+    .and('contain.text', 'Back to sign in');
+});
+
+/**
  * Gets the client secret for a specified client from Keycloak
  * @param clientId The client ID to get the secret for
  * @returns {Promise<{accessToken: string, clientSecret: string}>} An object containing the access token and client secret
