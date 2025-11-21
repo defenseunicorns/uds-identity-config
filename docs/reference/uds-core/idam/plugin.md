@@ -27,6 +27,19 @@ The UDS Keycloak Plugin leverages [Keycloak Client Policies](https://www.keycloa
 * `Additional Allowed Client Scopes` - Specifies additional Client Scopes permitted for use by the packages.
 * `Use UDS Default Client Scopes` - When enabled, applies a predefined list of Client Scopes. Additional Client Scopes can be added using the `Additional Allowed Client Scopes` option.
 
+Additional Protocol Mappers and Client Scopes can be specified declaratively using the following overrides:
+
+```yaml
+overrides:
+  keycloak:
+    keycloak:
+      values:
+        - path: realmInitEnv
+          value:
+            SECURITY_HARDENING_ADDITIONAL_PROTOCOL_MAPPERS: "oidc-hardcoded-claim-mapper, saml-hardcode-attribute-mapper"
+            SECURITY_HARDENING_ADDITIONAL_CLIENT_SCOPES: "role_list"
+```
+
 ### Terms and Conditions behavior
 
 The [Group Authentication](https://github.com/defenseunicorns/uds-identity-config/blob/main/src/plugin/src/main/java/com/defenseunicorns/uds/keycloak/plugin/authentication/RequireGroupAuthenticator.java) plugin controls when the Terms and Conditions are displayed to the user. By default, users are required to accept the Terms and Conditions once per session, meaning that if a user logs in with multiple Keycloak Clients, the Terms and Conditions are displayed only once. This behavior can be modified by adjusting the Authentication Flows in the Keycloak Admin Console and changing the "UDS Operator Group Authentication Validation" step settings. The plugin allows UDS Administrators to change the "Display Terms and Conditions only per user session" setting. Setting it to "false" will force users to accept the Terms and Conditions every time they log in.

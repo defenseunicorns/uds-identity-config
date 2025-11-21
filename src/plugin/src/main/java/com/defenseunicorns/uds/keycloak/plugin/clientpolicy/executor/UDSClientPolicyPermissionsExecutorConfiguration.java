@@ -15,11 +15,17 @@ public class UDSClientPolicyPermissionsExecutorConfiguration extends ClientPolic
     @JsonProperty(UDSClientPolicyPermissionsExecutorFactory.ADDITIONAL_ALLOWED_PROTOCOL_MAPPER_TYPES)
     private List<String> allowedProtocolMappers;
 
+    @JsonProperty(UDSClientPolicyPermissionsExecutorFactory.ADDITIONAL_ALLOWED_PROTOCOL_MAPPER_TYPES_AS_STRING)
+    private String allowedProtocolMappersAsString;
+
     @JsonProperty(value = UDSClientPolicyPermissionsExecutorFactory.USE_DEFAULT_ALLOWED_PROTOCOL_MAPPER_TYPES, defaultValue = "true")
     private boolean useDefaultAllowedProtocolMappers = true;
 
     @JsonProperty(UDSClientPolicyPermissionsExecutorFactory.ADDITIONAL_ALLOWED_CLIENT_SCOPES)
     private List<String> allowedClientScopes;
+
+    @JsonProperty(value = UDSClientPolicyPermissionsExecutorFactory.ADDITIONAL_ALLOWED_CLIENT_SCOPES_AS_STRING)
+    private String allowedClientScopesAsString;
 
     @JsonProperty(value = UDSClientPolicyPermissionsExecutorFactory.USE_DEFAULT_ALLOWED_CLIENT_SCOPES, defaultValue = "true")
     private boolean useDefaultAllowedClientScopes = true;
@@ -56,12 +62,30 @@ public class UDSClientPolicyPermissionsExecutorConfiguration extends ClientPolic
         this.useDefaultAllowedClientScopes = useDefaultAllowedClientScopes;
     }
 
+    public String getAllowedClientScopesAsString() {
+        return allowedClientScopesAsString;
+    }
+
+    public void setAllowedClientScopesAsString(String allowedClientScopesAsString) {
+        this.allowedClientScopesAsString = allowedClientScopesAsString;
+    }
+
+    public String getAllowedProtocolMappersAsString() {
+        return allowedProtocolMappersAsString;
+    }
+
+    public void setAllowedProtocolMappersAsString(String allowedProtocolMappersAsString) {
+        this.allowedProtocolMappersAsString = allowedProtocolMappersAsString;
+    }
+
     @Override
     public String toString() {
         return "UDSClientPolicyPermissionsExecutorConfiguration{" +
                 "allowedProtocolMappers=" + allowedProtocolMappers +
+                ", allowedProtocolMappersAsString=" + allowedProtocolMappersAsString +
                 ", useDefaultAllowedProtocolMappers=" + useDefaultAllowedProtocolMappers +
                 ", allowedClientScopes=" + allowedClientScopes +
+                ", allowedClientScopesAsString='" + allowedClientScopesAsString + '\'' +
                 ", useDefaultAllowedClientScopes=" + useDefaultAllowedClientScopes +
                 '}';
     }

@@ -10,63 +10,92 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public enum Common {
-    ;
+public interface Common {
+
+    /**
+     * Form constant representing username used for updating x509 info as well as registering new account.
+     */
+    String FORM_USERNAME = "username";
+
+    /**
+     * Form constant returning true is user account is enabled and used for updating x509 info as well as registering new account.
+     */
+    String FORM_IS_USER_ENABLED = "isUserEnabled";
+
+    /**
+     * Form constant representing CAC Subject DN used for updating x509 info as well as registering new account.
+     */
+    String FORM_CAC_SUBJECT_DN = "cacSubjectDN";
+
+    /**
+     * Form constant representing CAC First Name used for updating x509 info as well as registering new account.
+     */
+    String FORM_CAC_FIRST_NAME = "cacFirstName";
+
+    /**
+     * Form constant representing CAC Last Name used for updating x509 info as well as registering new account.
+     */
+    String FORM_CAC_LAST_NAME = "cacLastName";
+
+    /**
+     * Form constant representing email obtained from CAC and used for updating x509 info as well as registering new account.
+     */
+    String FORM_CAC_EMAIL = "cacEmail";
 
     /**
      * get user by email constant.
      */
-    static final String EMAIL = "email";
+    String EMAIL = "email";
 
     /**
      * The minimum length of username restricted by Mattermost.
      * https://docs.mattermost.com/preferences/manage-your-profile.html
      */
-    static final int MIN_USER_NAME_LENGTH = 3;
+    int MIN_USER_NAME_LENGTH = 3;
 
     /**
      * The max length of username restricted by Mattermost.
      * https://docs.mattermost.com/preferences/manage-your-profile.html
      */
-    static final int MAX_USER_NAME_LENGTH = 22;
+    int MAX_USER_NAME_LENGTH = 22;
 
     /**
      * The user id attribute tracks the Keycloak attribute that maps to the user's
      * x509 identity.
      */
-    static final String USER_X509_ID_ATTRIBUTE = "usercertificateIdentity";
+    String USER_X509_ID_ATTRIBUTE = "usercertificateIdentity";
 
     /**
      * The user id attribute tracks the Keycloak attribute that maps to the user's
      * x509 Common Name.
      */
-    static final String USER_X509_CN_ATTRIBUTE = "usercertificateCN";
+    String USER_X509_CN_ATTRIBUTE = "usercertificateCN";
 
     /**
      * Ignore x509.
      */
-    static final String IGNORE_X509 = "IGNORE_X509";
+    String IGNORE_X509 = "IGNORE_X509";
 
     /**
      * The user active x509 attribute tracks if the user has an active x509 during
      * this session.
      */
-    static final String USER_ACTIVE_X509_ATTR = "activecac";
+    String USER_ACTIVE_X509_ATTR = "activecac";
 
     /**
      * The user mattermost id attribute
      */
-    public static final String USER_MATTERMOST_ID_ATTR = "mattermostid";
+    String USER_MATTERMOST_ID_ATTR = "mattermostid";
 
     /**
      * Set of clients that group protection should not apple to
      */
-    public static final Set<String> GROUP_PROTECTION_IGNORE_CLIENTS = new HashSet<String>(Arrays.asList("account", "account-console", "broker"));
+    Set<String> GROUP_PROTECTION_IGNORE_CLIENTS = new HashSet<String>(Arrays.asList("account", "account-console", "broker"));
 
     /**
      * The certificate policy OID must match one of these values.
      */
-    static final List<String> REQUIRED_CERT_POLICIES = Arrays.asList(
+    List<String> REQUIRED_CERT_POLICIES = Arrays.asList(
             "2.16.840.1.101.2.1.11.5", // id-US-dod-medium
             "2.16.840.1.101.2.1.11.9", // id-US-dod-mediumhardware
             "2.16.840.1.101.2.1.11.10", // id-US-dod-PIV-Auth
@@ -239,10 +268,10 @@ public enum Common {
     /**
      * The certificate policy OID.
      */
-    static final String CERTIFICATE_POLICY_OID = "2.5.29.32";
+    String CERTIFICATE_POLICY_OID = "2.5.29.32";
 
     /**
      * The maximum number of certificate policies to check.
      */
-    static final int MAX_CERT_POLICIES_TO_CHECK = 10;
+    int MAX_CERT_POLICIES_TO_CHECK = 10;
 }
