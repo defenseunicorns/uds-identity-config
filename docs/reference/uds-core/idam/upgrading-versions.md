@@ -156,7 +156,7 @@ In uds-identity-config versions v0.11.0+, the UDS Operator can automatically swi
 
    After introducing the changes above, ensure that all packages reconcile correctly and that no errors appear. If the UDS Operator displays the error `The client doesn’t have the created-by=uds-operator attribute. Rejecting request`, disable `UDS Client Policy` and give the system a bit more time to process every package. Some users have reported that they needed to disable `UDS Client Policy`, cycle the Pepr Watcher pod (this will force reconciliation of **all** Packages), wait for all Package CRs to be ready, and finally enable the `UDS Client Policy`.
 
-   [Additional information if you need to add protocol mappers that UDS Core does not include out of the box.](https://uds.defenseunicorns.com/reference/uds-core/idam/plugin/#security-hardening)
+   [Additional information if you need to add protocol mappers that UDS Core does not include out of the box.](/reference/uds-core/idam/plugin/#security-hardening)
 
 ---
 

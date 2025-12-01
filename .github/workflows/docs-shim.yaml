@@ -33,6 +33,15 @@ permissions:
   contents: read
 
 jobs:
+  docs-link-check:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - name: Check UDS Docs links
+        run: uds run uds-docs-validate
+
   docker_build:
     runs-on: ubuntu-latest
     name: Test Docker Build

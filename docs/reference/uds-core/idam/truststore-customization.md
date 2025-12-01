@@ -86,7 +86,7 @@ This task can also be modified locally to point to a different image if you have
 
 ### Deploy UDS Core with new uds-identity-config
 
-See [Testing custom image in UDS Core](https://uds.defenseunicorns.com/reference/uds-core/idam/testing-deployment-customizations/)
+See [Testing custom image in UDS Core](/reference/uds-core/idam/testing-deployment-customizations/)
 
 ### Verify Istio Gateway configuration
 

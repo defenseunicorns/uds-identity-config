@@ -23,7 +23,7 @@ UDS Identity Config is responsible for managing several key aspects of Keycloak�
 ### Air-Gapped Limitations
 When Keycloak is configured for X.509 certificate authentication and OCSP checking (x509-cert-auth.ocsp-checking-enabled) is enabled, it attempts to contact the OCSP responder specified in the certificate or a manually configured URL. In air-gapped or otherwise restricted environments, this external endpoint may be unreachable.
 
-See this [bundle override](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#templated-realm-values) for an example of disabling OCSP checking but note the risks of doing so. By allowing certificates to pass when the revocation check fails, the door is open to revoked certificates being considered valid, which can pose a serious security threat depending on your organization’s compliance requirements and threat model.
+See this [bundle override](/reference/uds-core/idam/customization/#templated-realm-values) for an example of disabling OCSP checking but note the risks of doing so. By allowing certificates to pass when the revocation check fails, the door is open to revoked certificates being considered valid, which can pose a serious security threat depending on your organization’s compliance requirements and threat model.
 
 ### FIPS Mode
 UDS Core supports running Keycloak in [FIPS 140-2 Strict Mode](https://www.keycloak.org/server/fips) by enabling the `fips` Helm Chart override. When set to `true`, the UDS Identity Config Init Container automatically copies the required Bouncy Castle JAR files into the Keycloak Providers directory.
@@ -37,11 +37,11 @@ KC(BCFIPS version 2.0 Approved Mode, FIPS-JVM: disabled)
 The `BCFIPS version 2.0 Approved Mode` confirms that Keycloak is operating in FIPS Strict Mode. The `FIPS-JVM` setting indicates whether the underlying JVM is also running in FIPS mode. If this setting is disabled, it likely means the Keycloak container is not hosted on a system with a FIPS-enabled kernel.
 
 :::caution
-If you're planning on migrating to FIPS mode, please ensure you followed [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) guide. Otherwise, you might lock yourself out of the Keycloak admin console.
+If you're planning on migrating to FIPS mode, please ensure you followed [Upgrading Identity Config Versions](/reference/uds-core/idam/upgrading-versions/) guide. Otherwise, you might lock yourself out of the Keycloak admin console.
 :::
 
 ### Upgrading UDS Identity Config
-When upgrading UDS Identity Config, changes to the realm configuration do not propagate automatically. This is because Keycloak persists its realm settings across upgrades to prevent breaking existing functionality. To apply updates to the realm configuration, follow the manual steps outlined in [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) .
+When upgrading UDS Identity Config, changes to the realm configuration do not propagate automatically. This is because Keycloak persists its realm settings across upgrades to prevent breaking existing functionality. To apply updates to the realm configuration, follow the manual steps outlined in [Upgrading Identity Config Versions](/reference/uds-core/idam/upgrading-versions/) .
 
 However, updates to the following components are automatically applied upon upgrade, as they are not persisted between versions:
 
@@ -53,10 +53,10 @@ This ensures that realm configurations remain unchanged during upgrades, while o
 
 ## IdAM Contents
 
-1. [Custom Image Testing and Deployment](https://uds.defenseunicorns.com/reference/uds-core/idam/testing-deployment-customizations/)
-2. [Image Customizations](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/)
-3. [Image Truststore Customization](https://uds.defenseunicorns.com/reference/uds-core/idam/truststore-customization/)
-4. [Authentication Flows Customization](https://uds.defenseunicorns.com/reference/uds-core/idam/authentication-flows/)
-5. [UDS Core Integration Testing](https://uds.defenseunicorns.com/reference/uds-core/idam/integration/)
-6. [Custom Keycloak Plugins](https://uds.defenseunicorns.com/reference/uds-core/idam/plugin/)
-7. [Upgrading Identity Config Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/)
+1. [Custom Image Testing and Deployment](/reference/uds-core/idam/testing-deployment-customizations/)
+2. [Image Customizations](/reference/uds-core/idam/customization/)
+3. [Image Truststore Customization](/reference/uds-core/idam/truststore-customization/)
+4. [Authentication Flows Customization](/reference/uds-core/idam/authentication-flows/)
+5. [UDS Core Integration Testing](/reference/uds-core/idam/integration/)
+6. [Custom Keycloak Plugins](/reference/uds-core/idam/plugin/)
+7. [Upgrading Identity Config Versions](/reference/uds-core/idam/upgrading-versions/)
