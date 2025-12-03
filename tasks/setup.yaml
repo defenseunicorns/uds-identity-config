@@ -31,7 +31,7 @@ tasks:
         cmd: |
           TENANT_GATEWAY_IP="$(docker network inspect k3d-uds | uds zarf tools yq '.[]."IPAM"."Config".[]."Subnet"' | cut -d'.' -f1-3).201"
           # renovate: datasource=docker depName=haproxy versioning=docker
-          HAPROXY_VERSION=3.2-alpine
+          HAPROXY_VERSION=3.3-alpine
           docker run -d \
             --name haproxy \
             --network k3d-uds \
