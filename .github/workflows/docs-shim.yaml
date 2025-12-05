@@ -23,6 +23,7 @@ on:
       - release-please-config.json
       - CODEOWNERS
       - LICENSE
+      - .github/workflows/docs-shim.yaml
 
 # Abort prior jobs in the same workflow / PR
 concurrency:
