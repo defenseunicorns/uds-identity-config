@@ -10,7 +10,7 @@ Adding additional jars to Keycloak's deployment is as simple as adding that jar 
 
 Adding new jars will require building a new identity-config image for [uds-core](https://github.com/defenseunicorns/uds-core).
 
-See [Testing custom image in UDS Core](https://uds.defenseunicorns.com/reference/uds-core/idam/testing-deployment-customizations/) for building, publishing, and using the new image with `uds-core`.
+See [Testing custom image in UDS Core](/reference/uds-core/idam/testing-deployment-customizations/) for building, publishing, and using the new image with `uds-core`.
 
 Once `uds-core` has sucessfully deployed with your new image, viewing the Keycloak pod can provide insight into a successful deployment or not. Also describing the Keycloak pod, should display your new image being pulled instead of the default image defined [here](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L10) in the events section.
 
@@ -179,7 +179,7 @@ The default terms and conditions provided are based on the standard DoD Notice a
 
 ### Registration Form Fields
 
-Registration Form Fields, which by default are enabled, can be disabled to minimize the steps to register a new user. See [this section](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#templated-realm-values) for the example of disabling the registration form fields with the `themeCustomizations.settings.enableRegistrationFields` environment variable.
+Registration Form Fields, which by default are enabled, can be disabled to minimize the steps to register a new user. See [this section](/reference/uds-core/idam/customization/#templated-realm-values) for the example of disabling the registration form fields with the `themeCustomizations.settings.enableRegistrationFields` environment variable.
 
 When disabled, the following fields will not be present during registration:
 - Affiliation
@@ -210,7 +210,7 @@ The `UDS Identity` realm is defined in the realm.json found in [src/realm.json](
 Be aware that changing values in the realm may also need to be updated throughout the configuration of Keycloak and Authservice in `uds-core`. For example, changing the realm name will break a few different things within Keycloak unless those values are changed in `uds-core` as well.
 :::
 
-See the [Testing custom image in UDS Core](https://uds.defenseunicorns.com/reference/uds-core/idam/testing-deployment-customizations/) for building, publishing, and using the new image with `uds-core`.
+See the [Testing custom image in UDS Core](/reference/uds-core/idam/testing-deployment-customizations/) for building, publishing, and using the new image with `uds-core`.
 
 ### Templated Realm Values
 

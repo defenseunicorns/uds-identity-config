@@ -261,3 +261,14 @@ tasks:
         cmd: |
           # Actual startup takes up to a minute because of the npm install
           cd uds-docs && npm i && npm run dev
+
+  - name: uds-docs-validate
+    description: "Validate and build uds-docs with latest uds-cli docs"
+    actions:
+      - description: "Cleanup previous runs"
+        cmd: |
+          rm -rf uds-docs
+      - description: "Clone the docs repo"
+        cmd: git clone https://github.com/defenseunicorns/uds-docs.git uds-docs
+      - description: "UDS Docs Integration Script"
+        cmd: cd uds-docs && npm i && DOCS_OVERRIDES="uds-identity-config=$(pwd)/.." npm run build
