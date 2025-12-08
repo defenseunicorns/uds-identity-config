@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayInfo=(realm.registrationAllowed && !registrationDisabled??); section>
+<@layout.registrationLayout displayInfo=(realm.registrationAllowed && !registrationDisabled??) headerText="Sign in"; section>
     <#if section = "title">
         title
     <#elseif section = "header">
@@ -32,7 +32,8 @@
 
                         <ul class="${properties.kcSelectAuthListClass!}" role="list">
                             <#list authenticators.authenticators as authenticator>
-                                <li class="${properties.kcSelectAuthListItemWrapperClass!}">
+                                <li class="${properties.kcSelectAuthListItemWrapperClass!}" style="list-style-type: none;">
+                                    <p></p>
                                     <div id="kc-webauthn-authenticator-item-${authenticator?index}" class="${properties.kcSelectAuthListItemClass!}">
                                         <div class="${properties.kcSelectAuthListItemIconClass!}">
                                             <div class="${properties.kcWebAuthnDefaultIcon!}">

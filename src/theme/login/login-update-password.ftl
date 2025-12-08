@@ -1,11 +1,5 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayMessage=!messagesPerField.existsError('password','password-confirm'); section>
-    <div class="back-button-container">
-        <a href="/realms/${realm.name}/account/" class="back-button">
-            <img src="${url.resourcesPath}/img/icon_back.svg" alt=""/>
-            <span>${msg("backToAccountConsole")}</span>
-        </a>
-    </div>
+<@layout.registrationLayout displayMessage=!messagesPerField.existsError('password','password-confirm') cancelButton=true; section>
     <h4>${msg("updatePasswordTitle")}</h4>
     <hr class="form-separator">
     <#if section = "form">
