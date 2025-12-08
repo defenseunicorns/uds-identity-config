@@ -70,7 +70,7 @@ mvn -version
 
 After making changes to the plugin code and verifying that unit tests are passing ( and hopefully writing some more ), test against Keycloak.
 
-See the `New uds-identity-config Image` [section](https://uds.defenseunicorns.com/reference/uds-core/idam/testing-deployment-customizations/#build-a-new-image) for building, publishing, and using the new image with `uds-core`.
+See the `New uds-identity-config Image` [section](/reference/uds-core/idam/testing-deployment-customizations/#build-a-new-image) for building, publishing, and using the new image with `uds-core`.
 
 ## Plugin Unit Testing / Code Coverage
 
