@@ -1,5 +1,5 @@
 <#import "template.ftl" as layout>
-    <@layout.registrationLayout displayRequiredFields=false displayMessage=!messagesPerField.existsError('totp','userLabel'); section>
+    <@layout.registrationLayout displayRequiredFields=false displayMessage=!messagesPerField.existsError('totp','userLabel') cancelButton=true; section>
         <#if section="header">
             ${msg("loginTotpTitle")}
             <#elseif section="form">
@@ -116,10 +116,6 @@
                         <input type="submit"
                             class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}"
                             id="saveTOTPBtn" value="${msg("doSubmit")}" />
-                        <button type="submit"
-                            class="${properties.kcButtonClass!} ${properties.kcButtonDefaultClass!} ${properties.kcButtonLargeClass!} ${properties.kcButtonLargeClass!}"
-                            id="cancelTOTPBtn" name="cancel-aia" value="true" />
-                        ${msg("doCancel")}
                         </button>
                         <#else>
                             <input type="submit"
