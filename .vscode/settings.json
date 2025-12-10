@@ -1,11 +1,11 @@
 {
     "yaml.schemas": {  
-      "https://raw.githubusercontent.com/defenseunicorns/uds-cli/v0.27.19/tasks.schema.json": [
+      "https://raw.githubusercontent.com/defenseunicorns/uds-cli/v0.27.20/tasks.schema.json": [
         "tasks.yaml",
         "tasks/**/*.yaml",
         "src/**/validate.yaml"
       ],
-      "https://raw.githubusercontent.com/defenseunicorns/uds-cli/v0.27.19/zarf.schema.json": [
+      "https://raw.githubusercontent.com/defenseunicorns/uds-cli/v0.27.20/zarf.schema.json": [
         "zarf.yaml"
       ]
     },
