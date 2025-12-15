@@ -24,7 +24,7 @@ Kubernetes 1.35 (targeted for December 17th, 2025) introduces a new feature that
 
 ### Keycloak Security Policies
 
-The Keycloak upstream community is actively discussing a concept of Keycloak Security Policies that would inspect Keycloak configuration at boot time and log warning messages (or block the bootstrap procedure entirely) when certain criteria are not met—for example, when an Authentication Flow doesn't contain certain execution steps.
+The Keycloak upstream community is actively discussing a concept of Keycloak Security Policies that would inspect Keycloak configuration at boot time and log warning messages (or block the bootstrap procedure entirely) when certain criteria are not met (e.g. when an Authentication Flow doesn't contain certain execution steps).
 
 The tool is primarily targeted for compliance (e.g., NIST SP 800-53, ASD STIG, etc.) but will expose all primitives to write custom policies and enforce them at boot time.
 
