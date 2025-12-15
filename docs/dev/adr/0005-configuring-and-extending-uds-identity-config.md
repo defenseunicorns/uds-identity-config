@@ -14,7 +14,7 @@ Today, the UDS Identity Config repository is hosted separately from UDS Core. Th
 
 ### OpenTofu integration
 
-UDS Identity Config provides [OpenTofu integration](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#opentofu-keycloak-client-configuration) that enables Mission Heroes to customize the parts of the Keycloak Realm that do not have exposed Helm Chart configuration options.
+UDS Identity Config provides an [OpenTofu integration](https://uds.defenseunicorns.com/reference/uds-core/idam/customization/#opentofu-keycloak-client-configuration) that enables Mission Heroes to customize the parts of the Keycloak Realm that do not have exposed Helm Chart configuration options.
 
 This capability is intended for Mission Heroes, but adapting it directly in UDS Core will help address UDS Realm automatic migrations (which are done manually today; see the [Upgrading Versions](https://uds.defenseunicorns.com/reference/uds-core/idam/upgrading-versions/) section of the UDS documentation). In the future, the UDS CLI v2 will help provide better UX for using the Tofu integration.
 
