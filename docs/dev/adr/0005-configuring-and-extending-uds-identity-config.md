@@ -10,7 +10,7 @@ Discussion
 
 ### UDS Identity Config repo
 
-Today, the UDS Identity Config repository is hosted separately from UDS Core. This model has its origins in [Platform One](https://repo1.dso.mil/big-bang/product/plugins/keycloak-p1-auth-plugin) and enables Mission Heroes to fully customize it (see the [docs](https://uds.defenseunicorns.com/reference/configuration/single-sign-on/keycloak-customization-guide/#approach-2-uds-identity-config-image)) without the need to fork UDS Core. At the same time, this separation introduces some challenges, such as test suite duality between UDS Core and UDS Identity Config, and development difficulties since part of the Keycloak plugin configuration resides in the UDS Core Keycloak Helm Chart and part in the UDS Identity Config.
+Today, [UDS Identity Config](https://github.com/defenseunicorns/uds-identity-config) is hosted separately from UDS Core. This model has its origins in [Platform One](https://repo1.dso.mil/big-bang/product/plugins/keycloak-p1-auth-plugin) and enables Mission Heroes to fully customize it (see the [docs](https://uds.defenseunicorns.com/reference/configuration/single-sign-on/keycloak-customization-guide/#approach-2-uds-identity-config-image)) without the need to fork UDS Core. At the same time, this separation introduces some challenges, such as test suite duality between UDS Core and UDS Identity Config, and development difficulties since part of the Keycloak plugin configuration resides in the UDS Core Keycloak Helm Chart and part in the UDS Identity Config.
 
 ### OpenTofu integration
 
