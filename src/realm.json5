@@ -41,6 +41,7 @@
     "duplicateEmailsAllowed": false,
     "resetPasswordAllowed": "${USERNAME_PASSWORD_AUTH_ENABLED:true}",
     "editUsernameAllowed": false,
+    // @lulaStart 21b0cb7a-7ded-494d-89ae-7929ff57cf58
     "bruteForceProtected": true,
     "permanentLockout": true,                                     // When true, permanently disables the user once the permanent threshold is reached; admin must re-enable.
     "maxTemporaryLockouts": "${REALM_MAX_TEMPORARY_LOCKOUTS:0}",  // Number of temporary lockouts allowed before permanent lockout; 0 means no temporary lockouts—reaching failureFactor can immediately trigger permanent lockout when permanentLockout is true.
@@ -51,6 +52,7 @@
     "quickLoginCheckMilliSeconds": 1000,                          // Time window to detect rapid failures for quick-login throttling (used with minimumQuickLoginWaitSeconds).
     "maxDeltaTimeSeconds": 43200,                                 // Failure aggregation window; if time since the previous failure is greater than this, failure counters (including temporary lockout count) are cleared.
     "failureFactor": 3,                                           // Number of failed attempts within maxDeltaTimeSeconds required to trigger a temporary lockout.
+    // lulaEnd 21b0cb7a-7ded-494d-89ae-7929ff57cf58
     "roles": {
         "realm": [
             {
