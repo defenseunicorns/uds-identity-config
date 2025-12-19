@@ -3257,6 +3257,7 @@
         }
     ],
     "requiredActions": [
+        // @lulaStart 1fa0afcf-9f66-4cc8-9f35-ce8bc58b1860
         {
             "alias": "TERMS_AND_CONDITIONS",
             "name": "Terms and Conditions",
@@ -3266,6 +3267,7 @@
             "priority": 10,
             "config": {}
         },
+        // @lulaEnd 1fa0afcf-9f66-4cc8-9f35-ce8bc58b1860
         {
             "alias": "CONFIGURE_TOTP",
             "name": "Configure OTP",
