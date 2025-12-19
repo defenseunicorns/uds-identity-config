@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.22.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.22.0...v0.22.1) (2025-12-19)
+
+
+### Miscellaneous
+
+* add lula mapping ([#753](https://github.com/defenseunicorns/uds-identity-config/issues/753)) ([d0200fe](https://github.com/defenseunicorns/uds-identity-config/commit/d0200fe2d9ad9ae5862b596ce2d8350052eb755a))
+* add lula mapping ([#754](https://github.com/defenseunicorns/uds-identity-config/issues/754)) ([9e6420a](https://github.com/defenseunicorns/uds-identity-config/commit/9e6420aced158d539fa07d007367af43aab4f9b3))
+* **deps:** update gha-deps ([#749](https://github.com/defenseunicorns/uds-identity-config/issues/749)) ([89e712e](https://github.com/defenseunicorns/uds-identity-config/commit/89e712e4b7c63c544e181360c6b82651327de2b1))
+* **deps:** update gha-deps ([#751](https://github.com/defenseunicorns/uds-identity-config/issues/751)) ([0cafa7c](https://github.com/defenseunicorns/uds-identity-config/commit/0cafa7c55bea18cfff131d5034c0588bdf4c2ea6))
+
 ## [0.22.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.21.0...v0.22.0) (2025-12-12)
 
 
