@@ -164,7 +164,7 @@ jobs:
         uses: opentofu/setup-opentofu@e95ccdd20623115bfd7d47df14a3250d6066a9d0 # v1.0.7
         with:
           # renovate: datasource=github-releases depName=opentofu/opentofu
-          tofu_version: 1.11.1
+          tofu_version: 1.11.2
           tofu_wrapper: false
 
       - name: Cypress Integration Tests
