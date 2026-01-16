@@ -161,10 +161,10 @@ jobs:
           sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet /opt/hostedtoolcache/CodeQL || true
 
       - name: Setup Tofu
-        uses: opentofu/setup-opentofu@e95ccdd20623115bfd7d47df14a3250d6066a9d0 # v1.0.7
+        uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
         with:
           # renovate: datasource=github-releases depName=opentofu/opentofu
-          tofu_version: 1.11.2
+          tofu_version: 1.11.3
           tofu_wrapper: false
 
       - name: Cypress Integration Tests
