@@ -575,7 +575,8 @@
                 "post.logout.redirect.uris": "+",
                 "oauth2.device.authorization.grant.enabled": "false",
                 "display.on.consent.screen": "false",
-                "backchannel.logout.revoke.offline.tokens": "false"
+                "backchannel.logout.revoke.offline.tokens": "false",
+                "logout.confirmation.enabled": "true"
             },
             "authenticationFlowBindingOverrides": {},
             "fullScopeAllowed": false,
@@ -627,7 +628,8 @@
                 "oauth2.device.authorization.grant.enabled": "false",
                 "display.on.consent.screen": "false",
                 "pkce.code.challenge.method": "S256",
-                "backchannel.logout.revoke.offline.tokens": "false"
+                "backchannel.logout.revoke.offline.tokens": "false",
+                "logout.confirmation.enabled": "true"
             },
             "authenticationFlowBindingOverrides": {},
             "fullScopeAllowed": false,
@@ -811,7 +813,8 @@
                 "oauth2.device.authorization.grant.enabled": "false",
                 "display.on.consent.screen": "false",
                 "pkce.code.challenge.method": "S256",
-                "backchannel.logout.revoke.offline.tokens": "false"
+                "backchannel.logout.revoke.offline.tokens": "false",
+                "logout.confirmation.enabled": "true"
             },
             "authenticationFlowBindingOverrides": {},
             "fullScopeAllowed": false,
