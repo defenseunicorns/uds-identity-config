@@ -9,7 +9,7 @@ This doc contains important information for upgrading uds-identity-config versio
 <details open>
 <summary>Upgrade Details</summary>
 
-Keycloak 26.5.0 introduced a logout confirmation capability (see [Keycloak #44463](https://github.com/keycloak/keycloak/pull/44463)) that is enabled by default in UDS Core. To migrate the existing installation, follow these steps:
+Keycloak 26.5.0 introduced a logout confirmation capability (see [Keycloak #44463](https://github.com/keycloak/keycloak/pull/44463)) that is enabled by default in UDS Core. To update the default Keycloak clients to add this option, follow these steps:
 - Navigate to the `UDS` realm
 - Go to `Clients` > `account`
 - Find the `Logout confirmation` option and set it to `On`
