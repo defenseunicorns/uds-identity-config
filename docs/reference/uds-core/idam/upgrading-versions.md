@@ -4,12 +4,26 @@ title: Upgrading Versions
 
 This doc contains important information for upgrading uds-identity-config versions. It is not meant to be an exhaustive list of changes between versions, rather information and steps required to manually upgrade versions without a full redeploy of keycloak.
 
-## v0.19.0+
+## v0.23.0+
 
 <details open>
 <summary>Upgrade Details</summary>
 
-Keycloak 26.4.0 introduced a breaking change to the ServerInfo endpoint and does not render SystemInfo without additional permissions. This change will cause OpenTofu to fail with a "Malformed version" (see [Keycloak Terraform Provider #1342](https://github.com/keycloak/terraform-provider-keycloak/issues/1342#issuecomment-3398650912)). In oder to resolve the issue, you need to perform the following steps:
+Keycloak 26.5.0 introduced a logout confirmation capability (see [Keycloak #44463](https://github.com/keycloak/keycloak/pull/44463)) that is enabled by default in UDS Core. To update the default Keycloak clients to add this option, follow these steps:
+- Navigate to the `UDS` realm
+- Go to `Clients` > `account`
+- Find the `Logout confirmation` option and set it to `On`
+- Click `Save`
+- Repeat these steps for the `account-console` and `security-admin-console` clients
+
+</details>
+
+## v0.19.0+
+
+<details>
+<summary>Upgrade Details</summary>
+
+Keycloak 26.4.0 introduced a breaking change to the ServerInfo endpoint and does not render SystemInfo without additional permissions. This change will cause OpenTofu to fail with a "Malformed version" (see [Keycloak Terraform Provider #1342](https://github.com/keycloak/terraform-provider-keycloak/issues/1342#issuecomment-3398650912)). In order to resolve the issue, you need to perform the following steps:
 - Navigate to the `UDS` realm
 - Go to `Clients` > `realm-management` > `Client Roles` > `Roles` and click `Create Role`
 - Use `view-system` as the Role Name and `Enables displaying SystemInfo through the ServerInfo endpoint` for the Description and click `Save`
