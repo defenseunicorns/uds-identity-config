@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Github Actions Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Environment setup
         uses: ./.github/actions/setup
@@ -60,7 +60,7 @@ jobs:
 
     steps:
       - name: Github Actions Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Environment setup
         uses: ./.github/actions/setup
@@ -81,7 +81,7 @@ jobs:
 
     steps:
       - name: Github Actions Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Environment setup
         uses: ./.github/actions/setup
@@ -91,7 +91,7 @@ jobs:
           ghToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up JDK 17
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           java-version: "17"
           distribution: "temurin"
@@ -108,7 +108,7 @@ jobs:
 
     steps:
       - name: Github Actions Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Environment setup
         uses: ./.github/actions/setup
@@ -145,7 +145,7 @@ jobs:
 
     steps:
       - name: Github Actions Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Environment setup
         uses: ./.github/actions/setup
@@ -161,10 +161,10 @@ jobs:
           sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet /opt/hostedtoolcache/CodeQL || true
 
       - name: Setup Tofu
-        uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
+        uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
         with:
           # renovate: datasource=github-releases depName=opentofu/opentofu
-          tofu_version: 1.11.1
+          tofu_version: 1.11.4
           tofu_wrapper: false
 
       - name: Cypress Integration Tests
