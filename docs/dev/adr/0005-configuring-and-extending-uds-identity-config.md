@@ -4,7 +4,7 @@ Date: 2025-12-12
 
 ## Status
 
-Discussion
+Accepted
 
 ## Context
 
