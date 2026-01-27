@@ -6,10 +6,9 @@
 package com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor;
 
 import com.defenseunicorns.uds.keycloak.plugin.CustomGroupPathMapper;
-import junit.framework.TestCase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.events.Errors;
 import org.keycloak.models.*;
 import org.keycloak.protocol.oidc.mappers.HardcodedClaim;
@@ -19,16 +18,17 @@ import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
+@ExtendWith(MockitoExtension.class)
+public class UDSClientPolicyPermissionsExecutorTest {
 
     final UDSClientPolicyPermissionsExecutor executor = new UDSClientPolicyPermissionsExecutor(null);
 
@@ -47,7 +47,7 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
     @Mock
     ClientModel client;
 
-    @Before
+    @BeforeEach
     public void before() {
         UDSClientPolicyPermissionsExecutorConfiguration config = new UDSClientPolicyPermissionsExecutorConfiguration();
         config.setUseDefaultAllowedProtocolMappers(false);
@@ -94,14 +94,16 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         assertNull(result);
     }
 
-    @Test(expected = ClientPolicyException.class)
-    public void shouldValidateFullScopeDisabled() throws Exception {
+    @Test
+    public void shouldValidateFullScopeDisabled() {
         // given
         ClientRepresentation rep = new ClientRepresentation();
         rep.setFullScopeAllowed(true);
 
-        // when
-        executor.validateClientSettings(rep);
+        // when/then
+        assertThrows(ClientPolicyException.class, () -> {
+            executor.validateClientSettings(rep);
+        });
     }
 
     @Test
@@ -197,11 +199,11 @@ public class UDSClientPolicyPermissionsExecutorTest extends TestCase {
         executor.setupConfiguration(config);
 
         //then
-        assertEquals(executor.configuration.getAllowedProtocolMappers().size(), 3);
+        assertEquals(3, executor.configuration.getAllowedProtocolMappers().size());
         assertTrue(executor.configuration.getAllowedProtocolMappers().contains("mapper1"));
         assertTrue(executor.configuration.getAllowedProtocolMappers().contains("mapper2"));
         assertTrue(executor.configuration.getAllowedProtocolMappers().contains("mapper3"));
-        assertEquals(executor.configuration.getAllowedClientScopes().size(), 3);
+        assertEquals(3, executor.configuration.getAllowedClientScopes().size());
         assertTrue(executor.configuration.getAllowedClientScopes().contains("scope1"));
         assertTrue(executor.configuration.getAllowedClientScopes().contains("scope2"));
         assertTrue(executor.configuration.getAllowedClientScopes().contains("scope3"));

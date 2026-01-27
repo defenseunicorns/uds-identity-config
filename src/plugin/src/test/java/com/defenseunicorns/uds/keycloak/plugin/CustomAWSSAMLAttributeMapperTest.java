@@ -5,8 +5,8 @@
 
 package com.defenseunicorns.uds.keycloak.plugin;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.keycloak.models.AuthenticatedClientSessionModel;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
@@ -38,7 +38,7 @@ public class CustomAWSSAMLAttributeMapperTest {
     private ProtocolMapperModel mockMappingModel;
     private Map<String, String> config;
 
-    @Before
+    @BeforeEach
     public void setup() {
         mapper = new CustomAWSSAMLAttributeMapper();
         mockSession = Mockito.mock(KeycloakSession.class);

@@ -6,9 +6,9 @@
 package com.defenseunicorns.uds.keycloak.plugin;
 
 import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.Config;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.authenticators.x509.X509AuthenticatorConfigModel;
@@ -21,24 +21,20 @@ import org.keycloak.services.x509.X509ClientCertificateLookup;
 import org.keycloak.sessions.AuthenticationSessionModel;
 import org.keycloak.sessions.RootAuthenticationSessionModel;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.defenseunicorns.uds.keycloak.plugin.utils.Utils.setupFileMocks;
-import static com.defenseunicorns.uds.keycloak.plugin.utils.Utils.setupX509Mocks;
 import static org.mockito.ArgumentMatchers.*;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ X509Tools.class })
-@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.ssl.*", "org.slf4j.*", "javax.parsers.*", "ch.qos.logback.*", "jdk.xml.internal.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.dom.*", "org.xml.sax.*", "com.sun.org.apache.xalan.internal.*", "com.sun.org.apache.xpath.internal.*", "org.apache.commons.logging.*", "org.apache.logging.log4j.*", "org.apache.logging.slf4j.*", "javax.security.auth.*", " org.bouncycastle.*"})
+@ExtendWith(MockitoExtension.class)
+@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class UpdateX509Test {
 
     @Mock
@@ -74,42 +70,39 @@ class UpdateX509Test {
 
     public UpdateX509Test() {}
 
-    @Before
+    @BeforeEach
     public void setupMockBehavior() throws Exception {
-
-        setupFileMocks();
-
         // common mock implementations
-        PowerMockito.when(requiredActionContext.getSession()).thenReturn(keycloakSession);
-        PowerMockito.when(keycloakSession.getContext()).thenReturn(keycloakContext);
-        PowerMockito.when(keycloakSession.getContext().getAuthenticationSession()).thenReturn(authenticationSessionModel);
-        PowerMockito.when(authenticationSessionModel.getParentSession()).thenReturn(rootAuthenticationSessionModel);
-        PowerMockito.when(rootAuthenticationSessionModel.getId()).thenReturn("xxx");
-        PowerMockito.when(requiredActionContext.getHttpRequest()).thenReturn(httpRequest);
-        PowerMockito.when(requiredActionContext.getRealm()).thenReturn(realmModel);
+        when(requiredActionContext.getSession()).thenReturn(keycloakSession);
+        when(keycloakSession.getContext()).thenReturn(keycloakContext);
+        when(keycloakContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
+        when(authenticationSessionModel.getParentSession()).thenReturn(rootAuthenticationSessionModel);
+        when(rootAuthenticationSessionModel.getId()).thenReturn("xxx");
+        when(requiredActionContext.getHttpRequest()).thenReturn(httpRequest);
+        when(requiredActionContext.getRealm()).thenReturn(realmModel);
 
         // setup X509Tools
-        PowerMockito.when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(x509ClientCertificateLookup);
+        when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(x509ClientCertificateLookup);
 
         // create cert array and add the cert
         X509Certificate[] certList = new X509Certificate[1];
         X509Certificate x509Certificate2 = Utils.buildTestCertificate();
         certList[0] = x509Certificate2;
-        PowerMockito.when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(certList);
+        when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(certList);
 
-        PowerMockito.when(realmModel.getAuthenticatorConfigsStream()).thenAnswer((stream) -> {
+        when(realmModel.getAuthenticatorConfigsStream()).thenAnswer((stream) -> {
             return Stream.of(authenticatorConfigModel);
         });
 
         // create map
         Map<String, String> mapSting = new HashMap<>();
         mapSting.put("x509-cert-auth.mapper-selection.user-attribute-name", "test");
-        PowerMockito.when(authenticatorConfigModel.getConfig()).thenReturn(mapSting);
+        when(authenticatorConfigModel.getConfig()).thenReturn(mapSting);
 
-        PowerMockito.when(x509ClientCertificateAuthenticator
+        when(x509ClientCertificateAuthenticator
                 .getUserIdentityExtractor(any(X509AuthenticatorConfigModel.class))).thenReturn(userIdentityExtractor);
-        PowerMockito.when(keycloakSession.users()).thenReturn(userProvider);
-        PowerMockito.when(userProvider.searchForUserByUserAttributeStream(any(RealmModel.class), anyString(), anyString()))
+        when(keycloakSession.users()).thenReturn(userProvider);
+        when(userProvider.searchForUserByUserAttributeStream(any(RealmModel.class), anyString(), anyString()))
                 .thenAnswer((stream) -> {
                     return Stream.of(userModel);
                 });
@@ -117,140 +110,149 @@ class UpdateX509Test {
 
     @Test
     public void testEvaluateTriggersCondition1() throws Exception {
-        mockStatic(X509Tools.class);
-        PowerMockito.when(X509Tools.getX509Username(eq(requiredActionContext))).thenReturn("something");
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            x509ToolsMock.when(() -> X509Tools.getX509Username(eq(requiredActionContext))).thenReturn("something");
 
-        PowerMockito.when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
-        PowerMockito.when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn("authNote");
+            when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
+            when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn("authNote");
 
-        // create cert array and add the cert
-        X509Certificate[] certList = new X509Certificate[1];
-        X509Certificate x509Certificate2 = Utils.buildTestCertificate();
-        certList[0] = x509Certificate2;
+            // create cert array and add the cert
+            X509Certificate[] certList = new X509Certificate[1];
+            X509Certificate x509Certificate2 = Utils.buildTestCertificate();
+            certList[0] = x509Certificate2;
 
-        // create map - some value
-        Map<String, List<String>> mapSting = new HashMap<>();
-        List<String> listString = new ArrayList<>();
-        listString.add("some value");
-        mapSting.put("usercertificateIdentity", listString);
+            // create map - some value
+            Map<String, List<String>> mapSting = new HashMap<>();
+            List<String> listString = new ArrayList<>();
+            listString.add("some value");
+            mapSting.put("usercertificateIdentity", listString);
 
-        PowerMockito.when(requiredActionContext.getHttpRequest().getClientCertificateChain())
-            .thenReturn(certList);
-        PowerMockito.when(requiredActionContext.getUser()).thenReturn(userModel);
-        PowerMockito.when(userModel.getAttributes()).thenReturn(mapSting);
+            when(requiredActionContext.getHttpRequest().getClientCertificateChain())
+                .thenReturn(certList);
+            when(requiredActionContext.getUser()).thenReturn(userModel);
+            when(userModel.getAttributes()).thenReturn(mapSting);
 
-        UpdateX509 updateX509 = new UpdateX509();
-        updateX509.evaluateTriggers(requiredActionContext);
+            UpdateX509 updateX509 = new UpdateX509();
+            updateX509.evaluateTriggers(requiredActionContext);
 
-        // create map - empty value
-        mapSting = new HashMap<>();
-        mapSting.put("usercertificateIdentity", new ArrayList<>());
+            // create map - empty value
+            mapSting = new HashMap<>();
+            mapSting.put("usercertificateIdentity", new ArrayList<>());
 
-        PowerMockito.when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn(null);
-        PowerMockito.when(userModel.getAttributes()).thenReturn(mapSting);
+            when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn(null);
+            when(userModel.getAttributes()).thenReturn(mapSting);
 
-        updateX509 = new UpdateX509();
-        updateX509.evaluateTriggers(requiredActionContext);
+            updateX509 = new UpdateX509();
+            updateX509.evaluateTriggers(requiredActionContext);
 
-        // create map - null value
-        mapSting = new HashMap<>();
-        mapSting.put("usercertificateIdentity", null);
+            // create map - null value
+            mapSting = new HashMap<>();
+            mapSting.put("usercertificateIdentity", null);
 
-        PowerMockito.when(userModel.getAttributes()).thenReturn(mapSting);
+            when(userModel.getAttributes()).thenReturn(mapSting);
 
-        updateX509 = new UpdateX509();
-        updateX509.evaluateTriggers(requiredActionContext);
+            updateX509 = new UpdateX509();
+            updateX509.evaluateTriggers(requiredActionContext);
 
-        // create map - no valid value
-        mapSting = new HashMap<>();
-        mapSting.put("no valid value", new ArrayList<>());
+            // create map - no valid value
+            mapSting = new HashMap<>();
+            mapSting.put("no valid value", new ArrayList<>());
 
-        PowerMockito.when(userModel.getAttributes()).thenReturn(mapSting);
-        PowerMockito.when(X509Tools.isX509Registered(eq(requiredActionContext))).thenReturn(true);
+            when(userModel.getAttributes()).thenReturn(mapSting);
+            x509ToolsMock.when(() -> X509Tools.isX509Registered(eq(requiredActionContext))).thenReturn(true);
 
-        updateX509 = new UpdateX509();
-        updateX509.evaluateTriggers(requiredActionContext);
+            updateX509 = new UpdateX509();
+            updateX509.evaluateTriggers(requiredActionContext);
+        }
     }
 
     @Test
     public void testEvaluateTriggersCondition2() throws Exception {
-        // null, not null, not true
-        mockStatic(X509Tools.class);
-        PowerMockito.when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            // null, not null, not true
+            when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
 
-        PowerMockito.when(X509Tools.getX509Username(eq(requiredActionContext))).thenReturn(null);
-        PowerMockito.when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn("authNote");
+            x509ToolsMock.when(() -> X509Tools.getX509Username(eq(requiredActionContext))).thenReturn(null);
+            when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn("authNote");
 
-        UpdateX509 updateX509 = new UpdateX509();
-        updateX509.evaluateTriggers(requiredActionContext);
+            UpdateX509 updateX509 = new UpdateX509();
+            updateX509.evaluateTriggers(requiredActionContext);
 
-        // null, null, not true
-        PowerMockito.when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn(null);
-        updateX509.evaluateTriggers(requiredActionContext);
+            // null, null, not true
+            when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn(null);
+            updateX509.evaluateTriggers(requiredActionContext);
 
-        // null, not null, true
-        PowerMockito.when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn("true");
-        updateX509.evaluateTriggers(requiredActionContext);
+            // null, not null, true
+            when(requiredActionContext.getAuthenticationSession().getAuthNote("IGNORE_X509")).thenReturn("true");
+            updateX509.evaluateTriggers(requiredActionContext);
 
-        // something, not null, true
-        PowerMockito.when(X509Tools.getX509Username(eq(requiredActionContext))).thenReturn("something");
-        updateX509.evaluateTriggers(requiredActionContext);
+            // something, not null, true
+            x509ToolsMock.when(() -> X509Tools.getX509Username(eq(requiredActionContext))).thenReturn("something");
+            updateX509.evaluateTriggers(requiredActionContext);
+        }
     }
 
     @Test
     public void testRequiredActionChallengeCondition1() throws Exception {
-        setupX509Mocks();
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            x509ToolsMock.when(() -> X509Tools.getX509Username(any(RequiredActionContext.class))).thenReturn("thing");
 
-        PowerMockito.when(requiredActionContext.form()).thenReturn(loginFormsProvider);
+            when(requiredActionContext.form()).thenReturn(loginFormsProvider);
 
-        UpdateX509 updateX509 = new UpdateX509();
-        updateX509.requiredActionChallenge(requiredActionContext);
+            UpdateX509 updateX509 = new UpdateX509();
+            updateX509.requiredActionChallenge(requiredActionContext);
+        }
     }
 
     @Test
     public void testRequiredActionChallengeCondition2() throws Exception {
-        setupX509Mocks();
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            x509ToolsMock.when(() -> X509Tools.getX509Username(any(RequiredActionContext.class))).thenReturn("thing");
 
-        PowerMockito.when(requiredActionContext.form()).thenReturn(loginFormsProvider);
-        PowerMockito.when(requiredActionContext.getUser()).thenReturn(userModel);
-        PowerMockito.when(userModel.getUsername()).thenReturn("an awesome username");
+            when(requiredActionContext.form()).thenReturn(loginFormsProvider);
+            when(requiredActionContext.getUser()).thenReturn(userModel);
+            when(userModel.getUsername()).thenReturn("an awesome username");
 
-        UpdateX509 updateX509 = new UpdateX509();
-        updateX509.requiredActionChallenge(requiredActionContext);
+            UpdateX509 updateX509 = new UpdateX509();
+            updateX509.requiredActionChallenge(requiredActionContext);
+        }
     }
 
     @Test
     public void testProcessActionCancel() throws Exception {
-        setupX509Mocks();
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            x509ToolsMock.when(() -> X509Tools.getX509Username(any(RequiredActionContext.class))).thenReturn("thing");
 
-        Map<String, List<String>> formDataMap = new HashMap<>();
-        formDataMap.put("cancel", Collections.singletonList(""));
+            Map<String, List<String>> formDataMap = new HashMap<>();
+            formDataMap.put("cancel", Collections.singletonList(""));
 
-        PowerMockito.when(requiredActionContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
-        PowerMockito.when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
+            when(requiredActionContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
+            when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
 
-        UpdateX509 updateX509 = new UpdateX509();
-        updateX509.processAction(requiredActionContext);
+            UpdateX509 updateX509 = new UpdateX509();
+            updateX509.processAction(requiredActionContext);
+        }
     }
 
     @Test
     public void testProcessAction() throws Exception {
-        setupX509Mocks();
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            x509ToolsMock.when(() -> X509Tools.getX509Username(any(RequiredActionContext.class))).thenReturn(null);
 
-        Map<String, List<String>> formDataMap = new HashMap<>();
+            Map<String, List<String>> formDataMap = new HashMap<>();
 
-        PowerMockito.when(requiredActionContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
-        PowerMockito.when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
-        PowerMockito.when(requiredActionContext.getUser()).thenReturn(userModel);
+            when(requiredActionContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
+            when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
+            when(requiredActionContext.getUser()).thenReturn(userModel);
 
-        UpdateX509 updateX509 = new UpdateX509();
-        updateX509.processAction(requiredActionContext);
+            UpdateX509 updateX509 = new UpdateX509();
+            updateX509.processAction(requiredActionContext);
 
-        // CONDITION 2
-        mockStatic(X509Tools.class);
-        PowerMockito.when(X509Tools.getX509Username(eq(requiredActionContext))).thenReturn("something");
+            // CONDITION 2
+            x509ToolsMock.when(() -> X509Tools.getX509Username(eq(requiredActionContext))).thenReturn("something");
 
-        updateX509.processAction(requiredActionContext);
+            updateX509.processAction(requiredActionContext);
+        }
     }
 
     @Test

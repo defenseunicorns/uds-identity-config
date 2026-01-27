@@ -5,33 +5,25 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.eventListeners;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventType;
 import org.keycloak.models.*;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.defenseunicorns.uds.keycloak.plugin.Common;
-import com.defenseunicorns.uds.keycloak.plugin.X509Tools;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.*;
-import static com.defenseunicorns.uds.keycloak.plugin.utils.Utils.setupFileMocks;
-import static com.defenseunicorns.uds.keycloak.plugin.utils.Utils.setupX509Mocks;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ FileInputStream.class, File.class, X509Tools.class })
-@PowerMockIgnore("javax.management.*")
+@ExtendWith(MockitoExtension.class)
+@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 public class RegisterEventListenerTest {
 
     @Mock
@@ -50,11 +42,8 @@ public class RegisterEventListenerTest {
     String userId;
     RegisterEventListenerProvider eventListenerProvider;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        setupX509Mocks();
-        setupFileMocks();
-
         // Mock necessary method calls
         when(keycloakSession.realms()).thenReturn(realmProvider);
         when(realmProvider.getRealm(any())).thenReturn(realmModel);
@@ -80,32 +69,20 @@ public class RegisterEventListenerTest {
         // Call the onEvent method with the mock Event
         eventListenerProvider.onEvent(event);
 
-        // Verify that generateMattermostId method is called
+        // Verify that generateMattermostId method is called (setSingleAttribute is called with mattermostid)
         verify(userModel, times(1)).setSingleAttribute(eq(Common.USER_MATTERMOST_ID_ATTR), anyString());
-
-        // Verify that the user has more than one attribute
-        assert(userModel.getAttributes().size() > 1);
-
-        // Verify that one of the attributes is "mattermostid"
-        assert(userModel.getAttributes().containsKey(Common.USER_MATTERMOST_ID_ATTR));
     }
 
     @Test
     public void testOnEvent_Register_Failure() {
         // modify user to not have email
-        userModel.setEmail(null);
-
-        // Mock necessary method calls
-        when(userProvider.getUserById(any(), any())).thenReturn(userModel);
+        when(userModel.getEmail()).thenReturn(null);
 
         // Call the onEvent method with the mock Event
         eventListenerProvider.onEvent(event);
 
-        // Verify that generateMattermostId method is called
-        verify(userModel, times(1)).setSingleAttribute(eq(Common.USER_MATTERMOST_ID_ATTR), anyString());
-
-        // Verify that one of the attributes is "mattermostid"
-        assert(!userModel.getAttributes().containsKey(Common.USER_MATTERMOST_ID_ATTR));
+        // Verify that setSingleAttribute is NOT called when email is null
+        verify(userModel, times(0)).setSingleAttribute(eq(Common.USER_MATTERMOST_ID_ATTR), anyString());
     }
 
     @Test
@@ -116,10 +93,7 @@ public class RegisterEventListenerTest {
         // Call the onEvent method with the mock Event
         eventListenerProvider.onEvent(event);
 
-        // Verify that generateMattermostId method is called
+        // Verify that setSingleAttribute is NOT called for LOGIN events
         verify(userModel, times(0)).setSingleAttribute(eq(Common.USER_MATTERMOST_ID_ATTR), anyString());
-
-        // Verify user doesnt have attribute "mattermostid"
-        assert(!userModel.getAttributes().containsKey(Common.USER_MATTERMOST_ID_ATTR));
     }
 }

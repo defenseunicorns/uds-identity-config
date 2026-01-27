@@ -5,17 +5,14 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.authentication;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.models.AuthenticationExecutionModel;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class RequireGroupAuthenticatonFactoryTest {
 
     private final RequireGroupAuthenticatorFactory factory = new RequireGroupAuthenticatorFactory();
