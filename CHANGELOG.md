@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.24.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.23.0...v0.24.0) (2026-01-28)
+
+
+### Features
+
+* adr on future evolution ([#748](https://github.com/defenseunicorns/uds-identity-config/issues/748)) ([df04f73](https://github.com/defenseunicorns/uds-identity-config/commit/df04f736625a51c0ca8f93cf49ddc15d5a2a80df))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.5.2 ([#779](https://github.com/defenseunicorns/uds-identity-config/issues/779)) ([6f6d879](https://github.com/defenseunicorns/uds-identity-config/commit/6f6d879150e31e6a9141e65a43c0aa993c15b59b))
+
+
+### Miscellaneous
+
+* **deps:** update dependency zarf-dev/zarf to v0.70.1 ([#778](https://github.com/defenseunicorns/uds-identity-config/issues/778)) ([9b41dec](https://github.com/defenseunicorns/uds-identity-config/commit/9b41dec798d44ad3323d028881dd21ba087cbf57))
+
 ## [0.23.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.22.1...v0.23.0) (2026-01-22)
 
 
