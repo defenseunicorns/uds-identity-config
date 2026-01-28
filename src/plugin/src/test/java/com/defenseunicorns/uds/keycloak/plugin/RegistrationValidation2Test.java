@@ -7,9 +7,9 @@ package com.defenseunicorns.uds.keycloak.plugin;
 
 import com.defenseunicorns.uds.keycloak.plugin.utils.UserModelDefaultMethodsImpl;
 import com.defenseunicorns.uds.keycloak.plugin.utils.Utils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.authentication.FormContext;
 import org.keycloak.authentication.ValidationContext;
 import org.keycloak.authentication.authenticators.x509.X509AuthenticatorConfigModel;
@@ -22,13 +22,9 @@ import org.keycloak.services.x509.X509ClientCertificateLookup;
 import org.keycloak.sessions.AuthenticationSessionModel;
 import org.keycloak.sessions.RootAuthenticationSessionModel;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
@@ -37,14 +33,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.defenseunicorns.uds.keycloak.plugin.utils.Utils.setupFileMocks;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ FileInputStream.class, File.class, X509Tools.class })
-@PowerMockIgnore("javax.management.*")
+@ExtendWith(MockitoExtension.class)
+@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class RegistrationValidation2Test {
 
     @Mock
@@ -79,43 +74,40 @@ class RegistrationValidation2Test {
     public RegistrationValidation2Test() {
     }
 
-    @Before
+    @BeforeEach
     public void setupMockBehavior() throws Exception {
-
-        setupFileMocks();
-
         // common mock implementations
-        PowerMockito.when(validationContext.getSession()).thenReturn(keycloakSession);
-        PowerMockito.when(keycloakSession.getContext()).thenReturn(keycloakContext);
-        PowerMockito.when(keycloakSession.getContext().getAuthenticationSession()).thenReturn(authenticationSessionModel);
-        PowerMockito.when(authenticationSessionModel.getParentSession()).thenReturn(rootAuthenticationSessionModel);
-        PowerMockito.when(rootAuthenticationSessionModel.getId()).thenReturn("xxx");
-        PowerMockito.when(validationContext.getHttpRequest()).thenReturn(httpRequest);
-        PowerMockito.when(validationContext.getRealm()).thenReturn(realmModel);
-        PowerMockito.when(keycloakSession.groups()).thenReturn(groupProvider);
+        when(validationContext.getSession()).thenReturn(keycloakSession);
+        when(keycloakSession.getContext()).thenReturn(keycloakContext);
+        when(keycloakContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
+        when(authenticationSessionModel.getParentSession()).thenReturn(rootAuthenticationSessionModel);
+        when(rootAuthenticationSessionModel.getId()).thenReturn("xxx");
+        when(validationContext.getHttpRequest()).thenReturn(httpRequest);
+        when(validationContext.getRealm()).thenReturn(realmModel);
+        when(keycloakSession.groups()).thenReturn(groupProvider);
 
         // setup X509Tools
-        PowerMockito.when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(x509ClientCertificateLookup);
+        when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(x509ClientCertificateLookup);
 
         // create cert array and add the cert
         X509Certificate[] certList = new X509Certificate[1];
         X509Certificate x509Certificate2 = Utils.buildTestCertificate();
         certList[0] = x509Certificate2;
-        PowerMockito.when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(certList);
+        when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(certList);
 
-        PowerMockito.when(realmModel.getAuthenticatorConfigsStream()).thenAnswer((stream) -> {
+        when(realmModel.getAuthenticatorConfigsStream()).thenAnswer((stream) -> {
             return Stream.of(authenticatorConfigModel);
         });
 
         // create map
         Map<String, String> mapSting = new HashMap<>();
         mapSting.put("x509-cert-auth.mapper-selection.user-attribute-name", "test");
-        PowerMockito.when(authenticatorConfigModel.getConfig()).thenReturn(mapSting);
+        when(authenticatorConfigModel.getConfig()).thenReturn(mapSting);
 
-        PowerMockito.when(x509ClientCertificateAuthenticator
+        when(x509ClientCertificateAuthenticator
                 .getUserIdentityExtractor(any(X509AuthenticatorConfigModel.class))).thenReturn(userIdentityExtractor);
-        PowerMockito.when(keycloakSession.users()).thenReturn(userProvider);
-        PowerMockito.when(userProvider.searchForUserByUserAttributeStream(any(RealmModel.class), anyString(), anyString()))
+        when(keycloakSession.users()).thenReturn(userProvider);
+        when(userProvider.searchForUserByUserAttributeStream(any(RealmModel.class), anyString(), anyString()))
                 .thenAnswer((stream) -> {
                     return Stream.of(userModel);
                 });
@@ -123,44 +115,48 @@ class RegistrationValidation2Test {
 
     @Test
     public void testSuccess() {
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            x509ToolsMock.when(() -> X509Tools.getX509Username(any(FormContext.class))).thenReturn("something");
+            x509ToolsMock.when(() -> X509Tools.getX509CommonName(any(FormContext.class))).thenReturn(null);
 
-        mockStatic(X509Tools.class);
+            UserModelDefaultMethodsImpl userModelDefaultMethodsImpl = new UserModelDefaultMethodsImpl();
+            when(validationContext.getUser()).thenReturn(userModelDefaultMethodsImpl);
+            when(validationContext.getRealm()).thenReturn(realmModel);
 
-        PowerMockito.when(X509Tools.getX509Username(any(FormContext.class))).thenReturn("something");
+            // Populate form data
+            Map<String, List<String>> formDataMap = new HashMap<>();
+            formDataMap.put(Validation.FIELD_EMAIL, Collections.singletonList("test.user@test.bad"));
 
-        UserModelDefaultMethodsImpl userModelDefaultMethodsImpl = new UserModelDefaultMethodsImpl();
-        PowerMockito.when(validationContext.getUser()).thenReturn(userModelDefaultMethodsImpl);
-        PowerMockito.when(validationContext.getRealm()).thenReturn(realmModel);
+            when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
 
-        // Populate form data
-        Map<String, List<String>> formDataMap = new HashMap<>();
-        formDataMap.put(Validation.FIELD_EMAIL, Collections.singletonList("test.user@test.bad"));
-
-        PowerMockito.when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
-
-        RegistrationValidation registrationValidation = new RegistrationValidation();
-        registrationValidation.success(validationContext);
+            RegistrationValidation registrationValidation = new RegistrationValidation();
+            registrationValidation.success(validationContext);
+        }
     }
 
     @Test
     public void testSuccessNoX509() throws GeneralSecurityException {
-        // Force no certificate
-        PowerMockito.when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(null);
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            // Force no certificate
+            when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(null);
+            x509ToolsMock.when(() -> X509Tools.getX509Username(any(FormContext.class))).thenReturn(null);
+            x509ToolsMock.when(() -> X509Tools.getX509CommonName(any(FormContext.class))).thenReturn(null);
 
-        // Mock user and realm
-        UserModelDefaultMethodsImpl userModelDefaultMethodsImpl = new UserModelDefaultMethodsImpl();
-        PowerMockito.when(validationContext.getUser()).thenReturn(userModelDefaultMethodsImpl);
-        PowerMockito.when(validationContext.getRealm()).thenReturn(realmModel);
+            // Mock user and realm
+            UserModelDefaultMethodsImpl userModelDefaultMethodsImpl = new UserModelDefaultMethodsImpl();
+            when(validationContext.getUser()).thenReturn(userModelDefaultMethodsImpl);
+            when(validationContext.getRealm()).thenReturn(realmModel);
 
-        // Populate form data
-        Map<String, List<String>> formDataMap = new HashMap<>();
-        formDataMap.put(Validation.FIELD_EMAIL, Collections.singletonList("test.user@test.bad"));
+            // Populate form data
+            Map<String, List<String>> formDataMap = new HashMap<>();
+            formDataMap.put(Validation.FIELD_EMAIL, Collections.singletonList("test.user@test.bad"));
 
-        // Mock the behavior to return the populated form data
-        PowerMockito.when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
+            // Mock the behavior to return the populated form data
+            when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
 
-        // Call the method under test
-        RegistrationValidation registrationValidation = new RegistrationValidation();
-        registrationValidation.success(validationContext);
+            // Call the method under test
+            RegistrationValidation registrationValidation = new RegistrationValidation();
+            registrationValidation.success(validationContext);
+        }
     }
 }

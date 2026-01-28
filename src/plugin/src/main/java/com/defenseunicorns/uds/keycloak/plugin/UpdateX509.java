@@ -60,9 +60,6 @@ public class UpdateX509 implements RequiredActionProvider, RequiredActionFactory
         formData.add(Common.FORM_IS_USER_ENABLED, "true");
 
         // Prefill CAC-specific optional fields
-        // Note that in practice this should never be null. However, PowerMock tests make it extremely hard to call
-        // it without mocking (and not rewriting most of the tests).
-        // This piece should be refactored as part of https://github.com/defenseunicorns/uds-identity-config/issues/721
         CACInfo cac = X509Tools.getCACInfo(context);
         if (cac != null) {
             formData.add(Common.FORM_CAC_SUBJECT_DN, cac.subjectDN());

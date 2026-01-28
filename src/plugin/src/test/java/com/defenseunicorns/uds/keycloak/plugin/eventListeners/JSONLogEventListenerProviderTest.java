@@ -8,10 +8,10 @@ package com.defenseunicorns.uds.keycloak.plugin.eventListeners;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventType;
 import org.keycloak.events.admin.AdminEvent;
@@ -21,7 +21,7 @@ import org.keycloak.events.admin.ResourceType;
 import org.keycloak.models.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -29,13 +29,14 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 public class JSONLogEventListenerProviderTest {
 
     @Mock
@@ -67,7 +68,7 @@ public class JSONLogEventListenerProviderTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         System.setOut(new PrintStream(outputStream));
         // common session mocks used by addGroups()
@@ -75,7 +76,7 @@ public class JSONLogEventListenerProviderTest {
         when(session.users()).thenReturn(userProvider);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         System.setOut(originalSystemOut);
     }

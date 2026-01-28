@@ -5,91 +5,16 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.utils;
 
-import org.keycloak.authentication.FormContext;
-import org.powermock.api.mockito.PowerMockito;
-
-import com.defenseunicorns.uds.keycloak.plugin.X509Tools;
-
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-
 public class Utils {
-
-    public static void setupX509Mocks() {
-
-        PowerMockito.mockStatic(X509Tools.class);
-        PowerMockito.when(X509Tools.getX509Username(any(FormContext.class))).thenReturn("thing");
-
-    }
-
-    public static void setupFileMocks() throws Exception {
-        final String fileContent = "x509:\n" +
-                "  userIdentityAttribute: \"usercertificateIdentity\"\n" +
-                "  userActive509Attribute: \"activecac\"\n" +
-                "  autoJoinGroup:\n" +
-                "    - \"/test-group\"\n" +
-                "  requiredCertificatePolicies:\n" +
-                "    - \"2.16.840.1.101.2.1.11.36\"\n" +
-                "    - \"2.16.840.1.114028.10.1.5\"\n" +
-                "groupProtectionIgnoreClients:\n" +
-                "  - \"test-client\"\n" +
-                "noEmailMatchAutoJoinGroup:\n" +
-                "  - \"/randos-test-group\"\n" +
-                "emailMatchAutoJoinGroup:\n" +
-                "  - description: Test thing 1\n" +
-                "    groups:\n" +
-                "      - \"/test-group-1-a\"\n" +
-                "      - \"/test-group-1-b\"\n" +
-                "    domains:\n" +
-                "      - \".gov\"\n" +
-                "      - \".mil\"\n" +
-                "      - \"@afit.edu\"\n" +
-                "  - description: Test thing 2\n" +
-                "    groups:\n" +
-                "      - \"/test-group-2-a\"\n" +
-                "    domains:\n" +
-                "      - \"@unicorns.com\"\n" +
-                "      - \"@merica.test\"";
-
-        File fileMock = PowerMockito.mock(File.class);
-        FileInputStream fileInputStreamMock = PowerMockito.mock(FileInputStream.class);
-
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8));
-
-        PowerMockito.whenNew(File.class).withAnyArguments().thenReturn(fileMock);
-        PowerMockito.whenNew(FileInputStream.class).withAnyArguments().thenReturn(fileInputStreamMock);
-        PowerMockito.when(fileMock.exists()).thenReturn(true);
-        PowerMockito.when(fileMock.isFile()).thenReturn(true);
-        PowerMockito.when(fileMock.canRead()).thenReturn(true);
-        PowerMockito.when(fileInputStreamMock.read(any(byte[].class))).thenReturn(-1).thenReturn(0);
-        PowerMockito.when(fileInputStreamMock.read(any(byte[].class), any(int.class), any(int.class))).thenReturn(-1).thenReturn(0);
-        PowerMockito.when(fileInputStreamMock.available()).thenReturn(inputStream.available());
-        PowerMockito.when(fileInputStreamMock.read()).thenAnswer(invocation -> inputStream.read());
-        PowerMockito.when(fileInputStreamMock.read(any(byte[].class), any(int.class), any(int.class))).thenAnswer(invocation -> inputStream.read((byte[]) invocation.getArgument(0), invocation.getArgument(1), invocation.getArgument(2)));
-
-
-        List<String> yamlLines = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                yamlLines.add(line);
-            }
-        }
-    }
 
     public static X509Certificate buildTestCertificate() throws Exception {
         // exported certificate from login.dso.mil
