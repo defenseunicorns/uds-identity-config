@@ -5,11 +5,11 @@
 
 package com.defenseunicorns.uds.keycloak.plugin;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StringUtilsTest {
 
@@ -76,16 +76,15 @@ public class StringUtilsTest {
         assertEquals("value", result.get(0));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldThrowNPEWhenParsingNullInput() {
         // given
         String input = null;
 
-        // when
-        StringUtils.parseCommaSeparatedStringToList(input);
-
-        // then
-        // expect exception
+        // when/then
+        assertThrows(NullPointerException.class, () -> {
+            StringUtils.parseCommaSeparatedStringToList(input);
+        });
     }
 
     @Test

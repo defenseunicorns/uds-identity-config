@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.23.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.22.1...v0.23.0) (2026-01-22)
+
+
+### Features
+
+* keycloak logout confirmation additional testing ([#768](https://github.com/defenseunicorns/uds-identity-config/issues/768)) ([8763876](https://github.com/defenseunicorns/uds-identity-config/commit/876387623820e06b1e7a731d8ab17d458314a5d2))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.5.1 ([#771](https://github.com/defenseunicorns/uds-identity-config/issues/771)) ([69cc136](https://github.com/defenseunicorns/uds-identity-config/commit/69cc1367007ef676d38042d0e9122ec6c59f8684))
+* proceed with action message ([#773](https://github.com/defenseunicorns/uds-identity-config/issues/773)) ([3fcaf40](https://github.com/defenseunicorns/uds-identity-config/commit/3fcaf401a507366dd5e6b0cc1a6ac17bcf8a698b))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#770](https://github.com/defenseunicorns/uds-identity-config/issues/770)) ([090b73d](https://github.com/defenseunicorns/uds-identity-config/commit/090b73d8d3420bc741531bc4554f0ecf115df122))
+* **deps:** update dependency opentofu/opentofu to v1.11.4 ([#774](https://github.com/defenseunicorns/uds-identity-config/issues/774)) ([192c810](https://github.com/defenseunicorns/uds-identity-config/commit/192c8103d8948a3c2e8aea54daff71664b558066))
+* **deps:** update dependency prettier to v3.8.1 ([#775](https://github.com/defenseunicorns/uds-identity-config/issues/775)) ([8aa922c](https://github.com/defenseunicorns/uds-identity-config/commit/8aa922cbcc6a2037737a155d268efb2e1b24f8a4))
+* **deps:** update gha-deps ([#769](https://github.com/defenseunicorns/uds-identity-config/issues/769)) ([4226a13](https://github.com/defenseunicorns/uds-identity-config/commit/4226a135fe635899b3900f6dc0a8d4da11e3806a))
+* **deps:** update gha-deps ([#776](https://github.com/defenseunicorns/uds-identity-config/issues/776)) ([e736629](https://github.com/defenseunicorns/uds-identity-config/commit/e736629eb34dffbcb0def47805e99db75e6fc2a8))
+
 ## [0.22.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.22.0...v0.22.1) (2026-01-12)
 
 

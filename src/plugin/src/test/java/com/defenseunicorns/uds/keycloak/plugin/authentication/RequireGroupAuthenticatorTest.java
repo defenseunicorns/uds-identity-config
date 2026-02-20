@@ -5,9 +5,9 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.models.*;
@@ -16,7 +16,7 @@ import org.keycloak.sessions.RootAuthenticationSessionModel;
 import org.keycloak.forms.login.LoginFormsProvider;
 import jakarta.ws.rs.core.Response;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -24,11 +24,11 @@ import org.mockito.MockitoAnnotations;
 import java.util.Collections;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 public class RequireGroupAuthenticatorTest {
 
     @InjectMocks
@@ -68,9 +68,9 @@ public class RequireGroupAuthenticatorTest {
     @Mock
     private Response response;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         when(parentAuthenticationSession.getId()).thenReturn("test-id");
 
@@ -200,7 +200,7 @@ public class RequireGroupAuthenticatorTest {
         verify(context).forceChallenge(any(Response.class));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testShouldThrowExceptionForInvalidGroupNameWithSlash() {
         GroupModel invalidGroup = mock(GroupModel.class);
         when(invalidGroup.getName()).thenReturn("Invalid/Group");
@@ -208,7 +208,9 @@ public class RequireGroupAuthenticatorTest {
         when(client.getAttribute("uds.core.groups")).thenReturn("{\"anyOf\": [\"Invalid/Group\"]}");
         when(realm.getGroupsStream()).thenReturn(Stream.of(invalidGroup));
 
-        authenticator.authenticate(context);
+        assertThrows(IllegalArgumentException.class, () -> {
+            authenticator.authenticate(context);
+        });
     }
 
     @Test

@@ -4,7 +4,7 @@
             <form action="/chuck-norris-calendar-goes-straight-from-march-31st-to-april-2nd-because-no-one-fools-chuck-norris"
                 id="unicorn-registration-form" method="post">
                 <div class="back-button-container">
-                    <a href="${url.loginUrl}" class="back-button">
+                    <a href="${(url.loginRestartFlowUrl)!url.loginUrl}" class="back-button">
                         <img src="${url.resourcesPath}/img/icon_back.svg" alt=""/>
                         <span>${msg("backToLogin")}</span>
                     </a>

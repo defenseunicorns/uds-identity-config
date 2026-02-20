@@ -5,24 +5,25 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.authentication.authenticators.client;
 
-import org.junit.Test;
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@RunWith(BlockJUnit4ClassRunner.class)
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class ClientIdAndKubernetesSecretAuthenticatorTest {
 
-    @Test(expected = NoSuchFileException.class)
-    public void shouldThrowErrorOnMissingClientsSecretsFiles() throws Exception {
+    @Test
+    public void shouldThrowErrorOnMissingClientsSecretsFiles() {
         String secretMountPath = "/tmp/secrets";
         String clientId = "missing-client";
 
-        ClientIdAndKubernetesSecretAuthenticator.readMountedClientSecret(secretMountPath, clientId);
+        assertThrows(NoSuchFileException.class, () -> {
+            ClientIdAndKubernetesSecretAuthenticator.readMountedClientSecret(secretMountPath, clientId);
+        });
     }
 
     @Test
