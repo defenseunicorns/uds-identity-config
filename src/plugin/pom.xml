@@ -18,11 +18,11 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
-        <keycloak.version>26.5.3</keycloak.version>
+        <keycloak.version>26.5.4</keycloak.version>
 
         <mockito.version>5.21.0</mockito.version>
         <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
-        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
     </properties>
 
