@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.24.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.23.0...v0.24.0) (2026-02-21)
+
+
+### Features
+
+* adr on future evolution ([#748](https://github.com/defenseunicorns/uds-identity-config/issues/748)) ([df04f73](https://github.com/defenseunicorns/uds-identity-config/commit/df04f736625a51c0ca8f93cf49ddc15d5a2a80df))
+
+
+### Bug Fixes
+
+* cac detection when using bcustom back button ([#792](https://github.com/defenseunicorns/uds-identity-config/issues/792)) ([6d3078a](https://github.com/defenseunicorns/uds-identity-config/commit/6d3078ae1126f65d07433bd66b91811b1eb67e50))
+* **deps:** update plugin-deps ([#800](https://github.com/defenseunicorns/uds-identity-config/issues/800)) ([17c9386](https://github.com/defenseunicorns/uds-identity-config/commit/17c93861e46875408635bdbb79d3f87ffc312d0a))
+* **deps:** update plugin-deps to v26.5.2 ([#779](https://github.com/defenseunicorns/uds-identity-config/issues/779)) ([6f6d879](https://github.com/defenseunicorns/uds-identity-config/commit/6f6d879150e31e6a9141e65a43c0aa993c15b59b))
+* **deps:** update plugin-deps to v26.5.3 ([#793](https://github.com/defenseunicorns/uds-identity-config/issues/793)) ([2ab83ba](https://github.com/defenseunicorns/uds-identity-config/commit/2ab83bafb665df12c63209fdc7988fdd6f2ad74e))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#794](https://github.com/defenseunicorns/uds-identity-config/issues/794)) ([ee454b8](https://github.com/defenseunicorns/uds-identity-config/commit/ee454b8435533f5e33a141e5851433cb334b9593))
+* **deps:** update dependency defenseunicorns/lula to v0.9.3 ([#786](https://github.com/defenseunicorns/uds-identity-config/issues/786)) ([0157c3c](https://github.com/defenseunicorns/uds-identity-config/commit/0157c3c3263b18c30f5e5043fa23eb64d3d165ef))
+* **deps:** update dependency zarf-dev/zarf to v0.70.1 ([#778](https://github.com/defenseunicorns/uds-identity-config/issues/778)) ([9b41dec](https://github.com/defenseunicorns/uds-identity-config/commit/9b41dec798d44ad3323d028881dd21ba087cbf57))
+* **deps:** update dependency zarf-dev/zarf to v0.73.0 ([#799](https://github.com/defenseunicorns/uds-identity-config/issues/799)) ([509f99d](https://github.com/defenseunicorns/uds-identity-config/commit/509f99d89c4239fc2618e946d8c04a8d00986ed4))
+* **deps:** update gha-deps ([#795](https://github.com/defenseunicorns/uds-identity-config/issues/795)) ([07da6c1](https://github.com/defenseunicorns/uds-identity-config/commit/07da6c1303c0360c22f771bcd4605172ff475768))
+* **deps:** update gha-deps to v20.4.0 ([#787](https://github.com/defenseunicorns/uds-identity-config/issues/787)) ([137827b](https://github.com/defenseunicorns/uds-identity-config/commit/137827b2c15f3f5c3f0d23cf481413b9fea11ad1))
+* **deps:** update gha-deps to v20.4.1 ([#790](https://github.com/defenseunicorns/uds-identity-config/issues/790)) ([0576273](https://github.com/defenseunicorns/uds-identity-config/commit/05762732fea3c0fa20a15740104018515cff8911))
+
 ## [0.23.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.22.1...v0.23.0) (2026-01-22)
 
 
