@@ -247,6 +247,10 @@ overrides:
             TERMS_AND_CONDITIONS_ENABLED: true
             PASSWORD_POLICY: <fill in value here>
             X509_OCSP_FAIL_OPEN: true
+            X509_OCSP_CHECKING_ENABLED: false
+            X509_CRL_CHECKING_ENABLED: true
+            X509_CRL_ABORT_IF_NON_UPDATED: false
+            X509_CRL_RELATIVE_PATH: "crls/DODROOTCA3.crl##crls/DODIDCA_81.crl"
             ACCESS_TOKEN_LIFESPAN: 600
             SSO_SESSION_LIFESPAN_TIMEOUT: 1200
             SSO_SESSION_MAX_LIFESPAN: 36000
@@ -277,6 +281,10 @@ overrides:
 | TERMS_AND_CONDITIONS_ENABLED                   | false                                                                                                                                                                                                | Enable the Terms and Conditions screen that users must accept.         |
 | PASSWORD_POLICY                                | hashAlgorithm(pbkdf2-sha256) and forceExpiredPasswordChange(60) and specialChars(2) and digits(1) and lowerCase(1) and upperCase(1) and passwordHistory(5) and length(15) and notUsername(undefined) | Define the Keycloak password policy applied to users in the realm.     |
 | X509_OCSP_FAIL_OPEN                            | false                                                                                                                                                                                                | Control OCSP fail behavior for X.509 certificate authentication        |
+| X509_OCSP_CHECKING_ENABLED                     | false                                                                                                                                                                                                | Enable or disable OCSP checking for X.509 certificate authentication   |
+| X509_CRL_CHECKING_ENABLED                      | false                                                                                                                                                                                                | Enable or disable CRL checking for X.509 certificate authentication    |
+| X509_CRL_ABORT_IF_NON_UPDATED                  | true                                                                                                                                                                                                 | Fail authentication if a CRL is expired (stale `nextUpdate`)            |
+| X509_CRL_RELATIVE_PATH                         | crl.pem                                                                                                                                                                                              | CRL path(s) relative to `/opt/keycloak/conf` (use `##` between paths)  |
 | ACCESS_TOKEN_LIFESPAN                          | 60                                                                                                                                                                                                   | Access token validity period in seconds.                               |
 | SSO_SESSION_LIFESPAN_TIMEOUT                   | 600                                                                                                                                                                                                  | Session idle timeout in seconds.                                       |
 | SSO_SESSION_MAX_LIFESPAN                       | 36000                                                                                                                                                                                                | Maximum absolute session lifespan in seconds, regardless of activity.  |
