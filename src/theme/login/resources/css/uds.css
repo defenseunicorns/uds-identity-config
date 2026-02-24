@@ -723,6 +723,7 @@ input, select, textarea {
 
 .client-unique-name,
 .card-header.branding h2 {
+    font-size: 1.8rem;
     text-align: center;
     width: 100%;
 }
