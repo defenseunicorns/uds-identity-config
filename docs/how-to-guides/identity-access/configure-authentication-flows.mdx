@@ -137,14 +137,22 @@ If redeploying is not possible, the flows can be manually updated in the Keycloa
 
 **Symptoms:** Certificate authentication fails with an OCSP revocation check error. Logs show the OCSP responder is unreachable.
 
-**Solution:** Configure OCSP fail-open behavior or disable OCSP checking via `realmInitEnv`:
+**Solution:** Configure OCSP fail-open behavior or disable OCSP checking via `realmInitEnv`.
+
+To allow authentication when the OCSP responder is unreachable (fail-open):
 
 ```yaml
 - path: realmInitEnv
   value:
-    X509_OCSP_FAIL_OPEN: "true"     # Allow auth if OCSP responder is unreachable
-    # OR
-    X509_OCSP_CHECKING_ENABLED: "false"  # Disable OCSP entirely
+    X509_OCSP_FAIL_OPEN: "true"
+```
+
+To disable OCSP checking entirely:
+
+```yaml
+- path: realmInitEnv
+  value:
+    X509_OCSP_CHECKING_ENABLED: "false"
 ```
 
 > [!CAUTION]

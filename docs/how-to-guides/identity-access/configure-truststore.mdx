@@ -125,7 +125,7 @@ The `Acceptable client certificate CA names` section in the output should list y
 **Check the Keycloak init container used your image:**
 
 ```bash
-uds zarf tools kubectl describe pod -n keycloak -l app=keycloak | grep -A 5 "Init Containers"
+uds zarf tools kubectl describe pod -n keycloak -l app.kubernetes.io/name=keycloak | grep -A 5 "Init Containers"
 ```
 
 Confirm the init container image matches your custom image reference.
@@ -147,7 +147,7 @@ unzip -t src/authorized_certs.zip
 **Symptoms:** The login page loads but does not request a CAC/PIV certificate from the browser.
 
 **Solution:** Two checks:
-1. Confirm the `tls.cacert` override was applied to the correct Istio gateway (admin vs. tenant gateway, depending on your setup) and that the bundle was redeployed
+1. Confirm the `tls.cacert` override was applied to `istio-tenant-gateway` and that the bundle was redeployed
 2. Confirm `X509_AUTH_ENABLED: true` is set in `realmAuthFlows` — if X.509 auth is disabled, the gateway will not request client certs even if the truststore is configured. See [Configure authentication flows](/how-to-guides/identity-access/configure-authentication-flows/).
 
 ### Problem: Certificate authentication succeeds but OCSP errors appear in logs

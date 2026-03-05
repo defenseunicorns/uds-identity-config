@@ -106,7 +106,7 @@ Confirm the custom image was used:
 
 ```bash
 # Check the init container image on the Keycloak pod
-uds zarf tools kubectl describe pod -n keycloak -l app=keycloak | grep -A 5 "Init Containers"
+uds zarf tools kubectl describe pod -n keycloak -l app.kubernetes.io/name=keycloak | grep -A 5 "Init Containers"
 ```
 
 The init container image reference should match your custom image tag.
@@ -129,7 +129,7 @@ openssl s_client -connect sso.<domain>:443
 **Solution:** Confirm the registry is reachable from cluster nodes and that the image name and tag are correct. Check for typos in the `configImage` value:
 
 ```bash
-uds zarf tools kubectl describe pod -n keycloak -l app=keycloak | grep -A 10 "Init Containers"
+uds zarf tools kubectl describe pod -n keycloak -l app.kubernetes.io/name=keycloak | grep -A 10 "Init Containers"
 ```
 
 For private registries, verify that image pull secrets are configured in the `keycloak` namespace.
@@ -141,13 +141,13 @@ For private registries, verify that image pull secrets are configured in the `ke
 **Solution:** Themes, the truststore, and plugins are applied when the init container runs at pod start. Confirm the Keycloak pod restarted after the deploy:
 
 ```bash
-uds zarf tools kubectl rollout status deployment/keycloak -n keycloak
+uds zarf tools kubectl rollout status statefulset/keycloak -n keycloak
 ```
 
 If the pod did not restart, trigger a rollout:
 
 ```bash
-uds zarf tools kubectl rollout restart deployment/keycloak -n keycloak
+uds zarf tools kubectl rollout restart statefulset/keycloak -n keycloak
 ```
 
 ### Problem: Plugin changes are not taking effect
@@ -157,7 +157,7 @@ uds zarf tools kubectl rollout restart deployment/keycloak -n keycloak
 **Solution:** Verify the plugin JAR was built and copied into the image. Check the build output of `uds run dev-build` for any Maven build errors. The plugin JAR should appear in `/opt/keycloak/providers/` inside the container:
 
 ```bash
-uds zarf tools kubectl exec -n keycloak deploy/keycloak -- ls /opt/keycloak/providers/
+uds zarf tools kubectl exec -n keycloak statefulset/keycloak -- ls /opt/keycloak/providers/
 ```
 
 ## Related documentation
