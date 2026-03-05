@@ -3219,13 +3219,15 @@
                 "x509-cert-auth.serialnumber-hex-enabled": "false",
                 "x509-cert-auth.ocsp-fail-open": "${REALM_X509_OCSP_FAIL_OPEN:false}",
                 "x509-cert-auth.regular-expression": "(.*?)(?:$)",
+                "x509-cert-auth-crl-abort-if-non-updated": "${REALM_X509_CRL_ABORT_IF_NON_UPDATED:false}",
                 "x509-cert-auth.certificate-policy-mode": "All",
                 "x509-cert-auth.timestamp-validation-enabled": "true",
                 "x509-cert-auth.mapper-selection": "Custom Attribute Mapper",
-                "x509-cert-auth.crl-relative-path": "crl.pem",
+                "x509-cert-auth.crl-checking-enabled": "${REALM_X509_CRL_CHECKING_ENABLED:false}",
+                "x509-cert-auth.crl-relative-path": "${REALM_X509_CRL_RELATIVE_PATH:crl.pem}",
                 "x509-cert-auth.crldp-checking-enabled": "false",
                 "x509-cert-auth.mapping-source-selection": "Subject's Alternative Name otherName (UPN)",
-                "x509-cert-auth.ocsp-checking-enabled": "true"
+                "x509-cert-auth.ocsp-checking-enabled": "${REALM_X509_OCSP_CHECKING_ENABLED:true}"
             }
         },
         {
