@@ -59,8 +59,8 @@ UDS Core ships with all major authentication flows enabled by default. Use `real
    ```yaml title="uds-bundle.yaml"
    packages:
      - name: core
-       repository: oci://ghcr.io/defenseunicorns/packages/uds/core
-       ref: x.x.x
+       repository: oci://registry.defenseunicorns.com/public/core
+       ref: x.x.x-upstream
        overrides:
          keycloak:
            keycloak:
@@ -111,10 +111,7 @@ Confirm authentication flow changes are applied:
 
 **Check Keycloak authentication flow configuration:**
 
-```bash
-# View realm authentication flow settings in Keycloak admin UI
-# Navigate to: keycloak.<admin_domain> → uds realm → Authentication → Flows
-```
+In the Keycloak admin UI, navigate to `keycloak.<admin_domain>` → **uds** realm → **Authentication** → **Flows** and confirm the expected flow steps are enabled or disabled.
 
 ## Troubleshooting
 

@@ -38,8 +38,8 @@ UDS Core exposes one configurable option for brute-force lockout behavior: `MAX_
    ```yaml title="uds-bundle.yaml"
    packages:
      - name: core
-       repository: oci://ghcr.io/defenseunicorns/packages/uds/core
-       ref: x.x.x
+       repository: oci://registry.defenseunicorns.com/public/core
+       ref: x.x.x-upstream
        overrides:
          keycloak:
            keycloak:
