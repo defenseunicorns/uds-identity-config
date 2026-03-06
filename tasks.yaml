@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.1/tasks/lint.yaml
-  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.1/tasks/setup.yaml
+  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.2/tasks/lint.yaml
+  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.2/tasks/setup.yaml
   - lb-setup: ./tasks/setup.yaml
 
 variables:
@@ -250,16 +250,12 @@ tasks:
       - description: "Cleanup previous runs"
         cmd: |
           rm -rf uds-docs
-      - description: "Clone the docs repo and symlink the docs"
+      - description: "Clone the docs repo and symlink the reference docs"
         cmd: |
           git clone https://github.com/defenseunicorns/uds-docs.git uds-docs
-
-          # Clean up old runs
-          rm -rf uds-docs/src/content/docs/{*,.*} 2>/dev/null || true
-
-          # Symlink all docs folders except dev (not for public docs site)
-          for f in $(pwd)/docs/*; do [ "$(basename "$f")" = "dev" ] && continue; ln -s "$f" uds-docs/src/content/docs/; done
-          ln -s $(pwd)/docs/.c4 uds-docs/src/content/docs/.c4
+          rm -rf uds-docs/src/content/docs/reference uds-docs/src/content/docs/.images
+          # This only symlinks the reference and images folders since these are the only docs we use in the docs site
+          ln -s $(pwd)/docs/reference uds-docs/src/content/docs/reference
           ln -s $(pwd)/docs/.images uds-docs/src/content/docs/.images
       - description: "Start the docs server with npm (this will run until you stop it)"
         cmd: |
