@@ -1965,7 +1965,7 @@
                 "signSpMetadata": "false",
                 "wantAssertionsEncrypted": "false",
                 "sendClientIdOnLogout": "false",
-                "wantAssertionsSigned": "false",
+                "wantAssertionsSigned": "true",
                 "sendIdTokenOnLogout": "true",
                 "postBindingAuthnRequest": "true",
                 "forceAuthn": "false",
