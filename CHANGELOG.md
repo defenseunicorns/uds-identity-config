@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.24.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.24.0...v0.24.1) (2026-03-14)
+
+
+### Miscellaneous
+
+* **deps:** update dependency cypress to v15.12.0 ([#818](https://github.com/defenseunicorns/uds-identity-config/issues/818)) ([385bc8f](https://github.com/defenseunicorns/uds-identity-config/commit/385bc8f54e85d88edc0dd86b6cfba6bdcbd8332b))
+* **deps:** update gha-deps to v20.4.4 ([#816](https://github.com/defenseunicorns/uds-identity-config/issues/816)) ([2ab0f01](https://github.com/defenseunicorns/uds-identity-config/commit/2ab0f01222f5052e0fe476d410f2abfcd34b0f84))
+* **deps:** update plugin-deps to v5.23.0 ([#814](https://github.com/defenseunicorns/uds-identity-config/issues/814)) ([6bbc270](https://github.com/defenseunicorns/uds-identity-config/commit/6bbc270f082817360a081201030b04bfe1acc2b9))
+
 ## [0.24.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.23.0...v0.24.0) (2026-03-06)
 
 
