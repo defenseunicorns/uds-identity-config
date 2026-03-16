@@ -256,6 +256,7 @@ overrides:
             SSO_SESSION_MAX_LIFESPAN: 36000
             SSO_SESSION_MAX_PER_USER: 10
             MAX_TEMPORARY_LOCKOUTS: 3
+            DISPLAY_NAME: "Unicorn Delivery Service"
         - path: realmAuthFlows
           value:
             USERNAME_PASSWORD_AUTH_ENABLED: true
@@ -267,6 +268,7 @@ overrides:
         - path: themeCustomizations.settings
           value:
             enableRegistrationFields: true
+            realmDisplayName: "Unicorn Delivery Service"
         - path: realmConfig.maxInFlightLoginsPerUser
           value: 10
 ```
@@ -292,6 +294,7 @@ overrides:
 | MAX_TEMPORARY_LOCKOUTS                         | 0                                                                                                                                                                                                    | Number of temporary lockouts that occur before a permanent lockout.    |
 | SECURITY_HARDENING_ADDITIONAL_PROTOCOL_MAPPERS | unset                                                                                                                                                                                                | Additional Protocol Mappers added to the allow list for UDS hardening. |
 | SECURITY_HARDENING_ADDITIONAL_CLIENT_SCOPES    | unset                                                                                                                                                                                                | Additional Client Scopes added to the allow list for UDS hardening.    |
+| DISPLAY_NAME    | Unicorn Delivery Service                                                                                                                                                                                              | The display name for the realm.    |
 
 :::note
 **Important**: By allowing certificates to pass when no revocation check is performed, you accept the **risk** of potentially allowing revoked certificates to authenticate. This can pose a significant security threat depending on your organization’s compliance requirements and threat model.

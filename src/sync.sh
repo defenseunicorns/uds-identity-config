@@ -69,6 +69,7 @@ fi
     echo "ENABLE_REGISTRATION_ACCESS_REQUEST_NOTES=${ENABLE_REGISTRATION_ACCESS_REQUEST_NOTES:-false}"
     echo "WEBAUTHN_ENABLED=${WEBAUTHN_ENABLED}"
     echo "X509_MFA_ENABLED=${X509_MFA_ENABLED}"
+    echo "OVERRIDE_REALM_DISPLAY_NAME=${OVERRIDE_REALM_DISPLAY_NAME}"
 } >> /opt/keycloak/themes/theme/login/theme.properties
 
 echo "Sync complete"

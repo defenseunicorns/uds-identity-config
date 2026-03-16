@@ -1,7 +1,7 @@
 {
     "id": "uds",
     "realm": "uds",
-    "displayName": "Unicorn Delivery Service",
+    "displayName": "${REALM_DISPLAY_NAME:Unicorn Delivery Service}",
     "displayNameHtml": "Identity Service",
     "notBefore": 0,
     "defaultSignatureAlgorithm": "RS256",
