@@ -13,7 +13,11 @@
         </#list>
     </#if>
     <title>
+<#if properties["OVERRIDE_REALM_DISPLAY_NAME"]?has_content>
+${msg("loginTitle",(properties["OVERRIDE_REALM_DISPLAY_NAME"]!''))}
+<#else>
 ${msg("loginTitle",(realm.displayName!''))}
+</#if>
 </title>
     <link rel="icon" href="${url.resourcesPath}/img/favicon.png" />
     <#if properties.styles?has_content>
