@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.25.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.24.0...v0.25.0) (2026-03-19)
+
+
+### Features
+
+* add override for keycloak display name ([#820](https://github.com/defenseunicorns/uds-identity-config/issues/820)) ([5a3a457](https://github.com/defenseunicorns/uds-identity-config/commit/5a3a457a8086596a696554925856fcc8274f2909))
+
+
+### Miscellaneous
+
+* **deps:** update dependency cypress to v15.12.0 ([#818](https://github.com/defenseunicorns/uds-identity-config/issues/818)) ([385bc8f](https://github.com/defenseunicorns/uds-identity-config/commit/385bc8f54e85d88edc0dd86b6cfba6bdcbd8332b))
+* **deps:** update gha-deps to v20.4.4 ([#816](https://github.com/defenseunicorns/uds-identity-config/issues/816)) ([2ab0f01](https://github.com/defenseunicorns/uds-identity-config/commit/2ab0f01222f5052e0fe476d410f2abfcd34b0f84))
+* **deps:** update gha-deps to v20.5.0 ([#819](https://github.com/defenseunicorns/uds-identity-config/issues/819)) ([1fbf2bb](https://github.com/defenseunicorns/uds-identity-config/commit/1fbf2bb286616acebc3a5374ded9f9848ef2c0b5))
+* **deps:** update opentofu/setup-opentofu action to v2 ([#821](https://github.com/defenseunicorns/uds-identity-config/issues/821)) ([f808875](https://github.com/defenseunicorns/uds-identity-config/commit/f808875c89e93743304f62f4701eae8754085f7e))
+* **deps:** update plugin-deps to v5.23.0 ([#814](https://github.com/defenseunicorns/uds-identity-config/issues/814)) ([6bbc270](https://github.com/defenseunicorns/uds-identity-config/commit/6bbc270f082817360a081201030b04bfe1acc2b9))
+
 ## [0.24.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.23.0...v0.24.0) (2026-03-06)
 
 
