@@ -2209,7 +2209,7 @@
                             "subComponents": {},
                             "config": {
                                 "uses": ["disable-user"],
-                                "after": ["${ACCOUNT_INACTIVITY_DAYS:35}d"],
+                                "after": ["${REALM_ACCOUNT_INACTIVITY_DAYS:35}d"],
                                 "priority": ["0"]
                             }
                         }
@@ -2218,7 +2218,7 @@
                 "config": {
                     "name": ["disable-inactive-users"],
                     "on": ["user-authenticated"],
-                    "enabled": ["${ACCOUNT_INACTIVITY_DAYS_ENABLED:false}"],
+                    "enabled": ["${REALM_ACCOUNT_INACTIVITY_DAYS_ENABLED:false}"],
                     "restart-in-progress": ["true"],
                     "supports": ["USERS"],
                     "conditions": ["NOT has-role(\"realm-management/realm-admin\")"]
