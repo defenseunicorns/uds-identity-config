@@ -52,6 +52,11 @@ declare namespace Cypress {
     deleteUserByUsername(username: string): Chainable;
 
     /**
+     * Creates a Kubernetes service account token for signed JWT authentication.
+     */
+    getServiceAccountToken(namespace: string, serviceAccount: string): Chainable<string>;
+
+    /**
      * Retrieve and base64-decode a value from a Kubernetes Secret by key.
      * The "key" parameter is required and must be non-empty.
      */

@@ -279,6 +279,19 @@ Cypress.Commands.add("getValueFromSecret", (namespace: string, secretName: strin
   });
 });
 /**
+ * Creates a Kubernetes service account token for signed JWT authentication.
+ * Uses `kubectl create token` to generate a short-lived token for the given service account.
+ */
+Cypress.Commands.add("getServiceAccountToken", (namespace: string, serviceAccount: string) => {
+  return cy.exec(`uds zarf tools kubectl create token ${serviceAccount} -n ${namespace} --audience=https://keycloak.admin.uds.dev/realms/uds`).then((result) => {
+    expect(result.exitCode).to.eq(0, `Failed to create token for service account ${serviceAccount} in namespace ${namespace}`);
+    const token = result.stdout.trim();
+    expect(token).to.be.a('string').and.not.be.empty;
+    return token;
+  });
+});
+
+/**
  * Delete a Keycloak user by username using the Admin API. This command is idempotent:
  * it will not fail the test if the user does not exist.
  */

@@ -8,21 +8,43 @@ describe("Tofu Client Management", () => {
     const testRedirectUri = "https://example.com/*";
     const tfDir = "./test-tf";
     const tofuClientName = "uds-opentofu-client";
+    const serviceAccountName = "uds-opentofu-client";
+    const serviceAccountNamespace = "keycloak";
 
-    let credentials: { accessToken: string; clientSecret: string } | null = null;
+    let keycloakAccessToken: string | null = null;
 
     before(() => {
-        // Get credentials once
-        return cy.getClientSecret(tofuClientName).then((creds) => {
-            credentials = creds;
+        // Create a dedicated Kubernetes service account for OpenTofu
+        cy.exec(`uds zarf tools kubectl create serviceaccount ${serviceAccountName} -n ${serviceAccountNamespace} --dry-run=client -o yaml | uds zarf tools kubectl apply -f -`);
 
-            // Create test OpenTofu configuration
-            const tfConfig = `
+        // Get a signed JWT from the service account and exchange it for a Keycloak access token
+        // via the federated-jwt flow. The Keycloak provider uses jwt_token which sends client_id
+        // alongside the assertion, but the federated-jwt authenticator requires sub == client_id.
+        // To work around this, we exchange the SA token for a Keycloak access token first.
+        return cy.getServiceAccountToken(serviceAccountNamespace, serviceAccountName).then((saToken) => {
+            return cy.request({
+                method: 'POST',
+                url: 'https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                form: true,
+                body: {
+                    grant_type: 'client_credentials',
+                    client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                    client_assertion: saToken,
+                },
+                failOnStatusCode: false,
+            }).then((response) => {
+                expect(response.status).to.eq(200, 'Signed JWT authentication should succeed');
+                keycloakAccessToken = response.body.access_token;
+                expect(keycloakAccessToken).to.be.a('string').and.not.be.empty;
+
+                // Create test OpenTofu configuration
+                const tfConfig = `
               terraform {
                 required_providers {
                   keycloak = {
                     source  = "keycloak/keycloak"
-                    version = "5.5.0"
+                    version = "5.7.0"
                   }
                 }
                 required_version = ">= 1.0.0"
@@ -30,7 +52,7 @@ describe("Tofu Client Management", () => {
 
               provider "keycloak" {
                 client_id     = "${tofuClientName}"
-                client_secret = var.keycloak_client_secret
+                access_token  = var.keycloak_access_token
                 url           = "https://keycloak.admin.uds.dev"
                 realm         = "uds"
               }
@@ -51,43 +73,44 @@ describe("Tofu Client Management", () => {
                 ]
               }
 
-              variable "keycloak_client_secret" {
+              variable "keycloak_access_token" {
                 type        = string
-                description = "Client secret for the Keycloak provider"
+                description = "Keycloak access token obtained via signed JWT authentication"
                 sensitive   = true
               }
             `;
 
-            // Create directory and write the single OpenTofu file
-            cy.exec(`mkdir -p ${tfDir}`);
-            cy.writeFile(`${tfDir}/main.tf`, tfConfig);
+                // Create directory and write the single OpenTofu file
+                cy.exec(`mkdir -p ${tfDir}`);
+                cy.writeFile(`${tfDir}/main.tf`, tfConfig);
+            });
         });
     });
 
     after(() => {
-        if (!credentials) return;
+        if (!keycloakAccessToken) return;
 
-        const { accessToken, clientSecret } = credentials;
-
-        // Run OpenTofu destroy with the client secret
-        cy.exec(`cd ${tfDir} && tofu destroy -auto-approve -var="keycloak_client_secret=${clientSecret}"`, {
+        // Run OpenTofu destroy
+        cy.exec(`cd ${tfDir} && tofu destroy -auto-approve -var="keycloak_access_token=${keycloakAccessToken}"`, {
             failOnNonZeroExit: false
         }).then((result) => {
             expect(result.exitCode).to.eq(0, "OpenTofu destroy should succeed");
         });
 
         // Verify client is deleted
-        cy.request({
-            method: 'GET',
-            url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${testClientId}`,
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            failOnStatusCode: false
-        }).then((response) => {
-            const client = response.body.find((c: any) => c.clientId === testClientId);
-            expect(client).to.be.undefined;
+        cy.getAccessToken('KEYCLOAK_ADMIN').then((adminToken) => {
+            cy.request({
+                method: 'GET',
+                url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${testClientId}`,
+                headers: {
+                    'Authorization': `Bearer ${adminToken}`,
+                    'Content-Type': 'application/json'
+                },
+                failOnStatusCode: false
+            }).then((response) => {
+                const client = response.body.find((c: any) => c.clientId === testClientId);
+                expect(client).to.be.undefined;
+            });
         });
 
         // Clean up test directory
@@ -95,45 +118,25 @@ describe("Tofu Client Management", () => {
     });
 
     it("should apply OpenTofu configuration", () => {
-        if (!credentials) throw new Error('Credentials not initialized');
-
-        const { clientSecret, accessToken } = credentials;
-
-        // First, verify the access token is valid
-        cy.request({
-            method: 'GET',
-            url: 'https://keycloak.admin.uds.dev/admin/realms/uds/clients',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            failOnStatusCode: false
-        }).then((authCheck) => {
-            if (authCheck.status === 401) {
-                throw new Error('Access token is invalid or expired. Please refresh your credentials.');
-            }
-            expect(authCheck.status).to.eq(200, 'Keycloak API should be accessible with current credentials');
-        });
+        if (!keycloakAccessToken) throw new Error('Access token not initialized');
 
         // Initialize OpenTofu
         cy.exec(`cd ${tfDir} && tofu init`, {
             failOnNonZeroExit: false
         }).then(() => {
-            // Apply OpenTofu with detailed logging
+            // Apply OpenTofu with the Keycloak access token
             return cy.exec(
                 `cd ${tfDir} && tofu apply -auto-approve ` +
-                `-var="keycloak_client_secret=${clientSecret}" ` +
+                `-var="keycloak_access_token=${keycloakAccessToken}" ` +
                 '-no-color -input=false -json',
                 { failOnNonZeroExit: false }
             ).then((applyResult) => {
                 if (applyResult.exitCode !== 0) {
-                    // Try to parse JSON output if available
                     let errorDetails = applyResult.stderr;
                     try {
                         const jsonOutput = JSON.parse(applyResult.stdout);
                         errorDetails = JSON.stringify(jsonOutput, null, 2);
                     } catch (e) {
-                        // If JSON parsing fails, use the original error
                         errorDetails = applyResult.stderr || applyResult.stdout;
                     }
 
@@ -147,61 +150,45 @@ describe("Tofu Client Management", () => {
     });
 
     it("should verify client creation in Keycloak", () => {
-        if (!credentials) throw new Error('Credentials not initialized');
+        cy.getAccessToken('KEYCLOAK_ADMIN').then((accessToken) => {
+            cy.request({
+                method: 'GET',
+                url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${testClientId}`,
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            }).then((response) => {
+                expect(response.status).to.eq(200);
+                const client = response.body.find((c: any) => c.clientId === testClientId);
+                expect(client).to.exist;
 
-        const { accessToken } = credentials;
-
-        // Get client details
-        cy.request({
-            method: 'GET',
-            url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${testClientId}`,
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => {
-            expect(response.status).to.eq(200);
-            const client = response.body.find((c: any) => c.clientId === testClientId);
-            expect(client).to.exist;
-
-            // Verify client configuration
-            expect(client.enabled).to.be.true;
-            expect(client.standardFlowEnabled).to.be.true;
-            expect(client.directAccessGrantsEnabled).to.be.true;
-            expect(client.redirectUris).to.include(testRedirectUri);
+                expect(client.enabled).to.be.true;
+                expect(client.standardFlowEnabled).to.be.true;
+                expect(client.directAccessGrantsEnabled).to.be.true;
+                expect(client.redirectUris).to.include(testRedirectUri);
+            });
         });
     });
 
-    it("should fail with invalid client secret", () => {
-        const invalidSecret = 'invalid-secret-123';
-        const tempDir = "./test-temp-invalid-secret";
+    it("should fail with invalid JWT token", () => {
+        const invalidToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.invalid.signature';
+        const tempDir = "./test-temp-invalid-jwt";
 
-        // Create a clean directory for this test
         cy.exec(`mkdir -p ${tempDir}`);
-
-        // Copy the main.tf file to the temp directory
         cy.exec(`cp ${tfDir}/main.tf ${tempDir}/`);
 
-        // Initialize OpenTofu
         return cy.exec(`cd ${tempDir} && tofu init`, {
             failOnNonZeroExit: false
         }).then(() => {
-            // Apply OpenTofu with invalid secret
             return cy.exec(
-                `cd ${tempDir} && tofu apply -auto-approve -var="keycloak_client_secret=${invalidSecret}"`,
+                `cd ${tempDir} && tofu apply -auto-approve -var="keycloak_access_token=${invalidToken}"`,
                 { failOnNonZeroExit: false }
             );
         }).then((result) => {
-            // Log the error for debugging
             cy.log('OpenTofu apply result:', result);
-
-            // Should fail with non-zero exit code
             expect(result.exitCode).not.to.eq(0);
-
-            // Check for specific error message
             expect(result.stderr).to.include('401');
-
-            // Clean up
             return cy.exec(`rm -rf ${tempDir}`);
         });
     });
@@ -212,19 +199,18 @@ describe("Tofu Client Management", () => {
                 required_providers {
                     keycloak = {
                         source  = "keycloak/keycloak"
-                        version = "5.5.0"
+                        version = "5.7.0"
                     }
                 }
             }
 
             provider "keycloak" {
                 client_id     = "unauthorized-client"
-                client_secret = "invalid-secret"  # Using hardcoded invalid secret
+                access_token  = "invalid-token"
                 url           = "https://keycloak.admin.uds.dev"
                 realm         = "uds"
             }
 
-            # Add a minimal resource to validate the configuration
             resource "keycloak_openid_client" "test" {
                 realm_id    = "uds"
                 client_id   = "test-unauthorized-client"
@@ -234,32 +220,22 @@ describe("Tofu Client Management", () => {
             }
         `;
 
-        // Write the invalid config to a temporary file
         const tempDir = "./test-tf-unauthorized";
         cy.exec(`mkdir -p ${tempDir}`);
         cy.writeFile(`${tempDir}/main.tf`, unauthorizedConfig);
 
-        // Initialize OpenTofu
         return cy.exec(`cd ${tempDir} && tofu init`, { failOnNonZeroExit: false })
             .then(() => {
-                // Try to apply with invalid client
                 return cy.exec(
                     `cd ${tempDir} && tofu apply -auto-approve`,
                     { failOnNonZeroExit: false }
                 );
             })
             .then((result) => {
-                // Log the full error for debugging
                 cy.log('OpenTofu apply result:', result);
-
-                // Should fail with non-zero exit code
                 expect(result.exitCode).not.to.eq(0);
-
-                // Check for unauthorized error (401 or 403)
                 const errorOutput = result.stderr + result.stdout;
                 expect(errorOutput).to.match(/401 Unauthorized|403 Forbidden/);
-
-                // Clean up
                 return cy.exec(`rm -rf ${tempDir}`);
             });
     });

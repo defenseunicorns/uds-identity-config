@@ -129,8 +129,10 @@ tasks:
   - name: clone-core
     description: "Clone UDS Core for integration testing"
     actions:
-      - cmd: rm -rf uds-core
-      - cmd: git clone --branch main https://github.com/defenseunicorns/uds-core.git
+      # Commented out to prevent overriding local uds-core changes during development
+      # - cmd: rm -rf uds-core
+      # - cmd: git clone --branch sebastianlaskawiec/core-153-use-signed-jwts-for-the-tofu-client https://github.com/defenseunicorns/uds-core.git
+      - cmd: echo "Using local uds-core directory (clone disabled for development)"
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
