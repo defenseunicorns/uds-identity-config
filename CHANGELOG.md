@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.26.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.25.0...v0.26.0) (2026-04-13)
+
+
+### Features
+
+* inactive user disabled account workflow ([#828](https://github.com/defenseunicorns/uds-identity-config/issues/828)) ([040352d](https://github.com/defenseunicorns/uds-identity-config/commit/040352db0af259b4c880ebebe483aa2b0cb873be))
+* signed jwts for the uds operator ([#830](https://github.com/defenseunicorns/uds-identity-config/issues/830)) ([e158d15](https://github.com/defenseunicorns/uds-identity-config/commit/e158d15694ac0fb4c44fedb3cd41642a8b615aff))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.5.6 ([#822](https://github.com/defenseunicorns/uds-identity-config/issues/822)) ([e26b9e2](https://github.com/defenseunicorns/uds-identity-config/commit/e26b9e2610fbdd0d7c279a73ff6c7dfaa18091cf))
+* **deps:** update plugin-deps to v26.5.7 ([#827](https://github.com/defenseunicorns/uds-identity-config/issues/827)) ([55bee5b](https://github.com/defenseunicorns/uds-identity-config/commit/55bee5bb92c27b092379e006527313e43f91a168))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#823](https://github.com/defenseunicorns/uds-identity-config/issues/823)) ([46351e4](https://github.com/defenseunicorns/uds-identity-config/commit/46351e40f656fc53b00a2be1553f983ec2f562f9))
+* **deps:** update all dependencies ([#831](https://github.com/defenseunicorns/uds-identity-config/issues/831)) ([3442178](https://github.com/defenseunicorns/uds-identity-config/commit/3442178b75316229769565952a439a23b0f81726))
+* **deps:** update dependency defenseunicorns/uds-cli to v0.30.0 ([#824](https://github.com/defenseunicorns/uds-identity-config/issues/824)) ([6017c7b](https://github.com/defenseunicorns/uds-identity-config/commit/6017c7b6cf0380509b0b9c73eb3383a7db9123dc))
+* **deps:** update dependency defenseunicorns/uds-cli to v0.30.2 ([#832](https://github.com/defenseunicorns/uds-identity-config/issues/832)) ([2b39e0d](https://github.com/defenseunicorns/uds-identity-config/commit/2b39e0da3b995c0662e503129174490c85bffa22))
+* **docs:** remove migrated docs and add migration link dev doc ([#825](https://github.com/defenseunicorns/uds-identity-config/issues/825)) ([25a87a6](https://github.com/defenseunicorns/uds-identity-config/commit/25a87a680b940c4ce118da1ee98b06a607194343))
+
 ## [0.25.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.24.0...v0.25.0) (2026-03-19)
 
 
