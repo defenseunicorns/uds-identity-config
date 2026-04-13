@@ -2210,6 +2210,36 @@
                     ]
                 }
             }
+        ],
+        "org.keycloak.models.workflow.WorkflowProvider": [
+            {
+                "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                "name": "disable-inactive-users",
+                "providerId": "default",
+                "subComponents": {
+                    "org.keycloak.models.workflow.WorkflowStepProvider": [
+                        {
+                            "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                            "name": "disable-user-step",
+                            "providerId": "disable-user",
+                            "subComponents": {},
+                            "config": {
+                                "uses": ["disable-user"],
+                                "after": ["${REALM_ACCOUNT_INACTIVITY_DAYS:35}d"],
+                                "priority": ["0"]
+                            }
+                        }
+                    ]
+                },
+                "config": {
+                    "name": ["disable-inactive-users"],
+                    "on": ["user-authenticated"],
+                    "enabled": ["${REALM_ACCOUNT_INACTIVITY_DAYS_ENABLED:false}"],
+                    "restart-in-progress": ["true"],
+                    "supports": ["USERS"],
+                    "conditions": ["NOT has-role(\"realm-management/realm-admin\")"]
+                }
+            }
         ]
     },
     "internationalizationEnabled": false,
