@@ -106,7 +106,7 @@ public class UDSClientAssertionStrategy implements ClientAssertionStrategy {
                 }
                 return null;
             })
-            .filter(r -> r != null)
+            .filter(Objects::nonNull)
             .findFirst()
             .orElse(null);
     }
