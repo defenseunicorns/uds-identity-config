@@ -81,7 +81,7 @@ public class UDSKubernetesJwksEndpointLoader implements PublicKeyLoader {
         }
 
         // Forwarding a token along with the request is safe here. The Kubernetes API Server issuer is configured at the
-        // bootstrap time with the `--oidc-*` flags. So a successful attack would require controling these flags
+        // bootstrap time with the `--oidc-*` flags. So a successful attack would require controlling these flags
         // and if that really happens, it's game over already.
         // So essentially - we're not sacrificing any security here.
         SimpleHttpRequest jwksRequest = simpleHttp.doGet(jwksUri).header(HttpHeaders.ACCEPT, "application/jwk-set+json");
