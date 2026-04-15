@@ -882,7 +882,7 @@
                 "use.jwks.url": "false",
                 "backchannel.logout.revoke.offline.tokens": "false",
                 "jwt.credential.sub": "system:serviceaccount:pepr-system:pepr-uds-core",
-                "jwt.credential.issuer": "kubernetes"
+                "jwt.credential.issuer": "uds"
             },
             "fullScopeAllowed": true
         },
@@ -1937,9 +1937,9 @@
     "adminEventsDetailsEnabled": true,
     "identityProviders": [
         {
-            "alias": "kubernetes",
+            "alias": "uds",
             "internalId": "31314c45-48d0-4bdf-8710-ce16073ded30",
-            "providerId": "kubernetes",
+            "providerId": "uds-kubernetes",
             "enabled": true,
             "hideOnLogin": true,
             "config": {
