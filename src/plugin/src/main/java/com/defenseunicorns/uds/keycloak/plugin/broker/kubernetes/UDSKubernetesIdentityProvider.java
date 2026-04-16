@@ -8,8 +8,11 @@ package com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 
+import jakarta.ws.rs.core.Response;
+import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.ClientAuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.client.AbstractJWTClientValidator;
+import org.keycloak.authentication.authenticators.client.ClientAuthUtil;
 import org.keycloak.broker.kubernetes.KubernetesIdentityProvider;
 import org.keycloak.broker.kubernetes.KubernetesIdentityProviderConfig;
 import org.keycloak.crypto.KeyWrapper;
@@ -25,6 +28,7 @@ import org.keycloak.util.JsonSerialization;
 import com.defenseunicorns.uds.keycloak.plugin.authentication.authenticators.client.UDSFederatedJWTClientValidator;
 
 import org.keycloak.http.simple.SimpleHttp;
+import org.keycloak.http.simple.SimpleHttpResponse;
 
 import org.jboss.logging.Logger;
 
@@ -95,6 +99,11 @@ public class UDSKubernetesIdentityProvider extends KubernetesIdentityProvider {
     @Override
     public boolean verifyClientAssertion(ClientAuthenticationFlowContext context) throws Exception {
         String discoveredIssuer = discoverIssuer(config.getIssuer());
+        if (discoveredIssuer == null) {
+            Response challengeResponse = ClientAuthUtil.errorResponse(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "server_error", "Failed to discover OIDC issuer from Kubernetes API server");
+            context.failure(AuthenticationFlowError.INTERNAL_ERROR, challengeResponse);
+            return false;
+        }
 
         UDSFederatedJWTClientValidator validator = new UDSFederatedJWTClientValidator(
             context, this::verifySignature, discoveredIssuer, config.getAllowedClockSkew(), true
@@ -124,6 +133,11 @@ public class UDSKubernetesIdentityProvider extends KubernetesIdentityProvider {
         }
 
         String discovered = fetchIssuerFromOidc(kubeApiServerUrl);
+        if (discovered == null) {
+            // Discovery failed -- don't cache, fail the request and let the client retry.
+            // We don't want any fallback in this case as it may produce inconsistent results.
+            return null;
+        }
         // putIfAbsent is atomic -- if another thread raced us, use their result
         String existing = ISSUER_CACHE.putIfAbsent(kubeApiServerUrl, discovered);
         return existing != null ? existing : discovered;
@@ -137,31 +151,39 @@ public class UDSKubernetesIdentityProvider extends KubernetesIdentityProvider {
             SimpleHttp simpleHttp = SimpleHttp.create(session);
             var request = simpleHttp.doGet(wellKnownEndpoint).acceptJson();
             if (saToken != null) {
-                request.header("Authorization", "Bearer " + saToken);
+                request.auth(saToken);
             }
 
-            OIDCConfigurationRepresentation oidcConfig = JsonSerialization.readValue(
-                request.asString(), OIDCConfigurationRepresentation.class);
-            String discoveredIssuer = oidcConfig.getIssuer();
+            try (SimpleHttpResponse response = request.asResponse()) {
+                int status = response.getStatus();
+                if (status < 200 || status >= 300) {
+                    LOGGER.errorf("OIDC discovery from '%s' returned HTTP %d",
+                        wellKnownEndpoint, status);
+                    return null;
+                }
 
-            if (discoveredIssuer == null || discoveredIssuer.isEmpty()) {
-                LOGGER.errorf("OIDC discovery from '%s' returned empty issuer, falling back to '%s'",
-                    wellKnownEndpoint, kubeApiServerUrl);
-                return kubeApiServerUrl;
+                OIDCConfigurationRepresentation oidcConfig = JsonSerialization.readValue(
+                    response.asString(), OIDCConfigurationRepresentation.class);
+                String discoveredIssuer = oidcConfig.getIssuer();
+
+                if (discoveredIssuer == null || discoveredIssuer.isEmpty()) {
+                    LOGGER.errorf("OIDC discovery from '%s' returned empty issuer",
+                        wellKnownEndpoint);
+                    return null;
+                }
+
+                if (!discoveredIssuer.startsWith("https://")) {
+                    LOGGER.errorf("OIDC discovery from '%s' returned non-HTTPS issuer '%s'",
+                        wellKnownEndpoint, discoveredIssuer);
+                    return null;
+                }
+
+                LOGGER.infof("Discovered OIDC issuer '%s' for K8s API server '%s'", discoveredIssuer, kubeApiServerUrl);
+                return discoveredIssuer;
             }
-
-            if (!discoveredIssuer.startsWith("https://")) {
-                LOGGER.errorf("OIDC discovery from '%s' returned non-HTTPS issuer '%s', falling back to '%s'",
-                    wellKnownEndpoint, discoveredIssuer, kubeApiServerUrl);
-                return kubeApiServerUrl;
-            }
-
-            LOGGER.debugf("Discovered OIDC issuer '%s' for K8s API server '%s'", discoveredIssuer, kubeApiServerUrl);
-            return discoveredIssuer;
         } catch (Exception e) {
-            LOGGER.errorf(e, "Failed to discover OIDC issuer from '%s', falling back to '%s'",
-                wellKnownEndpoint, kubeApiServerUrl);
-            return kubeApiServerUrl;
+            LOGGER.errorf(e, "Failed to discover OIDC issuer from '%s'", wellKnownEndpoint);
+            return null;
         }
     }
 

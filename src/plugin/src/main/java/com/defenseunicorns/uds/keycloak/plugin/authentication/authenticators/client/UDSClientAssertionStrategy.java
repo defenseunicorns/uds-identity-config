@@ -17,6 +17,8 @@ import org.keycloak.models.IdentityProviderModel;
 
 import com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes.UDSKubernetesIdentityProviderFactory;
 
+import java.util.Objects;
+
 import org.jboss.logging.Logger;
 
 /**

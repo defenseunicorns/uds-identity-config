@@ -98,4 +98,65 @@ public class UDSKubernetesJwksEndpointLoaderTest {
             assertTrue(ex.getMessage().contains("returned no jwks_uri"));
         }
     }
+
+    @Test
+    void testLoadKeysThrowsOnEmptyJwksUri() throws Exception {
+        UDSKubernetesJwksEndpointLoader loader = new UDSKubernetesJwksEndpointLoader(session, ISSUER);
+
+        try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class);
+             MockedStatic<KubernetesUtils> kubeUtilsMock = mockStatic(KubernetesUtils.class)) {
+
+            kubeUtilsMock.when(KubernetesUtils::readServiceAccountToken).thenReturn(SA_TOKEN);
+
+            SimpleHttp mockHttp = mock(SimpleHttp.class);
+            simpleHttpMock.when(() -> SimpleHttp.create(session)).thenReturn(mockHttp);
+
+            SimpleHttpRequest wellKnownRequest = mock(SimpleHttpRequest.class);
+            OIDCConfigurationRepresentation oidcConfig = new OIDCConfigurationRepresentation();
+            oidcConfig.setJwksUri("");
+
+            when(mockHttp.doGet(WELL_KNOWN)).thenReturn(wellKnownRequest);
+            when(wellKnownRequest.acceptJson()).thenReturn(wellKnownRequest);
+            when(wellKnownRequest.asJson(OIDCConfigurationRepresentation.class)).thenReturn(oidcConfig);
+
+            IllegalStateException ex = assertThrows(IllegalStateException.class, loader::loadKeys);
+            assertTrue(ex.getMessage().contains("returned no jwks_uri"));
+        }
+    }
+
+    @Test
+    void testLoadKeysSkipsAuthWhenNoSaToken() throws Exception {
+        UDSKubernetesJwksEndpointLoader loader = new UDSKubernetesJwksEndpointLoader(session, ISSUER);
+
+        try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class);
+             MockedStatic<KubernetesUtils> kubeUtilsMock = mockStatic(KubernetesUtils.class)) {
+
+            kubeUtilsMock.when(KubernetesUtils::readServiceAccountToken).thenReturn(null);
+
+            SimpleHttp mockHttp = mock(SimpleHttp.class);
+            simpleHttpMock.when(() -> SimpleHttp.create(session)).thenReturn(mockHttp);
+
+            SimpleHttpRequest wellKnownRequest = mock(SimpleHttpRequest.class);
+            OIDCConfigurationRepresentation oidcConfig = new OIDCConfigurationRepresentation();
+            oidcConfig.setJwksUri(JWKS_URI);
+
+            when(mockHttp.doGet(WELL_KNOWN)).thenReturn(wellKnownRequest);
+            when(wellKnownRequest.acceptJson()).thenReturn(wellKnownRequest);
+            when(wellKnownRequest.asJson(OIDCConfigurationRepresentation.class)).thenReturn(oidcConfig);
+
+            SimpleHttpRequest jwksRequest = mock(SimpleHttpRequest.class);
+            JSONWebKeySet jwks = new JSONWebKeySet();
+            jwks.setKeys(new JWK[0]);
+
+            when(mockHttp.doGet(JWKS_URI)).thenReturn(jwksRequest);
+            when(jwksRequest.header(anyString(), anyString())).thenReturn(jwksRequest);
+            when(jwksRequest.asJson(JSONWebKeySet.class)).thenReturn(jwks);
+
+            PublicKeysWrapper result = loader.loadKeys();
+
+            assertNotNull(result);
+            verify(wellKnownRequest, never()).auth(anyString());
+            verify(jwksRequest, never()).auth(anyString());
+        }
+    }
 }

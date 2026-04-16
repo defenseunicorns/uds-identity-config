@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.broker.kubernetes.KubernetesIdentityProviderConfig;
 import org.keycloak.http.simple.SimpleHttp;
 import org.keycloak.http.simple.SimpleHttpRequest;
+import org.keycloak.http.simple.SimpleHttpResponse;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
 import org.mockito.Mock;
@@ -54,7 +55,7 @@ public class UDSKubernetesIdentityProviderTest {
     @Test
     void testDiscoverIssuerReturnsDiscoveredIssuer() throws Exception {
         try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class)) {
-            setupMockOidcDiscovery(simpleHttpMock, "{\"issuer\":\"" + EKS_ISSUER + "\"}");
+            setupMockOidcDiscovery(simpleHttpMock, 200, "{\"issuer\":\"" + EKS_ISSUER + "\"}");
 
             String result = provider.discoverIssuer(K8S_ISSUER);
 
@@ -65,7 +66,7 @@ public class UDSKubernetesIdentityProviderTest {
     @Test
     void testDiscoverIssuerCachesResult() throws Exception {
         try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class)) {
-            SimpleHttp mockHttp = setupMockOidcDiscovery(simpleHttpMock, "{\"issuer\":\"" + EKS_ISSUER + "\"}");
+            SimpleHttp mockHttp = setupMockOidcDiscovery(simpleHttpMock, 200, "{\"issuer\":\"" + EKS_ISSUER + "\"}");
 
             String result1 = provider.discoverIssuer(K8S_ISSUER);
             assertEquals(EKS_ISSUER, result1);
@@ -79,7 +80,7 @@ public class UDSKubernetesIdentityProviderTest {
     }
 
     @Test
-    void testDiscoverIssuerFallsBackOnFailure() {
+    void testDiscoverIssuerReturnsNullOnConnectionFailure() {
         try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class)) {
             SimpleHttp mockHttp = mock(SimpleHttp.class);
             simpleHttpMock.when(() -> SimpleHttp.create(session)).thenReturn(mockHttp);
@@ -87,57 +88,123 @@ public class UDSKubernetesIdentityProviderTest {
 
             String result = provider.discoverIssuer(K8S_ISSUER);
 
-            assertEquals(K8S_ISSUER, result);
+            assertNull(result);
+        }
+    }
+
+    @Test
+    void testDiscoverIssuerDoesNotCacheOnFailure() throws Exception {
+        try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class)) {
+            // First call: simulate a connection failure
+            SimpleHttp mockHttp = mock(SimpleHttp.class);
+            simpleHttpMock.when(() -> SimpleHttp.create(session)).thenReturn(mockHttp);
+            when(mockHttp.doGet(anyString())).thenThrow(new RuntimeException("Connection refused"));
+
+            String result1 = provider.discoverIssuer(K8S_ISSUER);
+            assertNull(result1, "Should return null on failure");
+
+            // Second call: simulate a successful discovery
+            reset(mockHttp);
+            SimpleHttpRequest mockRequest = mock(SimpleHttpRequest.class);
+            SimpleHttpResponse mockResponse = mock(SimpleHttpResponse.class);
+
+            when(mockHttp.doGet(anyString())).thenReturn(mockRequest);
+            when(mockRequest.acceptJson()).thenReturn(mockRequest);
+            when(mockRequest.auth(anyString())).thenReturn(mockRequest);
+            when(mockRequest.asResponse()).thenReturn(mockResponse);
+            when(mockResponse.getStatus()).thenReturn(200);
+            when(mockResponse.asString()).thenReturn("{\"issuer\":\"" + EKS_ISSUER + "\"}");
+
+            String result2 = provider.discoverIssuer(K8S_ISSUER);
+            assertEquals(EKS_ISSUER, result2, "Should discover after transient failure");
+        }
+    }
+
+    @Test
+    void testDiscoverIssuerReturnsNullOnNon2xxStatus() throws Exception {
+        try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class)) {
+            setupMockOidcDiscovery(simpleHttpMock, 401, "Unauthorized");
+
+            String result = provider.discoverIssuer(K8S_ISSUER);
+
+            assertNull(result);
+        }
+    }
+
+    @Test
+    void testDiscoverIssuerDoesNotCacheOnNon2xxStatus() throws Exception {
+        try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class)) {
+            // First call: 401
+            SimpleHttp mockHttp = setupMockOidcDiscovery(simpleHttpMock, 401, "Unauthorized");
+
+            String result1 = provider.discoverIssuer(K8S_ISSUER);
+            assertNull(result1, "Should return null on 401");
+
+            // Second call: reconfigure mock for success
+            reset(mockHttp);
+            SimpleHttpRequest mockRequest = mock(SimpleHttpRequest.class);
+            SimpleHttpResponse mockResponse = mock(SimpleHttpResponse.class);
+
+            when(mockHttp.doGet(anyString())).thenReturn(mockRequest);
+            when(mockRequest.acceptJson()).thenReturn(mockRequest);
+            when(mockRequest.auth(anyString())).thenReturn(mockRequest);
+            when(mockRequest.asResponse()).thenReturn(mockResponse);
+            when(mockResponse.getStatus()).thenReturn(200);
+            when(mockResponse.asString()).thenReturn("{\"issuer\":\"" + EKS_ISSUER + "\"}");
+
+            String result2 = provider.discoverIssuer(K8S_ISSUER);
+            assertEquals(EKS_ISSUER, result2, "Should discover after transient 401");
         }
     }
 
     @Test
     void testDiscoverIssuerRejectsNonHttpsIssuer() throws Exception {
         try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class)) {
-            setupMockOidcDiscovery(simpleHttpMock, "{\"issuer\":\"http://insecure-issuer.example.com\"}");
+            setupMockOidcDiscovery(simpleHttpMock, 200, "{\"issuer\":\"http://insecure-issuer.example.com\"}");
 
             String result = provider.discoverIssuer(K8S_ISSUER);
 
-            assertEquals(K8S_ISSUER, result);
+            assertNull(result);
         }
     }
 
     @Test
     void testDiscoverIssuerRejectsEmptyIssuer() throws Exception {
         try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class)) {
-            setupMockOidcDiscovery(simpleHttpMock, "{\"issuer\":\"\"}");
+            setupMockOidcDiscovery(simpleHttpMock, 200, "{\"issuer\":\"\"}");
 
             String result = provider.discoverIssuer(K8S_ISSUER);
 
-            assertEquals(K8S_ISSUER, result);
+            assertNull(result);
         }
     }
 
     @Test
     void testDiscoverIssuerRejectsNullIssuer() throws Exception {
         try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class)) {
-            setupMockOidcDiscovery(simpleHttpMock, "{\"jwks_uri\":\"https://example.com/keys\"}");
+            setupMockOidcDiscovery(simpleHttpMock, 200, "{\"jwks_uri\":\"https://example.com/keys\"}");
 
             String result = provider.discoverIssuer(K8S_ISSUER);
 
-            assertEquals(K8S_ISSUER, result);
+            assertNull(result);
         }
     }
 
     /**
-     * Sets up mock SimpleHttp to return a raw JSON string from the OIDC discovery endpoint.
-     * The discoverIssuer method uses asString() + JsonSerialization to parse the response,
-     * so we mock the string response rather than asJson().
+     * Sets up mock SimpleHttp to return a response with the given status code and body.
      */
-    private SimpleHttp setupMockOidcDiscovery(MockedStatic<SimpleHttp> simpleHttpMock, String responseBody) throws Exception {
+    private SimpleHttp setupMockOidcDiscovery(MockedStatic<SimpleHttp> simpleHttpMock, int statusCode, String responseBody) throws Exception {
         SimpleHttp mockHttp = mock(SimpleHttp.class);
         SimpleHttpRequest mockRequest = mock(SimpleHttpRequest.class);
+        SimpleHttpResponse mockResponse = mock(SimpleHttpResponse.class);
 
         simpleHttpMock.when(() -> SimpleHttp.create(session)).thenReturn(mockHttp);
         when(mockHttp.doGet(anyString())).thenReturn(mockRequest);
         when(mockRequest.acceptJson()).thenReturn(mockRequest);
-        when(mockRequest.header(anyString(), anyString())).thenReturn(mockRequest);
-        when(mockRequest.asString()).thenReturn(responseBody);
+        when(mockRequest.auth(anyString())).thenReturn(mockRequest);
+        when(mockRequest.asResponse()).thenReturn(mockResponse);
+        when(mockResponse.getStatus()).thenReturn(statusCode);
+        when(mockResponse.asString()).thenReturn(responseBody);
 
         return mockHttp;
     }
