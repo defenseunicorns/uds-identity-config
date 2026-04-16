@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Base64;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.crypto.PublicKeysWrapper;
@@ -31,23 +33,35 @@ public class UDSKubernetesJwksEndpointLoaderTest {
     private static final String ISSUER = "https://kubernetes.default.svc.cluster.local";
     private static final String WELL_KNOWN = ISSUER + "/.well-known/openid-configuration";
     private static final String JWKS_URI = ISSUER + "/openid/v1/jwks";
-    private static final String SA_TOKEN = "my-sa-token";
+    private static final String EKS_ISSUER = "https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLE";
+    private static final String EKS_JWKS_URI = EKS_ISSUER + "/keys";
+
+    /** Builds a minimal unsigned JWT (header.payload.signature) with the given issuer claim. */
+    private static String buildTokenWithIssuer(String issuer) {
+        String header = Base64.getUrlEncoder().withoutPadding()
+            .encodeToString("{\"alg\":\"none\"}".getBytes());
+        String payload = Base64.getUrlEncoder().withoutPadding()
+            .encodeToString(("{\"iss\":\"" + issuer + "\",\"sub\":\"system:serviceaccount:ns:sa\"}").getBytes());
+        return header + "." + payload + ".";
+    }
+
+    private static final String K8S_SA_TOKEN = buildTokenWithIssuer(ISSUER);
+    private static final String EKS_SA_TOKEN = buildTokenWithIssuer(EKS_ISSUER);
 
     @Mock private KeycloakSession session;
 
     @Test
-    void testLoadKeysReturnsKeysFromJwksEndpoint() throws Exception {
+    void testLoadKeysSameOriginTokenIncluded() throws Exception {
         UDSKubernetesJwksEndpointLoader loader = new UDSKubernetesJwksEndpointLoader(session, ISSUER);
 
         try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class);
              MockedStatic<KubernetesUtils> kubeUtilsMock = mockStatic(KubernetesUtils.class)) {
 
-            kubeUtilsMock.when(KubernetesUtils::readServiceAccountToken).thenReturn(SA_TOKEN);
+            kubeUtilsMock.when(KubernetesUtils::readServiceAccountToken).thenReturn(K8S_SA_TOKEN);
 
             SimpleHttp mockHttp = mock(SimpleHttp.class);
             simpleHttpMock.when(() -> SimpleHttp.create(session)).thenReturn(mockHttp);
 
-            // Mock OIDC discovery endpoint
             SimpleHttpRequest wellKnownRequest = mock(SimpleHttpRequest.class);
             OIDCConfigurationRepresentation oidcConfig = new OIDCConfigurationRepresentation();
             oidcConfig.setJwksUri(JWKS_URI);
@@ -56,7 +70,6 @@ public class UDSKubernetesJwksEndpointLoaderTest {
             when(wellKnownRequest.acceptJson()).thenReturn(wellKnownRequest);
             when(wellKnownRequest.asJson(OIDCConfigurationRepresentation.class)).thenReturn(oidcConfig);
 
-            // Mock JWKS endpoint
             SimpleHttpRequest jwksRequest = mock(SimpleHttpRequest.class);
             JSONWebKeySet jwks = new JSONWebKeySet();
             jwks.setKeys(new JWK[0]);
@@ -68,8 +81,84 @@ public class UDSKubernetesJwksEndpointLoaderTest {
             PublicKeysWrapper result = loader.loadKeys();
 
             assertNotNull(result);
-            verify(wellKnownRequest).auth(SA_TOKEN);
-            verify(jwksRequest).auth(SA_TOKEN);
+            verify(wellKnownRequest).auth(K8S_SA_TOKEN);
+            verify(jwksRequest).auth(K8S_SA_TOKEN);
+        }
+    }
+
+    @Test
+    void testLoadKeysEksSameOriginTokenIncluded() throws Exception {
+        UDSKubernetesJwksEndpointLoader loader = new UDSKubernetesJwksEndpointLoader(session, ISSUER);
+
+        try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class);
+             MockedStatic<KubernetesUtils> kubeUtilsMock = mockStatic(KubernetesUtils.class)) {
+
+            // EKS token: iss matches the EKS JWKS URI origin
+            kubeUtilsMock.when(KubernetesUtils::readServiceAccountToken).thenReturn(EKS_SA_TOKEN);
+
+            SimpleHttp mockHttp = mock(SimpleHttp.class);
+            simpleHttpMock.when(() -> SimpleHttp.create(session)).thenReturn(mockHttp);
+
+            SimpleHttpRequest wellKnownRequest = mock(SimpleHttpRequest.class);
+            OIDCConfigurationRepresentation oidcConfig = new OIDCConfigurationRepresentation();
+            oidcConfig.setJwksUri(EKS_JWKS_URI);
+
+            when(mockHttp.doGet(WELL_KNOWN)).thenReturn(wellKnownRequest);
+            when(wellKnownRequest.acceptJson()).thenReturn(wellKnownRequest);
+            when(wellKnownRequest.asJson(OIDCConfigurationRepresentation.class)).thenReturn(oidcConfig);
+
+            SimpleHttpRequest jwksRequest = mock(SimpleHttpRequest.class);
+            JSONWebKeySet jwks = new JSONWebKeySet();
+            jwks.setKeys(new JWK[0]);
+
+            when(mockHttp.doGet(EKS_JWKS_URI)).thenReturn(jwksRequest);
+            when(jwksRequest.header(anyString(), anyString())).thenReturn(jwksRequest);
+            when(jwksRequest.asJson(JSONWebKeySet.class)).thenReturn(jwks);
+
+            PublicKeysWrapper result = loader.loadKeys();
+
+            assertNotNull(result);
+            verify(wellKnownRequest).auth(EKS_SA_TOKEN);
+            // Token issuer matches JWKS URI origin — token IS included
+            verify(jwksRequest).auth(EKS_SA_TOKEN);
+        }
+    }
+
+    @Test
+    void testLoadKeysCrossOriginTokenNotIncluded() throws Exception {
+        UDSKubernetesJwksEndpointLoader loader = new UDSKubernetesJwksEndpointLoader(session, ISSUER);
+
+        try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class);
+             MockedStatic<KubernetesUtils> kubeUtilsMock = mockStatic(KubernetesUtils.class)) {
+
+            // K8s-issued token (iss=kubernetes.default.svc) but JWKS URI points to EKS
+            kubeUtilsMock.when(KubernetesUtils::readServiceAccountToken).thenReturn(K8S_SA_TOKEN);
+
+            SimpleHttp mockHttp = mock(SimpleHttp.class);
+            simpleHttpMock.when(() -> SimpleHttp.create(session)).thenReturn(mockHttp);
+
+            SimpleHttpRequest wellKnownRequest = mock(SimpleHttpRequest.class);
+            OIDCConfigurationRepresentation oidcConfig = new OIDCConfigurationRepresentation();
+            oidcConfig.setJwksUri(EKS_JWKS_URI);
+
+            when(mockHttp.doGet(WELL_KNOWN)).thenReturn(wellKnownRequest);
+            when(wellKnownRequest.acceptJson()).thenReturn(wellKnownRequest);
+            when(wellKnownRequest.asJson(OIDCConfigurationRepresentation.class)).thenReturn(oidcConfig);
+
+            SimpleHttpRequest jwksRequest = mock(SimpleHttpRequest.class);
+            JSONWebKeySet jwks = new JSONWebKeySet();
+            jwks.setKeys(new JWK[0]);
+
+            when(mockHttp.doGet(EKS_JWKS_URI)).thenReturn(jwksRequest);
+            when(jwksRequest.header(anyString(), anyString())).thenReturn(jwksRequest);
+            when(jwksRequest.asJson(JSONWebKeySet.class)).thenReturn(jwks);
+
+            PublicKeysWrapper result = loader.loadKeys();
+
+            assertNotNull(result);
+            verify(wellKnownRequest).auth(K8S_SA_TOKEN);
+            // Token issuer does NOT match JWKS URI origin — token is NOT sent
+            verify(jwksRequest, never()).auth(anyString());
         }
     }
 
@@ -80,15 +169,13 @@ public class UDSKubernetesJwksEndpointLoaderTest {
         try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class);
              MockedStatic<KubernetesUtils> kubeUtilsMock = mockStatic(KubernetesUtils.class)) {
 
-            kubeUtilsMock.when(KubernetesUtils::readServiceAccountToken).thenReturn(SA_TOKEN);
+            kubeUtilsMock.when(KubernetesUtils::readServiceAccountToken).thenReturn(K8S_SA_TOKEN);
 
             SimpleHttp mockHttp = mock(SimpleHttp.class);
             simpleHttpMock.when(() -> SimpleHttp.create(session)).thenReturn(mockHttp);
 
-            // Mock OIDC discovery returning no jwks_uri
             SimpleHttpRequest wellKnownRequest = mock(SimpleHttpRequest.class);
             OIDCConfigurationRepresentation oidcConfig = new OIDCConfigurationRepresentation();
-            // jwksUri is null by default
 
             when(mockHttp.doGet(WELL_KNOWN)).thenReturn(wellKnownRequest);
             when(wellKnownRequest.acceptJson()).thenReturn(wellKnownRequest);
@@ -106,7 +193,7 @@ public class UDSKubernetesJwksEndpointLoaderTest {
         try (MockedStatic<SimpleHttp> simpleHttpMock = mockStatic(SimpleHttp.class);
              MockedStatic<KubernetesUtils> kubeUtilsMock = mockStatic(KubernetesUtils.class)) {
 
-            kubeUtilsMock.when(KubernetesUtils::readServiceAccountToken).thenReturn(SA_TOKEN);
+            kubeUtilsMock.when(KubernetesUtils::readServiceAccountToken).thenReturn(K8S_SA_TOKEN);
 
             SimpleHttp mockHttp = mock(SimpleHttp.class);
             simpleHttpMock.when(() -> SimpleHttp.create(session)).thenReturn(mockHttp);
@@ -158,5 +245,41 @@ public class UDSKubernetesJwksEndpointLoaderTest {
             verify(wellKnownRequest, never()).auth(anyString());
             verify(jwksRequest, never()).auth(anyString());
         }
+    }
+
+    @Test
+    void testShouldIncludeTokenSameOrigin() {
+        assertTrue(UDSKubernetesJwksEndpointLoader.shouldIncludeToken(
+            K8S_SA_TOKEN, JWKS_URI));
+    }
+
+    @Test
+    void testShouldIncludeTokenEksSameOrigin() {
+        assertTrue(UDSKubernetesJwksEndpointLoader.shouldIncludeToken(
+            EKS_SA_TOKEN, EKS_JWKS_URI));
+    }
+
+    @Test
+    void testShouldIncludeTokenCrossOrigin() {
+        assertFalse(UDSKubernetesJwksEndpointLoader.shouldIncludeToken(
+            K8S_SA_TOKEN, EKS_JWKS_URI));
+    }
+
+    @Test
+    void testShouldIncludeTokenMalformedToken() {
+        assertFalse(UDSKubernetesJwksEndpointLoader.shouldIncludeToken(
+            "not-a-jwt", JWKS_URI));
+    }
+
+    @Test
+    void testShouldIncludeTokenNoIssuer() {
+        String header = Base64.getUrlEncoder().withoutPadding()
+            .encodeToString("{\"alg\":\"none\"}".getBytes());
+        String payload = Base64.getUrlEncoder().withoutPadding()
+            .encodeToString("{\"sub\":\"test\"}".getBytes());
+        String tokenWithoutIss = header + "." + payload + ".";
+
+        assertFalse(UDSKubernetesJwksEndpointLoader.shouldIncludeToken(
+            tokenWithoutIss, JWKS_URI));
     }
 }

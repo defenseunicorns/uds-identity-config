@@ -17,6 +17,7 @@ import org.keycloak.models.IdentityProviderModel;
 
 import com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes.UDSKubernetesIdentityProviderFactory;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.jboss.logging.Logger;
@@ -90,7 +91,7 @@ public class UDSClientAssertionStrategy implements ClientAssertionStrategy {
         }
         var idpStorage = context.getSession().identityProviders();
 
-        return context.getRealm().getClientsStream()
+        List<LookupResult> matches = context.getRealm().getClientsStream()
             .filter(c -> subject.equals(c.getAttribute(FederatedJWTClientAuthenticator.JWT_CREDENTIAL_SUBJECT_KEY)))
             .map(matchingClient -> {
                 String idpAlias = matchingClient.getAttribute(FederatedJWTClientAuthenticator.JWT_CREDENTIAL_ISSUER_KEY);
@@ -109,7 +110,14 @@ public class UDSClientAssertionStrategy implements ClientAssertionStrategy {
                 return null;
             })
             .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+            .toList();
+
+        if (matches.size() > 1) {
+            throw new IllegalStateException(String.format(
+                "Ambiguous client assertion: subject '%s' matched %d clients. "
+                + "Each service account subject must map to exactly one client.", subject, matches.size()));
+        }
+
+        return matches.isEmpty() ? null : matches.get(0);
     }
 }

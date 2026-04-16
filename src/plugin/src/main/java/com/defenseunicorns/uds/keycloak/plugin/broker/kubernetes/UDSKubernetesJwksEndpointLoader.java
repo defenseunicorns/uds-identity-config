@@ -5,17 +5,21 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes;
 
+import org.keycloak.common.util.UriUtils;
 import org.keycloak.crypto.PublicKeysWrapper;
 import org.keycloak.http.simple.SimpleHttp;
 import org.keycloak.http.simple.SimpleHttpRequest;
 import org.keycloak.jose.jwk.JSONWebKeySet;
 import org.keycloak.jose.jwk.JWK;
+import org.keycloak.jose.jws.JWSInput;
 import org.keycloak.keys.PublicKeyLoader;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.protocol.oidc.representations.OIDCConfigurationRepresentation;
+import org.keycloak.representations.JsonWebToken;
 import org.keycloak.util.JWKSUtils;
 
 import org.apache.http.HttpHeaders;
+import org.jboss.logging.Logger;
 
 /**
  * JWKS endpoint loader that always includes the service account token in requests.
@@ -50,6 +54,8 @@ import org.apache.http.HttpHeaders;
  */
 public class UDSKubernetesJwksEndpointLoader implements PublicKeyLoader {
 
+    private static final Logger LOGGER = Logger.getLogger(UDSKubernetesJwksEndpointLoader.class);
+
     private final KeycloakSession session;
     private final String issuer;
 
@@ -80,16 +86,41 @@ public class UDSKubernetesJwksEndpointLoader implements PublicKeyLoader {
             throw new IllegalStateException("OIDC discovery at " + wellKnownEndpoint + " returned no jwks_uri");
         }
 
-        // Forwarding a token along with the request is safe here. The Kubernetes API Server issuer is configured at the
-        // bootstrap time with the `--oidc-*` flags. So a successful attack would require controlling these flags
-        // and if that really happens, it's game over already.
-        // So essentially - we're not sacrificing any security here.
         SimpleHttpRequest jwksRequest = simpleHttp.doGet(jwksUri).header(HttpHeaders.ACCEPT, "application/jwk-set+json");
-        if (token != null) {
+        if (token != null && shouldIncludeToken(token, jwksUri)) {
             jwksRequest.auth(token);
         }
 
         JSONWebKeySet jwks = jwksRequest.asJson(JSONWebKeySet.class);
         return JWKSUtils.getKeyWrappersForUse(jwks, JWK.Use.SIG);
+    }
+
+    /**
+     * Determines whether the SA token should be included in the JWKS request by comparing
+     * the token's {@code iss} claim origin against the JWKS URI origin.
+     *
+     * <p>On vanilla Kubernetes both origins are {@code https://kubernetes.default.svc.cluster.local}.
+     * On managed clusters (EKS, AKS, GKE) both origins are the cloud OIDC endpoint
+     * (e.g. {@code https://oidc.eks.*.amazonaws.com}). In either case the token is only sent
+     * to an endpoint belonging to the same authority that issued it.
+     */
+    static boolean shouldIncludeToken(String token, String jwksUri) {
+        try {
+            JWSInput jws = new JWSInput(token);
+            JsonWebToken jwt = jws.readJsonContent(JsonWebToken.class);
+            String tokenIssuer = jwt.getIssuer();
+            if (tokenIssuer == null) {
+                LOGGER.debug("SA token has no issuer claim, skipping auth for JWKS request");
+                return false;
+            }
+
+            String tokenOrigin = UriUtils.getOrigin(tokenIssuer);
+            String jwksOrigin = UriUtils.getOrigin(jwksUri);
+            LOGGER.debugf("SA token issuer origin '%s', JWKS URI origin '%s'", tokenOrigin, jwksOrigin);
+            return tokenOrigin != null && tokenOrigin.equals(jwksOrigin);
+        } catch (Exception e) {
+            LOGGER.debug("Failed to parse SA token to extract issuer, skipping auth for JWKS request", e);
+            return false;
+        }
     }
 }

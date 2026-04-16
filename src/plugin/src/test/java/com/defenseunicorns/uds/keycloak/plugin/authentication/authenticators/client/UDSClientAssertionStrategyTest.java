@@ -158,6 +158,29 @@ public class UDSClientAssertionStrategyTest {
     }
 
     @Test
+    void testLookupThrowsWhenMultipleClientsMatch() throws Exception {
+        when(token.getIssuer()).thenReturn(AKS_ISSUER);
+        when(lookupProvider.lookupIdentityProviderFromIssuer(session, AKS_ISSUER)).thenReturn(null);
+
+        // Two clients with the same jwt.credential.sub
+        ClientModel client1 = mock(ClientModel.class);
+        when(client1.getAttribute("jwt.credential.sub")).thenReturn(SUBJECT);
+        when(client1.getAttribute("jwt.credential.issuer")).thenReturn(IDP_ALIAS);
+        when(client1.getClientId()).thenReturn("client-a");
+
+        ClientModel client2 = mock(ClientModel.class);
+        when(client2.getAttribute("jwt.credential.sub")).thenReturn(SUBJECT);
+        when(client2.getAttribute("jwt.credential.issuer")).thenReturn(IDP_ALIAS);
+        when(client2.getClientId()).thenReturn("client-b");
+
+        when(realm.getClientsStream()).thenReturn(Stream.of(client1, client2));
+        when(idpStorageProvider.getByAlias(IDP_ALIAS)).thenReturn(udsIdpModel);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> strategy.lookup(context));
+        assertTrue(ex.getMessage().contains("matched 2 clients"));
+    }
+
+    @Test
     void testIsSupportedAssertionType() {
         assertTrue(strategy.isSupportedAssertionType(OAuth2Constants.CLIENT_ASSERTION_TYPE_JWT));
         assertFalse(strategy.isSupportedAssertionType("some-other-type"));
