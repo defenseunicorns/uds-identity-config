@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Defense Unicorns
+ * Copyright 2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -20,6 +20,7 @@ import org.keycloak.authentication.authenticators.client.ClientAssertionState;
 import org.keycloak.broker.provider.ClientAssertionIdentityProviderFactory.LookupResult;
 import org.keycloak.cache.AlternativeLookupProvider;
 import org.keycloak.models.ClientModel;
+import org.keycloak.models.ClientProvider;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.IdentityProviderStorageProvider;
 import org.keycloak.models.KeycloakSession;
@@ -49,6 +50,7 @@ public class UDSClientAssertionStrategyTest {
     @Mock private AlternativeLookupProvider lookupProvider;
     @Mock private ClientModel clientModel;
     @Mock private IdentityProviderModel udsIdpModel;
+    @Mock private ClientProvider clientProvider;
     @Mock private IdentityProviderStorageProvider idpStorageProvider;
 
     private UDSClientAssertionStrategy strategy;
@@ -61,6 +63,7 @@ public class UDSClientAssertionStrategyTest {
         when(context.getRealm()).thenReturn(realm);
         when(context.getState(eq(ClientAssertionState.class), any())).thenReturn(state);
         when(session.getProvider(AlternativeLookupProvider.class)).thenReturn(lookupProvider);
+        when(session.clients()).thenReturn(clientProvider);
         when(session.identityProviders()).thenReturn(idpStorageProvider);
 
         when(state.getToken()).thenReturn(token);
@@ -100,7 +103,7 @@ public class UDSClientAssertionStrategyTest {
         when(clientModel.getAttribute("jwt.credential.sub")).thenReturn(SUBJECT);
         when(clientModel.getAttribute("jwt.credential.issuer")).thenReturn(IDP_ALIAS);
         when(clientModel.getClientId()).thenReturn("uds-operator");
-        when(realm.getClientsStream()).thenReturn(Stream.of(clientModel));
+        when(clientProvider.searchClientsByAttributes(eq(realm), anyMap(), isNull(), isNull())).thenReturn(Stream.of(clientModel));
         when(idpStorageProvider.getByAlias(IDP_ALIAS)).thenReturn(udsIdpModel);
 
         LookupResult result = strategy.lookup(context);
@@ -116,7 +119,7 @@ public class UDSClientAssertionStrategyTest {
         when(lookupProvider.lookupIdentityProviderFromIssuer(session, AKS_ISSUER)).thenReturn(null);
 
         // No clients match the subject
-        when(realm.getClientsStream()).thenReturn(Stream.empty());
+        when(clientProvider.searchClientsByAttributes(eq(realm), anyMap(), isNull(), isNull())).thenReturn(Stream.empty());
 
         LookupResult result = strategy.lookup(context);
 
@@ -131,7 +134,7 @@ public class UDSClientAssertionStrategyTest {
         when(clientModel.getAttribute("jwt.credential.sub")).thenReturn(SUBJECT);
         when(clientModel.getAttribute("jwt.credential.issuer")).thenReturn(IDP_ALIAS);
         when(clientModel.getClientId()).thenReturn("uds-operator");
-        when(realm.getClientsStream()).thenReturn(Stream.of(clientModel));
+        when(clientProvider.searchClientsByAttributes(eq(realm), anyMap(), isNull(), isNull())).thenReturn(Stream.of(clientModel));
         // IdP not found by alias
         when(idpStorageProvider.getByAlias(IDP_ALIAS)).thenReturn(null);
 
@@ -148,7 +151,7 @@ public class UDSClientAssertionStrategyTest {
         when(clientModel.getAttribute("jwt.credential.sub")).thenReturn(SUBJECT);
         when(clientModel.getAttribute("jwt.credential.issuer")).thenReturn(IDP_ALIAS);
         when(clientModel.getClientId()).thenReturn("uds-operator");
-        when(realm.getClientsStream()).thenReturn(Stream.of(clientModel));
+        when(clientProvider.searchClientsByAttributes(eq(realm), anyMap(), isNull(), isNull())).thenReturn(Stream.of(clientModel));
         when(udsIdpModel.isEnabled()).thenReturn(false);
         when(idpStorageProvider.getByAlias(IDP_ALIAS)).thenReturn(udsIdpModel);
 
@@ -173,7 +176,7 @@ public class UDSClientAssertionStrategyTest {
         when(client2.getAttribute("jwt.credential.issuer")).thenReturn(IDP_ALIAS);
         when(client2.getClientId()).thenReturn("client-b");
 
-        when(realm.getClientsStream()).thenReturn(Stream.of(client1, client2));
+        when(clientProvider.searchClientsByAttributes(eq(realm), anyMap(), isNull(), isNull())).thenReturn(Stream.of(client1, client2));
         when(idpStorageProvider.getByAlias(IDP_ALIAS)).thenReturn(udsIdpModel);
 
         IllegalStateException ex = assertThrows(IllegalStateException.class, () -> strategy.lookup(context));

@@ -18,6 +18,7 @@ import org.keycloak.models.IdentityProviderModel;
 import com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes.UDSKubernetesIdentityProviderFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.jboss.logging.Logger;
@@ -91,8 +92,9 @@ public class UDSClientAssertionStrategy implements ClientAssertionStrategy {
         }
         var idpStorage = context.getSession().identityProviders();
 
-        List<LookupResult> matches = context.getRealm().getClientsStream()
-            .filter(c -> subject.equals(c.getAttribute(FederatedJWTClientAuthenticator.JWT_CREDENTIAL_SUBJECT_KEY)))
+        List<LookupResult> matches = context.getSession().clients()
+            .searchClientsByAttributes(context.getRealm(),
+                Map.of(FederatedJWTClientAuthenticator.JWT_CREDENTIAL_SUBJECT_KEY, subject), null, null)
             .map(matchingClient -> {
                 String idpAlias = matchingClient.getAttribute(FederatedJWTClientAuthenticator.JWT_CREDENTIAL_ISSUER_KEY);
                 if (idpAlias == null) {

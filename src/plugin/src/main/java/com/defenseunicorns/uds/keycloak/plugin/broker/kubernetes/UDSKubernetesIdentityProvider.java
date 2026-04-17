@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Defense Unicorns
+ * Copyright 2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -123,7 +123,7 @@ public class UDSKubernetesIdentityProvider extends KubernetesIdentityProvider {
      * when accessed via the internal {@code kubernetes.default.svc.cluster.local} URL.
      *
      * @param kubeApiServerUrl the configured K8s API server URL (e.g. https://kubernetes.default.svc.cluster.local)
-     * @return the discovered issuer URL, or {@code kubeApiServerUrl} as fallback on any failure
+     * @return the discovered issuer URL, or {@code null} if OIDC discovery fails
      */
     String discoverIssuer(String kubeApiServerUrl) {
         String cached = ISSUER_CACHE.get(kubeApiServerUrl);

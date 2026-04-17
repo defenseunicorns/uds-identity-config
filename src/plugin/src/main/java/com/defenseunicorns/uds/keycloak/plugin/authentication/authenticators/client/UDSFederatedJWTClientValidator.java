@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Defense Unicorns
+ * Copyright 2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -107,17 +107,17 @@ public class UDSFederatedJWTClientValidator extends FederatedJWTClientValidator 
     private boolean validateClientInternal() {
         JsonWebToken token = clientAssertionState.getToken();
 
-        String clientId = token.getSubject();
-        if (clientId == null) {
+        String jwtSubject = token.getSubject();
+        if (jwtSubject == null) {
             return failure("Token sub claim is required");
         }
 
         // Relaxed check: log instead of fail when client_id doesn't match JWT subject.
         // In the K8s SA flow, client_id is "uds-operator" but sub is the SA identity.
         String clientIdParam = context.getHttpRequest().getDecodedFormParameters().getFirst(OAuth2Constants.CLIENT_ID);
-        if (clientIdParam != null && !clientIdParam.equals(clientId)) {
+        if (clientIdParam != null && !clientIdParam.equals(jwtSubject)) {
             LOGGER.debugf("client_id parameter '%s' does not match JWT subject '%s', ignoring mismatch",
-                clientIdParam, clientId);
+                clientIdParam, jwtSubject);
         }
 
         String expectedTokenIssuer = getExpectedTokenIssuer();

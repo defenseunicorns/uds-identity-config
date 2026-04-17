@@ -1,11 +1,10 @@
 /*
- * Copyright 2025 Defense Unicorns
+ * Copyright 2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
 package com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes;
 
-import org.keycloak.common.util.UriUtils;
 import org.keycloak.crypto.PublicKeysWrapper;
 import org.keycloak.http.simple.SimpleHttp;
 import org.keycloak.http.simple.SimpleHttpRequest;
@@ -47,8 +46,9 @@ import org.jboss.logging.Logger;
  *
  * The only difference from upstream is that {@link KubernetesUtils#readServiceAccountToken()}
  * always returns the SA token if the file exists, without checking the issuer claim. The SA
- * token is safe to include unconditionally because it's already scoped to the cluster and is
- * the same token the upstream code would include if the issuer matched.
+ * token is only forwarded to the JWKS endpoint when the token's {@code iss} claim matches the
+ * {@code issuer} field from the OIDC discovery response. This ensures the token is only sent
+ * to endpoints belonging to the same authority that issued it.
  *
  * @see UDSKubernetesIdentityProvider
  */
@@ -81,30 +81,43 @@ public class UDSKubernetesJwksEndpointLoader implements PublicKeyLoader {
         if (token != null) {
             wellKnownRequest.auth(token);
         }
-        String jwksUri = wellKnownRequest.asJson(OIDCConfigurationRepresentation.class).getJwksUri();
+
+        OIDCConfigurationRepresentation oidcConfig = KubernetesUtils.executeAndParse(wellKnownRequest,
+            wellKnownEndpoint, OIDCConfigurationRepresentation.class);
+
+        String jwksUri = oidcConfig.getJwksUri();
         if (jwksUri == null || jwksUri.isEmpty()) {
             throw new IllegalStateException("OIDC discovery at " + wellKnownEndpoint + " returned no jwks_uri");
         }
 
         SimpleHttpRequest jwksRequest = simpleHttp.doGet(jwksUri).header(HttpHeaders.ACCEPT, "application/jwk-set+json");
-        if (token != null && shouldIncludeToken(token, jwksUri)) {
+        if (token != null && shouldIncludeToken(token, oidcConfig.getIssuer())) {
             jwksRequest.auth(token);
         }
 
-        JSONWebKeySet jwks = jwksRequest.asJson(JSONWebKeySet.class);
+        JSONWebKeySet jwks = KubernetesUtils.executeAndParse(jwksRequest, jwksUri, JSONWebKeySet.class);
         return JWKSUtils.getKeyWrappersForUse(jwks, JWK.Use.SIG);
     }
 
     /**
      * Determines whether the SA token should be included in the JWKS request by comparing
-     * the token's {@code iss} claim origin against the JWKS URI origin.
+     * the token's {@code iss} claim against the OIDC discovery {@code issuer} field.
      *
-     * <p>On vanilla Kubernetes both origins are {@code https://kubernetes.default.svc.cluster.local}.
-     * On managed clusters (EKS, AKS, GKE) both origins are the cloud OIDC endpoint
-     * (e.g. {@code https://oidc.eks.*.amazonaws.com}). In either case the token is only sent
-     * to an endpoint belonging to the same authority that issued it.
+     * <p>The OIDC discovery response includes both the {@code issuer} and the {@code jwks_uri}.
+     * When the SA token's {@code iss} matches the discovered {@code issuer}, the token belongs
+     * to the same authority that advertises the JWKS endpoint, so it is safe to forward.
+     * This works across all Kubernetes distributions:
+     * <ul>
+     *   <li>k3d/vanilla: both are {@code https://kubernetes.default.svc.cluster.local}</li>
+     *   <li>EKS: both are {@code https://oidc.eks.*.amazonaws.com/id/...}</li>
+     * </ul>
      */
-    static boolean shouldIncludeToken(String token, String jwksUri) {
+    static boolean shouldIncludeToken(String token, String discoveredIssuer) {
+        if (discoveredIssuer == null) {
+            LOGGER.debug("OIDC discovery returned no issuer, skipping auth for JWKS request");
+            return false;
+        }
+
         try {
             JWSInput jws = new JWSInput(token);
             JsonWebToken jwt = jws.readJsonContent(JsonWebToken.class);
@@ -114,10 +127,10 @@ public class UDSKubernetesJwksEndpointLoader implements PublicKeyLoader {
                 return false;
             }
 
-            String tokenOrigin = UriUtils.getOrigin(tokenIssuer);
-            String jwksOrigin = UriUtils.getOrigin(jwksUri);
-            LOGGER.debugf("SA token issuer origin '%s', JWKS URI origin '%s'", tokenOrigin, jwksOrigin);
-            return tokenOrigin != null && tokenOrigin.equals(jwksOrigin);
+            boolean match = tokenIssuer.equals(discoveredIssuer);
+            LOGGER.debugf("SA token issuer '%s', discovered issuer '%s', including token: %s",
+                tokenIssuer, discoveredIssuer, match);
+            return match;
         } catch (Exception e) {
             LOGGER.debug("Failed to parse SA token to extract issuer, skipping auth for JWKS request", e);
             return false;
