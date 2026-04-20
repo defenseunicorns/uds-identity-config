@@ -858,7 +858,7 @@
             "description": "A client used by the UDS Operator",
             "enabled": true,
             "alwaysDisplayInConsole": false,
-            "clientAuthenticatorType": "federated-jwt",
+            "clientAuthenticatorType": "client-kubernetes-secret",
             "secret": "**********",
             "redirectUris": [
                 "/*"
@@ -880,9 +880,7 @@
                 "oauth2.device.authorization.grant.enabled": "false",
                 "display.on.consent.screen": "false",
                 "use.jwks.url": "false",
-                "backchannel.logout.revoke.offline.tokens": "false",
-                "jwt.credential.sub": "system:serviceaccount:pepr-system:pepr-uds-core",
-                "jwt.credential.issuer": "kubernetes"
+                "backchannel.logout.revoke.offline.tokens": "false"
             },
             "fullScopeAllowed": true
         },
@@ -1937,20 +1935,6 @@
     "adminEventsDetailsEnabled": true,
     "identityProviders": [
         {
-            "alias": "kubernetes",
-            "internalId": "31314c45-48d0-4bdf-8710-ce16073ded30",
-            "providerId": "kubernetes",
-            "enabled": true,
-            "hideOnLogin": true,
-            "config": {
-                "allowCreate": "true",
-                "issuer": "https://kubernetes.default.svc.cluster.local"
-            },
-            "types": [
-                "CLIENT_ASSERTION"
-            ]
-        },
-        {
             "alias": "saml",
             "displayName": "Google SSO",
             "internalId": "1538a301-8427-46d2-b59f-203f2f76e573",
@@ -2703,14 +2687,6 @@
                     "authenticatorFlow": false,
                     "requirement": "ALTERNATIVE",
                     "priority": 41,
-                    "autheticatorFlow": false,
-                    "userSetupAllowed": false
-                },
-                {
-                    "authenticator": "federated-jwt",
-                    "authenticatorFlow": false,
-                    "requirement": "ALTERNATIVE",
-                    "priority": 42,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }

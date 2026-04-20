@@ -219,10 +219,12 @@ Cypress.Commands.add("getAccessToken", (subject?: TokenSubject) => {
       });
   }
 
-  // Default: UDS_OPERATOR using federated JWT client authentication
-  return cy.exec('uds zarf tools kubectl create token pepr-uds-core -n pepr-system --audience=https://keycloak.admin.uds.dev/realms/uds').then((result) => {
+  // Default: UDS_OPERATOR client credentials flow
+  return cy.exec('uds zarf tools kubectl get secret keycloak-client-secrets -n keycloak -o jsonpath="{.data.uds-operator}"').then((result) => {
     expect(result.exitCode).to.eq(0);
-    const saToken = result.stdout.trim();
+    expect(result.stdout).not.contains(" ");
+
+    const clientSecret = Buffer.from(result.stdout, 'base64').toString('utf-8');
 
     return cy.request({
       method: "POST",
@@ -231,8 +233,8 @@ Cypress.Commands.add("getAccessToken", (subject?: TokenSubject) => {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: {
-        client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-        client_assertion: saToken,
+        client_id: "uds-operator",
+        client_secret: `${clientSecret}`,
         grant_type: "client_credentials",
       },
     }).then((response) => {
