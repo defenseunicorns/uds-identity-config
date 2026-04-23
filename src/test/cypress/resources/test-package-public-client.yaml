@@ -1,0 +1,23 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-package-public-client
+---
+apiVersion: uds.dev/v1alpha1
+kind: Package
+metadata:
+  name: test-package-public-client
+  namespace: test-package-public-client
+spec:
+  sso:
+    - name: Test Public Client
+      clientId: test-package-public-client
+      publicClient: true
+      standardFlowEnabled: true
+      redirectUris:
+        - "https://test-public.admin.uds.dev/*"
+      attributes:
+        pkce.code.challenge.method: S256

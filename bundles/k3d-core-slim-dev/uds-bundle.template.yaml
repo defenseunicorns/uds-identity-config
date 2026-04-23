@@ -28,6 +28,11 @@ packages:
             - path: additionalIgnoredNamespaces
               value:
                 - uds-dev-stack
+      uds-operator-config:
+        uds-operator-config:
+          values:
+            - path: operator.ALLOW_PUBLIC_CLIENTS
+              value: "true"
       istio-admin-gateway:
         uds-istio-config:
           variables:
