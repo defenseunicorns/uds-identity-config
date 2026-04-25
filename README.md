@@ -1,6 +1,8 @@
 # UDS Identity Config
 
-This repo builds the UDS Identity (Keycloak) Config image used by UDS Identity. Utilize this repository to create your own Keycloak config image for customizing `uds-core`'s [Identity deployment](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L10).
+UDS Identity Config is an integral part of [UDS Core](https://github.com/defenseunicorns/uds-core) and exclusively supports securing UDS Deployments. It builds the Keycloak configuration image (realm, plugins, theme, truststore, JARs) consumed by UDS Core's [Identity deployment](https://github.com/defenseunicorns/uds-core/blob/main/src/keycloak/chart/values.yaml#L10).
+
+This project lives in a separate repository for technical reasons and code simplicity, primarily to reduce code sprawl in UDS Core. It is not designed, intended, or supported for use outside of UDS. Hardcoded assumptions throughout the codebase make standalone consumption infeasible.
 
 ## UDS Tasks
 
