@@ -157,7 +157,7 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
             return;
         }
 
-        clientSecret = mountedClientSecret.trim();
+        clientSecret = clientSecret.trim();
         mountedClientSecret = mountedClientSecret.trim();
 
         if (!clientSecret.equals(mountedClientSecret)) {
