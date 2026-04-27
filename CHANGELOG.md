@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.26.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.26.0...v0.26.1) (2026-04-27)
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#833](https://github.com/defenseunicorns/uds-identity-config/issues/833)) ([cb7e38d](https://github.com/defenseunicorns/uds-identity-config/commit/cb7e38d4663a559b9932ec4c536c01cf7a96398d))
+* **deps:** update all dependencies ([#837](https://github.com/defenseunicorns/uds-identity-config/issues/837)) ([94baec8](https://github.com/defenseunicorns/uds-identity-config/commit/94baec8a0ad0158f551bbc34f183c28ccd91067a))
+* **deps:** update dependency cypress to v15.14.1 ([#844](https://github.com/defenseunicorns/uds-identity-config/issues/844)) ([8c9de18](https://github.com/defenseunicorns/uds-identity-config/commit/8c9de18c6c07e7a7209ca7aa9553b64702122c82))
+* **deps:** update dependency defenseunicorns/uds-cli to v0.30.3 ([#839](https://github.com/defenseunicorns/uds-identity-config/issues/839)) ([bb065b8](https://github.com/defenseunicorns/uds-identity-config/commit/bb065b84727b0a2a9d256c2d10ccd3c6fcb7287c))
+* **deps:** update gha-deps ([#834](https://github.com/defenseunicorns/uds-identity-config/issues/834)) ([911c72b](https://github.com/defenseunicorns/uds-identity-config/commit/911c72be1bba03010d4b45d8b0de3dfc3a2ecd6e))
+* **deps:** update gha-deps ([#842](https://github.com/defenseunicorns/uds-identity-config/issues/842)) ([e6e159f](https://github.com/defenseunicorns/uds-identity-config/commit/e6e159fd6f48e6d987f22dae03a8771da50aec6f))
+* **deps:** update googleapis/release-please-action action to v5 ([#846](https://github.com/defenseunicorns/uds-identity-config/issues/846)) ([080f1ea](https://github.com/defenseunicorns/uds-identity-config/commit/080f1ea4fcc00f022e9feae2ffb3c1eac332e7b5))
+
 ## [0.26.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.25.0...v0.26.0) (2026-04-13)
 
 
