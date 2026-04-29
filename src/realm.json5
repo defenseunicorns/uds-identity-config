@@ -2078,6 +2078,18 @@
                 }
             },
             {
+                "id": "f81dd1c1-fd53-46af-a57a-15e6c55e22c8",
+                "name": "max number of clients",
+                "providerId": "max-clients",
+                "subType": "authenticated",
+                "subComponents": {},
+                "config": {
+                  "max-clients": [
+                    "0"
+                  ]
+                }
+            },
+            {
                 "id": "7717935d-a03c-46e0-82fd-78be66dab63b",
                 "name": "Allowed Client Scopes",
                 "providerId": "allowed-client-templates",
