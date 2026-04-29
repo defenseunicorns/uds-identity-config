@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.26.1...v0.27.0) (2026-04-29)
+
+
+### Features
+
+* limit max registered clients ([#849](https://github.com/defenseunicorns/uds-identity-config/issues/849)) ([9e68bd1](https://github.com/defenseunicorns/uds-identity-config/commit/9e68bd1a6322ff42a3eb6d8fbcf90279a1ce4118))
+
 ## [0.26.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.26.0...v0.26.1) (2026-04-27)
 
 
