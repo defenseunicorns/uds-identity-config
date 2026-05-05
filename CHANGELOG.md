@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.27.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.26.1...v0.27.0) (2026-05-04)
+
+
+### Features
+
+* limit max registered clients ([#849](https://github.com/defenseunicorns/uds-identity-config/issues/849)) ([9e68bd1](https://github.com/defenseunicorns/uds-identity-config/commit/9e68bd1a6322ff42a3eb6d8fbcf90279a1ce4118))
+
+
+### Bug Fixes
+
+* update codeowners to foundation ([#851](https://github.com/defenseunicorns/uds-identity-config/issues/851)) ([c82cddb](https://github.com/defenseunicorns/uds-identity-config/commit/c82cddb9a0fdd1276467cba824cbb8ebddfe4acc))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#852](https://github.com/defenseunicorns/uds-identity-config/issues/852)) ([da9dcc6](https://github.com/defenseunicorns/uds-identity-config/commit/da9dcc6fc4a3d23cb5f86a5b07c20cec4dd100a0))
+* **deps:** update gha-deps ([#850](https://github.com/defenseunicorns/uds-identity-config/issues/850)) ([894a435](https://github.com/defenseunicorns/uds-identity-config/commit/894a4358d4758f041f44f84fc2f091486d106604))
+
 ## [0.26.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.26.0...v0.26.1) (2026-04-27)
 
 
