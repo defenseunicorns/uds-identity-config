@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Defense Unicorns
+ * Copyright 2025-2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -17,6 +17,7 @@ import org.keycloak.authentication.authenticators.client.AbstractClientAuthentic
 import org.keycloak.authentication.authenticators.client.ClientAuthUtil;
 import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.ClientModel;
+import org.keycloak.models.KeycloakSession;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.util.BasicAuthHelper;
@@ -198,7 +199,7 @@ public class ClientIdAndKubernetesSecretAuthenticator extends AbstractClientAuth
     }
 
     @Override
-    public Map<String, Object> getAdapterConfiguration(ClientModel client) {
+    public Map<String, Object> getAdapterConfiguration(KeycloakSession session, ClientModel client) {
         return Collections.emptyMap();
     }
 
