@@ -115,6 +115,27 @@ public class X509ToolsTest {
     }
 
     @Test
+    public void testGetX509SubjectKeyIdFromFormContext() throws Exception {
+        when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(x509ClientCertificateLookup);
+
+        X509Certificate cert = Utils.buildTestCertificate();
+        X509Certificate[] certs = new X509Certificate[]{cert};
+        when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(certs);
+
+        String ski = X509Tools.getX509SubjectKeyId(formContext);
+        assertEquals("22f0a679237bb40a2d6a24fa75887811272067e6", ski);
+        assertTrue(ski.matches("^[0-9a-f]+$"));
+    }
+
+    @Test
+    public void testGetX509SubjectKeyIdNullProvider() throws Exception {
+        when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(null);
+
+        String ski = X509Tools.getX509SubjectKeyId(formContext);
+        assertNull(ski);
+    }
+
+    @Test
     public void testGetX509CommonNameFromRequiredActionContext() throws Exception {
         when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(x509ClientCertificateLookup);
 

@@ -45,7 +45,7 @@ public class RegistrationValidation extends RegistrationUserCreation {
     }
 
     private static void processX509UserAttribute(final RealmModel realm, final UserModel user,
-            final String x509Username, final String x509commonName) {
+            final String x509Username, final String x509commonName, final String x509subjectKeyId) {
         if (x509Username != null) {
             // Bind the X509 identity attribute to the user
             user.setSingleAttribute(Common.USER_X509_ID_ATTRIBUTE, x509Username);
@@ -53,6 +53,10 @@ public class RegistrationValidation extends RegistrationUserCreation {
         if(x509commonName != null) {
             // Bind the X509 Common name attribute to the user
             user.setSingleAttribute(Common.USER_X509_CN_ATTRIBUTE, x509commonName);
+        }
+        if (x509subjectKeyId != null) {
+            // Bind the X509 Subject Key Identifier attribute to the user
+            user.setSingleAttribute(Common.USER_X509_SKI_ATTRIBUTE, x509subjectKeyId);
         }
     }
 
@@ -62,8 +66,9 @@ public class RegistrationValidation extends RegistrationUserCreation {
         RealmModel realm = context.getRealm();
         String x509Username = X509Tools.getX509Username(context);
         String x509commonName = X509Tools.getX509CommonName(context);
+        String x509subjectKeyId = X509Tools.getX509SubjectKeyId(context);
 
-        processX509UserAttribute(realm, user, x509Username, x509commonName);
+        processX509UserAttribute(realm, user, x509Username, x509commonName, x509subjectKeyId);
         bindRequiredActions(user, x509Username);
     }
 

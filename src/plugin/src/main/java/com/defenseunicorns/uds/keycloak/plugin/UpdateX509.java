@@ -96,6 +96,12 @@ public class UpdateX509 implements RequiredActionProvider, RequiredActionFactory
             UserModel user = context.getUser();
             user.setSingleAttribute(Common.USER_X509_CN_ATTRIBUTE, commonName);
         }
+
+        String subjectKeyId = X509Tools.getX509SubjectKeyId(context);
+        if (subjectKeyId != null) {
+            UserModel user = context.getUser();
+            user.setSingleAttribute(Common.USER_X509_SKI_ATTRIBUTE, subjectKeyId);
+        }
         context.success();
     }
 

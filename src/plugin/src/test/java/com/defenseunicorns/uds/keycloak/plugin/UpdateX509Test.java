@@ -256,6 +256,27 @@ class UpdateX509Test {
     }
 
     @Test
+    public void testProcessActionWritesSubjectKeyId() throws Exception {
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            x509ToolsMock.when(() -> X509Tools.getX509Username(any(RequiredActionContext.class))).thenReturn("x509user");
+            x509ToolsMock.when(() -> X509Tools.getX509CommonName(any(RequiredActionContext.class))).thenReturn("LAST.FIRST");
+            x509ToolsMock.when(() -> X509Tools.getX509SubjectKeyId(any(RequiredActionContext.class)))
+                    .thenReturn("22f0a679237bb40a2d6a24fa75887811272067e6");
+
+            when(requiredActionContext.getHttpRequest().getDecodedFormParameters())
+                    .thenReturn(Utils.formDataUtil(new HashMap<>()));
+            when(requiredActionContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
+            when(requiredActionContext.getUser()).thenReturn(userModel);
+
+            UpdateX509 updateX509 = new UpdateX509();
+            updateX509.processAction(requiredActionContext);
+
+            org.mockito.Mockito.verify(userModel)
+                    .setSingleAttribute(Common.USER_X509_SKI_ATTRIBUTE, "22f0a679237bb40a2d6a24fa75887811272067e6");
+        }
+    }
+
+    @Test
     public void testInit(){
         UpdateX509 updateX509 = new UpdateX509();
         updateX509.init(scope);

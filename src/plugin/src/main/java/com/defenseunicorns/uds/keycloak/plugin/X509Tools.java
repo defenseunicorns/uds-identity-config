@@ -6,10 +6,13 @@
 package com.defenseunicorns.uds.keycloak.plugin;
 
 import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.PolicyInformation;
+import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
+import org.bouncycastle.util.encoders.Hex;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.FormContext;
 import org.keycloak.authentication.RequiredActionContext;
@@ -312,6 +315,48 @@ public final class X509Tools {
             }
         } catch (Exception e) {
             LOG.error("Error extracting user's CN from subject DN: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Extracts the Subject Key Identifier (SKI) from the x509 certificate.
+     */
+    public static String getX509SubjectKeyId(final FormContext context) {
+        return getX509SubjectKeyId(context.getSession(), context.getHttpRequest());
+    }
+
+    /**
+     * Extracts the Subject Key Identifier (SKI) from the x509 certificate.
+     */
+    public static String getX509SubjectKeyId(final RequiredActionContext context) {
+        return getX509SubjectKeyId(context.getSession(), context.getHttpRequest());
+    }
+
+    /**
+     * Extracts the Subject Key Identifier (SKI) from the x509 certificate as a
+     * lowercase hex string. Returns null when the extension is absent or unparseable.
+     */
+    public static String getX509SubjectKeyId(final KeycloakSession session, final HttpRequest httpRequest) {
+        try {
+            X509ClientCertificateLookup provider = session != null ? session.getProvider(X509ClientCertificateLookup.class) : null;
+            if (provider == null) {
+                return null;
+            }
+
+            X509Certificate[] certs = provider.getCertificateChain(httpRequest);
+            if (certs != null && certs.length > 0 && certs[0] != null) {
+                byte[] ext = certs[0].getExtensionValue(Common.SUBJECT_KEY_ID_OID);
+                if (ext == null) {
+                    return null;
+                }
+                // The extension value is a DER OCTET STRING wrapping the SubjectKeyIdentifier.
+                ASN1OctetString envelope = ASN1OctetString.getInstance(ext);
+                SubjectKeyIdentifier ski = SubjectKeyIdentifier.getInstance(envelope.getOctets());
+                return Hex.toHexString(ski.getKeyIdentifier());
+            }
+        } catch (Exception e) {
+            LOG.error("Error extracting Subject Key Identifier from x509 certificate: " + e.getMessage());
         }
         return null;
     }
