@@ -72,7 +72,7 @@ public interface Common {
     String USER_X509_CN_ATTRIBUTE = "usercertificateCN";
 
     /**
-     * The user id attribute tracks the Keycloak attribute that maps to the user's
+     * The user Subject Key Identifier attribute tracks the Keycloak attribute that maps to the user's
      * x509 Subject Key Identifier.
      */
     String USER_X509_SKI_ATTRIBUTE = "usercertificateSKI";
