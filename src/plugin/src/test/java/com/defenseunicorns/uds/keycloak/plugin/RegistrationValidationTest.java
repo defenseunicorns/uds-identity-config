@@ -99,7 +99,7 @@ public class RegistrationValidationTest {
         try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
             x509ToolsMock.when(() -> X509Tools.getX509Username(any(FormContext.class))).thenReturn("x509user");
             x509ToolsMock.when(() -> X509Tools.getX509CommonName(any(FormContext.class))).thenReturn("LAST.FIRST");
-            x509ToolsMock.when(() -> X509Tools.getX509SubjectKeyId(any(FormContext.class)))
+            x509ToolsMock.when(() -> X509Tools.getX509SubjectKeyId(any(), any()))
                     .thenReturn("22f0a679237bb40a2d6a24fa75887811272067e6");
 
             FormContext context = mock(FormContext.class);
@@ -122,7 +122,7 @@ public class RegistrationValidationTest {
         try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
             x509ToolsMock.when(() -> X509Tools.getX509Username(any(FormContext.class))).thenReturn("x509user");
             x509ToolsMock.when(() -> X509Tools.getX509CommonName(any(FormContext.class))).thenReturn(null);
-            x509ToolsMock.when(() -> X509Tools.getX509SubjectKeyId(any(FormContext.class))).thenReturn(null);
+            x509ToolsMock.when(() -> X509Tools.getX509SubjectKeyId(any(), any())).thenReturn(null);
 
             FormContext context = mock(FormContext.class);
             org.keycloak.models.UserModel user = mock(org.keycloak.models.UserModel.class);
@@ -134,6 +134,29 @@ public class RegistrationValidationTest {
             subject.success(context);
 
             verify(user, never()).setSingleAttribute(eq(Common.USER_X509_SKI_ATTRIBUTE), any());
+        }
+    }
+
+    @Test
+    public void testSuccessSkipsCertAttributesWhenNoValidX509() {
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            // No validated x509 identity: cert-derived attributes must not be persisted.
+            x509ToolsMock.when(() -> X509Tools.getX509Username(any(FormContext.class))).thenReturn(null);
+
+            FormContext context = mock(FormContext.class);
+            org.keycloak.models.UserModel user = mock(org.keycloak.models.UserModel.class);
+            org.keycloak.models.RealmModel realm = mock(org.keycloak.models.RealmModel.class);
+            when(context.getUser()).thenReturn(user);
+            when(context.getRealm()).thenReturn(realm);
+
+            RegistrationValidation subject = new RegistrationValidation();
+            subject.success(context);
+
+            verify(user, never()).setSingleAttribute(eq(Common.USER_X509_CN_ATTRIBUTE), any());
+            verify(user, never()).setSingleAttribute(eq(Common.USER_X509_SKI_ATTRIBUTE), any());
+            // CN/SKI must not even be extracted when there's no validated identity.
+            x509ToolsMock.verify(() -> X509Tools.getX509CommonName(any(FormContext.class)), never());
+            x509ToolsMock.verify(() -> X509Tools.getX509SubjectKeyId(any(), any()), never());
         }
     }
 

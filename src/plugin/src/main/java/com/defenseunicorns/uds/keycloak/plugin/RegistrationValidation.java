@@ -65,8 +65,14 @@ public class RegistrationValidation extends RegistrationUserCreation {
         UserModel user = context.getUser();
         RealmModel realm = context.getRealm();
         String x509Username = X509Tools.getX509Username(context);
-        String x509commonName = X509Tools.getX509CommonName(context);
-        String x509subjectKeyId = X509Tools.getX509SubjectKeyId(context);
+        String x509commonName = null;
+        String x509subjectKeyId = null;
+        // Only bind cert-derived attributes when the presented x509 passed validation
+        // (a non-null username means it cleared the cert-policy/identity checks).
+        if (x509Username != null) {
+            x509commonName = X509Tools.getX509CommonName(context);
+            x509subjectKeyId = X509Tools.getX509SubjectKeyId(context.getSession(), context.getHttpRequest());
+        }
 
         processX509UserAttribute(realm, user, x509Username, x509commonName, x509subjectKeyId);
         bindRequiredActions(user, x509Username);

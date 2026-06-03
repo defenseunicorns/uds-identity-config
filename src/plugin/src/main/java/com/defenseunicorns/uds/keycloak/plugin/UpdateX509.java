@@ -85,22 +85,22 @@ public class UpdateX509 implements RequiredActionProvider, RequiredActionFactory
             return;
         }
 
+        // Only bind cert-derived attributes when the presented x509 passed validation
+        // (a non-null username means it cleared the cert-policy/identity checks).
         String username = X509Tools.getX509Username(context);
         if (username != null) {
             UserModel user = context.getUser();
             user.setSingleAttribute(Common.USER_X509_ID_ATTRIBUTE, username);
-        }
 
-        String commonName = X509Tools.getX509CommonName(context);
-        if(commonName != null) {
-            UserModel user = context.getUser();
-            user.setSingleAttribute(Common.USER_X509_CN_ATTRIBUTE, commonName);
-        }
+            String commonName = X509Tools.getX509CommonName(context);
+            if (commonName != null) {
+                user.setSingleAttribute(Common.USER_X509_CN_ATTRIBUTE, commonName);
+            }
 
-        String subjectKeyId = X509Tools.getX509SubjectKeyId(context);
-        if (subjectKeyId != null) {
-            UserModel user = context.getUser();
-            user.setSingleAttribute(Common.USER_X509_SKI_ATTRIBUTE, subjectKeyId);
+            String subjectKeyId = X509Tools.getX509SubjectKeyId(context.getSession(), context.getHttpRequest());
+            if (subjectKeyId != null) {
+                user.setSingleAttribute(Common.USER_X509_SKI_ATTRIBUTE, subjectKeyId);
+            }
         }
         context.success();
     }

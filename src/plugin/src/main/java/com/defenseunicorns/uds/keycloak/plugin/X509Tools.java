@@ -320,20 +320,6 @@ public final class X509Tools {
     }
 
     /**
-     * Extracts the Subject Key Identifier (SKI) from the x509 certificate.
-     */
-    public static String getX509SubjectKeyId(final FormContext context) {
-        return getX509SubjectKeyId(context.getSession(), context.getHttpRequest());
-    }
-
-    /**
-     * Extracts the Subject Key Identifier (SKI) from the x509 certificate.
-     */
-    public static String getX509SubjectKeyId(final RequiredActionContext context) {
-        return getX509SubjectKeyId(context.getSession(), context.getHttpRequest());
-    }
-
-    /**
      * Extracts the Subject Key Identifier (SKI) from the x509 certificate as a
      * lowercase hex string. Returns null when the extension is absent or unparseable.
      */

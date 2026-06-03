@@ -115,14 +115,14 @@ public class X509ToolsTest {
     }
 
     @Test
-    public void testGetX509SubjectKeyIdFromFormContext() throws Exception {
+    public void testGetX509SubjectKeyId() throws Exception {
         when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(x509ClientCertificateLookup);
 
         X509Certificate cert = Utils.buildTestCertificate();
         X509Certificate[] certs = new X509Certificate[]{cert};
         when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(certs);
 
-        String ski = X509Tools.getX509SubjectKeyId(formContext);
+        String ski = X509Tools.getX509SubjectKeyId(keycloakSession, httpRequest);
         assertEquals("22f0a679237bb40a2d6a24fa75887811272067e6", ski);
         assertTrue(ski.matches("^[0-9a-f]+$"));
     }
@@ -131,7 +131,32 @@ public class X509ToolsTest {
     public void testGetX509SubjectKeyIdNullProvider() throws Exception {
         when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(null);
 
-        String ski = X509Tools.getX509SubjectKeyId(formContext);
+        String ski = X509Tools.getX509SubjectKeyId(keycloakSession, httpRequest);
+        assertNull(ski);
+    }
+
+    @Test
+    public void testGetX509SubjectKeyIdAbsentExtension() throws Exception {
+        when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(x509ClientCertificateLookup);
+
+        X509Certificate cert = org.mockito.Mockito.mock(X509Certificate.class);
+        when(cert.getExtensionValue(Common.SUBJECT_KEY_ID_OID)).thenReturn(null);
+        when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(new X509Certificate[]{cert});
+
+        String ski = X509Tools.getX509SubjectKeyId(keycloakSession, httpRequest);
+        assertNull(ski);
+    }
+
+    @Test
+    public void testGetX509SubjectKeyIdMalformedExtension() throws Exception {
+        when(keycloakSession.getProvider(X509ClientCertificateLookup.class)).thenReturn(x509ClientCertificateLookup);
+
+        X509Certificate cert = org.mockito.Mockito.mock(X509Certificate.class);
+        // Bogus bytes that are not a valid DER OCTET STRING envelope -> parse exception -> null
+        when(cert.getExtensionValue(Common.SUBJECT_KEY_ID_OID)).thenReturn(new byte[]{0x01, 0x02, 0x03});
+        when(x509ClientCertificateLookup.getCertificateChain(httpRequest)).thenReturn(new X509Certificate[]{cert});
+
+        String ski = X509Tools.getX509SubjectKeyId(keycloakSession, httpRequest);
         assertNull(ski);
     }
 
