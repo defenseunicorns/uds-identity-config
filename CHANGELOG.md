@@ -1,5 +1,42 @@
 # Changelog
 
+## [0.28.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.27.0...v0.28.0) (2026-06-05)
+
+
+### Features
+
+* add usercertificateSKI user attribute from x509 cert ([#871](https://github.com/defenseunicorns/uds-identity-config/issues/871)) ([b0461b5](https://github.com/defenseunicorns/uds-identity-config/commit/b0461b5de4d29dc9aa324ad63a1f611f9cf7c61b))
+
+
+### Bug Fixes
+
+* **ci:** e2e tests breaking because of envoyfilter hanging on grafana ([#870](https://github.com/defenseunicorns/uds-identity-config/issues/870)) ([621a4db](https://github.com/defenseunicorns/uds-identity-config/commit/621a4db9441b1b5c160fddbb7b8380e21f22e433))
+* **deps:** update keycloak.version to v26.6.3 [security] ([#873](https://github.com/defenseunicorns/uds-identity-config/issues/873)) ([3b0065c](https://github.com/defenseunicorns/uds-identity-config/commit/3b0065c753c289dbcc0a48dc8309e402354a253c))
+* **deps:** update plugin-deps ([#866](https://github.com/defenseunicorns/uds-identity-config/issues/866)) ([0010a3d](https://github.com/defenseunicorns/uds-identity-config/commit/0010a3d8412ec77b1b5741d8b8978ea2f9da4376))
+* **deps:** update plugin-deps to v26.6.1 ([#859](https://github.com/defenseunicorns/uds-identity-config/issues/859)) ([9b981c1](https://github.com/defenseunicorns/uds-identity-config/commit/9b981c1510b52a8e0a37fc97294430f999168ed0))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#861](https://github.com/defenseunicorns/uds-identity-config/issues/861)) ([19378c1](https://github.com/defenseunicorns/uds-identity-config/commit/19378c1d019402aa448286081d7a67956c39ff5b))
+* **deps:** update all dependencies ([#869](https://github.com/defenseunicorns/uds-identity-config/issues/869)) ([239e90d](https://github.com/defenseunicorns/uds-identity-config/commit/239e90d222d0c0940854eaf0e6fc796a5611391b))
+* **deps:** update dependency defenseunicorns/uds-common to v1.24.10 ([#858](https://github.com/defenseunicorns/uds-identity-config/issues/858)) ([fe0a21d](https://github.com/defenseunicorns/uds-identity-config/commit/fe0a21dfa83284c9f9a93bb2025451efae79be72))
+* **deps:** update dependency defenseunicorns/uds-common to v1.24.11 ([#864](https://github.com/defenseunicorns/uds-identity-config/issues/864)) ([f8185ea](https://github.com/defenseunicorns/uds-identity-config/commit/f8185ea2ae7dc845c553d563c3935cf22a435d2d))
+* **deps:** update dependency defenseunicorns/uds-common to v1.24.8 ([#854](https://github.com/defenseunicorns/uds-identity-config/issues/854)) ([b23636f](https://github.com/defenseunicorns/uds-identity-config/commit/b23636f4ee0dd874b1b5cf8e2870e0fcf5fe7a88))
+* **deps:** update dependency defenseunicorns/uds-common to v1.24.9 ([#856](https://github.com/defenseunicorns/uds-identity-config/issues/856)) ([f5a50e5](https://github.com/defenseunicorns/uds-identity-config/commit/f5a50e5b72dbaffee6bcec1ded40f5f755606051))
+* **deps:** update dependency opentofu/opentofu to v1.12.0 ([#862](https://github.com/defenseunicorns/uds-identity-config/issues/862)) ([153d123](https://github.com/defenseunicorns/uds-identity-config/commit/153d1235ec8157dec3cb0ee84fb0d54008dace1a))
+* **deps:** update gha-deps ([#860](https://github.com/defenseunicorns/uds-identity-config/issues/860)) ([675f495](https://github.com/defenseunicorns/uds-identity-config/commit/675f49568ea5dfb7ae10e3c2926a868b6c80c4f2))
+* **deps:** update gha-deps ([#867](https://github.com/defenseunicorns/uds-identity-config/issues/867)) ([a44a06e](https://github.com/defenseunicorns/uds-identity-config/commit/a44a06e96d20dad97f6b5d3bce010aaa1d439634))
+* **deps:** update gha-deps to v0.32.0 ([#872](https://github.com/defenseunicorns/uds-identity-config/issues/872)) ([86061c9](https://github.com/defenseunicorns/uds-identity-config/commit/86061c92d44a04c01d86dadf4157565e034d7d33))
+* **deps:** update gha-deps to v21 ([#857](https://github.com/defenseunicorns/uds-identity-config/issues/857)) ([581aac2](https://github.com/defenseunicorns/uds-identity-config/commit/581aac2b2c68161f75335c3825e01e3f66fabb58))
+* **deps:** update opentofu/setup-opentofu action to v2.0.1 ([#863](https://github.com/defenseunicorns/uds-identity-config/issues/863)) ([1c94d93](https://github.com/defenseunicorns/uds-identity-config/commit/1c94d93e6ae609541e26fa86d1d9b88500631f15))
+* rename uds to unified defense stack ([#868](https://github.com/defenseunicorns/uds-identity-config/issues/868)) ([95ea52e](https://github.com/defenseunicorns/uds-identity-config/commit/95ea52ea687faed7a7c2d6d6417c7c6067908fc7))
+
+
+### Documentation
+
+* add SECURITY.md and rename LICENSE.md to LICENSE ([#865](https://github.com/defenseunicorns/uds-identity-config/issues/865)) ([db15b7b](https://github.com/defenseunicorns/uds-identity-config/commit/db15b7b9471168912a4be16d5717c09d8d829a28))
+
 ## [0.27.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.26.1...v0.27.0) (2026-05-04)
 
 
