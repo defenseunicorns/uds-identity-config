@@ -149,7 +149,7 @@ tasks:
       - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
       - cmd: cd uds-core && mkdir -p build && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization && uds run create:single-layer-callable --set LAYER=monitoring
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress --skip-signature-validation
-      - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
+      - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress --skip-signature-validation
       - task: create-users
 
   - name: create-users
