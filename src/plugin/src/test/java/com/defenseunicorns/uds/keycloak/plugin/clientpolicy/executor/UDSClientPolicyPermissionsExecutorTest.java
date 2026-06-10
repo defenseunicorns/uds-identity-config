@@ -406,4 +406,16 @@ public class UDSClientPolicyPermissionsExecutorTest {
         // then: no exception, and the executor never touched the proposed client
         verify(context, never()).getProposedClientRepresentation();
     }
+
+    @Test
+    public void shouldDoNothingWhenAuthenticatedClientIdIsNull() throws ClientPolicyException {
+        // given: Keycloak provided an authenticated client object with no clientId
+        ClientCRUDContext context = crudContext(ClientPolicyEvent.REGISTER, null);
+
+        // when: no enforcement runs because no managed client id matched
+        executor.executeOnEvent(context);
+
+        // then: no exception, and the executor never touched the proposed client
+        verify(context, never()).getProposedClientRepresentation();
+    }
 }

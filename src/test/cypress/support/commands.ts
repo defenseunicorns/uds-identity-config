@@ -180,13 +180,34 @@ Cypress.Commands.add("getClientSecret", (clientId: string) => {
 
 type TokenSubject = 'UDS_OPERATOR' | 'KEYCLOAK_ADMIN';
 
+function getStringEnv(name: string, fallback: string): string {
+  const value = Cypress.env(name);
+  return typeof value === "string" && value.trim().length > 0 ? value : fallback;
+}
+
+function getKeycloakAdminBaseUrl(): string {
+  return getStringEnv("KEYCLOAK_ADMIN_BASE_URL", "https://keycloak.admin.uds.dev").replace(/\/+$/, "");
+}
+
+function getKeycloakRealm(): string {
+  return getStringEnv("KEYCLOAK_REALM", "uds");
+}
+
+function base64UrlDecode(segment: string): string {
+  const base64 = segment.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+  return Buffer.from(padded, "base64").toString("utf-8");
+}
+
 /**
  * Assert a JWT access token is a string carrying the manage-clients role, then return it.
  */
 function assertManageClientsToken(accessToken: string): string {
   expect(accessToken).to.be.a("string");
-  const tokenPayload = Buffer.from(accessToken.split(".")[1], "base64").toString("utf-8");
-  expect(tokenPayload).contains("manage-clients");
+  const tokenParts = accessToken.split(".");
+  expect(tokenParts, "JWT parts").to.have.length(3);
+  const tokenPayload = JSON.parse(base64UrlDecode(tokenParts[1]));
+  expect(tokenPayload.resource_access?.["realm-management"]?.roles || []).to.include("manage-clients");
   return accessToken;
 }
 
@@ -262,10 +283,12 @@ Cypress.Commands.add("getAccessToken", (subject?: TokenSubject) => {
  * Keycloak matches it to the uds-fleet-admin client by the configured IdP issuer + SA "sub".
  */
 Cypress.Commands.add("getFleetAdminAccessToken", () => {
-  const realmTokenUrl = "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token";
-  const wellKnownUrl = "https://keycloak.admin.uds.dev/realms/uds/.well-known/openid-configuration";
-  const saNamespace = "uds-fleet-command";
-  const saName = "uds-fleet-command-sa";
+  const keycloakBaseUrl = getKeycloakAdminBaseUrl();
+  const realm = getKeycloakRealm();
+  const realmTokenUrl = `${keycloakBaseUrl}/realms/${realm}/protocol/openid-connect/token`;
+  const wellKnownUrl = `${keycloakBaseUrl}/realms/${realm}/.well-known/openid-configuration`;
+  const saNamespace = getStringEnv("FLEET_SERVICE_ACCOUNT_NAMESPACE", "uds-fleet-command");
+  const saName = getStringEnv("FLEET_SERVICE_ACCOUNT_NAME", "uds-fleet-command-sa");
 
   // The SA token must be addressed to the realm issuer (audience). Read it from the realm's discovery doc
   // so the audience always matches what Keycloak advertises, regardless of the configured frontend URL.
@@ -276,12 +299,13 @@ Cypress.Commands.add("getFleetAdminAccessToken", () => {
 
     // Mint a short-lived projected SA token addressed to the realm issuer.
     const mintCmd = `uds zarf tools kubectl create token ${saName} -n ${saNamespace} --audience "${issuer}" --duration=10m`;
-    return cy.exec(mintCmd).then((result) => {
+    return cy.exec(mintCmd, { log: false }).then((result) => {
       expect(result.exitCode, "kubectl create token").to.eq(0);
       const saToken = result.stdout.trim();
       expect(saToken, "service account token").to.be.a("string").and.not.be.empty;
 
       return cy.request({
+        log: false,
         method: "POST",
         url: realmTokenUrl,
         headers: { "Content-Type": "application/x-www-form-urlencoded" },

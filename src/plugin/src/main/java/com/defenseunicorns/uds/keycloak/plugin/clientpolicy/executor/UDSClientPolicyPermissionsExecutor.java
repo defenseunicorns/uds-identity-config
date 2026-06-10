@@ -50,7 +50,7 @@ import static org.keycloak.common.util.CollectionUtil.*;
  * * A managed client may only update/view/delete clients it created (matching "created-by" attribute).
  * * A managed client may only create clients whose clientId starts with its required prefix (empty = no constraint).
  * * The Client can't use the Full Scope Allowed feature.
- * * The Client can only use the Protocol Mappers that are whitelisted in the configuration. The default, opinionated configuration uses OIDC nad UDS Protocol Mappers.
+ * * The Client can only use the Protocol Mappers that are whitelisted in the configuration. The default, opinionated configuration uses OIDC and UDS Protocol Mappers.
  * * The Client can only use the Custom Client Scopes that are whitelisted in the configuration. The default, opinionated configuration uses UDS Provided Client Scopes, Client Scopes configured at the Realm level as well as SAML defaults.
  */
 public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorProvider<UDSClientPolicyPermissionsExecutorConfiguration> {
@@ -120,7 +120,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             String authenticatedClientId = getAuthenticatedClientId(clientCRUDContext);
             logger.debug("Executing UDSClientPolicyPermissionsExecutor, authenticated to Client ID: {}", authenticatedClientId);
 
-            if (clientCRUDContext.getAuthenticatedClient() != null && MANAGED_CLIENT_ID_PREFIXES.containsKey(authenticatedClientId)) {
+            if (clientCRUDContext.getAuthenticatedClient() != null && authenticatedClientId != null && MANAGED_CLIENT_ID_PREFIXES.containsKey(authenticatedClientId)) {
                 switch (context.getEvent()) {
                     case UPDATE:
                         logger.trace("Updating existing Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
