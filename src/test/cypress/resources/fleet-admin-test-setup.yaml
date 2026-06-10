@@ -1,0 +1,17 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+#
+# Prerequisites for the uds-fleet-admin federated-JWT integration test.
+# Stands in for what UDS Fleet Management provides at deploy time: a namespace and
+# service account whose token the uds-fleet-admin client trusts. The default realm config
+# expects sub "system:serviceaccount:uds-fleet-command:uds-fleet-command-sa".
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: uds-fleet-command
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: uds-fleet-command-sa
+  namespace: uds-fleet-command

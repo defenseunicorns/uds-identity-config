@@ -43,6 +43,13 @@ declare namespace Cypress {
      */
     getAccessToken(subject?: 'UDS_OPERATOR' | 'KEYCLOAK_ADMIN'): Chainable<string>;
 
+    /**
+     * Retrieve an access token for the 'uds-fleet-admin' client using federated JWT
+     * (Signed JWT - Federated) authentication. Mints a Kubernetes service-account
+     * token addressed to the realm issuer and presents it as a client assertion.
+     */
+    getFleetAdminAccessToken(): Chainable<string>;
+
     getClientSecret(clientId: string): Chainable<{ accessToken: string; clientSecret: string }>;
 
     /**

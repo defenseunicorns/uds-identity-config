@@ -521,6 +521,17 @@
                     "realm-admin"
                 ]
             }
+        },
+        {
+            "id": "00155696-4be6-4807-8df7-b5650555e0ea",
+            "username": "service-account-uds-fleet-admin",
+            "enabled": true,
+            "serviceAccountClientId": "uds-fleet-admin",
+            "clientRoles": {
+                "realm-management": [
+                    "manage-clients"
+                ]
+            }
         }
     ],
     "scopeMappings": [
@@ -538,6 +549,16 @@
                 "roles": [
                     "manage-account",
                     "view-groups"
+                ]
+            }
+        ],
+        // uds-fleet-admin runs with fullScopeAllowed=false, so its service-account roles are filtered
+        // to the client's scope. Grant only manage-clients into scope so it reaches the access token.
+        "realm-management": [
+            {
+                "client": "uds-fleet-admin",
+                "roles": [
+                    "manage-clients"
                 ]
             }
         ]
@@ -908,6 +929,36 @@
             "attributes": {},
             "authenticationFlowBindingOverrides": {},
             "fullScopeAllowed": true,
+            "nodeReRegistrationTimeout": 0
+        },
+        {
+            "id": "94de6a0d-83f7-4875-93f0-05a986ecc3a5",
+            "clientId": "uds-fleet-admin",
+            "name": "uds-fleet-admin",
+            "description": "Scoped admin client for UDS Fleet Management to manage fleet-* clients",
+            "enabled": "${REALM_FLEET_CLIENT_ENABLED:false}",
+            "alwaysDisplayInConsole": false,
+            // "Signed JWT - Federated" authenticator (Keycloak FederatedJWTClientAuthenticator.PROVIDER_ID)
+            "clientAuthenticatorType": "federated-jwt",
+            "redirectUris": [],
+            "webOrigins": [],
+            "notBefore": 0,
+            "bearerOnly": false,
+            "consentRequired": false,
+            "standardFlowEnabled": false,
+            "implicitFlowEnabled": false,
+            "directAccessGrantsEnabled": false,
+            "serviceAccountsEnabled": true,
+            "publicClient": false,
+            "frontchannelLogout": false,
+            "protocol": "openid-connect",
+            "attributes": {
+                // Matched to Fleet's identity by the IdP alias from identityProviders + the Fleet service account "sub"
+                "jwt.credential.issuer": "kubernetes",
+                "jwt.credential.sub": "${REALM_FLEET_SERVICE_ACCOUNT:system:serviceaccount:uds-fleet-command:uds-fleet-command-sa}"
+            },
+            "authenticationFlowBindingOverrides": {},
+            "fullScopeAllowed": false,
             "nodeReRegistrationTimeout": 0
         }
     ],
@@ -1974,6 +2025,15 @@
                 "principalType": "Subject NameID",
                 "syncMode": "FORCE"
             }
+        },
+        {
+            "alias": "kubernetes",
+            "providerId": "kubernetes",
+            "enabled": true,
+            "config": {
+                // Default in-cluster issuer; set realmInitEnv.KUBERNETES_ISSUER to the cluster's OIDC issuer on managed clusters (EKS)
+                "issuer": "${REALM_KUBERNETES_ISSUER:https://kubernetes.default.svc.cluster.local}"
+            }
         }
     ],
     "identityProviderMappers": [
@@ -2699,6 +2759,16 @@
                     "authenticatorFlow": false,
                     "requirement": "ALTERNATIVE",
                     "priority": 41,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    // Keycloak's "Signed JWT - Federated" client authenticator; lets a client log in with a
+                    // token issued by a trusted identity provider instead of a client secret or static key
+                    "authenticator": "federated-jwt",
+                    "authenticatorFlow": false,
+                    "requirement": "ALTERNATIVE",
+                    "priority": 15,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }
