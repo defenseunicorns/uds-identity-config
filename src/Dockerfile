@@ -50,6 +50,9 @@ ENV CA_REGEX_EXCLUSION_FILTER=${CA_REGEX_EXCLUSION_FILTER}
 ADD ${CA_ZIP_URL} /tmp/authorized_certs/authorized_certs.zip
 COPY truststore/ca-to-jks.sh .
 
+# BC FIPS jars are needed to generate the BCFKS truststore
+COPY --from=plugin /home/build/target/fips/libs /home/build/fips-libs
+
 RUN ./ca-to-jks.sh
 
 ###################################################################################
@@ -91,9 +94,10 @@ RUN mkdir -p ./fips/libs
 RUN chown -R nonroot:nonroot ./fips/libs
 COPY --chown=nonroot --from=plugin /home/build/target/fips/libs/*.jar ./fips/libs
 
-# Copy the DOD Unclass PEM and truststore for Istio & Keycloak Auth
+# Copy the DOD Unclass PEM, individual certs, and BCFKS truststore for Istio & Keycloak Auth
 COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
 COPY --chown=nonroot --from=truststore /home/build/certs ./certs
+COPY --chown=nonroot --from=truststore /home/build/keycloak-truststore.bcfks .
 
 # The realm.json is loaded into Keycloak on startup only if the realm does not exist
 COPY --chown=nonroot --from=json5-converter /convert/realm.json .

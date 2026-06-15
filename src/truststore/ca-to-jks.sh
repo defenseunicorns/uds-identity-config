@@ -42,3 +42,29 @@ for CERT_FILE in crt-*; do
 done
 
 popd >& /dev/null
+
+# Build a BCFKS truststore from the validated certs using the BouncyCastle FIPS provider.
+# The PKCS12 format is not FIPS-compliant (Keycloak's TruststoreBuilder hardcodes PKCS12),
+# so we generate BCFKS here at image-build time and supply it directly at runtime.
+TRUSTSTORE="$(pwd)/keycloak-truststore.bcfks"
+TRUSTSTORE_PASSWORD="keycloakchangeit"
+BCFIPS_JAR=$(ls /home/build/fips-libs/bc-fips-*.jar | head -1)
+
+n=0
+for CERT_FILE in "${CERT_DIR}"/*; do
+  if keytool -importcert \
+       -noprompt \
+       -alias "udsca-$n" \
+       -file "$CERT_FILE" \
+       -keystore "$TRUSTSTORE" \
+       -storetype bcfks \
+       -providername BCFIPS \
+       -providerclass org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider \
+       -providerpath "$BCFIPS_JAR" \
+       -storepass "$TRUSTSTORE_PASSWORD" \
+       -trustcacerts 2>/dev/null; then
+    n=$((n + 1))
+  fi
+done
+
+echo "Imported $n certificate(s) into $TRUSTSTORE"
