@@ -56,7 +56,7 @@ BCFIPS_JAR=$(ls /home/build/fips-libs/bc-fips-*.jar | head -1)
 cat > /tmp/bcfips-security.properties << EOF
 security.provider.99=org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider
 EOF
-export JAVA_TOOL_OPTIONS="-Djava.class.path=$BCFIPS_JAR -Djava.security.properties=/tmp/bcfips-security.properties"
+export JAVA_TOOL_OPTIONS="--class-path $BCFIPS_JAR -Djava.security.properties=/tmp/bcfips-security.properties"
 
 n=0
 for CERT_FILE in "${CERT_DIR}"/*; do
