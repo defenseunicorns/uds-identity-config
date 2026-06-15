@@ -44,8 +44,6 @@ done
 popd >& /dev/null
 
 # Build a BCFKS truststore from the validated certs using the BouncyCastle FIPS provider.
-# The truststore Docker stage uses Java 11, which predates the Java 17 strict PKCS12
-# null-password check that causes an NPE when keytool loads a signed JAR via -providerpath.
 TRUSTSTORE="$(pwd)/keycloak-truststore.bcfks"
 TRUSTSTORE_PASSWORD="keycloakchangeit"
 BCFIPS_JAR=$(ls /home/build/fips-libs/bc-fips-*.jar | head -1)

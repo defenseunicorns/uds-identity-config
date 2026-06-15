@@ -35,9 +35,9 @@ COPY extra-jars/* ./target/
 # Build the Java truststore from DOD CAs                                          #
 #                                                                                 #
 ###################################################################################
-FROM maven:3.9-eclipse-temurin-11 AS truststore
+FROM registry.access.redhat.com/ubi9/openjdk-21 AS truststore
 USER root
-RUN apt-get update && apt-get install unzip openssl -y
+RUN microdnf install -y unzip openssl
 
 WORKDIR /home/build
 
