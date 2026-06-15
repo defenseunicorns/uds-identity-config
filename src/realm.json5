@@ -551,16 +551,6 @@
                     "view-groups"
                 ]
             }
-        ],
-        // uds-fleet-admin runs with fullScopeAllowed=false, so its service-account roles are filtered
-        // to the client's scope. Grant only manage-clients into scope so it reaches the access token.
-        "realm-management": [
-            {
-                "client": "uds-fleet-admin",
-                "roles": [
-                    "manage-clients"
-                ]
-            }
         ]
     },
     "clients": [
@@ -958,7 +948,7 @@
                 "jwt.credential.sub": "${REALM_FLEET_SERVICE_ACCOUNT:system:serviceaccount:uds-fleet-command:uds-fleet-command-sa}"
             },
             "authenticationFlowBindingOverrides": {},
-            "fullScopeAllowed": false,
+            "fullScopeAllowed": true,
             "nodeReRegistrationTimeout": 0
         }
     ],

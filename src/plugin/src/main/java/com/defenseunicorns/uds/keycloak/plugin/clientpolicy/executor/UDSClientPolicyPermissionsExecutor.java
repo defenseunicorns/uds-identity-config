@@ -59,7 +59,9 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     /**
      * Clients governed by this executor, mapped to the clientId prefix required for clients they create.
-     * An empty prefix imposes no naming constraint (preserves uds-operator's existing behavior).
+     * The authenticated clientId is still stamped directly into created-by; this map only acts as the
+     * managed-client allowlist and per-client prefix configuration. An empty prefix imposes no naming
+     * constraint (preserves uds-operator's existing behavior).
      */
     public static final Map<String, String> MANAGED_CLIENT_ID_PREFIXES = Map.of(
             "uds-operator", "",
@@ -118,9 +120,23 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     public void executeOnEvent(ClientPolicyContext context) throws ClientPolicyException {
         if ((context instanceof ClientCRUDContext clientCRUDContext)) {
             String authenticatedClientId = getAuthenticatedClientId(clientCRUDContext);
-            logger.debug("Executing UDSClientPolicyPermissionsExecutor, authenticated to Client ID: {}", authenticatedClientId);
+            boolean hasAuthenticatedClient = clientCRUDContext.getAuthenticatedClient() != null;
+            boolean managedClient = isManagedClient(authenticatedClientId);
+            String requiredClientIdPrefix = getRequiredClientIdPrefix(authenticatedClientId);
+            ClientModel targetClient = clientCRUDContext.getTargetClient();
+            ClientRepresentation proposedClient = clientCRUDContext.getProposedClientRepresentation();
+            logger.debug(
+                    "Executing UDSClientPolicyPermissionsExecutor, event: {}, hasAuthenticatedClient: {}, authenticatedClientId: {}, managedClient: {}, requiredClientIdPrefix: {}, targetClientId: {}, proposedClientId: {}",
+                    context.getEvent(),
+                    hasAuthenticatedClient,
+                    authenticatedClientId,
+                    managedClient,
+                    requiredClientIdPrefix,
+                    targetClient != null ? targetClient.getClientId() : null,
+                    proposedClient != null ? proposedClient.getClientId() : null
+            );
 
-            if (clientCRUDContext.getAuthenticatedClient() != null && authenticatedClientId != null && MANAGED_CLIENT_ID_PREFIXES.containsKey(authenticatedClientId)) {
+            if (hasAuthenticatedClient && managedClient) {
                 switch (context.getEvent()) {
                     case UPDATE:
                         logger.trace("Updating existing Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
@@ -166,8 +182,16 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         return ownerClientId.equals(client.getAttribute(ATTRIBUTE_CREATED_BY));
     }
 
+    boolean isManagedClient(String clientId) {
+        return clientId != null && MANAGED_CLIENT_ID_PREFIXES.containsKey(clientId);
+    }
+
+    String getRequiredClientIdPrefix(String clientId) {
+        return clientId == null ? null : MANAGED_CLIENT_ID_PREFIXES.get(clientId);
+    }
+
     void validateClientIdPrefix(ClientRepresentation rep, String authenticatedClientId) throws ClientPolicyException {
-        String requiredPrefix = MANAGED_CLIENT_ID_PREFIXES.get(authenticatedClientId);
+        String requiredPrefix = getRequiredClientIdPrefix(authenticatedClientId);
         if (StringUtils.isNotBlank(requiredPrefix)) {
             String clientId = rep.getClientId();
             if (clientId == null || !clientId.startsWith(requiredPrefix)) {

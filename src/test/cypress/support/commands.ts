@@ -283,7 +283,7 @@ Cypress.Commands.add("getFleetAdminAccessToken", () => {
     expect(issuer, "realm issuer").to.be.a("string").and.not.be.empty;
 
     // Mint a short-lived projected SA token addressed to the realm issuer.
-    const mintCmd = `uds zarf tools kubectl create token ${saName} -n ${saNamespace} --audience "${issuer}" --duration=10m`;
+    const mintCmd = `uds zarf tools kubectl create token ${saName} -n ${saNamespace} --audience "${issuer}"`;
     return cy.exec(mintCmd, { log: false }).then((result) => {
       expect(result.exitCode, "kubectl create token").to.eq(0);
       const saToken = result.stdout.trim();
