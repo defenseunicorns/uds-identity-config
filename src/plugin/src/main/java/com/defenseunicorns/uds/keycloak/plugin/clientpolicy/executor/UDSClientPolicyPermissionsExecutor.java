@@ -123,20 +123,27 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             boolean hasAuthenticatedClient = clientCRUDContext.getAuthenticatedClient() != null;
             boolean managedClient = isManagedClient(authenticatedClientId);
             String requiredClientIdPrefix = getRequiredClientIdPrefix(authenticatedClientId);
-            ClientModel targetClient = clientCRUDContext.getTargetClient();
-            ClientRepresentation proposedClient = clientCRUDContext.getProposedClientRepresentation();
             logger.debug(
-                    "Executing UDSClientPolicyPermissionsExecutor, event: {}, hasAuthenticatedClient: {}, authenticatedClientId: {}, managedClient: {}, requiredClientIdPrefix: {}, targetClientId: {}, proposedClientId: {}",
+                    "Executing UDSClientPolicyPermissionsExecutor, event: {}, hasAuthenticatedClient: {}, authenticatedClientId: {}, managedClient: {}, requiredClientIdPrefix: {}",
                     context.getEvent(),
                     hasAuthenticatedClient,
                     authenticatedClientId,
                     managedClient,
-                    requiredClientIdPrefix,
-                    targetClient != null ? targetClient.getClientId() : null,
-                    proposedClient != null ? proposedClient.getClientId() : null
+                    requiredClientIdPrefix
             );
 
             if (hasAuthenticatedClient && managedClient) {
+                ClientModel targetClient = clientCRUDContext.getTargetClient();
+                ClientRepresentation proposedClient = clientCRUDContext.getProposedClientRepresentation();
+                logger.debug(
+                        "Applying UDSClientPolicyPermissionsExecutor, event: {}, authenticatedClientId: {}, requiredClientIdPrefix: {}, targetClientId: {}, proposedClientId: {}",
+                        context.getEvent(),
+                        authenticatedClientId,
+                        requiredClientIdPrefix,
+                        targetClient != null ? targetClient.getClientId() : null,
+                        proposedClient != null ? proposedClient.getClientId() : null
+                );
+
                 switch (context.getEvent()) {
                     case UPDATE:
                         logger.trace("Updating existing Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
