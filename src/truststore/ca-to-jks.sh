@@ -43,26 +43,8 @@ done
 
 popd >& /dev/null
 
-# Build a BCFKS truststore from the validated certs using the BouncyCastle FIPS provider.
-TRUSTSTORE="$(pwd)/keycloak-truststore.bcfks"
-TRUSTSTORE_PASSWORD="keycloakchangeit"
-BCFIPS_JAR=$(ls /home/build/fips-libs/bc-fips-*.jar | head -1)
-
-n=0
-for CERT_FILE in "${CERT_DIR}"/*; do
-  if keytool -importcert \
-       -noprompt \
-       -alias "udsca-$n" \
-       -file "$CERT_FILE" \
-       -keystore "$TRUSTSTORE" \
-       -storetype bcfks \
-       -providername BCFIPS \
-       -providerclass org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider \
-       -providerpath "$BCFIPS_JAR" \
-       -storepass "$TRUSTSTORE_PASSWORD" \
-       -trustcacerts 2>/dev/null; then
-    n=$((n + 1))
-  fi
-done
-
-echo "Imported $n certificate(s) into $TRUSTSTORE"
+# The BCFKS truststore is no longer built here at image-build time. It is now built at
+# runtime by build-truststore.sh in the uds-config init container, so that it can also
+# include cluster trust (the UDS trust bundle and the Kubernetes service account CA) that
+# is only available at pod startup. This stage only produces the validated DoD CA certs
+# (certs/ and authorized_certs.pem).

@@ -17,10 +17,12 @@ cp -fvr theme/* /opt/keycloak/themes/theme/
 cp -fv *.jar /opt/keycloak/providers/
 
 cp -fv ./fips/libs/*.jar /opt/keycloak/providers/
-# Copy the pre-generated BCFKS truststore. Keycloak's TruststoreBuilder hardcodes PKCS12
-# (not FIPS-compliant), so we bypass it by supplying the truststore directly and keeping
-# conf/truststores empty so Quarkus auto-discovery does not trigger TruststoreBuilder.
-cp -fv keycloak-truststore.bcfks /opt/keycloak/data/keycloak-truststore.bcfks
+
+# Build the FIPS BCFKS system truststore at runtime. Keycloak's TruststoreBuilder hardcodes
+# PKCS12 (not FIPS-compliant), so we build a BCFKS ourselves (from the baked DoD CA certs, the
+# UDS trust bundle, and the Kubernetes CA) and point Keycloak at it via JAVA_OPTS_APPEND.
+# conf/truststores is left empty so Quarkus auto-discovery does not trigger TruststoreBuilder.
+/home/nonroot/build-truststore.sh
 
 if [ -d /opt/keycloak/theme-overrides ]; then
     echo "Applying theme customizations"

@@ -35,10 +35,8 @@ COPY extra-jars/* ./target/
 # Build the Java truststore from DOD CAs                                          #
 #                                                                                 #
 ###################################################################################
-# Red Hat OpenJDK 21 is intentional. Eclipse Temurin 21 introduced a strict PKCS12
-# null-password enforcement (JDK-8201536) that causes an NPE when keytool loads a
-# signed BC FIPS JAR via -providerpath. Red Hat's OpenJDK 21 does not exhibit this
-# behaviour — consistent with the JDK shipped in the Keycloak runtime image.
+# This stage only validates and splits the DoD CA bundle (openssl + unzip); the BCFKS
+# truststore itself is built at runtime in the uds-config init container (build-truststore.sh).
 FROM registry.access.redhat.com/ubi9/openjdk-21 AS truststore
 USER root
 RUN microdnf install -y unzip openssl
@@ -53,9 +51,6 @@ ENV CA_REGEX_EXCLUSION_FILTER=${CA_REGEX_EXCLUSION_FILTER}
 
 ADD ${CA_ZIP_URL} /tmp/authorized_certs/authorized_certs.zip
 COPY truststore/ca-to-jks.sh .
-
-# BC FIPS jars are needed to generate the BCFKS truststore
-COPY --from=plugin /home/build/target/fips/libs /home/build/fips-libs
 
 RUN ./ca-to-jks.sh
 
@@ -83,34 +78,42 @@ RUN if [ "${REALM_FILE##*.}" = "json5" ]; then \
 
 ###################################################################################
 #                                                                                 #
-# Use busybox as the base image to perform the sync                               #
+# Chainguard JDK base: runs sync.sh and builds the BCFKS truststore at runtime.    #
+# A JDK is required because build-truststore.sh uses keytool with the BouncyCastle #
+# FIPS provider to assemble the BCFKS truststore when the init container starts.   #
 #                                                                                 #
 ###################################################################################
-FROM cgr.dev/chainguard/busybox:latest
+FROM cgr.dev/chainguard/jdk:latest
 
+# The Chainguard JDK image's nonroot user is uid/gid 65532 (named "java"); the chart runs
+# this init container as runAsUser 65532. Files are copied with that ownership so they are
+# readable at runtime. USER root is only needed so the build can create directories under
+# /home/nonroot before switching back to the nonroot uid.
+USER root
 WORKDIR /home/nonroot
 
 # Copy Jars from the plugin build stage
-COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
+COPY --chown=65532:65532 --from=plugin /home/build/target/*.jar .
 
-# FIPS dependencies
-RUN mkdir -p ./fips/libs
-RUN chown -R nonroot:nonroot ./fips/libs
-COPY --chown=nonroot --from=plugin /home/build/target/fips/libs/*.jar ./fips/libs
+# FIPS dependencies (also used at runtime by build-truststore.sh via -providerpath)
+RUN mkdir -p ./fips/libs && chown -R 65532:65532 ./fips/libs
+COPY --chown=65532:65532 --from=plugin /home/build/target/fips/libs/*.jar ./fips/libs
 
-# Copy the DOD Unclass PEM, individual certs, and BCFKS truststore for Istio & Keycloak Auth
-COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
-COPY --chown=nonroot --from=truststore /home/build/certs ./certs
-COPY --chown=nonroot --from=truststore /home/build/keycloak-truststore.bcfks .
+# Copy the DOD Unclass PEM and individual certs for Istio & Keycloak Auth
+COPY --chown=65532:65532 --from=truststore /home/build/authorized_certs.pem .
+COPY --chown=65532:65532 --from=truststore /home/build/certs ./certs
 
 # The realm.json is loaded into Keycloak on startup only if the realm does not exist
-COPY --chown=nonroot --from=json5-converter /convert/realm.json .
+COPY --chown=65532:65532 --from=json5-converter /convert/realm.json .
 
 # This provides the custom theme for the Keycloak instance
-COPY --chown=nonroot theme theme
+COPY --chown=65532:65532 theme theme
 
-# This script is used to sync the files from the init container to the Keycloak container
-COPY --chown=nonroot sync.sh .
-RUN chmod +x sync.sh
+# sync.sh syncs files into the Keycloak container; build-truststore.sh builds the BCFKS
+# system truststore at runtime.
+COPY --chown=65532:65532 sync.sh .
+COPY --chown=65532:65532 truststore/build-truststore.sh .
+RUN chmod +x sync.sh build-truststore.sh
 
-CMD ["/home/nonroot/sync.sh"]
+USER 65532
+ENTRYPOINT ["/home/nonroot/sync.sh"]
