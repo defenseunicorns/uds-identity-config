@@ -50,6 +50,11 @@ TRUSTSTORE="$(pwd)/keycloak-truststore.bcfks"
 TRUSTSTORE_PASSWORD="keycloakchangeit"
 BCFIPS_JAR=$(ls /home/build/fips-libs/bc-fips-*.jar | head -1)
 
+# Make the BC FIPS provider available to keytool at the JVM level.
+# -providerpath alone is insufficient in Java 17+ — JAVA_TOOL_OPTIONS with
+# both module-path and java.class.path is the approach documented by Chainguard.
+export JAVA_TOOL_OPTIONS="--module-path=$BCFIPS_JAR -Djava.class.path=$BCFIPS_JAR"
+
 n=0
 for CERT_FILE in "${CERT_DIR}"/*; do
   if keytool -importcert \
@@ -59,8 +64,6 @@ for CERT_FILE in "${CERT_DIR}"/*; do
        -keystore "$TRUSTSTORE" \
        -storetype bcfks \
        -providername BCFIPS \
-       -providerclass org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider \
-       -providerpath "$BCFIPS_JAR" \
        -storepass "$TRUSTSTORE_PASSWORD" \
        -trustcacerts 2>/dev/null; then
     n=$((n + 1))
