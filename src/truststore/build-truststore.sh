@@ -15,10 +15,12 @@
 
 set -eu
 
-TRUSTSTORE="/opt/keycloak/data/keycloak-truststore.bcfks"
-TRUSTSTORE_PASSWORD="keycloakchangeit"
-DOD_CERTS_DIR="/home/nonroot/certs"
-BCFIPS_JAR="$(ls /home/nonroot/fips/libs/bc-fips-*.jar 2>/dev/null | head -1)"
+# These default to their runtime locations but are overridable so the script can be unit-tested
+# (see build-truststore.test.sh).
+TRUSTSTORE="${TRUSTSTORE:-/opt/keycloak/data/keycloak-truststore.bcfks}"
+TRUSTSTORE_PASSWORD="${TRUSTSTORE_PASSWORD:-keycloakchangeit}"
+DOD_CERTS_DIR="${DOD_CERTS_DIR:-/home/nonroot/certs}"
+BCFIPS_JAR="${BCFIPS_JAR:-$(ls /home/nonroot/fips/libs/bc-fips-*.jar 2>/dev/null | head -1)}"
 
 # Paths to scan for additional CA certs. Defaults to the UDS trust bundle and the Kubernetes
 # service account CA; the chart overrides this from .Values.truststorePaths.
@@ -81,6 +83,7 @@ if [ -d "${DOD_CERTS_DIR}" ]; then
 fi
 
 # 2) Cluster trust from truststorePaths (UDS bundle, Kubernetes CA, user-provided paths).
+# shellcheck disable=SC2086 # word splitting on the space-separated path list is intentional
 for p in ${TRUSTSTORE_PATHS}; do
   if [ -d "${p}" ]; then
     for c in "${p}"/*; do
