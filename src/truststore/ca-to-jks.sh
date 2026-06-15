@@ -44,33 +44,46 @@ done
 popd >& /dev/null
 
 # Build a BCFKS truststore from the validated certs using the BouncyCastle FIPS provider.
-# The PKCS12 format is not FIPS-compliant (Keycloak's TruststoreBuilder hardcodes PKCS12),
-# so we generate BCFKS here at image-build time and supply it directly at runtime.
+# keytool's -providerpath/-providerclass flags are unreliable in Java 17+ for dynamically
+# loading BC FIPS. Use a small Java program instead, which calls Security.insertProviderAt()
+# directly — the only reliable way to register BC FIPS without pre-configuring the JDK.
 TRUSTSTORE="$(pwd)/keycloak-truststore.bcfks"
 TRUSTSTORE_PASSWORD="keycloakchangeit"
 BCFIPS_JAR=$(ls /home/build/fips-libs/bc-fips-*.jar | head -1)
 
-# Register BC FIPS as a JCE provider via a security properties override.
-# Adding to java.class.path puts the JAR in scope; the security properties file
-# appends the provider registration so keytool can find "BCFIPS" by name.
-cat > /tmp/bcfips-security.properties << EOF
-security.provider.99=org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider
-EOF
-export JAVA_TOOL_OPTIONS="--class-path $BCFIPS_JAR -Djava.security.properties=/tmp/bcfips-security.properties"
+cat > /tmp/CreateBCFKSTruststore.java << 'JAVA'
+import java.io.*;
+import java.security.*;
+import java.security.cert.*;
+import java.util.Collection;
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 
-n=0
-for CERT_FILE in "${CERT_DIR}"/*; do
-  if keytool -importcert \
-       -noprompt \
-       -alias "udsca-$n" \
-       -file "$CERT_FILE" \
-       -keystore "$TRUSTSTORE" \
-       -storetype bcfks \
-       -providername BCFIPS \
-       -storepass "$TRUSTSTORE_PASSWORD" \
-       -trustcacerts 2>/dev/null; then
-    n=$((n + 1))
-  fi
-done
+public class CreateBCFKSTruststore {
+    public static void main(String[] args) throws Exception {
+        String keystoreFile = args[0];
+        char[] password = args[1].toCharArray();
+        Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
+        KeyStore ks = KeyStore.getInstance("BCFKS", "BCFIPS");
+        ks.load(null, password);
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        int n = 0;
+        for (int i = 2; i < args.length; i++) {
+            try (FileInputStream fis = new FileInputStream(args[i])) {
+                for (Certificate cert : cf.generateCertificates(fis)) {
+                    ks.setCertificateEntry("udsca-" + n, cert);
+                    n++;
+                }
+            } catch (Exception e) {
+                // skip unparseable cert files
+            }
+        }
+        try (FileOutputStream fos = new FileOutputStream(keystoreFile)) {
+            ks.store(fos, password);
+        }
+        System.out.println("Imported " + n + " certificate(s) into " + keystoreFile);
+    }
+}
+JAVA
 
-echo "Imported $n certificate(s) into $TRUSTSTORE"
+javac -cp "$BCFIPS_JAR" /tmp/CreateBCFKSTruststore.java -d /tmp/
+java -cp "/tmp:$BCFIPS_JAR" CreateBCFKSTruststore "$TRUSTSTORE" "$TRUSTSTORE_PASSWORD" "${CERT_DIR}"/*
