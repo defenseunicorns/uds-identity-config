@@ -35,9 +35,9 @@ COPY extra-jars/* ./target/
 # Build the Java truststore from DOD CAs                                          #
 #                                                                                 #
 ###################################################################################
-FROM maven:3-eclipse-temurin-21-jammy AS truststore
+FROM maven:3.9-eclipse-temurin-11 AS truststore
 USER root
-RUN apt-get update && apt-get install unzip -y
+RUN apt-get update && apt-get install unzip openssl -y
 
 WORKDIR /home/build
 

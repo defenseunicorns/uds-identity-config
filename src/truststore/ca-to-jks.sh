@@ -44,46 +44,27 @@ done
 popd >& /dev/null
 
 # Build a BCFKS truststore from the validated certs using the BouncyCastle FIPS provider.
-# keytool's -providerpath/-providerclass flags are unreliable in Java 17+ for dynamically
-# loading BC FIPS. Use a small Java program instead, which calls Security.insertProviderAt()
-# directly — the only reliable way to register BC FIPS without pre-configuring the JDK.
+# The truststore Docker stage uses Java 11, which predates the Java 17 strict PKCS12
+# null-password check that causes an NPE when keytool loads a signed JAR via -providerpath.
 TRUSTSTORE="$(pwd)/keycloak-truststore.bcfks"
 TRUSTSTORE_PASSWORD="keycloakchangeit"
 BCFIPS_JAR=$(ls /home/build/fips-libs/bc-fips-*.jar | head -1)
 
-cat > /tmp/CreateBCFKSTruststore.java << 'JAVA'
-import java.io.*;
-import java.security.*;
-import java.security.cert.*;
-import java.util.Collection;
-import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
+n=0
+for CERT_FILE in "${CERT_DIR}"/*; do
+  if keytool -importcert \
+       -noprompt \
+       -alias "udsca-$n" \
+       -file "$CERT_FILE" \
+       -keystore "$TRUSTSTORE" \
+       -storetype bcfks \
+       -providername BCFIPS \
+       -providerclass org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider \
+       -providerpath "$BCFIPS_JAR" \
+       -storepass "$TRUSTSTORE_PASSWORD" \
+       -trustcacerts 2>/dev/null; then
+    n=$((n + 1))
+  fi
+done
 
-public class CreateBCFKSTruststore {
-    public static void main(String[] args) throws Exception {
-        String keystoreFile = args[0];
-        char[] password = args[1].toCharArray();
-        Security.insertProviderAt(new BouncyCastleFipsProvider(), 1);
-        KeyStore ks = KeyStore.getInstance("BCFKS", "BCFIPS");
-        ks.load(null, password);
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        int n = 0;
-        for (int i = 2; i < args.length; i++) {
-            try (FileInputStream fis = new FileInputStream(args[i])) {
-                for (Certificate cert : cf.generateCertificates(fis)) {
-                    ks.setCertificateEntry("udsca-" + n, cert);
-                    n++;
-                }
-            } catch (Exception e) {
-                // skip unparseable cert files
-            }
-        }
-        try (FileOutputStream fos = new FileOutputStream(keystoreFile)) {
-            ks.store(fos, password);
-        }
-        System.out.println("Imported " + n + " certificate(s) into " + keystoreFile);
-    }
-}
-JAVA
-
-javac -cp "$BCFIPS_JAR" /tmp/CreateBCFKSTruststore.java -d /tmp/
-java -cp "/tmp:$BCFIPS_JAR" CreateBCFKSTruststore "$TRUSTSTORE" "$TRUSTSTORE_PASSWORD" "${CERT_DIR}"/*
+echo "Imported $n certificate(s) into $TRUSTSTORE"
