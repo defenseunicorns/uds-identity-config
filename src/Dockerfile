@@ -35,6 +35,10 @@ COPY extra-jars/* ./target/
 # Build the Java truststore from DOD CAs                                          #
 #                                                                                 #
 ###################################################################################
+# Red Hat OpenJDK 21 is intentional. Eclipse Temurin 21 introduced a strict PKCS12
+# null-password enforcement (JDK-8201536) that causes an NPE when keytool loads a
+# signed BC FIPS JAR via -providerpath. Red Hat's OpenJDK 21 does not exhibit this
+# behaviour — consistent with the JDK shipped in the Keycloak runtime image.
 FROM registry.access.redhat.com/ubi9/openjdk-21 AS truststore
 USER root
 RUN microdnf install -y unzip openssl
