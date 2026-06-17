@@ -87,35 +87,35 @@ RUN if [ "${REALM_FILE##*.}" = "json5" ]; then \
 ###################################################################################
 FROM cgr.dev/chainguard/jdk:latest
 
-# The Chainguard JDK image's nonroot user is uid/gid 65532 (named "java"); the chart runs
+# The Chainguard JDK image's nonroot user is java (uid/gid 65532); the chart runs
 # this init container as runAsUser 65532. Files are copied with that ownership so they are
 # readable at runtime. USER root is only needed so the build can create directories under
-# /home/nonroot before switching back to the nonroot uid.
+# /home/nonroot before switching back to java.
 USER root
 WORKDIR /home/nonroot
 
 # Copy Jars from the plugin build stage
-COPY --chown=65532:65532 --from=plugin /home/build/plugin/target/*.jar .
+COPY --chown=java:java --from=plugin /home/build/plugin/target/*.jar .
 
 # FIPS dependencies (also used at runtime by build_bcfjks.sh via -providerpath)
-RUN mkdir -p ./fips/libs && chown -R 65532:65532 ./fips/libs
-COPY --chown=65532:65532 --from=plugin /home/build/plugin/target/fips/libs/*.jar ./fips/libs
+RUN mkdir -p ./fips/libs && chown -R java:java ./fips/libs
+COPY --chown=java:java --from=plugin /home/build/plugin/target/fips/libs/*.jar ./fips/libs
 
 # Copy the DOD Unclass PEM and individual certs for Istio & Keycloak Auth
-COPY --chown=65532:65532 --from=truststore /home/build/authorized_certs.pem .
-COPY --chown=65532:65532 --from=truststore /home/build/certs ./certs
+COPY --chown=java:java --from=truststore /home/build/authorized_certs.pem .
+COPY --chown=java:java --from=truststore /home/build/certs ./certs
 
 # The realm.json is loaded into Keycloak on startup only if the realm does not exist
-COPY --chown=65532:65532 --from=json5-converter /convert/realm.json .
+COPY --chown=java:java --from=json5-converter /convert/realm.json .
 
 # This provides the custom theme for the Keycloak instance
-COPY --chown=65532:65532 theme theme
+COPY --chown=java:java theme theme
 
 # sync.sh syncs files into the Keycloak container; build_bcfjks.sh builds the BCFKS
 # system truststore at runtime.
-COPY --chown=65532:65532 sync.sh .
-COPY --chown=65532:65532 --from=plugin /home/build/plugin/target/test-classes/truststore/build_bcfjks.sh .
+COPY --chown=java:java sync.sh .
+COPY --chown=java:java --from=plugin /home/build/plugin/target/test-classes/truststore/build_bcfjks.sh .
 RUN chmod +x sync.sh build_bcfjks.sh
 
-USER 65532
+USER java
 ENTRYPOINT ["/home/nonroot/sync.sh"]
