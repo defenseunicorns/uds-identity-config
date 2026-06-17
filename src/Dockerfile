@@ -87,10 +87,10 @@ RUN if [ "${REALM_FILE##*.}" = "json5" ]; then \
 ###################################################################################
 FROM cgr.dev/chainguard/jdk:latest
 
-# The Chainguard JDK image's nonroot user is java (uid/gid 65532); the chart runs
-# this init container as runAsUser 65532. Files are copied with that ownership so they are
-# readable at runtime. USER root is only needed so the build can create directories under
-# /home/nonroot before switching back to java.
+# The Chainguard JDK image's nonroot user is java (uid/gid 65532), and the chart runs
+# this init container as runAsUser 65532. Docker COPY creates root-owned files by default
+# regardless of the active USER, so each copied runtime artifact uses --chown=java:java.
+# USER root is only for build-time directory setup before switching back to java.
 USER root
 WORKDIR /home/nonroot
 
