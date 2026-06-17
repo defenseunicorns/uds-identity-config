@@ -34,17 +34,6 @@ tasks:
     actions:
       - cmd: docker build src -t uds-core-config:keycloak
 
-  - name: test-truststore
-    description: "Unit-test the runtime BCFKS truststore builder (build-truststore.sh)"
-    actions:
-      # Build the config image (with the small test CA bundle) so the test can run keytool and
-      # the BouncyCastle FIPS jar against the real shipped build-truststore.sh.
-      - cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" -t uds-core-config:truststore-test src
-      - cmd: |
-          docker run --rm \
-            -v "$(pwd)/src/truststore/build-truststore.test.sh:/build-truststore.test.sh:ro" \
-            --entrypoint sh uds-core-config:truststore-test /build-truststore.test.sh
-
   - name: dev-update-image
     description: "Build the image and import locally into k3d"
     actions:

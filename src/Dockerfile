@@ -8,11 +8,13 @@
 ###################################################################################
 FROM maven:3-eclipse-temurin-21-jammy AS plugin
 
-WORKDIR /home/build
+WORKDIR /home/build/plugin
 
 COPY plugin/pom.xml .
 RUN mvn dependency:go-offline
 COPY plugin/src ./src
+RUN mkdir -p ../truststore
+COPY truststore/build_bcfjks.sh ../truststore/build_bcfjks.sh
 
 RUN mvn package
 
@@ -36,7 +38,7 @@ COPY extra-jars/* ./target/
 #                                                                                 #
 ###################################################################################
 # This stage only validates and splits the DoD CA bundle (openssl + unzip); the BCFKS
-# truststore itself is built at runtime in the uds-config init container (build-truststore.sh).
+# truststore itself is built at runtime in the uds-config init container (build_bcfjks.sh).
 FROM registry.access.redhat.com/ubi9/openjdk-21 AS truststore
 USER root
 RUN microdnf install -y unzip openssl
@@ -79,7 +81,7 @@ RUN if [ "${REALM_FILE##*.}" = "json5" ]; then \
 ###################################################################################
 #                                                                                 #
 # Chainguard JDK base: runs sync.sh and builds the BCFKS truststore at runtime.    #
-# A JDK is required because build-truststore.sh uses keytool with the BouncyCastle #
+# A JDK is required because build_bcfjks.sh uses keytool with the BouncyCastle     #
 # FIPS provider to assemble the BCFKS truststore when the init container starts.   #
 #                                                                                 #
 ###################################################################################
@@ -93,11 +95,11 @@ USER root
 WORKDIR /home/nonroot
 
 # Copy Jars from the plugin build stage
-COPY --chown=65532:65532 --from=plugin /home/build/target/*.jar .
+COPY --chown=65532:65532 --from=plugin /home/build/plugin/target/*.jar .
 
-# FIPS dependencies (also used at runtime by build-truststore.sh via -providerpath)
+# FIPS dependencies (also used at runtime by build_bcfjks.sh via -providerpath)
 RUN mkdir -p ./fips/libs && chown -R 65532:65532 ./fips/libs
-COPY --chown=65532:65532 --from=plugin /home/build/target/fips/libs/*.jar ./fips/libs
+COPY --chown=65532:65532 --from=plugin /home/build/plugin/target/fips/libs/*.jar ./fips/libs
 
 # Copy the DOD Unclass PEM and individual certs for Istio & Keycloak Auth
 COPY --chown=65532:65532 --from=truststore /home/build/authorized_certs.pem .
@@ -109,11 +111,11 @@ COPY --chown=65532:65532 --from=json5-converter /convert/realm.json .
 # This provides the custom theme for the Keycloak instance
 COPY --chown=65532:65532 theme theme
 
-# sync.sh syncs files into the Keycloak container; build-truststore.sh builds the BCFKS
+# sync.sh syncs files into the Keycloak container; build_bcfjks.sh builds the BCFKS
 # system truststore at runtime.
 COPY --chown=65532:65532 sync.sh .
-COPY --chown=65532:65532 truststore/build-truststore.sh .
-RUN chmod +x sync.sh build-truststore.sh
+COPY --chown=65532:65532 --from=plugin /home/build/plugin/target/test-classes/truststore/build_bcfjks.sh .
+RUN chmod +x sync.sh build_bcfjks.sh
 
 USER 65532
 ENTRYPOINT ["/home/nonroot/sync.sh"]

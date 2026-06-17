@@ -15,8 +15,8 @@
 
 set -eu
 
-# These default to their runtime locations but are overridable so the script can be unit-tested
-# (see build-truststore.test.sh).
+# These default to their runtime locations but are overridable so the script can be tested from
+# the plugin module.
 TRUSTSTORE="${TRUSTSTORE:-/opt/keycloak/data/keycloak-truststore.bcfks}"
 TRUSTSTORE_PASSWORD="${TRUSTSTORE_PASSWORD:-keycloakchangeit}"
 DOD_CERTS_DIR="${DOD_CERTS_DIR:-/home/nonroot/certs}"
@@ -50,8 +50,7 @@ import_one() {
        -providername BCFIPS \
        -providerclass org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider \
        -providerpath "${BCFIPS_JAR}" \
-       -storepass "${TRUSTSTORE_PASSWORD}" \
-       -trustcacerts >/dev/null 2>&1; then
+       -storepass "${TRUSTSTORE_PASSWORD}" >/dev/null 2>&1; then
     N=$((N + 1))
   fi
 }
