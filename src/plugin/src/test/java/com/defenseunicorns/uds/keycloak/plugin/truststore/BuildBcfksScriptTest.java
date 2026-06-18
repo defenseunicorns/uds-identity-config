@@ -20,15 +20,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class BuildBcfjksScriptTest {
+class BuildBcfksScriptTest {
 
     private static final String TRUSTSTORE_PASSWORD = "keycloakchangeit";
+    private static final String JVM_CACERTS_PASSWORD = "changeit";
 
     @TempDir
     Path tempDir;
 
     @Test
-    void importsDodCertsPemBundleAndKubernetesCaIntoBcfksTruststore() throws Exception {
+    void importsJvmDefaultsDodCertsPemBundleKubernetesCaAndOpenShiftCaIntoBcfksTruststore() throws Exception {
         Path dodCerts = Files.createDirectory(tempDir.resolve("dod"));
         Path udsBundle = Files.createDirectories(tempDir.resolve("ca-certs"));
         Path serviceAccount = Files.createDirectories(tempDir.resolve("service-account"));
@@ -39,13 +40,18 @@ class BuildBcfjksScriptTest {
         Path udsB = createCertificate(tempDir.resolve("uds-b.pem"), "uds-b");
         Files.writeString(udsBundle.resolve("bundle.pem"), Files.readString(udsA) + Files.readString(udsB));
         createCertificate(serviceAccount.resolve("ca.crt"), "kube-ca");
+        createCertificate(serviceAccount.resolve("service-ca.crt"), "openshift-service-ca");
 
-        BuildResult result = runBuild(truststore, dodCerts, udsBundle + " " + serviceAccount.resolve("ca.crt"));
+        BuildResult result = runBuildWithDefaultTruststorePaths(
+                truststore,
+                dodCerts,
+                udsBundle + " " + serviceAccount.resolve("ca.crt") + " " + serviceAccount.resolve("service-ca.crt")
+        );
 
         assertEquals(0, result.exitCode(), result.output());
-        assertTrue(result.output().contains("Built BCFKS truststore with 4 certificate(s)"), result.output());
+        assertTrue(result.output().contains("Built BCFKS truststore with 5 additional certificate(s)"), result.output());
         assertTrue(isBcfks(truststore), "expected " + truststore + " to be a BCFKS keystore");
-        assertEquals(4, trustedCertificateEntries(truststore));
+        assertEquals(6, trustedCertificateEntries(truststore));
     }
 
     @Test
@@ -65,7 +71,7 @@ class BuildBcfjksScriptTest {
         BuildResult result = runBuild(truststore, dodCerts, udsBundle.toString());
 
         assertEquals(0, result.exitCode(), result.output());
-        assertEquals(3, trustedCertificateEntries(truststore));
+        assertEquals(4, trustedCertificateEntries(truststore));
     }
 
     @Test
@@ -82,7 +88,7 @@ class BuildBcfjksScriptTest {
 
         assertEquals(0, result.exitCode(), result.output());
         assertTrue(result.output().contains("Truststore path not present, skipping:"), result.output());
-        assertEquals(1, trustedCertificateEntries(truststore));
+        assertEquals(2, trustedCertificateEntries(truststore));
     }
 
     @Test
@@ -96,19 +102,101 @@ class BuildBcfjksScriptTest {
         BuildResult result = runBuild(truststore, dodCerts, emptyTruststorePath.toString());
 
         assertEquals(0, result.exitCode(), result.output());
+        assertEquals(3, trustedCertificateEntries(truststore));
+    }
+
+    @Test
+    void createsTruststoreParentDirectoryWhenItDoesNotExist() throws Exception {
+        Path dodCerts = Files.createDirectory(tempDir.resolve("dod"));
+        Path emptyTruststorePath = Files.createDirectory(tempDir.resolve("empty-ca-certs"));
+        Path truststore = tempDir.resolve("missing-parent").resolve("data").resolve("keycloak-truststore.bcfks");
+        createCertificate(dodCerts.resolve("dod-root.pem"), "dod-root");
+
+        BuildResult result = runBuild(truststore, dodCerts, emptyTruststorePath.toString());
+
+        assertEquals(0, result.exitCode(), result.output());
+        assertTrue(Files.exists(truststore), "expected " + truststore + " to be created");
+        assertEquals(2, trustedCertificateEntries(truststore));
+    }
+
+    @Test
+    void failsWhenNoTruststorePasswordIsProvided() throws Exception {
+        Path dodCerts = Files.createDirectory(tempDir.resolve("dod"));
+        Path truststore = tempDir.resolve("keycloak-truststore.bcfks");
+
+        BuildResult result = runBuild(truststore, dodCerts, "", null, PasswordSource.none());
+
+        assertEquals(1, result.exitCode(), result.output());
+        assertTrue(
+                result.output().contains("ERROR: set TRUSTSTORE_PASSWORD_FILE, KC_TRUSTSTORE_PASSWORD, or TRUSTSTORE_PASSWORD"),
+                result.output()
+        );
+    }
+
+    @Test
+    void readsTruststorePasswordFromMountedSecretFileWhenProvided() throws Exception {
+        Path dodCerts = Files.createDirectory(tempDir.resolve("dod"));
+        Path emptyTruststorePath = Files.createDirectory(tempDir.resolve("empty-ca-certs"));
+        Path truststore = tempDir.resolve("keycloak-truststore.bcfks");
+        createCertificate(dodCerts.resolve("dod-root.pem"), "dod-root");
+
+        Path passwordFile = tempDir.resolve("truststore-password.txt");
+        Files.writeString(passwordFile, TRUSTSTORE_PASSWORD);
+
+        BuildResult result = runBuild(
+                truststore,
+                dodCerts,
+                emptyTruststorePath.toString(),
+                null,
+                PasswordSource.mountedFile(passwordFile)
+        );
+
+        assertEquals(0, result.exitCode(), result.output());
         assertEquals(2, trustedCertificateEntries(truststore));
     }
 
     private BuildResult runBuild(Path truststore, Path dodCertsDir, String truststorePaths) throws Exception {
+        return runBuild(truststore, dodCertsDir, truststorePaths, null, PasswordSource.keycloakEnv());
+    }
+
+    private BuildResult runBuildWithDefaultTruststorePaths(
+            Path truststore,
+            Path dodCertsDir,
+            String defaultTruststorePaths
+    ) throws Exception {
+        return runBuild(truststore, dodCertsDir, null, defaultTruststorePaths, PasswordSource.keycloakEnv());
+    }
+
+    private BuildResult runBuild(
+            Path truststore,
+            Path dodCertsDir,
+            String truststorePaths,
+            String defaultTruststorePaths,
+            PasswordSource passwordSource
+    ) throws Exception {
         Path script = buildScript();
         Path bcfipsJar = bcfipsJar();
+        Path jvmCacerts = createJvmCacerts();
         ProcessBuilder process = processBuilder("sh", script.toString());
         Map<String, String> environment = process.environment();
+        environment.remove("TRUSTSTORE_PASSWORD");
+        environment.remove("TRUSTSTORE_PASSWORD_FILE");
+        environment.remove("KC_TRUSTSTORE_PASSWORD");
+        environment.remove("TRUSTSTORE_PATHS");
+        environment.remove("DEFAULT_TRUSTSTORE_PATHS");
+        environment.remove("JVM_CACERTS");
         environment.put("TRUSTSTORE", truststore.toString());
-        environment.put("TRUSTSTORE_PASSWORD", TRUSTSTORE_PASSWORD);
+        passwordSource.apply(environment);
         environment.put("DOD_CERTS_DIR", dodCertsDir.toString());
-        environment.put("TRUSTSTORE_PATHS", truststorePaths);
+        if (truststorePaths != null) {
+            environment.put("TRUSTSTORE_PATHS", truststorePaths);
+        }
+        if (defaultTruststorePaths != null) {
+            environment.put("DEFAULT_TRUSTSTORE_PATHS", defaultTruststorePaths);
+        }
         environment.put("BCFIPS_JAR", bcfipsJar.toString());
+        environment.put("JVM_CACERTS", jvmCacerts.toString());
+        environment.put("JVM_CACERTS_PASSWORD", JVM_CACERTS_PASSWORD);
         process.redirectErrorStream(true);
 
         ProcessResult result = run(process);
@@ -145,6 +233,24 @@ class BuildBcfjksScriptTest {
         return output;
     }
 
+    private Path createJvmCacerts() throws Exception {
+        Path output = tempDir.resolve("jvm-cacerts.p12");
+        Files.deleteIfExists(output);
+        Path jvmRoot = createCertificate(tempDir.resolve("jvm-root.pem"), "jvm-root");
+        ProcessResult importCert = run(processBuilder(
+                "keytool",
+                "-importcert",
+                "-noprompt",
+                "-alias", "jvm-root",
+                "-file", jvmRoot.toString(),
+                "-keystore", output.toString(),
+                "-storetype", "pkcs12",
+                "-storepass", JVM_CACERTS_PASSWORD
+        ));
+        assertEquals(0, importCert.exitCode(), importCert.output());
+        return output;
+    }
+
     private boolean isBcfks(Path truststore) throws Exception {
         ProcessResult result = keytoolList(truststore);
         assertEquals(0, result.exitCode(), result.output());
@@ -173,8 +279,8 @@ class BuildBcfjksScriptTest {
     }
 
     private Path buildScript() throws Exception {
-        URL resource = getClass().getClassLoader().getResource("truststore/build_bcfjks.sh");
-        assertNotNull(resource, "build_bcfjks.sh must be copied into test resources");
+        URL resource = getClass().getClassLoader().getResource("truststore/build_bcfks.sh");
+        assertNotNull(resource, "build_bcfks.sh must be copied into test resources");
         return Path.of(resource.toURI());
     }
 
@@ -206,5 +312,23 @@ class BuildBcfjksScriptTest {
     }
 
     private record BuildResult(int exitCode, String output) {
+    }
+
+    @FunctionalInterface
+    private interface PasswordSource {
+        static PasswordSource keycloakEnv() {
+            return environment -> environment.put("KC_TRUSTSTORE_PASSWORD", TRUSTSTORE_PASSWORD);
+        }
+
+        static PasswordSource mountedFile(Path passwordFile) {
+            return environment -> environment.put("TRUSTSTORE_PASSWORD_FILE", passwordFile.toString());
+        }
+
+        static PasswordSource none() {
+            return environment -> {
+            };
+        }
+
+        void apply(Map<String, String> environment);
     }
 }

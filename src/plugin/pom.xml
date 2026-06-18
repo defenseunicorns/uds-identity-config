@@ -68,7 +68,7 @@
             <testResource>
                 <directory>${project.basedir}/../truststore</directory>
                 <includes>
-                    <include>build_bcfjks.sh</include>
+                    <include>build_bcfks.sh</include>
                 </includes>
                 <targetPath>truststore</targetPath>
             </testResource>

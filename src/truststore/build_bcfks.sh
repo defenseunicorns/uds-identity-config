@@ -8,36 +8,81 @@
 # pointed at it via JAVA_OPTS_APPEND.
 #
 # Sources, in order:
-#   1. DoD CA certs baked into the image at /home/nonroot/certs (from ca-to-jks.sh)
-#   2. Every cert found under each entry in $TRUSTSTORE_PATHS. This honors the chart's
+#   1. JVM default CAs from the runtime JDK cacerts file
+#   2. DoD CA certs baked into the image at /home/nonroot/certs (from ca-to-jks.sh)
+#   3. Every cert found under each entry in $TRUSTSTORE_PATHS. This honors the chart's
 #      .Values.truststorePaths and, by default, includes the UDS trust bundle (/tmp/ca-certs)
-#      and the Kubernetes service account CA (needed for the Kubernetes identity provider).
+#      plus Kubernetes and OpenShift service account CAs.
 
 set -eu
 
 # These default to their runtime locations but are overridable so the script can be tested from
 # the plugin module.
 TRUSTSTORE="${TRUSTSTORE:-/opt/keycloak/data/keycloak-truststore.bcfks}"
-TRUSTSTORE_PASSWORD="${TRUSTSTORE_PASSWORD:-keycloakchangeit}"
+TRUSTSTORE_PASSWORD_FILE="${TRUSTSTORE_PASSWORD_FILE:-}"
+KC_TRUSTSTORE_PASSWORD="${KC_TRUSTSTORE_PASSWORD:-}"
 DOD_CERTS_DIR="${DOD_CERTS_DIR:-/home/nonroot/certs}"
 BCFIPS_JAR="${BCFIPS_JAR:-$(ls /home/nonroot/fips/libs/bc-fips-*.jar 2>/dev/null | head -1)}"
+JVM_CACERTS="${JVM_CACERTS:-}"
+JVM_CACERTS_PASSWORD="${JVM_CACERTS_PASSWORD:-changeit}"
 
 # Paths to scan for additional CA certs. Defaults to the UDS trust bundle and the Kubernetes
 # service account CA; the chart overrides this from .Values.truststorePaths.
-TRUSTSTORE_PATHS="${TRUSTSTORE_PATHS:-/tmp/ca-certs /var/run/secrets/kubernetes.io/serviceaccount/ca.crt}"
+DEFAULT_TRUSTSTORE_PATHS="${DEFAULT_TRUSTSTORE_PATHS:-/tmp/ca-certs /var/run/secrets/kubernetes.io/serviceaccount/ca.crt /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt}"
+TRUSTSTORE_PATHS="${TRUSTSTORE_PATHS:-${DEFAULT_TRUSTSTORE_PATHS}}"
+
+if [ -n "${TRUSTSTORE_PASSWORD_FILE}" ]; then
+  if [ ! -r "${TRUSTSTORE_PASSWORD_FILE}" ]; then
+    echo "ERROR: TRUSTSTORE_PASSWORD_FILE is not readable: ${TRUSTSTORE_PASSWORD_FILE}" >&2
+    exit 1
+  fi
+  TRUSTSTORE_PASSWORD="$(cat "${TRUSTSTORE_PASSWORD_FILE}")"
+elif [ -n "${KC_TRUSTSTORE_PASSWORD}" ]; then
+  TRUSTSTORE_PASSWORD="${KC_TRUSTSTORE_PASSWORD}"
+elif [ -n "${TRUSTSTORE_PASSWORD:-}" ]; then
+  TRUSTSTORE_PASSWORD="${TRUSTSTORE_PASSWORD}"
+else
+  echo "ERROR: set TRUSTSTORE_PASSWORD_FILE, KC_TRUSTSTORE_PASSWORD, or TRUSTSTORE_PASSWORD" >&2
+  exit 1
+fi
 
 if [ -z "${BCFIPS_JAR}" ]; then
   echo "ERROR: BC FIPS jar not found under /home/nonroot/fips/libs" >&2
   exit 1
 fi
 
+if [ -z "${JVM_CACERTS}" ]; then
+  for c in "${JAVA_HOME:-}/lib/security/cacerts" /usr/lib/jvm/*/lib/security/cacerts /usr/lib/jvm/default-jvm/lib/security/cacerts; do
+    if [ -f "${c}" ]; then
+      JVM_CACERTS="${c}"
+      break
+    fi
+  done
+fi
+
+if [ ! -f "${JVM_CACERTS}" ]; then
+  echo "ERROR: JVM default cacerts not found; set JVM_CACERTS" >&2
+  exit 1
+fi
+
 # Rebuild from scratch on every (re)start so the truststore always reflects current sources.
+mkdir -p "$(dirname "${TRUSTSTORE}")"
 rm -f "${TRUSTSTORE}"
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "${WORK}"' EXIT
 
 N=0
+
+keytool -importkeystore \
+  -noprompt \
+  -srckeystore "${JVM_CACERTS}" \
+  -srcstorepass "${JVM_CACERTS_PASSWORD}" \
+  -destkeystore "${TRUSTSTORE}" \
+  -deststoretype bcfks \
+  -deststorepass "${TRUSTSTORE_PASSWORD}" \
+  -providerclass org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider \
+  -providerpath "${BCFIPS_JAR}" >/dev/null 2>&1
 
 # import_one <single-cert file> <alias>
 import_one() {
@@ -74,14 +119,14 @@ add_file() {
   fi
 }
 
-# 1) DoD CA certs baked into the image.
+# 2) DoD CA certs baked into the image.
 if [ -d "${DOD_CERTS_DIR}" ]; then
   for c in "${DOD_CERTS_DIR}"/*; do
     [ -f "${c}" ] && add_file "${c}"
   done
 fi
 
-# 2) Cluster trust from truststorePaths (UDS bundle, Kubernetes CA, user-provided paths).
+# 3) Cluster trust from truststorePaths (UDS bundle, Kubernetes CA, user-provided paths).
 # shellcheck disable=SC2086 # word splitting on the space-separated path list is intentional
 for p in ${TRUSTSTORE_PATHS}; do
   if [ -d "${p}" ]; then
@@ -95,4 +140,9 @@ for p in ${TRUSTSTORE_PATHS}; do
   fi
 done
 
-echo "Built BCFKS truststore with ${N} certificate(s): ${TRUSTSTORE}"
+if [ ! -s "${TRUSTSTORE}" ]; then
+  echo "ERROR: BCFKS truststore was not created: ${TRUSTSTORE}" >&2
+  exit 1
+fi
+
+echo "Built BCFKS truststore with ${N} additional certificate(s): ${TRUSTSTORE}"
