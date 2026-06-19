@@ -17,6 +17,14 @@ variables:
     description: "The repository + name for the published image"
     default: "ghcr.io/defenseunicorns/uds/identity-config"
 
+  - name: KEYCLOAK_IMAGE_REPOSITORY
+    description: "The Keycloak server image repository to use for local UDS Core integration tests"
+    default: "quay.io/sebastian_laskawiec/keycloak"
+
+  - name: KEYCLOAK_IMAGE_TAG
+    description: "The Keycloak server image tag to use for local UDS Core integration tests"
+    default: "bcfks-pr-70909865568b"
+
 tasks:
   - name: build-and-publish
     description: "Build and publish the multi-arch image"
@@ -125,6 +133,7 @@ tasks:
       - task: cypress-tests
       - task: theme-customization-tests
       - task: external-loadbalancer-tests
+      - task: verify-keycloak-bcfks
 
   - name: clone-core
     description: "Clone UDS Core for integration testing"
@@ -132,9 +141,29 @@ tasks:
       - cmd: rm -rf uds-core
       - cmd: git clone --branch bcjks https://github.com/defenseunicorns/uds-core.git
 
+  - name: use-keycloak-pr-image
+    description: "Patch the cloned UDS Core package inputs to use the Keycloak PR image"
+    actions:
+      - cmd: |
+          export KEYCLOAK_IMAGE_REPOSITORY="${KEYCLOAK_IMAGE_REPOSITORY}"
+          export KEYCLOAK_IMAGE_TAG="${KEYCLOAK_IMAGE_TAG}"
+          KEYCLOAK_IMAGE="${KEYCLOAK_IMAGE_REPOSITORY}:${KEYCLOAK_IMAGE_TAG}"
+          export KEYCLOAK_IMAGE
+
+          uds zarf tools yq eval --inplace \
+            '(.components[] | select(.name == "keycloak" and .only.flavor == "upstream").images[] | select(test("^quay\\.io/keycloak/keycloak:"))) = strenv(KEYCLOAK_IMAGE)' \
+            uds-core/src/keycloak/zarf.yaml
+
+          uds zarf tools yq eval --inplace \
+            '.image.repository = strenv(KEYCLOAK_IMAGE_REPOSITORY) | .image.tag = strenv(KEYCLOAK_IMAGE_TAG)' \
+            uds-core/src/keycloak/values/upstream-values.yaml
+
+          echo "UDS Core Keycloak package patched to use ${KEYCLOAK_IMAGE}"
+
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
     actions:
+      - task: use-keycloak-pr-image
       - description: "Replace dev versions in the dev bundle with the VERSION variable"
         cmd: |
           VERSION=$(uds zarf tools yq eval '.metadata.version' uds-core/bundles/k3d-standard/uds-bundle.yaml)
@@ -151,6 +180,47 @@ tasks:
       - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
       - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
       - task: create-users
+
+  - name: verify-keycloak-bcfks
+    description: "Verify the running Keycloak pod uses the PR image and a BCFKS system truststore"
+    actions:
+      - cmd: |
+          set -eu
+
+          EXPECTED_IMAGE="${KEYCLOAK_IMAGE_REPOSITORY}:${KEYCLOAK_IMAGE_TAG}"
+          EXPECTED_IMAGE_PATH="${KEYCLOAK_IMAGE_REPOSITORY#*/}"
+          POD="$(uds zarf tools kubectl get pod -n keycloak -l app.kubernetes.io/name=keycloak -o jsonpath='{.items[0].metadata.name}')"
+          ACTUAL_IMAGE="$(uds zarf tools kubectl get pod -n keycloak "${POD}" -o jsonpath='{.spec.containers[?(@.name=="keycloak")].image}')"
+
+          case "${ACTUAL_IMAGE}" in
+            "${EXPECTED_IMAGE}"|*"${EXPECTED_IMAGE_PATH}:${KEYCLOAK_IMAGE_TAG}"|*"${EXPECTED_IMAGE_PATH}:${KEYCLOAK_IMAGE_TAG}-zarf-"*)
+              ;;
+            *)
+              echo "Expected Keycloak image ${EXPECTED_IMAGE}, got ${ACTUAL_IMAGE}" >&2
+              exit 1
+              ;;
+          esac
+
+          uds zarf tools kubectl exec -n keycloak "${POD}" -c keycloak -- sh -c '
+            set -eu
+
+            echo "${JAVA_OPTS_APPEND}" | grep -q "javax.net.ssl.trustStoreType=BCFKS"
+            test -f /opt/keycloak/data/keycloak-truststore.bcfks
+
+            BCFIPS_JAR="$(ls /opt/keycloak/providers/bc-fips-*.jar | head -1)"
+            keytool -list \
+              -keystore /opt/keycloak/data/keycloak-truststore.bcfks \
+              -storetype bcfks \
+              -providername BCFIPS \
+              -providerclass org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider \
+              -providerpath "${BCFIPS_JAR}" \
+              -storepass keycloakchangeit | grep -q "Keystore type: BCFKS"
+
+            if find /opt/keycloak/data -maxdepth 1 \( -iname "*.p12" -o -iname "*.pkcs12" \) | grep -q .; then
+              echo "Unexpected PKCS12 truststore material found under /opt/keycloak/data" >&2
+              exit 1
+            fi
+          '
 
   - name: create-users
     description: "Creating users needed by the tests"
