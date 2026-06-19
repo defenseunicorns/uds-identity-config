@@ -2017,12 +2017,29 @@
             }
         },
         {
+            // Custom UDS provider (providerId "uds-kubernetes"): same federated client-assertion flow as the
+            // stock "kubernetes" provider, but it does NOT forward Keycloak's pod service-account token to
+            // external/public discovery or JWKS endpoints (e.g. EKS/AKS OIDC, RKE2 S3). Alias stays "kubernetes"
+            // so client "jwt.credential.issuer" attributes are unchanged.
+            // WORKAROUND (keycloak#49039): temporary. When https://github.com/keycloak/keycloak/issues/49039 is
+            // resolved, set providerId back to "kubernetes" and remove the custom plugin.
             "alias": "kubernetes",
-            "providerId": "kubernetes",
+            "providerId": "uds-kubernetes",
             "enabled": true,
             "config": {
-                // Default in-cluster issuer; set realmInitEnv.KUBERNETES_ISSUER to the cluster's OIDC issuer on managed clusters (EKS)
-                "issuer": "${REALM_KUBERNETES_ISSUER:https://kubernetes.default.svc.cluster.local}"
+                // Where to fetch OIDC discovery/JWKS from. Defaults to the in-cluster Kubernetes API, which works on
+                // every distro (local and managed) without per-environment config.
+                "issuerDiscoveryUrl": "${REALM_KUBERNETES_ISSUER_DISCOVERY_URL:https://kubernetes.default.svc.cluster.local}",
+                // Default ON: resolve the expected token issuer at runtime from issuerDiscoveryUrl, so no custom
+                // KUBERNETES_ISSUER needs setting per environment (the cluster reports its own service-account-issuer).
+                "automaticIssuerDiscovery": "${REALM_KUBERNETES_ISSUER_AUTO_DISCOVERY:true}",
+                // Fallback expected issuer, used ONLY when automaticIssuerDiscovery is false. Defaults to the in-cluster issuer.
+                "issuer": "${REALM_KUBERNETES_ISSUER:https://kubernetes.default.svc.cluster.local}",
+                // Token-forwarding policy for discovery/JWKS fetches: AUTO | NEVER | ALWAYS.
+                // AUTO (default) fetches anonymously and only sends the pod SA token if the endpoint returns a
+                // 401/403 challenge — so public issuers (S3/EKS/AKS) stay token-free while the in-cluster apiserver
+                // (which requires auth) gets it. NEVER forces anonymous; ALWAYS always sends the token.
+                "jwksAuthMode": "${REALM_KUBERNETES_JWKS_AUTH_MODE:AUTO}"
             }
         }
     ],
