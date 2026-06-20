@@ -60,6 +60,10 @@ packages:
               description: "The keycloak config image to deploy plugin and initial setup configuration"
               path: configImage
           values:
+            - path: image.repository
+              value: quay.io/sebastian_laskawiec/keycloak
+            - path: image.tag
+              value: bcfks-pr-70909865568b
             - path: realmInitEnv
               value:
                 GOOGLE_IDP_ENABLED: true
