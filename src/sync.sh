@@ -9,20 +9,20 @@ echo "Syncing customizations to Keycloak"
 # Ensure the import directory exists
 mkdir -p /opt/keycloak/data/import/
 mkdir -p /opt/keycloak/conf/
-mkdir -p /opt/keycloak/conf/truststores
 mkdir -p /opt/keycloak/themes/theme/
 
 # Copy the files to their respective directories
 cp -fv realm.json /opt/keycloak/data/import/realm.json
 cp -fvr theme/* /opt/keycloak/themes/theme/
 cp -fv *.jar /opt/keycloak/providers/
-cp -fv certs/* /opt/keycloak/conf/truststores
 
-# if USE_FIPS is true
-if [ "${FIPS_ENABLED}" = "true" ]; then
-    echo "FIPS mode enabled, copying FIPS libraries"
-    cp -fv ./fips/libs/*.jar /opt/keycloak/providers/
-fi
+cp -fv ./fips/libs/*.jar /opt/keycloak/providers/
+
+# Build the FIPS BCFKS system truststore at runtime. Keycloak's TruststoreBuilder hardcodes
+# PKCS12 (not FIPS-compliant), so we build a BCFKS ourselves (from the baked DoD CA certs, the
+# UDS trust bundle, and the Kubernetes CA) and point Keycloak at it via JAVA_OPTS_APPEND.
+# conf/truststores is left empty so Quarkus auto-discovery does not trigger TruststoreBuilder.
+/home/nonroot/build_bcfks.sh
 
 if [ -d /opt/keycloak/theme-overrides ]; then
     echo "Applying theme customizations"
