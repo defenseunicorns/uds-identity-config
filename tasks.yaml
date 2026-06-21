@@ -17,6 +17,10 @@ variables:
     description: "The repository + name for the published image"
     default: "ghcr.io/defenseunicorns/uds/identity-config"
 
+  - name: KEYCLOAK_PR_IMAGE
+    description: "Temporary Keycloak PR image used by the BCFKS proof bundles"
+    default: "quay.io/sebastian_laskawiec/keycloak:bcfks-pr-70909865568b"
+
 tasks:
   - name: build-and-publish
     description: "Build and publish the multi-arch image"
@@ -138,6 +142,9 @@ tasks:
       - description: "Replace dev versions in the dev bundle with the VERSION variable"
         cmd: |
           VERSION=$(uds zarf tools yq eval '.metadata.version' uds-core/bundles/k3d-standard/uds-bundle.yaml)
+          uds zarf tools yq eval --inplace \
+            '(.components[] | select(.name == "keycloak") | .images) += ["'"${KEYCLOAK_PR_IMAGE}"'"]' \
+            uds-core/src/keycloak/zarf.yaml
           for original_file in "bundles/external-loadbalancer/uds-bundle.template.yaml" "bundles/k3d-core-slim-dev/uds-bundle.template.yaml" "bundles/theme-customizations/uds-bundle.template.yaml"
           do
             processed_file="${original_file%.template.yaml}.yaml"
