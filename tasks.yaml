@@ -130,25 +130,15 @@ tasks:
     description: "Clone UDS Core for integration testing"
     actions:
       - cmd: rm -rf uds-core
-      - cmd: git clone --branch main https://github.com/defenseunicorns/uds-core.git
+      # Temporarily pinned to the realm-upgrade-kcc-poc branch which carries
+      # the chart edits for realmImport/realmSync. Revert to main once the
+      # branch is merged upstream.
+      - cmd: git clone --branch realm-upgrade-kcc-poc https://github.com/defenseunicorns/uds-core.git
 
   - name: build-deploy-custom-slim
     description: "Build/Deploy custom slim dev bundle for integration testing"
     actions:
-      - description: "Replace dev versions in the dev bundle with the VERSION variable"
-        cmd: |
-          VERSION=$(uds zarf tools yq eval '.metadata.version' uds-core/bundles/k3d-standard/uds-bundle.yaml)
-          for original_file in "bundles/external-loadbalancer/uds-bundle.template.yaml" "bundles/k3d-core-slim-dev/uds-bundle.template.yaml" "bundles/theme-customizations/uds-bundle.template.yaml"
-          do
-            processed_file="${original_file%.template.yaml}.yaml"
-            cp "$original_file" "$processed_file"
-            echo "Processing bundle versions in file $original_file"
-            uds zarf tools yq eval --inplace ".packages[] |= (select(.path == \"../../uds-core/build/\").ref = \"${VERSION}\")" "$processed_file"
-          done
-          echo "Processing complete"
-      - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
-      - cmd: cd uds-core && mkdir -p build && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization && uds run create:single-layer-callable --set LAYER=monitoring
-      - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
+      - task: build-slim-dev-bundle
       - cmd: uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak --confirm --no-progress
       - task: create-users
 
@@ -272,3 +262,131 @@ tasks:
         cmd: git clone https://github.com/defenseunicorns/uds-docs.git uds-docs
       - description: "UDS Docs Integration Script"
         cmd: cd uds-docs && npm i && DOCS_OVERRIDES="uds-identity-config=$(pwd)/.." npm run build
+
+
+  - name: snapshot-uds-realm
+    description: "Port-forward Keycloak and dump the uds realm via partial-export (the same shape Keycloak --import-realm consumes). No field stripping; the caller filters volatile fields as needed."
+    inputs:
+      output:
+        description: "Path to write the snapshot JSON (relative to repo root)"
+        default: "./tmp/uds-realm-snapshot.json"
+    actions:
+      - cmd: |
+          set -euo pipefail
+          OUT='${{ .inputs.output }}'
+          mkdir -p "$(dirname "$OUT")"
+
+          pkill -f "kubectl.*port-forward.*keycloak-http.*8080:8080" 2>/dev/null || true
+          kubectl -n keycloak port-forward svc/keycloak-http 8080:8080 >./tmp/test-pf.log 2>&1 &
+          PF=$!
+          trap 'kill $PF 2>/dev/null || true' EXIT
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            curl -sf http://localhost:8080/realms/master/.well-known/openid-configuration >/dev/null && break
+            sleep 1
+          done
+
+          KC_USER=$(kubectl get secret -n keycloak keycloak-admin-password -o jsonpath='{.data.username}' | base64 -d)
+          KC_PASS=$(kubectl get secret -n keycloak keycloak-admin-password -o jsonpath='{.data.password}' | base64 -d)
+          TOKEN=$(curl -s -d "client_id=admin-cli" -d "username=$KC_USER" -d "password=$KC_PASS" -d "grant_type=password" http://localhost:8080/realms/master/protocol/openid-connect/token | jq -r .access_token)
+
+          # partial-export = the same realm representation --import-realm consumes.
+          # exportClients + exportGroupsAndRoles flags get clients, scopes, IdPs,
+          # auth flows, groups, and roles included inline.
+          curl -sf -X POST -H "Authorization: Bearer $TOKEN" \
+            'http://localhost:8080/admin/realms/uds/partial-export?exportClients=true&exportGroupsAndRoles=true' \
+            | jq . > "$OUT"
+          echo "snapshot written to: $OUT ($(wc -c <"$OUT") bytes)"
+
+  - name: build-slim-dev-bundle
+    description: "Render templates + build packages + create the slim-dev bundle (no deploy)"
+    actions:
+      - description: "Replace dev versions in the dev bundle with the VERSION variable"
+        cmd: |
+          VERSION=$(uds zarf tools yq eval '.metadata.version' uds-core/bundles/k3d-standard/uds-bundle.yaml)
+          for original_file in "bundles/external-loadbalancer/uds-bundle.template.yaml" "bundles/k3d-core-slim-dev/uds-bundle.template.yaml" "bundles/theme-customizations/uds-bundle.template.yaml"
+          do
+            processed_file="${original_file%.template.yaml}.yaml"
+            cp "$original_file" "$processed_file"
+            uds zarf tools yq eval --inplace ".packages[] |= (select(.path == \"../../uds-core/build/\").ref = \"${VERSION}\")" "$processed_file"
+          done
+      - cmd: uds zarf package create . --confirm --set=IDENTITY_CONFIG_IMG=uds-core-config:keycloak --no-progress
+      - cmd: cd uds-core && mkdir -p build && uds run create:single-layer && uds run create:single-layer-callable --set LAYER=identity-authorization && uds run create:single-layer-callable --set LAYER=monitoring
+      - cmd: uds create bundles/k3d-core-slim-dev --confirm --no-progress
+
+  - name: test-realm-import-then-sync
+    description: "E2E: deploy with realm import only, snapshot, enable realm sync, redeploy without cluster wipe, verify realm is identical"
+    actions:
+      - task: dev-build
+      - task: clone-core
+      - task: uds-core-gateway-cacert
+      - task: build-slim-dev-bundle
+
+      - description: "Phase 1 deploy — realmImport=true (default), realmSync=false"
+        cmd: |
+          uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst \
+            --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak \
+            --set=core-identity-authorization.REALM_SYNC_ENABLED=false \
+            --confirm --no-progress
+      - task: create-users
+
+      - description: "Snapshot realm BEFORE realm sync"
+        task: snapshot-uds-realm
+        with:
+          output: ./tmp/test-realm-before.json
+
+      - description: "Phase 2 deploy — keep cluster, redeploy core-identity-authorization with realmSync=true"
+        cmd: |
+          uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst \
+            -p core-identity-authorization \
+            --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak \
+            --set=core-identity-authorization.REALM_SYNC_ENABLED=true \
+            --confirm --no-progress
+
+      - description: "Wait for realm-sync Job to complete"
+        cmd: |
+          kubectl wait -n keycloak --for=condition=complete job -l app.kubernetes.io/component=realm-sync --timeout=180s
+
+      - description: "Snapshot realm AFTER realm sync"
+        task: snapshot-uds-realm
+        with:
+          output: ./tmp/test-realm-after.json
+
+      - description: "Diff before/after — kcc must ADOPT, not recreate"
+        cmd: |
+          # The only legitimate addition between phase 1 and phase 2 is kcc's
+          # own ownership bookkeeping: de.adorsys.keycloak.config.* realm
+          # attributes. Everything else (UUIDs, secrets, timestamps, every
+          # other field) MUST match — if not, kcc destroyed and recreated
+          # something instead of adopting it, and the test should fail.
+          STRIP='if .attributes then .attributes |= with_entries(select(.key | startswith("de.adorsys.keycloak.config") | not)) else . end'
+          jq "$STRIP" ./tmp/test-realm-before.json > ./tmp/test-realm-before.filtered.json
+          jq "$STRIP" ./tmp/test-realm-after.json  > ./tmp/test-realm-after.filtered.json
+          diff ./tmp/test-realm-before.filtered.json ./tmp/test-realm-after.filtered.json > ./tmp/test-realm-diff.out || true
+          echo "filtered snapshots: ./tmp/test-realm-before.filtered.json ./tmp/test-realm-after.filtered.json"
+          echo "diff output:        ./tmp/test-realm-diff.out"
+          if [ -s ./tmp/test-realm-diff.out ]; then
+            echo "FAIL: realm diff contains unexpected changes (kcc may be recreating instead of adopting):"
+            cat ./tmp/test-realm-diff.out
+            exit 1
+          fi
+          echo "PASS: realm bit-identical pre/post realm sync (kcc adopted cleanly)"
+
+      - task: cypress-tests
+
+  - name: test-realm-sync-only
+    description: "E2E: deploy with realm import disabled — kcc creates and reconciles the realm by itself"
+    actions:
+      - task: dev-build
+      - task: clone-core
+      - task: uds-core-gateway-cacert
+      - task: build-slim-dev-bundle
+
+      - description: "Deploy — realmImport=false, realmSync=true"
+        cmd: |
+          uds deploy bundles/k3d-core-slim-dev/uds-bundle-k3d-core-slim-dev-*.tar.zst \
+            --set=core-identity-authorization.KEYCLOAK_CONFIG_IMAGE=uds-core-config:keycloak \
+            --set=core-identity-authorization.REALM_IMPORT_ENABLED=false \
+            --set=core-identity-authorization.REALM_SYNC_ENABLED=true \
+            --confirm --no-progress
+
+      - task: cypress-tests
