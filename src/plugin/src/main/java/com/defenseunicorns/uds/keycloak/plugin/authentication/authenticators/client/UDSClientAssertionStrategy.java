@@ -34,8 +34,8 @@ import java.util.Objects;
  * {@code jwt.credential.sub} matches the token subject AND its {@code jwt.credential.issuer} references an
  * enabled {@code uds-kubernetes} IdP alias. A bare subject match is never sufficient.
  *
- * <p>The delegate path mirrors Keycloak 26.6.3 DefaultClientAssertionStrategy.lookup:
- * https://github.com/keycloak/keycloak/blob/26.6.3/services/src/main/java/org/keycloak/authentication/authenticators/client/DefaultClientAssertionStrategy.java#L21
+ * <p>The delegate path is the stock {@link DefaultClientAssertionStrategy} (issuer-match lookup); only the
+ * attribute-based fallback is UDS-specific.
  *
  * <p><b>WORKAROUND (keycloak#49039):</b> the attribute-based fallback exists only because the stock provider
  * can't resolve clients for managed/external issuers safely. Delete this strategy once

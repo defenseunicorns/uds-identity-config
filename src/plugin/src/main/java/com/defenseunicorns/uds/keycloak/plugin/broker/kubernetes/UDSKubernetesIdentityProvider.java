@@ -34,7 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>the expected issuer may be discovered at validation time from the in-cluster API
  *       ({@code automaticIssuerDiscovery}).</li>
  * </ul>
- * It also uses {@link UDSFederatedJWTClientValidator} to backport the keycloak/keycloak#48026 client_id fix.
+ * It also uses {@link UDSFederatedJWTClientValidator} to backport the
+ * <a href="https://github.com/keycloak/keycloak/issues/48026">keycloak/keycloak#48026</a> client_id fix.
  *
  * <p><b>WORKAROUND (keycloak#49039):</b> this entire provider is a temporary bridge. Once
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> ships
@@ -79,9 +80,14 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
     }
 
     /**
-     * Copied verbatim (the method is private upstream) from Keycloak 26.6.3 KubernetesIdentityProvider.verifySignature,
-     * swapping only the JWKS loader for {@link UDSKubernetesJwksEndpointLoader}.
-     * Source: https://github.com/keycloak/keycloak/blob/26.6.3/services/src/main/java/org/keycloak/broker/kubernetes/KubernetesIdentityProvider.java#L42-L66
+     * Copied from the upstream KubernetesIdentityProvider.verifySignature (private upstream). Deviations, both
+     * fail-closed-preserving:
+     * <ul>
+     *   <li>uses {@link UDSKubernetesJwksEndpointLoader} built from {@code getIssuerDiscoveryUrl()} and the
+     *       token-forwarding {@code getJwksAuthMode()}, where upstream uses the configured issuer and always
+     *       forwards the pod token; and</li>
+     *   <li>logs verification failures at warn with kid/alg rather than debug.</li>
+     * </ul>
      * Remove when keycloak#49039 is resolved.
      */
     private boolean verifySignature(AbstractJWTClientValidator validator) {
@@ -108,8 +114,8 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
             return signatureProvider.verifier(publicKey)
                     .verify(jws.getEncodedSignatureInput().getBytes(StandardCharsets.UTF_8), jws.getSignature());
         } catch (Exception e) {
-            // Broad catch fails closed, but a genuine bad signature and an operational failure (JWKS unreachable,
-            // missing key) look identical here, so log at warn with key context to make prod incidents diagnosable.
+            // Fail closed; a bad signature and an operational failure (JWKS unreachable, missing key) are
+            // indistinguishable here, so log at warn with key context.
             logger.warn("Failed to verify Kubernetes SA token signature (kid={}, alg={})", kid, alg, e);
             return false;
         }
@@ -140,8 +146,8 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
             }
             return issuer;
         } catch (Exception e) {
-            // Infra failure (DNS/TLS/404/malformed JSON), not routine — log at warn so the cause is visible
-            // alongside the fail-closed rejection in verifyClientAssertion.
+            // Infra failure (DNS/TLS/404/malformed JSON); log at warn so the cause shows alongside the
+            // fail-closed rejection.
             logger.warn("Issuer discovery failed for {}", wellKnown, e);
             return null;
         }

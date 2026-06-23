@@ -42,9 +42,18 @@ final class KubernetesUtils {
      * AUTO sends anonymously then retries with the pod token on a 401/403 challenge; ALWAYS sends the token up
      * front; NEVER stays anonymous. Throws if the (final) response is not 2xx, so an error body is never parsed
      * into an empty result.
+     *
+     * <p>The url MUST be HTTPS. This is the single chokepoint for every outbound fetch (OIDC discovery and the
+     * discovered {@code jwks_uri}), so requiring TLS here keeps the pod service-account token off cleartext
+     * regardless of how the URL was derived. Redirects can't leak the token either: Keycloak's shared HttpClient
+     * disables redirect handling by default, so a 3xx surfaces as a non-2xx and throws.
      */
     static <T> T fetchJson(KeycloakSession session, String url, String acceptHeader, Class<T> type,
                            UDSKubernetesHttpAuthPolicy.Mode mode) throws IOException {
+        if (url == null || !url.startsWith("https://")) {
+            throw new IOException("Refusing to fetch non-HTTPS URL (would risk exposing the pod service-account token): " + url);
+        }
+
         String token = (mode == UDSKubernetesHttpAuthPolicy.Mode.NEVER) ? null : readServiceAccountToken();
 
         // In ALWAYS mode the token is mandatory; fail fast rather than degrading to an anonymous request that

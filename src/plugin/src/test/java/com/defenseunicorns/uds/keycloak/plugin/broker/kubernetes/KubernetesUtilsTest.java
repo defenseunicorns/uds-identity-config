@@ -162,6 +162,21 @@ class KubernetesUtilsTest {
     }
 
     @Test
+    void rejectsNonHttpsUrlWithoutMakingRequest() {
+        KeycloakSession session = mock(KeycloakSession.class);
+
+        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class);
+             MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
+            utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(TOKEN);
+
+            // A non-HTTPS URL must be refused before any request, so the pod token can never ride a cleartext fetch.
+            assertThrows(IOException.class, () -> KubernetesUtils.fetchJson(
+                    session, "http://issuer.example/jwks", ACCEPT, Body.class, UDSKubernetesHttpAuthPolicy.Mode.AUTO));
+            http.verify(() -> SimpleHttp.create(any(KeycloakSession.class)), never());
+        }
+    }
+
+    @Test
     void nonSuccessStatusThrowsAndClosesResponse() throws Exception {
         KeycloakSession session = mock(KeycloakSession.class);
         // 404 is not a 401/403 challenge, so AUTO does not retry; a non-2xx final response must throw rather than

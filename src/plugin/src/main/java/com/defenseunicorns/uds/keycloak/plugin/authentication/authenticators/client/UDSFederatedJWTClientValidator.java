@@ -17,23 +17,22 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Federated JWT client validator with the fix from keycloak/keycloak#48026 backported.
+ * Federated JWT client validator with the fix from
+ * <a href="https://github.com/keycloak/keycloak/issues/48026">keycloak/keycloak#48026</a> backported.
  * <p>
- * In Keycloak 26.6.x {@code AbstractJWTClientValidator.validateClient()} compares the {@code client_id} request
- * parameter against the JWT {@code sub} claim. For Kubernetes service accounts the {@code sub} is
+ * Upstream {@code AbstractJWTClientValidator.validateClient()} compares the {@code client_id} request parameter
+ * against the JWT {@code sub} claim. For Kubernetes service accounts the {@code sub} is
  * {@code system:serviceaccount:<ns>:<name>}, so any caller that sends a {@code client_id} (e.g. {@code uds-fleet-admin})
  * is rejected with "client_id parameter does not match sub claim". This validator instead compares {@code client_id}
  * to the resolved {@link ClientModel#getClientId()} after lookup (sub still required; missing client_id passes).
  * <p>
- * {@code validateClient()} is private upstream, so {@link #validate()} is overridden wholesale. The override and
- * its helpers are copied/adapted from Keycloak 26.6.3 AbstractJWTClientValidator (validate / validateClient /
- * validateClientAssertionParameters), keeping all other validations equivalent to upstream:
- * https://github.com/keycloak/keycloak/blob/26.6.3/services/src/main/java/org/keycloak/authentication/authenticators/client/AbstractJWTClientValidator.java#L66-L162
+ * {@code validateClient()} is private upstream, so {@link #validate()} is overridden wholesale, copying upstream's
+ * validate / validateClient / validateClientAssertionParameters logic and keeping all other validations equivalent.
  * <p>
- * Remove this class when the UDS Keycloak runtime includes keycloak/keycloak#48026. This is part of the broader
+ * Remove this class once the UDS Keycloak runtime includes keycloak/keycloak#48026 — part of the broader
  * Kubernetes-federated-auth workaround tracked by
- * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a>; when that is resolved
- * the whole custom plugin (and this class) goes away in favor of the stock {@code kubernetes} provider.
+ * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a>, after which the whole
+ * plugin reverts to the stock {@code kubernetes} provider.
  */
 public class UDSFederatedJWTClientValidator extends FederatedJWTClientValidator {
 
@@ -87,6 +86,9 @@ public class UDSFederatedJWTClientValidator extends FederatedJWTClientValidator 
             return failure("Token sub claim is required");
         }
 
+        // Deviation: the client-null check is hoisted above the client_id comparison so the #48026 fix can compare
+        // against the resolved client id. When no client resolves this returns CLIENT_NOT_FOUND (upstream would
+        // first reject on the client_id/sub mismatch); no validation is dropped.
         ClientModel client = getState().getClient();
         if (client == null) {
             context.failure(AuthenticationFlowError.CLIENT_NOT_FOUND, null);
@@ -99,9 +101,9 @@ public class UDSFederatedJWTClientValidator extends FederatedJWTClientValidator 
             return failure("client_id parameter does not match the authenticated client");
         }
 
-        // Bare `return false` (no failure()/event) matches upstream AbstractJWTClientValidator parity. UDS adds a
-        // log here because UDS resolves the expected issuer via runtime discovery (which upstream does not), so a
-        // discovery/token issuer drift is a plausible prod failure that would otherwise reject with no trace.
+        // Issuer mismatch returns false without a failure()/event, matching upstream. The log is a UDS addition:
+        // the expected issuer can come from runtime discovery, so a discovery/token drift would otherwise reject
+        // silently.
         String expectedTokenIssuer = getExpectedTokenIssuer();
         if (expectedTokenIssuer != null && !expectedTokenIssuer.equals(token.getIssuer())) {
             logger.warn("Token issuer '{}' does not match expected issuer '{}'", token.getIssuer(), expectedTokenIssuer);
@@ -115,6 +117,8 @@ public class UDSFederatedJWTClientValidator extends FederatedJWTClientValidator 
             context.failure(AuthenticationFlowError.CLIENT_DISABLED, null);
             return false;
         }
+        // Upstream's trailing clientAuthenticatorProviderId check is omitted: the federated flow constructs the
+        // parent with a null clientAuthenticatorProviderId, so that branch is dead code here.
         return true;
     }
 }

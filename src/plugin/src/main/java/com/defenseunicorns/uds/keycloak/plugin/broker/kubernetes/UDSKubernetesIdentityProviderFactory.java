@@ -21,12 +21,12 @@ import java.util.Map;
  * federated-JWT client authenticator can resolve clients backed by this provider (including managed/external
  * issuers where the stock issuer-match lookup fails).
  * <p>
- * Modeled on Keycloak 26.6.3 KubernetesIdentityProviderFactory / SpiffeIdentityProviderFactory:
- * https://github.com/keycloak/keycloak/blob/26.6.3/services/src/main/java/org/keycloak/broker/kubernetes/KubernetesIdentityProviderFactory.java
+ * Modeled on the upstream Kubernetes / SPIFFE identity provider factories.
  * <p>
  * <b>WORKAROUND (keycloak#49039):</b> temporary bridge. Once
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> ships destination-based
- * token forwarding, managed-issuer discovery, and the keycloak#48026 client_id validation in the runtime version
+ * token forwarding, managed-issuer discovery, and the
+ * <a href="https://github.com/keycloak/keycloak/issues/48026">keycloak/keycloak#48026</a> client_id validation in the runtime version
  * UDS ships, delete this whole plugin and set the realm IdP back to {@code providerId: "kubernetes"}.
  */
 public class UDSKubernetesIdentityProviderFactory extends AbstractIdentityProviderFactory<UDSKubernetesIdentityProvider>
