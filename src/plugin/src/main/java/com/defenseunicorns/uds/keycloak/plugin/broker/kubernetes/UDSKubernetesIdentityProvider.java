@@ -45,7 +45,11 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    /** Discovered issuer cache, keyed by discovery URL. Kubernetes issuers are stable. */
+    /**
+     * Discovered issuer cache, keyed by discovery URL. Kubernetes issuers are stable, so this is JVM-lifetime with
+     * no TTL/eviction and only ever stores validated (HTTPS, non-blank) issuers. Caveat: if a cluster rotates the
+     * issuer behind the same discovery URL, the stale value is served until Keycloak restarts.
+     */
     private static final Map<String, String> DISCOVERED_ISSUERS = new ConcurrentHashMap<>();
 
     private final KeycloakSession session;
@@ -81,11 +85,13 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
      * Remove when keycloak#49039 is resolved.
      */
     private boolean verifySignature(AbstractJWTClientValidator validator) {
+        String kid = null;
+        String alg = null;
         try {
             JWSInput jws = validator.getState().getJws();
             JWSHeader header = jws.getHeader();
-            String kid = header.getKeyId();
-            String alg = header.getRawAlgorithm();
+            kid = header.getKeyId();
+            alg = header.getRawAlgorithm();
 
             String modelKey = PublicKeyStorageUtils.getIdpModelCacheKey(validator.getContext().getRealm().getId(), config.getInternalId());
             PublicKeyStorageProvider keyStorage = session.getProvider(PublicKeyStorageProvider.class);
@@ -94,14 +100,17 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
 
             SignatureProvider signatureProvider = session.getProvider(SignatureProvider.class, alg);
             if (signatureProvider == null) {
-                logger.debug("Failed to verify token, signature provider not found for algorithm {}", alg);
+                // Missing provider for the token's alg is a configuration problem, not routine traffic.
+                logger.warn("Failed to verify token, signature provider not found for algorithm {}", alg);
                 return false;
             }
 
             return signatureProvider.verifier(publicKey)
                     .verify(jws.getEncodedSignatureInput().getBytes(StandardCharsets.UTF_8), jws.getSignature());
         } catch (Exception e) {
-            logger.debug("Failed to verify token signature", e);
+            // Broad catch fails closed, but a genuine bad signature and an operational failure (JWKS unreachable,
+            // missing key) look identical here, so log at warn with key context to make prod incidents diagnosable.
+            logger.warn("Failed to verify Kubernetes SA token signature (kid={}, alg={})", kid, alg, e);
             return false;
         }
     }
@@ -131,7 +140,9 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
             }
             return issuer;
         } catch (Exception e) {
-            logger.debug("Issuer discovery failed for {}", wellKnown, e);
+            // Infra failure (DNS/TLS/404/malformed JSON), not routine — log at warn so the cause is visible
+            // alongside the fail-closed rejection in verifyClientAssertion.
+            logger.warn("Issuer discovery failed for {}", wellKnown, e);
             return null;
         }
     }

@@ -96,6 +96,8 @@ public class UDSClientAssertionStrategy implements ClientAssertionIdentityProvid
     /**
      * Accept a candidate client only when it matches the token subject and references an enabled uds-kubernetes
      * IdP via {@code jwt.credential.issuer}. Returns null (fail closed) otherwise.
+     *
+     * <p>Package-private for unit testing; the single enforcement point for the fallback accept-rule.
      */
     ClientAssertionIdentityProviderFactory.LookupResult validateCandidate(KeycloakSession session, ClientModel client, String subject) {
         if (client == null) {

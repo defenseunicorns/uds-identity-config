@@ -47,6 +47,13 @@ final class KubernetesUtils {
                            UDSKubernetesHttpAuthPolicy.Mode mode) throws IOException {
         String token = (mode == UDSKubernetesHttpAuthPolicy.Mode.NEVER) ? null : readServiceAccountToken();
 
+        // In ALWAYS mode the token is mandatory; fail fast rather than degrading to an anonymous request that
+        // would surface later as an opaque 401/403 and mask the real cause (token unreadable/unmounted).
+        if (mode == UDSKubernetesHttpAuthPolicy.Mode.ALWAYS && token == null) {
+            throw new IOException("Token-forwarding mode is ALWAYS but the pod service account token at "
+                    + KubernetesConstants.SERVICE_ACCOUNT_TOKEN_PATH + " is missing or unreadable");
+        }
+
         SimpleHttpResponse response = get(session, url, acceptHeader, UDSKubernetesHttpAuthPolicy.firstAttemptToken(mode, token));
         try {
             int status = response.getStatus();
@@ -85,7 +92,7 @@ final class KubernetesUtils {
             String token = Files.readString(path, StandardCharsets.UTF_8).trim();
             return token.isEmpty() ? null : token;
         } catch (IOException e) {
-            logger.warn("Failed to read service account token file", e);
+            logger.warn("Failed to read service account token file {}", KubernetesConstants.SERVICE_ACCOUNT_TOKEN_PATH, e);
             return null;
         }
     }

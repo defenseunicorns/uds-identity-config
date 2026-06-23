@@ -47,7 +47,7 @@ public class UDSKubernetesIdentityProviderConfig extends KubernetesIdentityProvi
         return Boolean.parseBoolean(getConfig().get(AUTOMATIC_ISSUER_DISCOVERY));
     }
 
-    /** Token-forwarding policy; fails closed to AUTO_IN_CLUSTER_ONLY on missing/invalid values. */
+    /** Token-forwarding policy; fails closed to AUTO on missing/invalid values. */
     public UDSKubernetesHttpAuthPolicy.Mode getJwksAuthMode() {
         return UDSKubernetesHttpAuthPolicy.parseMode(getConfig().get(JWKS_AUTH_MODE));
     }

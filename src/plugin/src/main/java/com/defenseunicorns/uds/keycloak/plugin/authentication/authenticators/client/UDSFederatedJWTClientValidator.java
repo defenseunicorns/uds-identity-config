@@ -11,6 +11,10 @@ import org.keycloak.authentication.ClientAuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.client.FederatedJWTClientValidator;
 import org.keycloak.models.ClientModel;
 import org.keycloak.representations.JsonWebToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 /**
  * Federated JWT client validator with the fix from keycloak/keycloak#48026 backported.
@@ -32,6 +36,8 @@ import org.keycloak.representations.JsonWebToken;
  * the whole custom plugin (and this class) goes away in favor of the stock {@code kubernetes} provider.
  */
 public class UDSFederatedJWTClientValidator extends FederatedJWTClientValidator {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public UDSFederatedJWTClientValidator(ClientAuthenticationFlowContext context, SignatureValidator signatureValidator,
                                           String expectedTokenIssuer, int allowedClockSkew, boolean reusePermitted,
@@ -93,8 +99,12 @@ public class UDSFederatedJWTClientValidator extends FederatedJWTClientValidator 
             return failure("client_id parameter does not match the authenticated client");
         }
 
+        // Bare `return false` (no failure()/event) matches upstream AbstractJWTClientValidator parity. UDS adds a
+        // log here because UDS resolves the expected issuer via runtime discovery (which upstream does not), so a
+        // discovery/token issuer drift is a plausible prod failure that would otherwise reject with no trace.
         String expectedTokenIssuer = getExpectedTokenIssuer();
         if (expectedTokenIssuer != null && !expectedTokenIssuer.equals(token.getIssuer())) {
+            logger.warn("Token issuer '{}' does not match expected issuer '{}'", token.getIssuer(), expectedTokenIssuer);
             return false;
         }
 
