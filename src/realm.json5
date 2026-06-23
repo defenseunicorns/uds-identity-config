@@ -2030,16 +2030,16 @@
                 // Where to fetch OIDC discovery/JWKS from. Defaults to the in-cluster Kubernetes API, which works on
                 // every distro (local and managed) without per-environment config.
                 "issuerDiscoveryUrl": "${REALM_KUBERNETES_ISSUER_DISCOVERY_URL:https://kubernetes.default.svc.cluster.local}",
-                // Default ON: resolve the expected token issuer at runtime from issuerDiscoveryUrl, so no custom
-                // KUBERNETES_ISSUER needs setting per environment (the cluster reports its own service-account-issuer).
+                // Default ON: at IdP validation the issuer is resolved from issuerDiscoveryUrl and persisted onto
+                // the IdP, so no KUBERNETES_ISSUER needs setting per environment (the cluster reports its own
+                // service-account-issuer).
                 "automaticIssuerDiscovery": "${REALM_KUBERNETES_ISSUER_AUTO_DISCOVERY:true}",
-                // Fallback expected issuer, used ONLY when automaticIssuerDiscovery is false. Defaults to the in-cluster issuer.
-                "issuer": "${REALM_KUBERNETES_ISSUER:https://kubernetes.default.svc.cluster.local}",
-                // Token-forwarding policy for discovery/JWKS fetches: AUTO | NEVER | ALWAYS.
-                // AUTO (default) fetches anonymously and only sends the pod SA token if the endpoint returns a
-                // 401/403 challenge — so public issuers (S3/EKS/AKS) stay token-free while the in-cluster apiserver
-                // (which requires auth) gets it. NEVER forces anonymous; ALWAYS always sends the token.
-                "jwksAuthMode": "${REALM_KUBERNETES_JWKS_AUTH_MODE:AUTO}"
+                // Explicit issuer override. Leave empty to let automaticIssuerDiscovery resolve and persist it;
+                // setting REALM_KUBERNETES_ISSUER pins the issuer and skips discovery.
+                "issuer": "${REALM_KUBERNETES_ISSUER:}"
+                // Token forwarding is automatic: the pod service-account token is attached only when the
+                // discovery/JWKS destination is the in-cluster Kubernetes API server, never to external/public
+                // endpoints. No configuration required.
             }
         }
     ],

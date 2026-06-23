@@ -5,7 +5,6 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes;
 
-import com.defenseunicorns.uds.keycloak.plugin.authentication.authenticators.client.UDSClientAssertionStrategy;
 import org.keycloak.Config;
 import org.keycloak.broker.provider.AbstractIdentityProviderFactory;
 import org.keycloak.broker.provider.ClientAssertionIdentityProviderFactory;
@@ -17,17 +16,15 @@ import org.keycloak.provider.EnvironmentDependentProviderFactory;
 import java.util.Map;
 
 /**
- * Registers the UDS Kubernetes identity provider and contributes {@link UDSClientAssertionStrategy} so the
- * federated-JWT client authenticator can resolve clients backed by this provider (including managed/external
- * issuers where the stock issuer-match lookup fails).
+ * Registers the UDS Kubernetes identity provider. Client resolution uses the stock client-assertion strategy
+ * (the default), which works because the provider persists the resolved issuer onto the IdP at validation time.
  * <p>
  * Modeled on the upstream Kubernetes / SPIFFE identity provider factories.
  * <p>
  * <b>WORKAROUND (keycloak#49039):</b> temporary bridge. Once
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> ships destination-based
- * token forwarding, managed-issuer discovery, and the
- * <a href="https://github.com/keycloak/keycloak/issues/48026">keycloak/keycloak#48026</a> client_id validation in the runtime version
- * UDS ships, delete this whole plugin and set the realm IdP back to {@code providerId: "kubernetes"}.
+ * token forwarding and managed-issuer discovery in the runtime version UDS ships, delete this whole plugin and set
+ * the realm IdP back to {@code providerId: "kubernetes"}.
  */
 public class UDSKubernetesIdentityProviderFactory extends AbstractIdentityProviderFactory<UDSKubernetesIdentityProvider>
         implements EnvironmentDependentProviderFactory, ClientAssertionIdentityProviderFactory {
@@ -62,10 +59,5 @@ public class UDSKubernetesIdentityProviderFactory extends AbstractIdentityProvid
     @Override
     public boolean isSupported(Config.Scope config) {
         return Profile.isFeatureEnabled(Profile.Feature.KUBERNETES_SERVICE_ACCOUNTS);
-    }
-
-    @Override
-    public ClientAssertionStrategy getClientAssertionStrategy() {
-        return new UDSClientAssertionStrategy();
     }
 }

@@ -15,10 +15,11 @@ import org.mockito.MockedStatic;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -28,14 +29,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the token-forwarding orchestration in {@link KubernetesUtils#fetchJson} — the core security guarantee of
- * the plugin: the Keycloak pod service-account token must never be sent to a public issuer endpoint (S3/EKS/AKS),
- * only attached when an in-cluster endpoint actually challenges with a 401/403. The per-mode decisions are unit
- * tested in {@link UDSKubernetesHttpAuthPolicyTest}; these tests verify they are wired together correctly.
+ * Tests the trusted-API-URL allowlist and the {@link KubernetesUtils#fetchJson} fetch. The pod service-account
+ * token is attached only when the caller passes {@code attachToken=true} (i.e. the destination is the in-cluster
+ * API server), so it is never sent to external/public discovery or JWKS endpoints.
  */
 class KubernetesUtilsTest {
 
-    private static final String URL = "https://issuer.example/.well-known/openid-configuration";
+    private static final String IN_CLUSTER = "https://kubernetes.default.svc.cluster.local";
     private static final String ACCEPT = "application/json";
     private static final String TOKEN = "pod-sa-token";
 
@@ -44,154 +44,115 @@ class KubernetesUtilsTest {
 
     private static final Body BODY = new Body("ok");
 
-    /**
-     * Wire up the static SimpleHttp fluent chain so that successive {@code asResponse()} calls return the supplied
-     * responses in order. Returns the request mock so callers can verify whether/when {@code auth()} was invoked.
-     */
-    private SimpleHttpRequest stubHttp(MockedStatic<SimpleHttp> http, SimpleHttpResponse... responses) throws IOException {
+    // ---- isTrustedKubernetesApiUrl ----
+
+    @Test
+    void trustsInClusterApiDnsNames() {
+        assertTrue(KubernetesUtils.isTrustedKubernetesApiUrl("https://kubernetes"));
+        assertTrue(KubernetesUtils.isTrustedKubernetesApiUrl("https://kubernetes.default"));
+        assertTrue(KubernetesUtils.isTrustedKubernetesApiUrl("https://kubernetes.default.svc"));
+        assertTrue(KubernetesUtils.isTrustedKubernetesApiUrl(IN_CLUSTER));
+        assertTrue(KubernetesUtils.isTrustedKubernetesApiUrl(IN_CLUSTER + ":443"));
+    }
+
+    @Test
+    void rejectsExternalHostsAndNonHttps() {
+        assertFalse(KubernetesUtils.isTrustedKubernetesApiUrl("https://oidc.eks.us-gov-west-1.amazonaws.com/id/ABC123"));
+        assertFalse(KubernetesUtils.isTrustedKubernetesApiUrl("https://example.com"));
+        // non-HTTPS in-cluster name is still rejected
+        assertFalse(KubernetesUtils.isTrustedKubernetesApiUrl("http://kubernetes.default.svc.cluster.local"));
+        // wrong explicit port (no KUBERNETES_SERVICE_PORT_HTTPS env in the test → must be 443)
+        assertFalse(KubernetesUtils.isTrustedKubernetesApiUrl(IN_CLUSTER + ":8443"));
+    }
+
+    // ---- isTrustedKubernetesApiJwksUrl ----
+
+    @Test
+    void trustsJwksThatIsItselfTheApiServer() {
+        assertTrue(KubernetesUtils.isTrustedKubernetesApiJwksUrl(IN_CLUSTER + "/openid/v1/jwks", IN_CLUSTER));
+    }
+
+    @Test
+    void trustsInClusterIpJwksWhenDiscoveryBaseTrusted() {
+        // apiserver commonly advertises its JWKS at an IP-literal /openid/v1/jwks
+        assertTrue(KubernetesUtils.isTrustedKubernetesApiJwksUrl("https://10.0.0.1/openid/v1/jwks", IN_CLUSTER));
+    }
+
+    @Test
+    void rejectsExternalJwksWhenBaseNotTrusted() {
+        assertFalse(KubernetesUtils.isTrustedKubernetesApiJwksUrl(
+                "https://s3.amazonaws.com/eks/keys.json", "https://oidc.eks.us-gov-west-1.amazonaws.com/id/ABC123"));
+    }
+
+    @Test
+    void rejectsNonJwksPathEvenWhenBaseTrusted() {
+        assertFalse(KubernetesUtils.isTrustedKubernetesApiJwksUrl("https://10.0.0.1/evil", IN_CLUSTER));
+    }
+
+    // ---- fetchJson ----
+
+    private SimpleHttpRequest stubHttp(MockedStatic<SimpleHttp> http, int status) throws IOException {
         SimpleHttp simpleHttp = mock(SimpleHttp.class);
         SimpleHttpRequest request = mock(SimpleHttpRequest.class);
+        SimpleHttpResponse response = mock(SimpleHttpResponse.class);
         http.when(() -> SimpleHttp.create(any(KeycloakSession.class))).thenReturn(simpleHttp);
         when(simpleHttp.doGet(anyString())).thenReturn(request);
         when(request.header(anyString(), anyString())).thenReturn(request);
         when(request.auth(anyString())).thenReturn(request);
-        if (responses.length == 1) {
-            when(request.asResponse()).thenReturn(responses[0]);
-        } else {
-            when(request.asResponse()).thenReturn(responses[0], java.util.Arrays.copyOfRange(responses, 1, responses.length));
-        }
+        when(request.asResponse()).thenReturn(response);
+        when(response.getStatus()).thenReturn(status);
+        when(response.asJson(Body.class)).thenReturn(BODY);
         return request;
     }
 
-    private SimpleHttpResponse response(int status) throws IOException {
-        SimpleHttpResponse response = mock(SimpleHttpResponse.class);
-        when(response.getStatus()).thenReturn(status);
-        return response;
-    }
-
     @Test
-    void autoSendsAnonymouslyThenRetriesWithTokenOnChallenge() throws Exception {
+    void attachesTokenWhenAttachTokenTrue() throws Exception {
         KeycloakSession session = mock(KeycloakSession.class);
-        SimpleHttpResponse challenge = response(401);
-        SimpleHttpResponse ok = response(200);
-        when(ok.asJson(Body.class)).thenReturn(BODY);
-
         try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class);
              MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
             utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(TOKEN);
-            SimpleHttpRequest request = stubHttp(http, challenge, ok);
+            SimpleHttpRequest request = stubHttp(http, 200);
 
-            Body result = KubernetesUtils.fetchJson(session, URL, ACCEPT, Body.class, UDSKubernetesHttpAuthPolicy.Mode.AUTO);
+            Body result = KubernetesUtils.fetchJson(session, IN_CLUSTER, ACCEPT, Body.class, true);
 
             assertEquals(BODY, result);
-            // Token attached exactly once — on the retry, never on the first anonymous attempt.
             verify(request, times(1)).auth(TOKEN);
-            verify(challenge).close();
-            verify(ok).close();
         }
     }
 
     @Test
-    void autoStaysAnonymousWhenFirstAttemptSucceeds() throws Exception {
+    void neverAttachesTokenWhenAttachTokenFalse() throws Exception {
         KeycloakSession session = mock(KeycloakSession.class);
-        SimpleHttpResponse ok = response(200);
-        when(ok.asJson(Body.class)).thenReturn(BODY);
-
         try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class);
              MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
-            utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(TOKEN);
-            SimpleHttpRequest request = stubHttp(http, ok);
+            SimpleHttpRequest request = stubHttp(http, 200);
 
-            Body result = KubernetesUtils.fetchJson(session, URL, ACCEPT, Body.class, UDSKubernetesHttpAuthPolicy.Mode.AUTO);
-
-            assertEquals(BODY, result);
-            // A public endpoint answered 200 anonymously, so the pod token must never be sent.
-            verify(request, never()).auth(anyString());
-            verify(ok).close();
-        }
-    }
-
-    @Test
-    void neverModeNeverReadsOrAttachesToken() throws Exception {
-        KeycloakSession session = mock(KeycloakSession.class);
-        SimpleHttpResponse ok = response(200);
-        when(ok.asJson(Body.class)).thenReturn(BODY);
-
-        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class);
-             MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
-            SimpleHttpRequest request = stubHttp(http, ok);
-
-            Body result = KubernetesUtils.fetchJson(session, URL, ACCEPT, Body.class, UDSKubernetesHttpAuthPolicy.Mode.NEVER);
+            Body result = KubernetesUtils.fetchJson(session, "https://oidc.example/jwks", ACCEPT, Body.class, false);
 
             assertEquals(BODY, result);
             verify(request, never()).auth(anyString());
+            // token must not even be read for an untrusted destination
             utils.verify(KubernetesUtils::readServiceAccountToken, never());
-        }
-    }
-
-    @Test
-    void alwaysModeAttachesTokenOnFirstRequest() throws Exception {
-        KeycloakSession session = mock(KeycloakSession.class);
-        SimpleHttpResponse ok = response(200);
-        when(ok.asJson(Body.class)).thenReturn(BODY);
-
-        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class);
-             MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
-            utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(TOKEN);
-            SimpleHttpRequest request = stubHttp(http, ok);
-
-            KubernetesUtils.fetchJson(session, URL, ACCEPT, Body.class, UDSKubernetesHttpAuthPolicy.Mode.ALWAYS);
-
-            verify(request, times(1)).auth(TOKEN);
-        }
-    }
-
-    @Test
-    void alwaysModeFailsFastWhenTokenUnavailable() {
-        KeycloakSession session = mock(KeycloakSession.class);
-
-        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class);
-             MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
-            utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(null);
-
-            // ALWAYS requires the token; a missing token must fail fast, not silently degrade to an anonymous request.
-            assertThrows(IOException.class,
-                    () -> KubernetesUtils.fetchJson(session, URL, ACCEPT, Body.class, UDSKubernetesHttpAuthPolicy.Mode.ALWAYS));
-            http.verify(() -> SimpleHttp.create(any(KeycloakSession.class)), never());
         }
     }
 
     @Test
     void rejectsNonHttpsUrlWithoutMakingRequest() {
         KeycloakSession session = mock(KeycloakSession.class);
-
-        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class);
-             MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
-            utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(TOKEN);
-
-            // A non-HTTPS URL must be refused before any request, so the pod token can never ride a cleartext fetch.
-            assertThrows(IOException.class, () -> KubernetesUtils.fetchJson(
-                    session, "http://issuer.example/jwks", ACCEPT, Body.class, UDSKubernetesHttpAuthPolicy.Mode.AUTO));
+        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class)) {
+            assertThrows(IOException.class,
+                    () -> KubernetesUtils.fetchJson(session, "http://issuer.example/jwks", ACCEPT, Body.class, false));
             http.verify(() -> SimpleHttp.create(any(KeycloakSession.class)), never());
         }
     }
 
     @Test
-    void nonSuccessStatusThrowsAndClosesResponse() throws Exception {
+    void nonSuccessStatusThrows() throws Exception {
         KeycloakSession session = mock(KeycloakSession.class);
-        // 404 is not a 401/403 challenge, so AUTO does not retry; a non-2xx final response must throw rather than
-        // parse an error body into an empty result.
-        SimpleHttpResponse notFound = response(404);
-
-        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class);
-             MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
-            utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(TOKEN);
-            SimpleHttpRequest request = stubHttp(http, notFound);
-
+        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class)) {
+            stubHttp(http, 404);
             assertThrows(IOException.class,
-                    () -> KubernetesUtils.fetchJson(session, URL, ACCEPT, Body.class, UDSKubernetesHttpAuthPolicy.Mode.AUTO));
-            verify(request, never()).auth(anyString());
-            verify(notFound).close();
+                    () -> KubernetesUtils.fetchJson(session, IN_CLUSTER, ACCEPT, Body.class, false));
         }
     }
 }

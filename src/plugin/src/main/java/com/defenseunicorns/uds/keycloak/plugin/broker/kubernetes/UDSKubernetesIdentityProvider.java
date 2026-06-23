@@ -16,14 +16,11 @@ import org.keycloak.jose.jws.JWSInput;
 import org.keycloak.keys.PublicKeyStorageProvider;
 import org.keycloak.keys.PublicKeyStorageUtils;
 import org.keycloak.models.KeycloakSession;
-import org.keycloak.protocol.oidc.representations.OIDCConfigurationRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * UDS Kubernetes client-assertion identity provider. Verifies federated Kubernetes service-account JWTs like the
@@ -31,25 +28,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * <ul>
  *   <li>signing keys are loaded via {@link UDSKubernetesJwksEndpointLoader}, which does NOT forward the pod
  *       service-account token to external/public discovery or JWKS endpoints; and</li>
- *   <li>the expected issuer may be discovered at validation time from the in-cluster API
- *       ({@code automaticIssuerDiscovery}).</li>
+ *   <li>the expected issuer is discovered from the cluster and persisted onto the IdP at validation time
+ *       ({@code automaticIssuerDiscovery}; see {@link UDSKubernetesIdentityProviderConfig#validate}).</li>
  * </ul>
  *
  * <p><b>WORKAROUND (keycloak#49039):</b> this entire provider is a temporary bridge. Once
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> ships
- * destination-based token forwarding (plus managed-issuer discovery and keycloak#48026) in the Keycloak version
- * UDS runs, delete this plugin and switch the realm IdP back to the stock {@code providerId: "kubernetes"}.
+ * destination-based token forwarding and managed-issuer discovery in the Keycloak version UDS runs, delete this
+ * plugin and switch the realm IdP back to the stock {@code providerId: "kubernetes"}.
  */
 public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityProvider<UDSKubernetesIdentityProviderConfig> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    /**
-     * Discovered issuer cache, keyed by discovery URL. Kubernetes issuers are stable, so this is JVM-lifetime with
-     * no TTL/eviction and only ever stores validated (HTTPS, non-blank) issuers. Caveat: if a cluster rotates the
-     * issuer behind the same discovery URL, the stale value is served until Keycloak restarts.
-     */
-    private static final Map<String, String> DISCOVERED_ISSUERS = new ConcurrentHashMap<>();
 
     private final KeycloakSession session;
     private final UDSKubernetesIdentityProviderConfig config;
@@ -61,13 +51,12 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
 
     @Override
     public boolean verifyClientAssertion(ClientAuthenticationFlowContext context) throws Exception {
+        // The issuer was resolved and persisted at IdP validation time (see UDSKubernetesIdentityProviderConfig),
+        // so it is read straight from config here.
         String expectedIssuer = config.getIssuer();
-        if (config.isAutomaticIssuerDiscovery()) {
-            expectedIssuer = discoverIssuer();
-            if (expectedIssuer == null) {
-                logger.warn("Automatic issuer discovery enabled but issuer could not be resolved; rejecting assertion");
-                return false; // fail closed
-            }
+        if (expectedIssuer == null || expectedIssuer.isBlank()) {
+            logger.warn("Kubernetes IdP has no resolved issuer; rejecting assertion");
+            return false; // fail closed
         }
 
         FederatedJWTClientValidator validator = new FederatedJWTClientValidator(
@@ -78,13 +67,12 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
     }
 
     /**
-     * Copied from the upstream KubernetesIdentityProvider.verifySignature (private upstream). Deviations, both
-     * fail-closed-preserving:
+     * Verifies the assertion signature. Copied from Keycloak's KubernetesIdentityProvider.verifySignature (which is
+     * private upstream); it differs only in that it:
      * <ul>
-     *   <li>uses {@link UDSKubernetesJwksEndpointLoader} built from {@code getIssuerDiscoveryUrl()} and the
-     *       token-forwarding {@code getJwksAuthMode()}, where upstream uses the configured issuer and always
-     *       forwards the pod token; and</li>
-     *   <li>logs verification failures at warn with kid/alg rather than debug.</li>
+     *   <li>uses {@link UDSKubernetesJwksEndpointLoader} built from {@code getIssuerDiscoveryUrl()}, which attaches
+     *       the pod token only to the in-cluster API server rather than to whatever issuer is configured; and</li>
+     *   <li>logs verification failures at warn (with kid/alg) instead of debug.</li>
      * </ul>
      * Remove when keycloak#49039 is resolved.
      */
@@ -100,7 +88,7 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
             String modelKey = PublicKeyStorageUtils.getIdpModelCacheKey(validator.getContext().getRealm().getId(), config.getInternalId());
             PublicKeyStorageProvider keyStorage = session.getProvider(PublicKeyStorageProvider.class);
             KeyWrapper publicKey = keyStorage.getPublicKey(modelKey, kid, alg,
-                    new UDSKubernetesJwksEndpointLoader(session, config.getIssuerDiscoveryUrl(), config.getJwksAuthMode()));
+                    new UDSKubernetesJwksEndpointLoader(session, config.getIssuerDiscoveryUrl()));
 
             SignatureProvider signatureProvider = session.getProvider(SignatureProvider.class, alg);
             if (signatureProvider == null) {
@@ -116,38 +104,6 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
             // indistinguishable here, so log at warn with key context.
             logger.warn("Failed to verify Kubernetes SA token signature (kid={}, alg={})", kid, alg, e);
             return false;
-        }
-    }
-
-    private String discoverIssuer() {
-        String discoveryUrl = config.getIssuerDiscoveryUrl();
-        String cached = DISCOVERED_ISSUERS.get(discoveryUrl);
-        if (cached != null) {
-            return cached;
-        }
-        String issuer = fetchIssuer(discoveryUrl);
-        if (issuer != null) {
-            DISCOVERED_ISSUERS.put(discoveryUrl, issuer);
-        }
-        return issuer;
-    }
-
-    private String fetchIssuer(String discoveryUrl) {
-        String wellKnown = KubernetesUtils.wellKnownUrl(discoveryUrl);
-        try {
-            OIDCConfigurationRepresentation discovery =
-                    KubernetesUtils.fetchJson(session, wellKnown, "application/json", OIDCConfigurationRepresentation.class, config.getJwksAuthMode());
-            String issuer = discovery != null ? discovery.getIssuer() : null;
-            if (issuer == null || issuer.isBlank() || !issuer.startsWith("https://")) {
-                logger.warn("Discovered issuer is missing or not HTTPS from {}", wellKnown);
-                return null;
-            }
-            return issuer;
-        } catch (Exception e) {
-            // Infra failure (DNS/TLS/404/malformed JSON); log at warn so the cause shows alongside the
-            // fail-closed rejection.
-            logger.warn("Issuer discovery failed for {}", wellKnown, e);
-            return null;
         }
     }
 

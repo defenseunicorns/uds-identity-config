@@ -11,19 +11,22 @@ import org.keycloak.http.simple.SimpleHttp;
 import org.keycloak.http.simple.SimpleHttpRequest;
 import org.keycloak.http.simple.SimpleHttpResponse;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.protocol.oidc.representations.OIDCConfigurationRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.net.InetAddress;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Helpers for the UDS Kubernetes identity provider. Reading the pod service-account token here carries no
- * issuer-match forwarding decision; whether the token is attached to a given request is decided by the
- * anonymous-first probe in {@link #fetchJson} per {@link UDSKubernetesHttpAuthPolicy}.
+ * Helpers for the UDS Kubernetes identity provider. The pod service-account token is attached to an outbound
+ * fetch only when the destination is the in-cluster Kubernetes API server (see {@link #isTrustedKubernetesApiUrl}),
+ * so it is never sent to external/public discovery or JWKS endpoints (EKS/AKS OIDC, RKE2 S3).
  *
  * <p><b>WORKAROUND (keycloak#49039):</b> part of the temporary bridge plugin; remove once
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> is resolved.
@@ -38,55 +41,134 @@ final class KubernetesUtils {
     }
 
     /**
-     * GET {@code url} and parse the JSON body as {@code type}, applying the token-forwarding {@code mode}:
-     * AUTO sends anonymously then retries with the pod token on a 401/403 challenge; ALWAYS sends the token up
-     * front; NEVER stays anonymous. Throws if the (final) response is not 2xx, so an error body is never parsed
-     * into an empty result.
+     * GET {@code url} and parse the JSON body as {@code type}, attaching the pod service-account token only when
+     * {@code attachToken} is true (the caller decides via {@link #isTrustedKubernetesApiUrl}). Throws if the
+     * response is not 2xx, so an error body is never parsed into an empty result.
      *
-     * <p>The url MUST be HTTPS. This is the single chokepoint for every outbound fetch (OIDC discovery and the
-     * discovered {@code jwks_uri}), so requiring TLS here keeps the pod service-account token off cleartext
-     * regardless of how the URL was derived. Redirects can't leak the token either: Keycloak's shared HttpClient
-     * disables redirect handling by default, so a 3xx surfaces as a non-2xx and throws.
+     * <p>The url MUST be HTTPS. Combined with attaching the token only to trusted in-cluster URLs, this guarantees
+     * the token is never sent over cleartext. Redirects can't leak it either: Keycloak's shared HttpClient disables
+     * redirect handling by default, so a 3xx surfaces as a non-2xx and throws.
      */
     static <T> T fetchJson(KeycloakSession session, String url, String acceptHeader, Class<T> type,
-                           UDSKubernetesHttpAuthPolicy.Mode mode) throws IOException {
+                           boolean attachToken) throws IOException {
         if (url == null || !url.startsWith("https://")) {
             throw new IOException("Refusing to fetch non-HTTPS URL (would risk exposing the pod service-account token): " + url);
         }
 
-        String token = (mode == UDSKubernetesHttpAuthPolicy.Mode.NEVER) ? null : readServiceAccountToken();
+        String token = attachToken ? readServiceAccountToken() : null;
 
-        // In ALWAYS mode the token is mandatory; fail fast rather than degrading to an anonymous request that
-        // would surface later as an opaque 401/403 and mask the real cause (token unreadable/unmounted).
-        if (mode == UDSKubernetesHttpAuthPolicy.Mode.ALWAYS && token == null) {
-            throw new IOException("Token-forwarding mode is ALWAYS but the pod service account token at "
-                    + KubernetesConstants.SERVICE_ACCOUNT_TOKEN_PATH + " is missing or unreadable");
+        SimpleHttpRequest request = SimpleHttp.create(session).doGet(url).header(HttpHeaders.ACCEPT, acceptHeader);
+        if (token != null) {
+            request.auth(token);
         }
-
-        SimpleHttpResponse response = get(session, url, acceptHeader, UDSKubernetesHttpAuthPolicy.firstAttemptToken(mode, token));
-        try {
+        try (SimpleHttpResponse response = request.asResponse()) {
             int status = response.getStatus();
-            if (UDSKubernetesHttpAuthPolicy.shouldRetryWithToken(mode, status, token)) {
-                response.close();
-                response = get(session, url, acceptHeader, token);
-                status = response.getStatus();
-            }
             if (status < 200 || status >= 300) {
                 throw new IOException("GET " + url + " returned HTTP " + status);
             }
             return response.asJson(type);
-        } finally {
-            response.close();
         }
     }
 
-    private static SimpleHttpResponse get(KeycloakSession session, String url, String acceptHeader, String token) throws IOException {
-        SimpleHttpRequest request = SimpleHttp.create(session).doGet(url)
-                .header(HttpHeaders.ACCEPT, acceptHeader);
-        if (token != null) {
-            request.auth(token);
+    /**
+     * Whether {@code url} is the in-cluster Kubernetes API server — the only destination the pod service-account
+     * token may be sent to. Trusts the well-known in-cluster DNS names and the {@code KUBERNETES_SERVICE_HOST}
+     * address Kubernetes injects into every pod, on 443 / {@code KUBERNETES_SERVICE_PORT_HTTPS}. No admin
+     * configuration required.
+     */
+    static boolean isTrustedKubernetesApiUrl(String url) {
+        URI uri;
+        try {
+            uri = URI.create(url);
+        } catch (IllegalArgumentException e) {
+            return false;
         }
-        return request.asResponse();
+        if (!"https".equals(uri.getScheme())) {
+            return false;
+        }
+        String host = uri.getHost();
+        if (host == null) {
+            return false;
+        }
+        if ("kubernetes".equals(host) || "kubernetes.default".equals(host)
+                || "kubernetes.default.svc".equals(host) || "kubernetes.default.svc.cluster.local".equals(host)) {
+            return isTrustedKubernetesApiPort(uri);
+        }
+        String serviceHost = System.getenv(KubernetesConstants.KUBERNETES_SERVICE_HOST_KEY);
+        if (serviceHost == null || !host.equals(serviceHost)) {
+            return false;
+        }
+        return isTrustedKubernetesApiPort(uri);
+    }
+
+    /**
+     * Whether the discovered {@code jwksUrl} may receive the token: either it is itself a trusted API URL, or the
+     * {@code trustedBaseUrl} (the discovery source) is trusted and the JWKS is the in-cluster apiserver JWKS path
+     * served at an IP-literal host ({@code https://<ip>/openid/v1/jwks}).
+     */
+    static boolean isTrustedKubernetesApiJwksUrl(String jwksUrl, String trustedBaseUrl) {
+        if (isTrustedKubernetesApiUrl(jwksUrl)) {
+            return true;
+        }
+        if (!isTrustedKubernetesApiUrl(trustedBaseUrl)) {
+            return false;
+        }
+        URI jwksUri;
+        try {
+            jwksUri = URI.create(jwksUrl);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return "https".equals(jwksUri.getScheme())
+                && "/openid/v1/jwks".equals(jwksUri.getPath())
+                && jwksUri.getQuery() == null
+                && jwksUri.getFragment() == null
+                && isIpLiteral(jwksUri.getHost());
+    }
+
+    private static boolean isIpLiteral(String host) {
+        if (host == null || (!host.contains(":") && !host.matches("\\d+(\\.\\d+){3}"))) {
+            return false;
+        }
+        try {
+            String address = InetAddress.getByName(host).getHostAddress();
+            return host.contains(":") || address.equals(host);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean isTrustedKubernetesApiPort(URI uri) {
+        String servicePort = System.getenv(KubernetesConstants.KUBERNETES_SERVICE_PORT_HTTPS_KEY);
+        int port = uri.getPort();
+        if (port == -1) {
+            return true;
+        }
+        if (servicePort == null || servicePort.isBlank()) {
+            return port == 443;
+        }
+        return servicePort.equals(Integer.toString(port));
+    }
+
+    /**
+     * Resolve the cluster's issuer from its OIDC discovery document. Returns null (and logs) if discovery is
+     * unreachable or the document doesn't contain a non-blank HTTPS issuer — callers fail closed on null.
+     */
+    static String resolveIssuer(KeycloakSession session, String discoveryUrl) {
+        String wellKnown = wellKnownUrl(discoveryUrl);
+        try {
+            OIDCConfigurationRepresentation discovery = fetchJson(session, wellKnown, "application/json",
+                    OIDCConfigurationRepresentation.class, isTrustedKubernetesApiUrl(discoveryUrl));
+            String issuer = discovery != null ? discovery.getIssuer() : null;
+            if (issuer == null || issuer.isBlank() || !issuer.startsWith("https://")) {
+                logger.warn("Discovered issuer is missing or not HTTPS from {}", wellKnown);
+                return null;
+            }
+            return issuer;
+        } catch (Exception e) {
+            logger.warn("Issuer discovery failed for {}", wellKnown, e);
+            return null;
+        }
     }
 
     /**
