@@ -5,9 +5,9 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes;
 
-import com.defenseunicorns.uds.keycloak.plugin.authentication.authenticators.client.UDSFederatedJWTClientValidator;
 import org.keycloak.authentication.ClientAuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.client.AbstractJWTClientValidator;
+import org.keycloak.authentication.authenticators.client.FederatedJWTClientValidator;
 import org.keycloak.broker.provider.ClientAssertionIdentityProvider;
 import org.keycloak.crypto.KeyWrapper;
 import org.keycloak.crypto.SignatureProvider;
@@ -34,8 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>the expected issuer may be discovered at validation time from the in-cluster API
  *       ({@code automaticIssuerDiscovery}).</li>
  * </ul>
- * It also uses {@link UDSFederatedJWTClientValidator} to backport the
- * <a href="https://github.com/keycloak/keycloak/issues/48026">keycloak/keycloak#48026</a> client_id fix.
  *
  * <p><b>WORKAROUND (keycloak#49039):</b> this entire provider is a temporary bridge. Once
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> ships
@@ -72,7 +70,7 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
             }
         }
 
-        UDSFederatedJWTClientValidator validator = new UDSFederatedJWTClientValidator(
+        FederatedJWTClientValidator validator = new FederatedJWTClientValidator(
                 context, this::verifySignature, expectedIssuer, config.getAllowedClockSkew(), true);
         int maxExp = config.getFederatedClientAssertionMaxExpiration();
         validator.setMaximumExpirationTime(maxExp != 0 ? maxExp : 3600); // Kubernetes defaults to 1h
