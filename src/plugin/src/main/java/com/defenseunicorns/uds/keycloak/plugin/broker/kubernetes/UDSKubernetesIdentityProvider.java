@@ -49,6 +49,11 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
         this.config = config;
     }
 
+    /**
+     * Adapted from Keycloak 26.6.3
+     * <a href="https://github.com/keycloak/keycloak/blob/8a67e82f8c85b35bbe69dbc9f3cd28aa26c00ebb/services/src/main/java/org/keycloak/broker/kubernetes/KubernetesIdentityProvider.java#L32-L40">KubernetesIdentityProvider#verifyClientAssertion</a>,
+     * adding only the fail-closed guard when no issuer has been resolved.
+     */
     @Override
     public boolean verifyClientAssertion(ClientAuthenticationFlowContext context) throws Exception {
         // The issuer was resolved and persisted at IdP validation time (see UDSKubernetesIdentityProviderConfig),
@@ -67,8 +72,9 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
     }
 
     /**
-     * Verifies the assertion signature. Copied from Keycloak's KubernetesIdentityProvider.verifySignature (which is
-     * private upstream); it differs only in using {@link UDSKubernetesJwksEndpointLoader} built from the resolved
+     * Verifies the assertion signature. Copied from Keycloak 26.6.3
+     * <a href="https://github.com/keycloak/keycloak/blob/8a67e82f8c85b35bbe69dbc9f3cd28aa26c00ebb/services/src/main/java/org/keycloak/broker/kubernetes/KubernetesIdentityProvider.java#L42-L64">KubernetesIdentityProvider#verifySignature</a>
+     * (private upstream); it differs only in using {@link UDSKubernetesJwksEndpointLoader} built from the resolved
      * {@code getIssuer()}, which fetches keys from the issuer's own (public) endpoint and attaches the pod token
      * only to the in-cluster API server.
      * Remove when <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> is resolved.

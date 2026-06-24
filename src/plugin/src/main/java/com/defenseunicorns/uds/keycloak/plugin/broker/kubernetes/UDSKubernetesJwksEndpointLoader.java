@@ -67,8 +67,9 @@ public class UDSKubernetesJwksEndpointLoader implements PublicKeyLoader {
 
     /**
      * The mounted pod service-account token, but only if its own issuer matches the issuer we're loading keys for
-     * (so the token is never forwarded to an issuer it doesn't belong to). Mirrors upstream
-     * <a href="https://github.com/keycloak/keycloak/pull/50224">keycloak/keycloak#50224</a>.
+     * (so the token is never forwarded to an issuer it doesn't belong to). Copied from Keycloak 26.6.3
+     * <a href="https://github.com/keycloak/keycloak/blob/8a67e82f8c85b35bbe69dbc9f3cd28aa26c00ebb/services/src/main/java/org/keycloak/broker/kubernetes/KubernetesJwksEndpointLoader.java#L59-L78">KubernetesJwksEndpointLoader#getToken</a>,
+     * reading the token via {@link KubernetesUtils#readServiceAccountToken}.
      */
     private String getToken(String issuer) {
         String token = KubernetesUtils.readServiceAccountToken();
