@@ -16,7 +16,6 @@ import org.mockito.MockedStatic;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
@@ -32,20 +31,20 @@ import static org.mockito.Mockito.when;
  */
 class UDSKubernetesJwksEndpointLoaderTest {
 
-    private static final String BASE_URL = "https://issuer.example";
+    private static final String ISSUER = "https://issuer.example";
     private static final String JWKS_URI = "https://issuer.example/openid/v1/jwks";
 
     private final KeycloakSession session = mock(KeycloakSession.class);
-    private final UDSKubernetesJwksEndpointLoader loader = new UDSKubernetesJwksEndpointLoader(session, BASE_URL);
+    private final UDSKubernetesJwksEndpointLoader loader = new UDSKubernetesJwksEndpointLoader(session, ISSUER);
 
     private void stubDiscovery(MockedStatic<KubernetesUtils> utils, OIDCConfigurationRepresentation discovery) {
         utils.when(() -> KubernetesUtils.fetchJson(any(), anyString(), eq("application/json"),
-                eq(OIDCConfigurationRepresentation.class), anyBoolean())).thenReturn(discovery);
+                eq(OIDCConfigurationRepresentation.class), any())).thenReturn(discovery);
     }
 
     private void stubJwks(MockedStatic<KubernetesUtils> utils, JSONWebKeySet jwks) {
         utils.when(() -> KubernetesUtils.fetchJson(any(), anyString(), eq("application/jwk-set+json"),
-                eq(JSONWebKeySet.class), anyBoolean())).thenReturn(jwks);
+                eq(JSONWebKeySet.class), any())).thenReturn(jwks);
     }
 
     @Test

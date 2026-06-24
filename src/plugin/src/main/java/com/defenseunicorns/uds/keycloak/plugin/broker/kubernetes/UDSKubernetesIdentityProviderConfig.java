@@ -35,19 +35,17 @@ public class UDSKubernetesIdentityProviderConfig extends KubernetesIdentityProvi
     }
 
     /**
-     * Base URL used to fetch OIDC discovery + JWKS. Falls back to the configured issuer, then the in-cluster API.
+     * Base URL queried once (at validation) to resolve the issuer. Defaults to the in-cluster Kubernetes API.
+     * This is NOT used for key loading — keys are fetched from the resolved {@link #getIssuer() issuer} itself.
      */
     public String getIssuerDiscoveryUrl() {
         String discoveryUrl = getConfig().get(ISSUER_DISCOVERY_URL);
-        if (discoveryUrl != null && !discoveryUrl.isBlank()) {
-            return discoveryUrl;
-        }
-        String issuer = getIssuer();
-        return (issuer != null && !issuer.isBlank()) ? issuer : DEFAULT_IN_CLUSTER_URL;
+        return (discoveryUrl != null && !discoveryUrl.isBlank()) ? discoveryUrl : DEFAULT_IN_CLUSTER_URL;
     }
 
+    /** Default ON: only an explicit {@code "false"} disables it (matches upstream). */
     public boolean isAutomaticIssuerDiscovery() {
-        return Boolean.parseBoolean(getConfig().get(AUTOMATIC_ISSUER_DISCOVERY));
+        return !Boolean.FALSE.toString().equals(getConfig().get(AUTOMATIC_ISSUER_DISCOVERY));
     }
 
     /**

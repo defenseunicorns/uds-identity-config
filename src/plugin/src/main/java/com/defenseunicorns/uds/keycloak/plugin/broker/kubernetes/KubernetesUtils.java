@@ -41,21 +41,19 @@ final class KubernetesUtils {
     }
 
     /**
-     * GET {@code url} and parse the JSON body as {@code type}, attaching the pod service-account token only when
-     * {@code attachToken} is true (the caller decides via {@link #isTrustedKubernetesApiUrl}). Throws if the
-     * response is not 2xx, so an error body is never parsed into an empty result.
+     * GET {@code url} and parse the JSON body as {@code type}, attaching {@code token} as a bearer credential when
+     * it is non-null (the caller decides, gating on {@link #isTrustedKubernetesApiUrl}). Throws if the response is
+     * not 2xx, so an error body is never parsed into an empty result.
      *
      * <p>The url MUST be HTTPS. Combined with attaching the token only to trusted in-cluster URLs, this guarantees
      * the token is never sent over cleartext. Redirects can't leak it either: Keycloak's shared HttpClient disables
      * redirect handling by default, so a 3xx surfaces as a non-2xx and throws.
      */
     static <T> T fetchJson(KeycloakSession session, String url, String acceptHeader, Class<T> type,
-                           boolean attachToken) throws IOException {
+                           String token) throws IOException {
         if (url == null || !url.startsWith("https://")) {
             throw new IOException("Refusing to fetch non-HTTPS URL (would risk exposing the pod service-account token): " + url);
         }
-
-        String token = attachToken ? readServiceAccountToken() : null;
 
         SimpleHttpRequest request = SimpleHttp.create(session).doGet(url).header(HttpHeaders.ACCEPT, acceptHeader);
         if (token != null) {
@@ -157,8 +155,9 @@ final class KubernetesUtils {
     static String resolveIssuer(KeycloakSession session, String discoveryUrl) {
         String wellKnown = wellKnownUrl(discoveryUrl);
         try {
+            String token = isTrustedKubernetesApiUrl(discoveryUrl) ? readServiceAccountToken() : null;
             OIDCConfigurationRepresentation discovery = fetchJson(session, wellKnown, "application/json",
-                    OIDCConfigurationRepresentation.class, isTrustedKubernetesApiUrl(discoveryUrl));
+                    OIDCConfigurationRepresentation.class, token);
             String issuer = discovery != null ? discovery.getIssuer() : null;
             if (issuer == null || issuer.isBlank() || !issuer.startsWith("https://")) {
                 logger.warn("Discovered issuer is missing or not HTTPS from {}", wellKnown);
@@ -189,10 +188,14 @@ final class KubernetesUtils {
     }
 
     /**
-     * Build a normalized OIDC discovery URL for the given base (no double slashes).
+     * Build a normalized OIDC discovery URL for the given base, trimming any trailing slashes (matches upstream
+     * KubernetesUtils.discoveryUrl).
      */
     static String wellKnownUrl(String baseUrl) {
-        String trimmed = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
-        return trimmed + WELL_KNOWN_SUFFIX;
+        int end = baseUrl.length();
+        while (end > 0 && baseUrl.charAt(end - 1) == '/') {
+            end--;
+        }
+        return baseUrl.substring(0, end) + WELL_KNOWN_SUFFIX;
     }
 }

@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -106,14 +105,12 @@ class KubernetesUtilsTest {
     }
 
     @Test
-    void attachesTokenWhenAttachTokenTrue() throws Exception {
+    void attachesTokenWhenTokenProvided() throws Exception {
         KeycloakSession session = mock(KeycloakSession.class);
-        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class);
-             MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
-            utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(TOKEN);
+        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class)) {
             SimpleHttpRequest request = stubHttp(http, 200);
 
-            Body result = KubernetesUtils.fetchJson(session, IN_CLUSTER, ACCEPT, Body.class, true);
+            Body result = KubernetesUtils.fetchJson(session, IN_CLUSTER, ACCEPT, Body.class, TOKEN);
 
             assertEquals(BODY, result);
             verify(request, times(1)).auth(TOKEN);
@@ -121,18 +118,15 @@ class KubernetesUtilsTest {
     }
 
     @Test
-    void neverAttachesTokenWhenAttachTokenFalse() throws Exception {
+    void neverAttachesTokenWhenTokenNull() throws Exception {
         KeycloakSession session = mock(KeycloakSession.class);
-        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class);
-             MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
+        try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class)) {
             SimpleHttpRequest request = stubHttp(http, 200);
 
-            Body result = KubernetesUtils.fetchJson(session, "https://oidc.example/jwks", ACCEPT, Body.class, false);
+            Body result = KubernetesUtils.fetchJson(session, "https://oidc.example/jwks", ACCEPT, Body.class, null);
 
             assertEquals(BODY, result);
             verify(request, never()).auth(anyString());
-            // token must not even be read for an untrusted destination
-            utils.verify(KubernetesUtils::readServiceAccountToken, never());
         }
     }
 
@@ -141,7 +135,7 @@ class KubernetesUtilsTest {
         KeycloakSession session = mock(KeycloakSession.class);
         try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class)) {
             assertThrows(IOException.class,
-                    () -> KubernetesUtils.fetchJson(session, "http://issuer.example/jwks", ACCEPT, Body.class, false));
+                    () -> KubernetesUtils.fetchJson(session, "http://issuer.example/jwks", ACCEPT, Body.class, null));
             http.verify(() -> SimpleHttp.create(any(KeycloakSession.class)), never());
         }
     }
@@ -152,7 +146,7 @@ class KubernetesUtilsTest {
         try (MockedStatic<SimpleHttp> http = mockStatic(SimpleHttp.class)) {
             stubHttp(http, 404);
             assertThrows(IOException.class,
-                    () -> KubernetesUtils.fetchJson(session, IN_CLUSTER, ACCEPT, Body.class, false));
+                    () -> KubernetesUtils.fetchJson(session, IN_CLUSTER, ACCEPT, Body.class, null));
         }
     }
 }

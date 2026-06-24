@@ -70,8 +70,9 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
      * Verifies the assertion signature. Copied from Keycloak's KubernetesIdentityProvider.verifySignature (which is
      * private upstream); it differs only in that it:
      * <ul>
-     *   <li>uses {@link UDSKubernetesJwksEndpointLoader} built from {@code getIssuerDiscoveryUrl()}, which attaches
-     *       the pod token only to the in-cluster API server rather than to whatever issuer is configured; and</li>
+     *   <li>uses {@link UDSKubernetesJwksEndpointLoader} built from the resolved {@code getIssuer()}, which fetches
+     *       keys from the issuer's own (public) endpoint and attaches the pod token only to the in-cluster API
+     *       server; and</li>
      *   <li>logs verification failures at warn (with kid/alg) instead of debug.</li>
      * </ul>
      * Remove when keycloak#49039 is resolved.
@@ -88,7 +89,7 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
             String modelKey = PublicKeyStorageUtils.getIdpModelCacheKey(validator.getContext().getRealm().getId(), config.getInternalId());
             PublicKeyStorageProvider keyStorage = session.getProvider(PublicKeyStorageProvider.class);
             KeyWrapper publicKey = keyStorage.getPublicKey(modelKey, kid, alg,
-                    new UDSKubernetesJwksEndpointLoader(session, config.getIssuerDiscoveryUrl()));
+                    new UDSKubernetesJwksEndpointLoader(session, config.getIssuer()));
 
             SignatureProvider signatureProvider = session.getProvider(SignatureProvider.class, alg);
             if (signatureProvider == null) {
