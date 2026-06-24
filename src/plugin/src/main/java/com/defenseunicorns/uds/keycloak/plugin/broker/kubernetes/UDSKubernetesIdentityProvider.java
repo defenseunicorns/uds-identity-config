@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
  *       ({@code automaticIssuerDiscovery}; see {@link UDSKubernetesIdentityProviderConfig#validate}).</li>
  * </ul>
  *
- * <p><b>WORKAROUND (keycloak#49039):</b> this entire provider is a temporary bridge. Once
+ * <p><b>WORKAROUND:</b> this entire provider is a temporary bridge. Once
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> ships
  * destination-based token forwarding and managed-issuer discovery in the Keycloak version UDS runs, delete this
  * plugin and switch the realm IdP back to the stock {@code providerId: "kubernetes"}.
@@ -68,23 +68,17 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
 
     /**
      * Verifies the assertion signature. Copied from Keycloak's KubernetesIdentityProvider.verifySignature (which is
-     * private upstream); it differs only in that it:
-     * <ul>
-     *   <li>uses {@link UDSKubernetesJwksEndpointLoader} built from the resolved {@code getIssuer()}, which fetches
-     *       keys from the issuer's own (public) endpoint and attaches the pod token only to the in-cluster API
-     *       server; and</li>
-     *   <li>logs verification failures at warn (with kid/alg) instead of debug.</li>
-     * </ul>
-     * Remove when keycloak#49039 is resolved.
+     * private upstream); it differs only in using {@link UDSKubernetesJwksEndpointLoader} built from the resolved
+     * {@code getIssuer()}, which fetches keys from the issuer's own (public) endpoint and attaches the pod token
+     * only to the in-cluster API server.
+     * Remove when <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> is resolved.
      */
     private boolean verifySignature(AbstractJWTClientValidator validator) {
-        String kid = null;
-        String alg = null;
         try {
             JWSInput jws = validator.getState().getJws();
             JWSHeader header = jws.getHeader();
-            kid = header.getKeyId();
-            alg = header.getRawAlgorithm();
+            String kid = header.getKeyId();
+            String alg = header.getRawAlgorithm();
 
             String modelKey = PublicKeyStorageUtils.getIdpModelCacheKey(validator.getContext().getRealm().getId(), config.getInternalId());
             PublicKeyStorageProvider keyStorage = session.getProvider(PublicKeyStorageProvider.class);
@@ -93,17 +87,14 @@ public class UDSKubernetesIdentityProvider implements ClientAssertionIdentityPro
 
             SignatureProvider signatureProvider = session.getProvider(SignatureProvider.class, alg);
             if (signatureProvider == null) {
-                // Missing provider for the token's alg is a configuration problem, not routine traffic.
-                logger.warn("Failed to verify token, signature provider not found for algorithm {}", alg);
+                logger.debug("Failed to verify token, signature provider not found for algorithm {}", alg);
                 return false;
             }
 
             return signatureProvider.verifier(publicKey)
                     .verify(jws.getEncodedSignatureInput().getBytes(StandardCharsets.UTF_8), jws.getSignature());
         } catch (Exception e) {
-            // Fail closed; a bad signature and an operational failure (JWKS unreachable, missing key) are
-            // indistinguishable here, so log at warn with key context.
-            logger.warn("Failed to verify Kubernetes SA token signature (kid={}, alg={})", kid, alg, e);
+            logger.debug("Failed to verify token signature", e);
             return false;
         }
     }

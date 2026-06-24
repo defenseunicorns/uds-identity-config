@@ -14,7 +14,7 @@ import org.keycloak.utils.KeycloakSessionUtil;
  * Config for the UDS Kubernetes identity provider. Adds explicit, removable controls on top of the stock
  * Kubernetes provider so issuer discovery is understandable and tunable per environment.
  *
- * <p><b>WORKAROUND (keycloak#49039):</b> these extra fields exist only for the bridge plugin. When
+ * <p><b>WORKAROUND:</b> these extra fields exist only for the bridge plugin. When
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> is resolved, drop this
  * class and use the stock {@link KubernetesIdentityProviderConfig}.
  */
@@ -43,7 +43,10 @@ public class UDSKubernetesIdentityProviderConfig extends KubernetesIdentityProvi
         return (discoveryUrl != null && !discoveryUrl.isBlank()) ? discoveryUrl : DEFAULT_IN_CLUSTER_URL;
     }
 
-    /** Default ON: only an explicit {@code "false"} disables it (matches upstream). */
+    /**
+     * Default ON: only an explicit {@code "false"} disables it (matches upstream
+     * <a href="https://github.com/keycloak/keycloak/pull/50224">keycloak/keycloak#50224</a>).
+     */
     public boolean isAutomaticIssuerDiscovery() {
         return !Boolean.FALSE.toString().equals(getConfig().get(AUTOMATIC_ISSUER_DISCOVERY));
     }
@@ -66,11 +69,9 @@ public class UDSKubernetesIdentityProviderConfig extends KubernetesIdentityProvi
     void resolveAndPersistIssuer() {
         String configured = getConfig().get(ISSUER);
         if ((configured == null || configured.isBlank()) && isAutomaticIssuerDiscovery()) {
+            // resolveIssuer throws IllegalArgumentException (cause chained) on failure, so an unverified issuer is
+            // never persisted and the real cause surfaces at IdP validation.
             String resolved = KubernetesUtils.resolveIssuer(KeycloakSessionUtil.getKeycloakSession(), getIssuerDiscoveryUrl());
-            if (resolved == null) {
-                throw new IllegalArgumentException("Could not resolve Kubernetes issuer from " + getIssuerDiscoveryUrl()
-                        + "; set '" + ISSUER + "' explicitly or disable '" + AUTOMATIC_ISSUER_DISCOVERY + "'");
-            }
             getConfig().put(ISSUER, resolved);
         }
     }

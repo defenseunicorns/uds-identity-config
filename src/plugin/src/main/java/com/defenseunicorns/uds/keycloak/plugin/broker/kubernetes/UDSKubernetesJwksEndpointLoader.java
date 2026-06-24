@@ -14,6 +14,10 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.protocol.oidc.representations.OIDCConfigurationRepresentation;
 import org.keycloak.representations.JsonWebToken;
 import org.keycloak.util.JWKSUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 /**
  * Loads signing keys for the UDS Kubernetes provider WITHOUT the stock provider's unconditional pod-token
@@ -21,11 +25,13 @@ import org.keycloak.util.JWKSUtils;
  * issuer in the token, which is the cluster's public OIDC endpoint — so a public JWKS (S3/EKS/AKS OIDC) is fetched
  * anonymously, while only the in-cluster Kubernetes API server gets the pod service-account token.
  *
- * <p><b>WORKAROUND (keycloak#49039):</b> delete once
+ * <p><b>WORKAROUND:</b> delete once
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> lets the stock
  * provider control whether the service-account token is forwarded.
  */
 public class UDSKubernetesJwksEndpointLoader implements PublicKeyLoader {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final KeycloakSession session;
     private final String issuer;
@@ -62,7 +68,7 @@ public class UDSKubernetesJwksEndpointLoader implements PublicKeyLoader {
     /**
      * The mounted pod service-account token, but only if its own issuer matches the issuer we're loading keys for
      * (so the token is never forwarded to an issuer it doesn't belong to). Mirrors upstream
-     * KubernetesJwksEndpointLoader.getToken.
+     * <a href="https://github.com/keycloak/keycloak/pull/50224">keycloak/keycloak#50224</a>.
      */
     private String getToken(String issuer) {
         String token = KubernetesUtils.readServiceAccountToken();
@@ -72,10 +78,12 @@ public class UDSKubernetesJwksEndpointLoader implements PublicKeyLoader {
         try {
             JsonWebToken jwt = new JWSInput(token).readJsonContent(JsonWebToken.class);
             if (issuer.equals(jwt.getIssuer())) {
+                logger.trace("Including service account token in request");
                 return token;
             }
+            logger.debug("Not including service account token due to issuer mismatch");
         } catch (Exception e) {
-            // unparseable token → don't forward it
+            logger.warn("Failed to parse service account token", e);
         }
         return null;
     }

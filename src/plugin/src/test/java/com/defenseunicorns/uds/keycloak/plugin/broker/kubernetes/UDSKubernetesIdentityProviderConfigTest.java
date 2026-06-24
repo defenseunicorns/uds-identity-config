@@ -63,12 +63,13 @@ class UDSKubernetesIdentityProviderConfigTest {
     }
 
     @Test
-    void throwsWhenDiscoveryFails() {
+    void propagatesWhenDiscoveryFails() {
         UDSKubernetesIdentityProviderConfig c = config("true", null, DISCOVERY_URL);
         try (MockedStatic<KeycloakSessionUtil> ksu = mockStatic(KeycloakSessionUtil.class);
              MockedStatic<KubernetesUtils> ku = mockStatic(KubernetesUtils.class)) {
             ksu.when(KeycloakSessionUtil::getKeycloakSession).thenReturn(mock(KeycloakSession.class));
-            ku.when(() -> KubernetesUtils.resolveIssuer(any(), anyString())).thenReturn(null);
+            ku.when(() -> KubernetesUtils.resolveIssuer(any(), anyString()))
+                    .thenThrow(new IllegalArgumentException("discovery unreachable"));
 
             assertThrows(IllegalArgumentException.class, c::resolveAndPersistIssuer);
         }

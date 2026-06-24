@@ -13,11 +13,15 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.protocol.oidc.representations.OIDCConfigurationRepresentation;
 import org.mockito.MockedStatic;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -98,6 +102,80 @@ class UDSKubernetesJwksEndpointLoaderTest {
             stubJwks(utils, jwks);
             PublicKeysWrapper wrapper = loader.loadKeys();
             assertNotNull(wrapper);
+        }
+    }
+
+    // ---- token routing: the pod token is forwarded only to the in-cluster API server, and only if its own
+    //      issuer matches the issuer we're loading keys for ----
+
+    private static final String IN_CLUSTER = "https://kubernetes.default.svc.cluster.local";
+
+    /** Minimal unsigned-shape JWS (header.payload.sig) carrying an {@code iss} claim, parseable by JWSInput. */
+    private static String jwtWithIssuer(String iss) {
+        Base64.Encoder enc = Base64.getUrlEncoder().withoutPadding();
+        String header = enc.encodeToString("{\"alg\":\"RS256\"}".getBytes(StandardCharsets.UTF_8));
+        String payload = enc.encodeToString(("{\"iss\":\"" + iss + "\"}").getBytes(StandardCharsets.UTF_8));
+        String sig = enc.encodeToString("sig".getBytes(StandardCharsets.UTF_8));
+        return header + "." + payload + "." + sig;
+    }
+
+    private void stubReadyDiscovery(MockedStatic<KubernetesUtils> utils, String jwksUri) {
+        OIDCConfigurationRepresentation discovery = mock(OIDCConfigurationRepresentation.class);
+        when(discovery.getJwksUri()).thenReturn(jwksUri);
+        JSONWebKeySet jwks = new JSONWebKeySet();
+        jwks.setKeys(new JWK[0]);
+        stubDiscovery(utils, discovery);
+        stubJwks(utils, jwks);
+    }
+
+    @Test
+    void forwardsTokenToTrustedInClusterIssuerWhenIssMatches() throws Exception {
+        String token = jwtWithIssuer(IN_CLUSTER);
+        UDSKubernetesJwksEndpointLoader inCluster = new UDSKubernetesJwksEndpointLoader(session, IN_CLUSTER);
+        try (MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
+            utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(token);
+            stubReadyDiscovery(utils, IN_CLUSTER + "/openid/v1/jwks");
+
+            inCluster.loadKeys();
+
+            // trusted in-cluster destination + matching iss → token forwarded
+            utils.verify(() -> KubernetesUtils.fetchJson(any(), anyString(), eq("application/json"),
+                    eq(OIDCConfigurationRepresentation.class), eq(token)));
+        }
+    }
+
+    @Test
+    void dropsTokenWhenPodTokenIssuerMismatches() throws Exception {
+        String token = jwtWithIssuer("https://some-other-issuer.example");
+        UDSKubernetesJwksEndpointLoader inCluster = new UDSKubernetesJwksEndpointLoader(session, IN_CLUSTER);
+        try (MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
+            utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(token);
+            stubReadyDiscovery(utils, IN_CLUSTER + "/openid/v1/jwks");
+
+            inCluster.loadKeys();
+
+            // pod token's iss != loader issuer → never forwarded
+            utils.verify(() -> KubernetesUtils.fetchJson(any(), anyString(), eq("application/json"),
+                    eq(OIDCConfigurationRepresentation.class), isNull()));
+        }
+    }
+
+    @Test
+    void neverForwardsTokenToExternalIssuer() throws Exception {
+        String externalIssuer = "https://oidc.eks.us-gov-west-1.amazonaws.com/id/ABC";
+        String token = jwtWithIssuer(externalIssuer); // even though the pod token's iss matches the external issuer
+        UDSKubernetesJwksEndpointLoader external = new UDSKubernetesJwksEndpointLoader(session, externalIssuer);
+        try (MockedStatic<KubernetesUtils> utils = mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS)) {
+            utils.when(KubernetesUtils::readServiceAccountToken).thenReturn(token);
+            stubReadyDiscovery(utils, "https://s3.amazonaws.com/eks/keys.json");
+
+            external.loadKeys();
+
+            // external (untrusted) issuer → token withheld from both discovery and JWKS fetches
+            utils.verify(() -> KubernetesUtils.fetchJson(any(), anyString(), eq("application/json"),
+                    eq(OIDCConfigurationRepresentation.class), isNull()));
+            utils.verify(() -> KubernetesUtils.fetchJson(any(), anyString(), eq("application/jwk-set+json"),
+                    eq(JSONWebKeySet.class), isNull()));
         }
     }
 }

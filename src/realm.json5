@@ -2021,14 +2021,15 @@
             // stock "kubernetes" provider, but it does NOT forward Keycloak's pod service-account token to
             // external/public discovery or JWKS endpoints (e.g. EKS/AKS OIDC, RKE2 S3). Alias stays "kubernetes"
             // so client "jwt.credential.issuer" attributes are unchanged.
-            // WORKAROUND (keycloak#49039): temporary. When https://github.com/keycloak/keycloak/issues/49039 is
+            // WORKAROUND: temporary. When https://github.com/keycloak/keycloak/issues/49039 is
             // resolved, set providerId back to "kubernetes" and remove the custom plugin.
             "alias": "kubernetes",
             "providerId": "uds-kubernetes",
             "enabled": true,
             "config": {
-                // Where to fetch OIDC discovery/JWKS from. Defaults to the in-cluster Kubernetes API, which works on
-                // every distro (local and managed) without per-environment config.
+                // Base URL queried ONCE at IdP validation to resolve the cluster's issuer. NOT used for key loading —
+                // keys are fetched from the resolved "issuer" itself. Defaults to the in-cluster Kubernetes API,
+                // which works on every distro (local and managed) without per-environment config.
                 "issuerDiscoveryUrl": "${REALM_KUBERNETES_ISSUER_DISCOVERY_URL:https://kubernetes.default.svc.cluster.local}",
                 // Default ON: at IdP validation the issuer is resolved from issuerDiscoveryUrl and persisted onto
                 // the IdP, so no KUBERNETES_ISSUER needs setting per environment (the cluster reports its own
@@ -2037,9 +2038,9 @@
                 // Explicit issuer override. Leave empty to let automaticIssuerDiscovery resolve and persist it;
                 // setting REALM_KUBERNETES_ISSUER pins the issuer and skips discovery.
                 "issuer": "${REALM_KUBERNETES_ISSUER:}"
-                // Token forwarding is automatic: the pod service-account token is attached only when the
-                // discovery/JWKS destination is the in-cluster Kubernetes API server, never to external/public
-                // endpoints. No configuration required.
+                // Token forwarding is automatic: discovery/JWKS are fetched from the resolved issuer, and the pod
+                // service-account token is attached only when that destination is the in-cluster Kubernetes API
+                // server (public issuers like EKS/AKS OIDC / RKE2 S3 are fetched anonymously). No config required.
             }
         }
     ],

@@ -21,7 +21,7 @@ import java.util.Map;
  * <p>
  * Modeled on the upstream Kubernetes / SPIFFE identity provider factories.
  * <p>
- * <b>WORKAROUND (keycloak#49039):</b> temporary bridge. Once
+ * <b>WORKAROUND:</b> temporary bridge. Once
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> ships destination-based
  * token forwarding and managed-issuer discovery in the runtime version UDS ships, delete this whole plugin and set
  * the realm IdP back to {@code providerId: "kubernetes"}.

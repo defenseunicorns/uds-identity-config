@@ -10,16 +10,20 @@ import org.keycloak.http.simple.SimpleHttp;
 import org.keycloak.http.simple.SimpleHttpRequest;
 import org.keycloak.http.simple.SimpleHttpResponse;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.protocol.oidc.representations.OIDCConfigurationRepresentation;
 import org.mockito.MockedStatic;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -28,9 +32,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the trusted-API-URL allowlist and the {@link KubernetesUtils#fetchJson} fetch. The pod service-account
- * token is attached only when the caller passes {@code attachToken=true} (i.e. the destination is the in-cluster
- * API server), so it is never sent to external/public discovery or JWKS endpoints.
+ * Tests the trusted-API-URL allowlist, the {@link KubernetesUtils#fetchJson} fetch (token attached only when the
+ * caller passes one), and {@link KubernetesUtils#resolveIssuer}.
  */
 class KubernetesUtilsTest {
 
@@ -147,6 +150,59 @@ class KubernetesUtilsTest {
             stubHttp(http, 404);
             assertThrows(IOException.class,
                     () -> KubernetesUtils.fetchJson(session, IN_CLUSTER, ACCEPT, Body.class, null));
+        }
+    }
+
+    // ---- resolveIssuer (fail-closed: throws, chaining the cause, on anything but a valid HTTPS issuer) ----
+
+    private MockedStatic<KubernetesUtils> realKubernetesUtils() {
+        return mockStatic(KubernetesUtils.class, CALLS_REAL_METHODS);
+    }
+
+    private void stubDiscoveryIssuer(MockedStatic<KubernetesUtils> utils, String issuer) {
+        OIDCConfigurationRepresentation discovery = mock(OIDCConfigurationRepresentation.class);
+        when(discovery.getIssuer()).thenReturn(issuer);
+        utils.when(() -> KubernetesUtils.fetchJson(any(), anyString(), eq("application/json"),
+                eq(OIDCConfigurationRepresentation.class), any())).thenReturn(discovery);
+    }
+
+    @Test
+    void resolveIssuerReturnsDiscoveredHttpsIssuer() {
+        KeycloakSession session = mock(KeycloakSession.class);
+        try (MockedStatic<KubernetesUtils> utils = realKubernetesUtils()) {
+            stubDiscoveryIssuer(utils, "https://issuer.example/x");
+            assertEquals("https://issuer.example/x", KubernetesUtils.resolveIssuer(session, IN_CLUSTER));
+        }
+    }
+
+    @Test
+    void resolveIssuerThrowsOnNonHttpsIssuer() {
+        KeycloakSession session = mock(KeycloakSession.class);
+        try (MockedStatic<KubernetesUtils> utils = realKubernetesUtils()) {
+            stubDiscoveryIssuer(utils, "http://insecure.example");
+            assertThrows(IllegalArgumentException.class, () -> KubernetesUtils.resolveIssuer(session, IN_CLUSTER));
+        }
+    }
+
+    @Test
+    void resolveIssuerThrowsOnBlankIssuer() {
+        KeycloakSession session = mock(KeycloakSession.class);
+        try (MockedStatic<KubernetesUtils> utils = realKubernetesUtils()) {
+            stubDiscoveryIssuer(utils, "");
+            assertThrows(IllegalArgumentException.class, () -> KubernetesUtils.resolveIssuer(session, IN_CLUSTER));
+        }
+    }
+
+    @Test
+    void resolveIssuerWrapsFetchFailureWithCause() {
+        KeycloakSession session = mock(KeycloakSession.class);
+        IOException cause = new IOException("connect refused");
+        try (MockedStatic<KubernetesUtils> utils = realKubernetesUtils()) {
+            utils.when(() -> KubernetesUtils.fetchJson(any(), anyString(), eq("application/json"),
+                    eq(OIDCConfigurationRepresentation.class), any())).thenThrow(cause);
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                    () -> KubernetesUtils.resolveIssuer(session, IN_CLUSTER));
+            assertSame(cause, ex.getCause());
         }
     }
 }

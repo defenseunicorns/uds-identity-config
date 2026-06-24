@@ -28,7 +28,7 @@ import java.nio.file.Path;
  * fetch only when the destination is the in-cluster Kubernetes API server (see {@link #isTrustedKubernetesApiUrl}),
  * so it is never sent to external/public discovery or JWKS endpoints (EKS/AKS OIDC, RKE2 S3).
  *
- * <p><b>WORKAROUND (keycloak#49039):</b> part of the temporary bridge plugin; remove once
+ * <p><b>WORKAROUND:</b> part of the temporary bridge plugin; remove once
  * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> is resolved.
  */
 final class KubernetesUtils {
@@ -149,8 +149,10 @@ final class KubernetesUtils {
     }
 
     /**
-     * Resolve the cluster's issuer from its OIDC discovery document. Returns null (and logs) if discovery is
-     * unreachable or the document doesn't contain a non-blank HTTPS issuer — callers fail closed on null.
+     * Resolve the cluster's issuer from its OIDC discovery document. Throws {@link IllegalArgumentException}
+     * (chaining the underlying cause) if discovery is unreachable or the document doesn't contain a non-blank HTTPS
+     * issuer, so the caller fails closed and the real cause surfaces. Matches upstream
+     * <a href="https://github.com/keycloak/keycloak/pull/50224">keycloak/keycloak#50224</a>.
      */
     static String resolveIssuer(KeycloakSession session, String discoveryUrl) {
         String wellKnown = wellKnownUrl(discoveryUrl);
@@ -160,13 +162,13 @@ final class KubernetesUtils {
                     OIDCConfigurationRepresentation.class, token);
             String issuer = discovery != null ? discovery.getIssuer() : null;
             if (issuer == null || issuer.isBlank() || !issuer.startsWith("https://")) {
-                logger.warn("Discovered issuer is missing or not HTTPS from {}", wellKnown);
-                return null;
+                throw new IllegalArgumentException("Discovered issuer is missing or not HTTPS from " + wellKnown);
             }
             return issuer;
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
-            logger.warn("Issuer discovery failed for {}", wellKnown, e);
-            return null;
+            throw new IllegalArgumentException("Failed to resolve Kubernetes issuer from " + wellKnown, e);
         }
     }
 
@@ -189,7 +191,7 @@ final class KubernetesUtils {
 
     /**
      * Build a normalized OIDC discovery URL for the given base, trimming any trailing slashes (matches upstream
-     * KubernetesUtils.discoveryUrl).
+     * <a href="https://github.com/keycloak/keycloak/pull/50224">keycloak/keycloak#50224</a>).
      */
     static String wellKnownUrl(String baseUrl) {
         int end = baseUrl.length();
