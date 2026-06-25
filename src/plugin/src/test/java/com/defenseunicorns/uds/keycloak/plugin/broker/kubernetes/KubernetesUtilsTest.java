@@ -5,7 +5,9 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.keycloak.http.simple.SimpleHttp;
 import org.keycloak.http.simple.SimpleHttpRequest;
 import org.keycloak.http.simple.SimpleHttpResponse;
@@ -14,9 +16,12 @@ import org.keycloak.protocol.oidc.representations.OIDCConfigurationRepresentatio
 import org.mockito.MockedStatic;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -204,5 +209,32 @@ class KubernetesUtilsTest {
                     () -> KubernetesUtils.resolveIssuer(session, IN_CLUSTER));
             assertSame(cause, ex.getCause());
         }
+    }
+
+    // ---- readServiceAccountToken (path overridable via SERVICE_ACCOUNT_TOKEN_PATH_PROPERTY for tests) ----
+
+    @TempDir
+    Path tokenDir;
+
+    @AfterEach
+    void clearTokenPathOverride() {
+        System.clearProperty(KubernetesUtils.SERVICE_ACCOUNT_TOKEN_PATH_PROPERTY);
+    }
+
+    @Test
+    void readsTokenFromOverridePathTrimmed() throws Exception {
+        Path tokenFile = tokenDir.resolve("token");
+        Files.writeString(tokenFile, "  the-token\n");
+        System.setProperty(KubernetesUtils.SERVICE_ACCOUNT_TOKEN_PATH_PROPERTY, tokenFile.toString());
+
+        assertEquals("the-token", KubernetesUtils.readServiceAccountToken());
+    }
+
+    @Test
+    void readsTokenNullWhenFileMissing() {
+        System.setProperty(KubernetesUtils.SERVICE_ACCOUNT_TOKEN_PATH_PROPERTY,
+                tokenDir.resolve("does-not-exist").toString());
+
+        assertNull(KubernetesUtils.readServiceAccountToken());
     }
 }

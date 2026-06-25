@@ -944,7 +944,7 @@
             "protocol": "openid-connect",
             "attributes": {
                 // Matched to Fleet's identity by the IdP alias from identityProviders + the Fleet service account "sub"
-                "jwt.credential.issuer": "kubernetes",
+                "jwt.credential.issuer": "uds-kubernetes",
                 "jwt.credential.sub": "${REALM_FLEET_SERVICE_ACCOUNT:system:serviceaccount:uds-fleet-command:uds-fleet-command-sa}"
             },
             "authenticationFlowBindingOverrides": {},
@@ -2019,18 +2019,19 @@
         {
             // Custom UDS provider (providerId "uds-kubernetes"): same federated client-assertion flow as the
             // stock "kubernetes" provider, but it does NOT forward Keycloak's pod service-account token to
-            // external/public discovery or JWKS endpoints (e.g. EKS/AKS OIDC, RKE2 S3). Alias stays "kubernetes"
-            // so client "jwt.credential.issuer" attributes are unchanged.
+            // external/public discovery or JWKS endpoints (e.g. EKS/AKS OIDC, RKE2 S3). The "uds-kubernetes" alias
+            // is descriptive and won't collide with a stock "kubernetes" IdP.
             // WORKAROUND: temporary. When https://github.com/keycloak/keycloak/issues/49039 is
             // resolved, set providerId back to "kubernetes" and remove the custom plugin.
-            "alias": "kubernetes",
+            "alias": "uds-kubernetes",
             "providerId": "uds-kubernetes",
             "enabled": true,
             "config": {
                 // Base URL queried ONCE at IdP validation to resolve the cluster's issuer. NOT used for key loading —
-                // keys are fetched from the resolved "issuer" itself. Defaults to the in-cluster Kubernetes API,
-                // which works on every distro (local and managed) without per-environment config.
-                "issuerDiscoveryUrl": "${REALM_KUBERNETES_ISSUER_DISCOVERY_URL:https://kubernetes.default.svc.cluster.local}",
+                // keys are fetched from the resolved "issuer" itself. Defaults to the in-cluster Kubernetes API as
+                // "kubernetes.default.svc" (domain-agnostic; "...cluster.local" is a configurable cluster domain and
+                // can break), which works on every distro (local and managed) without per-environment config.
+                "issuerDiscoveryUrl": "${REALM_KUBERNETES_ISSUER_DISCOVERY_URL:https://kubernetes.default.svc}",
                 // Default ON: at IdP validation the issuer is resolved from issuerDiscoveryUrl and persisted onto
                 // the IdP, so no KUBERNETES_ISSUER needs setting per environment (the cluster reports its own
                 // service-account-issuer).

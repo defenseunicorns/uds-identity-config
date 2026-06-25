@@ -37,6 +37,9 @@ final class KubernetesUtils {
 
     private static final String WELL_KNOWN_SUFFIX = "/.well-known/openid-configuration";
 
+    /** System property overriding the service-account token path; defaults to the in-pod mount. */
+    static final String SERVICE_ACCOUNT_TOKEN_PATH_PROPERTY = "keycloak.kubernetes.service-account-token-path";
+
     private KubernetesUtils() {
     }
 
@@ -176,7 +179,8 @@ final class KubernetesUtils {
      * Read the mounted Keycloak pod service-account token, or null if it is not mounted or unreadable.
      */
     static String readServiceAccountToken() {
-        Path path = Path.of(KubernetesConstants.SERVICE_ACCOUNT_TOKEN_PATH);
+        String tokenPath = System.getProperty(SERVICE_ACCOUNT_TOKEN_PATH_PROPERTY, KubernetesConstants.SERVICE_ACCOUNT_TOKEN_PATH);
+        Path path = Path.of(tokenPath);
         try {
             if (!Files.exists(path)) {
                 return null;
@@ -184,7 +188,7 @@ final class KubernetesUtils {
             String token = Files.readString(path, StandardCharsets.UTF_8).trim();
             return token.isEmpty() ? null : token;
         } catch (IOException e) {
-            logger.warn("Failed to read service account token file {}", KubernetesConstants.SERVICE_ACCOUNT_TOKEN_PATH, e);
+            logger.warn("Failed to read service account token file {}", tokenPath, e);
             return null;
         }
     }

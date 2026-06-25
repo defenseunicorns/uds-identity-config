@@ -25,7 +25,7 @@ public class UDSKubernetesIdentityProviderConfig extends KubernetesIdentityProvi
     /** Config key the inherited {@link #getIssuer()} reads. */
     public static final String ISSUER = "issuer";
 
-    public static final String DEFAULT_IN_CLUSTER_URL = "https://kubernetes.default.svc.cluster.local";
+    public static final String DEFAULT_IN_CLUSTER_URL = "https://kubernetes.default.svc";
 
     public UDSKubernetesIdentityProviderConfig() {
     }
