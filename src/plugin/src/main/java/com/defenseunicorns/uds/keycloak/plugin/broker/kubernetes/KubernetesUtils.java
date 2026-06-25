@@ -5,6 +5,7 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes;
 
+import com.google.common.net.InetAddresses;
 import org.apache.http.HttpHeaders;
 import org.keycloak.broker.kubernetes.KubernetesConstants;
 import org.keycloak.http.simple.SimpleHttp;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.net.InetAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -128,15 +128,13 @@ final class KubernetesUtils {
     }
 
     private static boolean isIpLiteral(String host) {
-        if (host == null || (!host.contains(":") && !host.matches("\\d+(\\.\\d+){3}"))) {
+        if (host == null) {
             return false;
         }
-        try {
-            String address = InetAddress.getByName(host).getHostAddress();
-            return host.contains(":") || address.equals(host);
-        } catch (Exception e) {
-            return false;
-        }
+        // URI.getHost() wraps IPv6 literals in brackets, e.g. "[fd00::1]".
+        String h = (host.startsWith("[") && host.endsWith("]")) ? host.substring(1, host.length() - 1) : host;
+        // Validates an IPv4/IPv6 literal without any DNS lookup, so a hostname is rejected rather than resolved.
+        return InetAddresses.isInetAddress(h);
     }
 
     private static boolean isTrustedKubernetesApiPort(URI uri) {

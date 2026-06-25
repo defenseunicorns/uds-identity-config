@@ -83,6 +83,19 @@ class KubernetesUtilsTest {
     void trustsInClusterIpJwksWhenDiscoveryBaseTrusted() {
         // apiserver commonly advertises its JWKS at an IP-literal /openid/v1/jwks
         assertTrue(KubernetesUtils.isTrustedKubernetesApiJwksUrl("https://10.0.0.1/openid/v1/jwks", IN_CLUSTER));
+        assertTrue(KubernetesUtils.isTrustedKubernetesApiJwksUrl("https://[fd00::1]/openid/v1/jwks", IN_CLUSTER));
+    }
+
+    @Test
+    void rejectsHostnameJwksEvenWhenBaseTrusted() {
+        // A DNS hostname is not an IP literal — it must never be trusted (and never resolved), even with the
+        // right path and a trusted discovery base.
+        assertFalse(KubernetesUtils.isTrustedKubernetesApiJwksUrl("https://evil.example/openid/v1/jwks", IN_CLUSTER));
+    }
+
+    @Test
+    void rejectsInvalidIpv4JwksEvenWhenBaseTrusted() {
+        assertFalse(KubernetesUtils.isTrustedKubernetesApiJwksUrl("https://999.1.1.1/openid/v1/jwks", IN_CLUSTER));
     }
 
     @Test
