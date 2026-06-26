@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.29.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.28.0...v0.29.0) (2026-06-26)
+
+
+### Features
+
+* add uds-fleet-admin client and implement jwt auth with issuer auto-discovery ([#877](https://github.com/defenseunicorns/uds-identity-config/issues/877)) ([79fd9f0](https://github.com/defenseunicorns/uds-identity-config/commit/79fd9f06496cbf7271e9cb9553c774da717d0a31))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#875](https://github.com/defenseunicorns/uds-identity-config/issues/875)) ([787d174](https://github.com/defenseunicorns/uds-identity-config/commit/787d174b082fbde4bb8c0a1e9e7fd9645e94da98))
+* **deps:** update all dependencies ([#884](https://github.com/defenseunicorns/uds-identity-config/issues/884)) ([20cfd2a](https://github.com/defenseunicorns/uds-identity-config/commit/20cfd2ad717d8964f29eeff0ce25de10afdc063d))
+* **deps:** update gha-deps ([#879](https://github.com/defenseunicorns/uds-identity-config/issues/879)) ([4671f46](https://github.com/defenseunicorns/uds-identity-config/commit/4671f46241b59fd6d83d61d104d6237d3d6561c5))
+* **deps:** update gha-deps ([#883](https://github.com/defenseunicorns/uds-identity-config/issues/883)) ([9eb506b](https://github.com/defenseunicorns/uds-identity-config/commit/9eb506b3656e22ea2fbf4b2b100f265aa00e3ab5))
+* **deps:** update plugin-deps to v0.8.15 ([#876](https://github.com/defenseunicorns/uds-identity-config/issues/876)) ([f5bd84d](https://github.com/defenseunicorns/uds-identity-config/commit/f5bd84d249562cb337ce4f720020b1d62dc0d25d))
+
 ## [0.28.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.27.0...v0.28.0) (2026-06-05)
 
 
