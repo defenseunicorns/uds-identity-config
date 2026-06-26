@@ -521,6 +521,17 @@
                     "realm-admin"
                 ]
             }
+        },
+        {
+            "id": "00155696-4be6-4807-8df7-b5650555e0ea",
+            "username": "service-account-uds-fleet-admin",
+            "enabled": true,
+            "serviceAccountClientId": "uds-fleet-admin",
+            "clientRoles": {
+                "realm-management": [
+                    "manage-clients"
+                ]
+            }
         }
     ],
     "scopeMappings": [
@@ -906,6 +917,36 @@
             "frontchannelLogout": false,
             "protocol": "openid-connect",
             "attributes": {},
+            "authenticationFlowBindingOverrides": {},
+            "fullScopeAllowed": true,
+            "nodeReRegistrationTimeout": 0
+        },
+        {
+            "id": "94de6a0d-83f7-4875-93f0-05a986ecc3a5",
+            "clientId": "uds-fleet-admin",
+            "name": "uds-fleet-admin",
+            "description": "Scoped admin client for UDS Fleet Management to manage fleet-* clients",
+            "enabled": "${REALM_FLEET_CLIENT_ENABLED:false}",
+            "alwaysDisplayInConsole": false,
+            // "Signed JWT - Federated" authenticator (Keycloak FederatedJWTClientAuthenticator.PROVIDER_ID)
+            "clientAuthenticatorType": "federated-jwt",
+            "redirectUris": [],
+            "webOrigins": [],
+            "notBefore": 0,
+            "bearerOnly": false,
+            "consentRequired": false,
+            "standardFlowEnabled": false,
+            "implicitFlowEnabled": false,
+            "directAccessGrantsEnabled": false,
+            "serviceAccountsEnabled": true,
+            "publicClient": false,
+            "frontchannelLogout": false,
+            "protocol": "openid-connect",
+            "attributes": {
+                // Matched to Fleet's identity by the IdP alias from identityProviders + the Fleet service account "sub"
+                "jwt.credential.issuer": "uds-kubernetes",
+                "jwt.credential.sub": "${REALM_FLEET_SERVICE_ACCOUNT:system:serviceaccount:uds-fleet-command:uds-fleet-command-sa}"
+            },
             "authenticationFlowBindingOverrides": {},
             "fullScopeAllowed": true,
             "nodeReRegistrationTimeout": 0
@@ -1974,6 +2015,34 @@
                 "principalType": "Subject NameID",
                 "syncMode": "FORCE"
             }
+        },
+        {
+            // Custom UDS provider (providerId "uds-kubernetes"): same federated client-assertion flow as the
+            // stock "kubernetes" provider, but it does NOT forward Keycloak's pod service-account token to
+            // external/public discovery or JWKS endpoints (e.g. EKS/AKS OIDC, RKE2 S3). The "uds-kubernetes" alias
+            // is descriptive and won't collide with a stock "kubernetes" IdP.
+            // WORKAROUND: temporary. When https://github.com/keycloak/keycloak/issues/49039 is
+            // resolved, set providerId back to "kubernetes" and remove the custom plugin.
+            "alias": "uds-kubernetes",
+            "providerId": "uds-kubernetes",
+            "enabled": true,
+            "config": {
+                // Base URL queried ONCE at IdP validation to resolve the cluster's issuer. NOT used for key loading —
+                // keys are fetched from the resolved "issuer" itself. Defaults to the in-cluster Kubernetes API as
+                // "kubernetes.default.svc" (domain-agnostic; "...cluster.local" is a configurable cluster domain and
+                // can break), which works on every distro (local and managed) without per-environment config.
+                "issuerDiscoveryUrl": "${REALM_KUBERNETES_ISSUER_DISCOVERY_URL:https://kubernetes.default.svc}",
+                // Default ON: at IdP validation the issuer is resolved from issuerDiscoveryUrl and persisted onto
+                // the IdP, so no KUBERNETES_ISSUER needs setting per environment (the cluster reports its own
+                // service-account-issuer).
+                "automaticIssuerDiscovery": "${REALM_KUBERNETES_ISSUER_AUTO_DISCOVERY:true}",
+                // Explicit issuer override. Leave empty to let automaticIssuerDiscovery resolve and persist it;
+                // setting REALM_KUBERNETES_ISSUER pins the issuer and skips discovery.
+                "issuer": "${REALM_KUBERNETES_ISSUER:}"
+                // Token forwarding is automatic: discovery/JWKS are fetched from the resolved issuer, and the pod
+                // service-account token is attached only when that destination is the in-cluster Kubernetes API
+                // server (public issuers like EKS/AKS OIDC / RKE2 S3 are fetched anonymously). No config required.
+            }
         }
     ],
     "identityProviderMappers": [
@@ -2699,6 +2768,16 @@
                     "authenticatorFlow": false,
                     "requirement": "ALTERNATIVE",
                     "priority": 41,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    // Keycloak's "Signed JWT - Federated" client authenticator; lets a client log in with a
+                    // token issued by a trusted identity provider instead of a client secret or static key
+                    "authenticator": "federated-jwt",
+                    "authenticatorFlow": false,
+                    "requirement": "ALTERNATIVE",
+                    "priority": 15,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }

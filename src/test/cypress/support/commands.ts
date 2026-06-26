@@ -180,6 +180,24 @@ Cypress.Commands.add("getClientSecret", (clientId: string) => {
 
 type TokenSubject = 'UDS_OPERATOR' | 'KEYCLOAK_ADMIN';
 
+function base64UrlDecode(segment: string): string {
+  const base64 = segment.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+  return Buffer.from(padded, "base64").toString("utf-8");
+}
+
+/**
+ * Assert a JWT access token is a string carrying the manage-clients role, then return it.
+ */
+function assertManageClientsToken(accessToken: string): string {
+  expect(accessToken).to.be.a("string");
+  const tokenParts = accessToken.split(".");
+  expect(tokenParts, "JWT parts").to.have.length(3);
+  const tokenPayload = JSON.parse(base64UrlDecode(tokenParts[1]));
+  expect(tokenPayload.resource_access?.["realm-management"]?.roles || []).to.include("manage-clients");
+  return accessToken;
+}
+
 Cypress.Commands.add("getAccessToken", (subject?: TokenSubject) => {
   const which: TokenSubject = subject || 'UDS_OPERATOR';
 
@@ -239,15 +257,55 @@ Cypress.Commands.add("getAccessToken", (subject?: TokenSubject) => {
       },
     }).then((response) => {
       expect(response.status).to.eq(200);
-      const accessToken = response.body.access_token;
-      expect(accessToken).to.be.a("string");
+      return assertManageClientsToken(response.body.access_token);
+    });
+  });
+});
 
-      const tokenParts = accessToken.split('.');
-      const tokenPayload = Buffer.from(tokenParts[1], 'base64').toString('utf-8');
+/**
+ * Retrieve an access token for the 'uds-fleet-admin' client via federated JWT auth.
+ *
+ * Mirrors how a real Fleet pod authenticates: a Kubernetes service-account token,
+ * addressed (audience) to the realm issuer, is presented as a client assertion.
+ * Keycloak matches it to the uds-fleet-admin client by the configured IdP issuer + SA "sub".
+ */
+Cypress.Commands.add("getFleetAdminAccessToken", () => {
+  const realmTokenUrl = "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token";
+  const wellKnownUrl = "https://keycloak.admin.uds.dev/realms/uds/.well-known/openid-configuration";
+  const saNamespace = "uds-fleet-command";
+  const saName = "uds-fleet-command-sa";
 
-      expect(tokenPayload).contains("manage-clients");
+  // The SA token must be addressed to the realm issuer (audience). Read it from the realm's discovery doc
+  // so the audience always matches what Keycloak advertises, regardless of the configured frontend URL.
+  return cy.request({ method: "GET", url: wellKnownUrl }).then((wellKnown) => {
+    expect(wellKnown.status).to.eq(200);
+    const issuer = wellKnown.body.issuer as string;
+    expect(issuer, "realm issuer").to.be.a("string").and.not.be.empty;
 
-      return accessToken;
+    // Mint a short-lived projected SA token addressed to the realm issuer.
+    const mintCmd = `uds zarf tools kubectl create token ${saName} -n ${saNamespace} --audience "${issuer}"`;
+    return cy.exec(mintCmd, { log: false }).then((result) => {
+      expect(result.exitCode, "kubectl create token").to.eq(0);
+      const saToken = result.stdout.trim();
+      expect(saToken, "service account token").to.be.a("string").and.not.be.empty;
+
+      return cy.request({
+        log: false,
+        method: "POST",
+        url: realmTokenUrl,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        form: true,
+        body: {
+          // No client_id: with federated-jwt Keycloak resolves the client from the assertion's
+          // issuer + sub (the kubernetes IdP alias + the configured SA), not from a client_id param.
+          grant_type: "client_credentials",
+          client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+          client_assertion: saToken,
+        },
+      }).then((response) => {
+        expect(response.status, "uds-fleet-admin token response").to.eq(200);
+        return assertManageClientsToken(response.body.access_token);
+      });
     });
   });
 });
