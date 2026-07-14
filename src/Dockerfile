@@ -8,11 +8,13 @@
 ###################################################################################
 FROM maven:3-eclipse-temurin-21-jammy AS plugin
 
-WORKDIR /home/build
+WORKDIR /home/build/plugin
 
 COPY plugin/pom.xml .
 RUN mvn dependency:go-offline
 COPY plugin/src ./src
+RUN mkdir -p ../truststore
+COPY truststore/build_bcfks.sh ../truststore/build_bcfks.sh
 
 RUN mvn package
 
@@ -35,9 +37,11 @@ COPY extra-jars/* ./target/
 # Build the Java truststore from DOD CAs                                          #
 #                                                                                 #
 ###################################################################################
-FROM maven:3-eclipse-temurin-21-jammy AS truststore
+# This stage only validates and splits the DoD CA bundle (openssl + unzip); the BCFKS
+# truststore itself is built at runtime in the uds-config init container (build_bcfks.sh).
+FROM registry.access.redhat.com/ubi9/openjdk-21 AS truststore
 USER root
-RUN apt-get update && apt-get install unzip -y
+RUN microdnf install -y unzip openssl
 
 WORKDIR /home/build
 
@@ -76,33 +80,42 @@ RUN if [ "${REALM_FILE##*.}" = "json5" ]; then \
 
 ###################################################################################
 #                                                                                 #
-# Use busybox as the base image to perform the sync                               #
+# Chainguard JDK base: runs sync.sh and builds the BCFKS truststore at runtime.    #
+# A JDK is required because build_bcfks.sh uses keytool with the BouncyCastle      #
+# FIPS provider to assemble the BCFKS truststore when the init container starts.   #
 #                                                                                 #
 ###################################################################################
-FROM cgr.dev/chainguard/busybox:latest
+FROM cgr.dev/chainguard/jdk:latest
 
+# The Chainguard JDK image's nonroot user is java (uid/gid 65532), and the chart runs
+# this init container as runAsUser 65532. Docker COPY creates root-owned files by default
+# regardless of the active USER, so each copied runtime artifact uses --chown=java:java.
+# USER root is only for build-time directory setup before switching back to java.
+USER root
 WORKDIR /home/nonroot
 
 # Copy Jars from the plugin build stage
-COPY --chown=nonroot --from=plugin /home/build/target/*.jar .
+COPY --chown=java:java --from=plugin /home/build/plugin/target/*.jar .
 
-# FIPS dependencies
-RUN mkdir -p ./fips/libs
-RUN chown -R nonroot:nonroot ./fips/libs
-COPY --chown=nonroot --from=plugin /home/build/target/fips/libs/*.jar ./fips/libs
+# FIPS dependencies (also used at runtime by build_bcfks.sh via -providerpath)
+RUN mkdir -p ./fips/libs && chown -R java:java ./fips/libs
+COPY --chown=java:java --from=plugin /home/build/plugin/target/fips/libs/*.jar ./fips/libs
 
-# Copy the DOD Unclass PEM and truststore for Istio & Keycloak Auth
-COPY --chown=nonroot --from=truststore /home/build/authorized_certs.pem .
-COPY --chown=nonroot --from=truststore /home/build/certs ./certs
+# Copy the DOD Unclass PEM and individual certs for Istio & Keycloak Auth
+COPY --chown=java:java --from=truststore /home/build/authorized_certs.pem .
+COPY --chown=java:java --from=truststore /home/build/certs ./certs
 
 # The realm.json is loaded into Keycloak on startup only if the realm does not exist
-COPY --chown=nonroot --from=json5-converter /convert/realm.json .
+COPY --chown=java:java --from=json5-converter /convert/realm.json .
 
 # This provides the custom theme for the Keycloak instance
-COPY --chown=nonroot theme theme
+COPY --chown=java:java theme theme
 
-# This script is used to sync the files from the init container to the Keycloak container
-COPY --chown=nonroot sync.sh .
-RUN chmod +x sync.sh
+# sync.sh syncs files into the Keycloak container; build_bcfks.sh builds the BCFKS
+# system truststore at runtime.
+COPY --chown=java:java sync.sh .
+COPY --chown=java:java truststore/build_bcfks.sh .
+RUN chmod +x sync.sh build_bcfks.sh
 
-CMD ["/home/nonroot/sync.sh"]
+USER java
+ENTRYPOINT ["/home/nonroot/sync.sh"]

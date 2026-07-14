@@ -42,3 +42,9 @@ for CERT_FILE in crt-*; do
 done
 
 popd >& /dev/null
+
+# The BCFKS truststore is no longer built here at image-build time. It is now built at
+# runtime by build_bcfks.sh in the uds-config init container, so that it can also
+# include cluster trust (the UDS trust bundle and the Kubernetes service account CA) that
+# is only available at pod startup. This stage only produces the validated DoD CA certs
+# (certs/ and authorized_certs.pem).
