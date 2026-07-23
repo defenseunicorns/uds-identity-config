@@ -32,6 +32,7 @@ import org.keycloak.models.UserLoginFailureProvider;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.UserProvider;
 import org.keycloak.models.UserSessionProvider;
+import org.keycloak.models.RevokedTokenProvider;
 import org.keycloak.models.utils.FormMessage;
 import org.keycloak.provider.InvalidationHandler;
 import org.keycloak.provider.Provider;
@@ -136,6 +137,11 @@ public class ValidationUtils {
                     }
                     @Override
                     public SingleUseObjectProvider singleUseObjects() {
+                        return null;
+                    }
+
+                    @Override
+                    public RevokedTokenProvider revokedTokens() {
                         return null;
                     }
 

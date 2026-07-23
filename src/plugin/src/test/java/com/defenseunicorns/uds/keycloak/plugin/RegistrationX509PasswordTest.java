@@ -87,6 +87,8 @@ class RegistrationX509PasswordTest {
     public void setupMockBehavior() throws Exception {
         // common mock implementations
         when(validationContext.getSession()).thenReturn(keycloakSession);
+        when(validationContext.getAuthenticationSession())
+                .thenReturn(authenticationSessionModel);
         when(keycloakSession.getContext()).thenReturn(keycloakContext);
         when(keycloakContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
         when(authenticationSessionModel.getParentSession()).thenReturn(rootAuthenticationSessionModel);
