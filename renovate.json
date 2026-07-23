@@ -113,6 +113,13 @@
         "src/plugin/pom.xml"
       ],
       "groupName": "plugin-deps"
+    },
+    {
+      "description": "Block renovate from upgrading to Typescript 7",
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "allowedVersions": "<7"
     }
   ],
   "customManagers": [
