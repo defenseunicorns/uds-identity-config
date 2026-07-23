@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.29.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.29.0...v0.29.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.7.0 ([#886](https://github.com/defenseunicorns/uds-identity-config/issues/886)) ([864c6a9](https://github.com/defenseunicorns/uds-identity-config/commit/864c6a9c9a8450c5b1bcb5a2df564bbfe6db087a))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#885](https://github.com/defenseunicorns/uds-identity-config/issues/885)) ([d3ce5d9](https://github.com/defenseunicorns/uds-identity-config/commit/d3ce5d9e97e101dba46d4950ca0a8e9d2404d975))
+* **deps:** update all dependencies ([#890](https://github.com/defenseunicorns/uds-identity-config/issues/890)) ([e82878f](https://github.com/defenseunicorns/uds-identity-config/commit/e82878f53323fb6571d46cd16581ab4e17ede2ed))
+* **deps:** update dependency defenseunicorns/uds-cli to v0.34.1 ([#891](https://github.com/defenseunicorns/uds-identity-config/issues/891)) ([b90ded0](https://github.com/defenseunicorns/uds-identity-config/commit/b90ded06edfd8c30eda9cdaf462426f803991307))
+* **deps:** update gha-deps ([#887](https://github.com/defenseunicorns/uds-identity-config/issues/887)) ([a296a98](https://github.com/defenseunicorns/uds-identity-config/commit/a296a98251e7de81904581350eb675e280ff6bc5))
+* **deps:** update gha-deps ([#889](https://github.com/defenseunicorns/uds-identity-config/issues/889)) ([7045bbf](https://github.com/defenseunicorns/uds-identity-config/commit/7045bbf2a92b5ae527781d5927facb81126f605d))
+* **deps:** update gha-deps ([#892](https://github.com/defenseunicorns/uds-identity-config/issues/892)) ([ae97705](https://github.com/defenseunicorns/uds-identity-config/commit/ae97705fbf055d26ad705376700dc2460545fd9a))
+* **deps:** update gha-deps ([#894](https://github.com/defenseunicorns/uds-identity-config/issues/894)) ([a5c85b2](https://github.com/defenseunicorns/uds-identity-config/commit/a5c85b26f23fefb38cff738d9719b94f78795fd0))
+
 ## [0.29.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.28.0...v0.29.0) (2026-06-26)
 
 
