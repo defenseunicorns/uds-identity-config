@@ -3,19 +3,20 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "cy.open": "cypress open",
-    "cy.run": "cross-env USE_CAC=true cypress run --spec 'e2e/registration.cy.ts' && cross-env USE_CAC=false cypress run --spec 'e2e/**/*.cy.ts,!e2e/registration.cy.ts,!e2e/theme-customization.cy.ts'",
-    "cy.run:registration": "cross-env USE_CAC=true cypress run --spec 'e2e/registration.cy.ts'",
-    "cy.run:theme-customization": "cross-env cypress run --spec 'e2e/theme-customization.cy.ts'",
-    "cy.run:others": "cross-env USE_CAC=false cypress run --spec 'e2e/**/*.cy.ts,!e2e/registration.cy.ts,!e2e/theme-customization.cy.ts'",
-    "cy.run:external-load-balancer": "cross-env USE_CAC=true cypress run --spec 'e2e/registration.cy.ts' && echo 'Other tests skipped because of k3d Load Balancer being down and replaced by HAProxy'",
+    "cy.open": "cross-env NODE_PATH=./node_modules cypress open",
+    "cy.run": "cross-env NODE_PATH=./node_modules USE_CAC=true cypress run --spec 'e2e/registration.cy.ts' && cross-env NODE_PATH=./node_modules USE_CAC=false cypress run --spec 'e2e/**/*.cy.ts,!e2e/registration.cy.ts,!e2e/theme-customization.cy.ts'",
+    "cy.run:registration": "cross-env NODE_PATH=./node_modules USE_CAC=true cypress run --spec 'e2e/registration.cy.ts'",
+    "cy.run:theme-customization": "cross-env NODE_PATH=./node_modules cypress run --spec 'e2e/theme-customization.cy.ts'",
+    "cy.run:others": "cross-env NODE_PATH=./node_modules USE_CAC=false cypress run --spec 'e2e/**/*.cy.ts,!e2e/registration.cy.ts,!e2e/theme-customization.cy.ts'",
+    "cy.run:external-load-balancer": "cross-env NODE_PATH=./node_modules USE_CAC=true cypress run --spec 'e2e/registration.cy.ts' && echo 'Other tests skipped because of k3d Load Balancer being down and replaced by HAProxy'",
     "prettier": "prettier --write **/*.ts"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.27.1",
+    "@types/node": "^24.13.3",
+    "cross-env": "^10.0.0",
     "cypress": "^15.0.0",
     "prettier": "^3.2.5",
-    "typescript": "^7.0.0",
-    "cross-env": "^10.0.0"
+    "typescript": "^7.0.0"
   }
 }

@@ -168,9 +168,6 @@ jobs:
           tofu_wrapper: false
 
       - name: Cypress Integration Tests
-        env:
-          # Cypress 15.19's TS7 preprocessor is missing this preset in its packaged binary.
-          NODE_PATH: ${{ github.workspace }}/src/test/cypress/node_modules
         run: uds run uds-core-integration-tests --no-progress
 
       - name: Debug Output
