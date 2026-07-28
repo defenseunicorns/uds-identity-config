@@ -12,6 +12,7 @@
     "prettier": "prettier --write **/*.ts"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.27.1",
     "cypress": "^15.0.0",
     "prettier": "^3.2.5",
     "typescript": "^7.0.0",
