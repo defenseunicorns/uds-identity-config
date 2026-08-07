@@ -8,19 +8,37 @@ This project lives in a separate repository for technical reasons and code simpl
 
    Available tasks used by `uds run <task name>`, also can be viewed via command line by running `uds run --list`.
 
-   | Task Name | Task Description |
-   |---------------------|---------------------------------------------|
-   | build-and-publish   | Build and publish the multi-arch image      |
-   | build-zarf-pkg      | Build the image locally and package it with Zarf |
-   | dev-build           | Build the image locally for dev             |
-   | dev-update-image    | Build the image and import locally into k3d |
-   | dev-theme           | Copy theme to Keycloak in dev cluster       |
-   | dev-plugin          | Build and run unit tests for keycloak plugin|
-   | dev-cacert          | Get the CA cert value for the Istio Gateway from your local build |
-   | debug-istio-traffic | Debug Istio traffic on keycloak             |
-   | regenerate-test-pki | Generate a PKI cert for testing             |
-   | uds-core-integration-test | Create cluster and deploy uds-core identity using local uds-identity-config image |
-   | uds-core-registration-integration-test | Web flow registration integration test |
+### Pinned DoD CA bundle digest
+
+The truststore build downloads the DoD CA bundle and verifies it against the pinned SHA-256 digest in `src/truststore/authorized_certs.zip.sha256` before importing any certificates. Update that file when the upstream DoD bundle intentionally changes:
+
+```sh
+uds run update-ca-zip-sha256
+```
+
+Custom CA bundle builds should place the zip under `src/truststore/`, override `CA_ZIP_URL`, and provide the expected digest:
+
+```sh
+docker build \
+  --build-arg CA_ZIP_URL=authorized_certs.zip \
+  --build-arg CA_ZIP_SHA256=<sha256> \
+  src/
+```
+
+   | Task Name                              | Task Description                                                                  |
+   |----------------------------------------|-----------------------------------------------------------------------------------|
+   | build-and-publish                      | Build and publish the multi-arch image                                            |
+   | build-zarf-pkg                         | Build the image locally and package it with Zarf                                  |
+   | dev-build                              | Build the image locally for dev                                                   |
+   | update-ca-zip-sha256                   | Update the pinned SHA-256 digest for the DoD CA bundle                            |
+   | dev-update-image                       | Build the image and import locally into k3d                                       |
+   | dev-theme                              | Copy theme to Keycloak in dev cluster                                             |
+   | dev-plugin                             | Build and run unit tests for keycloak plugin                                      |
+   | dev-cacert                             | Get the CA cert value for the Istio Gateway from your local build                 |
+   | debug-istio-traffic                    | Debug Istio traffic on keycloak                                                   |
+   | regenerate-test-pki                    | Generate a PKI cert for testing                                                   |
+   | uds-core-integration-test              | Create cluster and deploy uds-core identity using local uds-identity-config image |
+   | uds-core-registration-integration-test | Web flow registration integration test                                            |
 
 ## Customizing UDS Identity Config
 

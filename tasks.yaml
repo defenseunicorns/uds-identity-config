@@ -34,6 +34,16 @@ tasks:
     actions:
       - cmd: docker build src -t uds-core-config:keycloak
 
+  - name: update-ca-zip-sha256
+    description: "Update the pinned SHA-256 digest for the DoD CA bundle"
+    actions:
+      - cmd: |
+          set -e
+          tmp_file="$(mktemp)"
+          trap 'rm -f "${tmp_file}"' EXIT
+          curl -fsSL "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-dod_approved_external_pkis_trust_chains.zip" -o "${tmp_file}"
+          shasum -a 256 "${tmp_file}" | cut -d ' ' -f1 > src/truststore/authorized_certs.zip.sha256
+
   - name: dev-update-image
     description: "Build the image and import locally into k3d"
     actions:
@@ -114,7 +124,17 @@ tasks:
     description: "UDS Core + Identity Config Integration Setup"
     actions:
       - description: Build identity config image
-        cmd: docker build --build-arg CA_ZIP_URL="test/cypress/certs/authorized_certs.zip" -t uds-core-config:keycloak --no-cache src
+        cmd: |
+          set -e
+          test_zip="src/truststore/test-authorized_certs.zip"
+          test_zip_sha256="f12fe0ad2b2417b999760405aff285897e2553b64bf775ca64176ff536cd936e"
+          cp src/test/cypress/certs/authorized_certs.zip "${test_zip}"
+          trap 'rm -f "${test_zip}"' EXIT
+          docker build \
+            --build-arg CA_ZIP_URL="test-authorized_certs.zip" \
+            --build-arg CA_ZIP_SHA256="${test_zip_sha256}" \
+            -t uds-core-config:keycloak \
+            --no-cache src
       - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim

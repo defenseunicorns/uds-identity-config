@@ -6,9 +6,26 @@ set -e
 
 # Download DoD CA Certs
 X509_CA_BUNDLE="$(pwd)/authorized_certs.pem"
+CA_ZIP_URL="${CA_ZIP_URL:-https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-dod_approved_external_pkis_trust_chains.zip}"
+CA_ZIP_ARCHIVE="/tmp/authorized_certs/authorized_certs.zip"
+CA_ZIP_SHA256="${CA_ZIP_SHA256:-$(tr -d '[:space:]' <authorized_certs.zip.sha256 2>/dev/null || true)}"
+
+if [ -z "${CA_ZIP_SHA256}" ]; then
+  echo "ERROR: CA_ZIP_SHA256 or authorized_certs.zip.sha256 is required" >&2
+  exit 1
+fi
+
+mkdir -p /tmp/authorized_certs
+if [ -f "${CA_ZIP_URL}" ]; then
+  cp "${CA_ZIP_URL}" "${CA_ZIP_ARCHIVE}"
+else
+  curl --fail --show-error --location "${CA_ZIP_URL}" --output "${CA_ZIP_ARCHIVE}"
+fi
+
+echo "${CA_ZIP_SHA256}  ${CA_ZIP_ARCHIVE}" | sha256sum --check --strict -
 
 # Extract the archive
-unzip -q -d /tmp/authorized_certs /tmp/authorized_certs/authorized_certs.zip
+unzip -q -d /tmp/authorized_certs "${CA_ZIP_ARCHIVE}"
 
 # Convert all certs to PEM format and remove extra lines
 find /tmp/authorized_certs -name '*.cer' -print0 |
