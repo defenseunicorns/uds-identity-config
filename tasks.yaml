@@ -41,9 +41,24 @@ tasks:
           set -e
           tmp_file="$(mktemp)"
           trap 'rm -f "${tmp_file}"' EXIT
-          curl -fsSL "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-dod_approved_external_pkis_trust_chains.zip" -o "${tmp_file}"
+          ca_zip_url="https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/"
+          ca_zip_url="${ca_zip_url}unclass-dod_approved_external_"
+          ca_zip_url="${ca_zip_url}pkis_trust_chains.zip"
+          curl -fsSL \
+            --proto '=https' \
+            --proto-redir '=https' \
+            --connect-timeout 15 \
+            --max-time 120 \
+            --max-filesize 10485760 \
+            --retry 3 \
+            --retry-delay 5 \
+            --retry-max-time 180 \
+            "${ca_zip_url}" \
+            -o "${tmp_file}"
           unzip -tq "${tmp_file}"
-          shasum -a 256 "${tmp_file}" | cut -d ' ' -f1 > src/truststore/authorized_certs.zip.sha256
+          shasum_output="$(shasum -a 256 "${tmp_file}")"
+          checksum_file="src/truststore/authorized_certs.zip.sha256"
+          printf '%s\n' "${shasum_output%% *}" > "${checksum_file}"
 
   - name: dev-update-image
     description: "Build the image and import locally into k3d"
@@ -247,9 +262,9 @@ tasks:
         cmd: uds run lb-setup:external-loadbalancer
       - description: "Run Cypress tests with the external load balancer"
         cmd: |
-            # Should already be done... but just in case
-            npm --prefix src/test/cypress install
-            npm --prefix src/test/cypress run cy.run:external-load-balancer
+          # Should already be done... but just in case
+          npm --prefix src/test/cypress install
+          npm --prefix src/test/cypress run cy.run:external-load-balancer
       - description: "Restore the k3d Load Balancer"
         cmd: uds run lb-setup:restore-k3d-loadbalancer
 

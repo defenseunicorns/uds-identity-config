@@ -30,36 +30,30 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Setup UDS CLI
+        uses: defenseunicorns/setup-uds@ab842abcad1f7a3305c2538e3dd1950d0daacfa5 # v1.0.1
+        with:
+          version: v0.34.3
+
       - name: Check bundle checksum
         id: bundle
         shell: bash
         run: |
           set -euo pipefail
 
-          archive="${RUNNER_TEMP}/authorized_certs.zip"
-          url="https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/"
-          url+="unclass-dod_approved_external_pkis_trust_chains.zip"
           checksum_file="src/truststore/authorized_certs.zip.sha256"
           old_sha="$(tr -d '[:space:]' < "${checksum_file}")"
+          uds run update-ca-zip-sha256 --no-progress
+          new_sha="$(tr -d '[:space:]' < "${checksum_file}")"
 
-          curl -fsSL \
-            --proto '=https' \
-            --proto-redir '=https' \
-            "${url}" \
-            -o "${archive}"
-          unzip -tq "${archive}"
-
-          new_sha="$(shasum -a 256 "${archive}" | cut -d ' ' -f1)"
           echo "old_sha=${old_sha}" >> "${GITHUB_OUTPUT}"
           echo "new_sha=${new_sha}" >> "${GITHUB_OUTPUT}"
 
           if [ "${new_sha}" = "${old_sha}" ]; then
             echo "changed=false" >> "${GITHUB_OUTPUT}"
-            exit 0
+          else
+            echo "changed=true" >> "${GITHUB_OUTPUT}"
           fi
-
-          echo "changed=true" >> "${GITHUB_OUTPUT}"
-          printf '%s\n' "${new_sha}" > "${checksum_file}"
 
       - name: Open or update pull request
         if: steps.bundle.outputs.changed == 'true'
