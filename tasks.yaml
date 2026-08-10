@@ -42,6 +42,7 @@ tasks:
           tmp_file="$(mktemp)"
           trap 'rm -f "${tmp_file}"' EXIT
           curl -fsSL "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-dod_approved_external_pkis_trust_chains.zip" -o "${tmp_file}"
+          unzip -tq "${tmp_file}"
           shasum -a 256 "${tmp_file}" | cut -d ' ' -f1 > src/truststore/authorized_certs.zip.sha256
 
   - name: dev-update-image
