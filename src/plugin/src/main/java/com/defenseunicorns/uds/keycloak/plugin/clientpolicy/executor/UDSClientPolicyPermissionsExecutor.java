@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Defense Unicorns
+ * Copyright 2024-2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -30,7 +30,6 @@ import org.keycloak.services.clientpolicy.ClientPolicyContext;
 import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
 import org.keycloak.services.clientpolicy.executor.ClientPolicyExecutorProvider;
-import org.keycloak.services.clientpolicy.executor.FullScopeDisabledExecutorFactory;
 import org.keycloak.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,6 @@ import static org.keycloak.common.util.CollectionUtil.*;
  * * Clients created by a managed client are stamped with "created-by=&lt;authenticated clientId&gt;".
  * * A managed client may only update/view/delete clients it created (matching "created-by" attribute).
  * * A managed client may only create clients whose clientId starts with its required prefix (empty = no constraint).
- * * The Client can't use the Full Scope Allowed feature.
  * * The Client can only use the Protocol Mappers that are whitelisted in the configuration. The default, opinionated configuration uses OIDC and UDS Protocol Mappers.
  * * The Client can only use the Custom Client Scopes that are whitelisted in the configuration. The default, opinionated configuration uses UDS Provided Client Scopes, Client Scopes configured at the Realm level as well as SAML defaults.
  */
@@ -278,13 +276,12 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     @Override
     public String getProviderId() {
-        return FullScopeDisabledExecutorFactory.PROVIDER_ID;
+        return UDSClientPolicyPermissionsExecutorFactory.PROVIDER_ID;
     }
 
     void validateClientSettings(ClientRepresentation rep) throws ClientPolicyException {
         logger.trace("Validating Client Representation before enforcements: {}", toString(rep));
 
-        validateFullScopeDisabled(rep);
         validateAllowedProtocolMappers(rep);
         validateAllowedCustomClientScopes(rep);
 
@@ -295,11 +292,5 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         if (rep.getAttributes() == null)
             rep.setAttributes(new java.util.HashMap<>());
         rep.getAttributes().put(ATTRIBUTE_CREATED_BY, ownerClientId);
-    }
-
-    private void validateFullScopeDisabled(ClientRepresentation rep) throws ClientPolicyException {
-        if (rep.isFullScopeAllowed() != null && rep.isFullScopeAllowed()) {
-            throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Client can't use the Full Scope Allowed feature. Rejecting request.");
-        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Defense Unicorns
+ * Copyright 2024-2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * enforce policies such as:
  * - Marking clients as created by the UDS Operator by setting the "created-by=uds-operator" attribute.
  * - Restricting operations on clients not owned by the UDS Operator or not following the naming convention.
- * - Disabling the "Full Scope Allowed" feature and limiting client scopes to an allowed set.
+ * - Limiting client scopes to an allowed set.
  * <p>
  * Without this factory, Keycloak would not be able to instantiate and manage the custom policy
  * executor, and the UDS-specific client policies would not be enforced.

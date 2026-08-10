@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Defense Unicorns
+ * Copyright 2025-2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -171,15 +171,14 @@ public class UDSClientPolicyPermissionsExecutorTest {
     }
 
     @Test
-    public void shouldValidateFullScopeDisabled() {
+    public void shouldNotEvaluateFullScopeAllowed() {
         // given
         ClientRepresentation rep = new ClientRepresentation();
         rep.setFullScopeAllowed(true);
 
         // when/then
-        assertThrows(ClientPolicyException.class, () -> {
-            executor.validateClientSettings(rep);
-        });
+        assertDoesNotThrow(() -> executor.validateClientSettings(rep));
+        assertTrue(rep.isFullScopeAllowed());
     }
 
     @Test
