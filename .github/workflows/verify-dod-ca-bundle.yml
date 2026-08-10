@@ -1,0 +1,51 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+---
+name: Verify DoD CA bundle checksum
+
+"on":
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: verify-dod-ca-bundle-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify pinned digest is current
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup UDS CLI
+        uses: defenseunicorns/setup-uds@ab842abcad1f7a3305c2538e3dd1950d0daacfa5 # v1.0.1
+        with:
+          version: v0.35.1
+
+      - name: Verify bundle checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          checksum_file="src/truststore/authorized_certs.zip.sha256"
+          pinned_sha="$(tr -d '[:space:]' < "${checksum_file}")"
+
+          uds run update-ca-zip-sha256 --no-progress
+          current_sha="$(tr -d '[:space:]' < "${checksum_file}")"
+
+          if [ "${current_sha}" != "${pinned_sha}" ]; then
+            message="The DoD CA bundle digest has changed."
+            echo "::error file=${checksum_file}::${message}"
+            echo "Pinned digest:  ${pinned_sha}"
+            echo "Current digest: ${current_sha}"
+            echo "Run 'uds run update-ca-zip-sha256' and commit the result."
+            exit 1
+          fi
+
+          echo "The pinned DoD CA bundle digest is current."
