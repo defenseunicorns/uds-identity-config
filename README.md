@@ -39,7 +39,7 @@ docker build \
   --build-arg CA_ZIP_SHA256=<sha256> \
   src/
 ```
-# Customizing UDS Identity Config
+## Customizing UDS Identity Config
 
 If the default realm, plugin, theme, truststore, or jars do not provide enough functionality ( or provide too much functionality ), take a look at the [customization](./docs/reference/uds-core/idam/customization.md) docs for making changes to the identity config.
 
