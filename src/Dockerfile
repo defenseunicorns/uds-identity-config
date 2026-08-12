@@ -37,18 +37,18 @@ COPY extra-jars/* ./target/
 ###################################################################################
 FROM maven:3-eclipse-temurin-21-jammy AS truststore
 USER root
-RUN apt-get update && apt-get install unzip -y
+RUN apt-get update && apt-get install unzip curl -y
 
 WORKDIR /home/build
 
 ARG CA_REGEX_EXCLUSION_FILTER="\(.*EMAIL.*\|.*SW.*\)"
 ARG CA_ZIP_URL=https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-dod_approved_external_pkis_trust_chains.zip
+ARG CA_ZIP_SHA256
 
 # Allow overriding the default regex filter for the CA names
 ENV CA_REGEX_EXCLUSION_FILTER=${CA_REGEX_EXCLUSION_FILTER}
 
-ADD ${CA_ZIP_URL} /tmp/authorized_certs/authorized_certs.zip
-COPY truststore/ca-to-jks.sh .
+COPY truststore .
 
 RUN ./ca-to-jks.sh
 
