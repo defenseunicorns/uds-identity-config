@@ -32,7 +32,7 @@ tasks:
   - name: dev-build
     description: "Build the image locally for dev"
     actions:
-      - cmd: docker build src -t uds-core-config:keycloak
+      - cmd: docker build src -t uds-core-config:keycloak --no-cache
 
   - name: update-ca-zip-sha256
     description: "Update the pinned SHA-256 digest for the DoD CA bundle"

@@ -239,6 +239,7 @@
                 <#if properties["USERNAME_PASSWORD_AUTH_ENABLED"] == "true">
                     <div class="form-group ${messagesPerField.printIfExists('password','has-error')}">
                         <#if cacSubjectDN??>
+                            <input type="hidden" name="cacSubjectDN" value="${cacSubjectDN}" />
                             <div class="alert alert-info">
                                 <div class="row">
                                     <div class="col">

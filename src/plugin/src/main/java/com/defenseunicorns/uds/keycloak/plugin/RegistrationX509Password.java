@@ -6,27 +6,34 @@
 package com.defenseunicorns.uds.keycloak.plugin;
 
 import jakarta.ws.rs.core.MultivaluedMap;
+import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.authentication.FormAction;
 import org.keycloak.authentication.FormContext;
 import org.keycloak.authentication.ValidationContext;
 import org.keycloak.authentication.forms.RegistrationPage;
 import org.keycloak.authentication.forms.RegistrationPassword;
-import org.keycloak.events.Details;
 import org.keycloak.events.Errors;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.*;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.models.utils.FormMessage;
-import org.keycloak.policy.PasswordPolicyManagerProvider;
-import org.keycloak.policy.PolicyError;
 import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.services.messages.Messages;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class RegistrationX509Password extends RegistrationPassword {
+    private static final Logger LOG = Logger.getLogger(RegistrationX509Password.class);
+    private static final String DIGITS_POLICY = "digits";
+    private static final String LENGTH_POLICY = "length";
+    private static final String LOWER_CASE_POLICY = "lowerCase";
+    private static final String NOT_EMAIL_POLICY = "notEmail";
+    private static final String NOT_USERNAME_POLICY = "notUsername";
+    private static final String SPECIAL_CHARS_POLICY = "specialChars";
+    private static final String UPPER_CASE_POLICY = "upperCase";
+
 
     /**
      * Provider ID.
@@ -59,46 +66,124 @@ public class RegistrationX509Password extends RegistrationPassword {
      */
     @Override
     public void validate(final ValidationContext context) {
-        if (X509Tools.getX509Username(context) == null) {
-            super.validate(context);
-            return;
-        }
-
+        String x509Username = X509Tools.getX509Username(context);
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
-        List<FormMessage> errors = new ArrayList<>();
-        context.getEvent().detail(Details.REGISTER_METHOD, "form");
 
         String password = formData.getFirst(RegistrationPage.FIELD_PASSWORD);
         String passwordConfirm = formData.getFirst(RegistrationPage.FIELD_PASSWORD_CONFIRM);
 
-        // Check if both password fields are either empty or null, and skip password validation
         if ((password == null || password.isEmpty()) && (passwordConfirm == null || passwordConfirm.isEmpty())) {
-            context.success();
-            return;
-        }
-
-        if (!password.equals(passwordConfirm)) {
-            errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD_CONFIRM, Messages.INVALID_PASSWORD_CONFIRM));
-        }
-
-        if (password != null) {
-            PolicyError err = context.getSession().getProvider(PasswordPolicyManagerProvider.class).validate(
-                    context.getRealm().isRegistrationEmailAsUsername() ? formData.getFirst(RegistrationPage.FIELD_EMAIL)
-                            : formData.getFirst(RegistrationPage.FIELD_USERNAME),
-                    password);
-            if (err != null) {
-                errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD, err.getMessage(), err.getParameters()));
+            if (x509Username != null && isExplicitX509Registration(formData)) {
+                LOG.info("Allowing explicit X509 registration without password credential");
+                context.success();
+                return;
             }
         }
 
-        if (!errors.isEmpty()) {
+        List<FormMessage> passwordPolicyErrors = validateConfiguredPasswordPolicy(context, formData, password);
+        if (!passwordPolicyErrors.isEmpty()) {
+            LOG.info("Rejecting registration password due to configured realm password policy");
             context.error(Errors.INVALID_REGISTRATION);
             formData.remove(RegistrationPage.FIELD_PASSWORD);
             formData.remove(RegistrationPage.FIELD_PASSWORD_CONFIRM);
-            context.validationError(formData, errors);
-        } else {
-            context.success();
+            context.validationError(formData, passwordPolicyErrors);
+            return;
         }
+
+        super.validate(context);
+    }
+
+    private boolean isExplicitX509Registration(final MultivaluedMap<String, String> formData) {
+        String cacSubjectDN = formData.getFirst(Common.FORM_CAC_SUBJECT_DN);
+        return cacSubjectDN != null && !cacSubjectDN.isBlank();
+    }
+
+    private List<FormMessage> validateConfiguredPasswordPolicy(
+            final ValidationContext context,
+            final MultivaluedMap<String, String> formData,
+            final String password) {
+
+        List<FormMessage> errors = new ArrayList<>();
+        if (password == null || password.isEmpty() || context.getRealm().getPasswordPolicy() == null) {
+            return errors;
+        }
+
+        PasswordPolicy policy = context.getRealm().getPasswordPolicy();
+
+        Integer minLength = getIntPolicyConfig(policy, LENGTH_POLICY);
+        if (minLength != null && password.length() < minLength) {
+            errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD, "invalidPasswordMinLengthMessage", minLength));
+        }
+
+        Integer minDigits = getIntPolicyConfig(policy, DIGITS_POLICY);
+        if (minDigits != null && countMatches(password, Character::isDigit) < minDigits) {
+            errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD, "invalidPasswordMinDigitsMessage", minDigits));
+        }
+
+        Integer minLowerCase = getIntPolicyConfig(policy, LOWER_CASE_POLICY);
+        if (minLowerCase != null && countMatches(password, Character::isLowerCase) < minLowerCase) {
+            errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD, "invalidPasswordMinLowerCaseCharsMessage", minLowerCase));
+        }
+
+        Integer minUpperCase = getIntPolicyConfig(policy, UPPER_CASE_POLICY);
+        if (minUpperCase != null && countMatches(password, Character::isUpperCase) < minUpperCase) {
+            errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD, "invalidPasswordMinUpperCaseCharsMessage", minUpperCase));
+        }
+
+        Integer minSpecialChars = getIntPolicyConfig(policy, SPECIAL_CHARS_POLICY);
+        if (minSpecialChars != null && countMatches(password, c -> !Character.isLetterOrDigit(c)) < minSpecialChars) {
+            errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD, "invalidPasswordMinSpecialCharsMessage", minSpecialChars));
+        }
+
+        String username = formData.getFirst(RegistrationPage.FIELD_USERNAME);
+        if (hasPolicy(policy, NOT_USERNAME_POLICY) && username != null && password.equals(username)) {
+            errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD, "invalidPasswordNotUsernameMessage"));
+        }
+
+        String email = formData.getFirst(RegistrationPage.FIELD_EMAIL);
+        if (hasPolicy(policy, NOT_EMAIL_POLICY) && email != null && password.equals(email)) {
+            errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD, "invalidPasswordNotEmailMessage"));
+        }
+
+        return errors;
+    }
+
+    private Integer getIntPolicyConfig(final PasswordPolicy policy, final String key) {
+        Object value = policy.getPolicyConfig(key);
+        if (value instanceof Integer integerValue) {
+            return integerValue;
+        }
+        if (value instanceof Number numberValue) {
+            return numberValue.intValue();
+        }
+        if (value instanceof String stringValue && !stringValue.isBlank()) {
+            try {
+                return Integer.parseInt(stringValue);
+            } catch (NumberFormatException e) {
+                LOG.warnf("Ignoring non-integer password policy config for %s: %s", key, stringValue);
+            }
+        }
+        return null;
+    }
+
+    private boolean hasPolicy(final PasswordPolicy policy, final String key) {
+        Set<String> policies = policy.getPolicies();
+        return policies != null && policies.contains(key);
+    }
+
+    private int countMatches(final String value, final CharacterMatcher matcher) {
+        int count = 0;
+        for (int i = 0; i < value.length(); i++) {
+            if (matcher.matches(value.charAt(i))) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @FunctionalInterface
+    private interface CharacterMatcher {
+        boolean matches(char value);
     }
 
     /**

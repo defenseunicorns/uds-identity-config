@@ -18,6 +18,7 @@ import org.keycloak.authentication.authenticators.x509.X509ClientCertificateAuth
 import org.keycloak.authentication.forms.RegistrationPage;
 import org.keycloak.common.crypto.UserIdentityExtractor;
 import org.keycloak.events.EventBuilder;
+import org.keycloak.events.Errors;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.http.HttpRequest;
 import org.keycloak.models.*;
@@ -39,6 +40,7 @@ import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -77,6 +79,8 @@ class RegistrationX509PasswordTest {
     @Mock
     PasswordPolicyManagerProvider passwordPolicyManagerProvider;
     @Mock
+    PasswordPolicy passwordPolicy;
+    @Mock
     LoginFormsProvider loginFormsProvider;
     @Mock
     Config.Scope scope;
@@ -87,8 +91,6 @@ class RegistrationX509PasswordTest {
     public void setupMockBehavior() throws Exception {
         // common mock implementations
         when(validationContext.getSession()).thenReturn(keycloakSession);
-        when(validationContext.getAuthenticationSession())
-                .thenReturn(authenticationSessionModel);
         when(keycloakSession.getContext()).thenReturn(keycloakContext);
         when(keycloakContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
         when(authenticationSessionModel.getParentSession()).thenReturn(rootAuthenticationSessionModel);
@@ -141,6 +143,7 @@ class RegistrationX509PasswordTest {
             Map<String, List<String>> formDataMap = new HashMap<>();
             formDataMap.put(RegistrationPage.FIELD_PASSWORD, Collections.singletonList(""));
             formDataMap.put(RegistrationPage.FIELD_PASSWORD_CONFIRM, Collections.singletonList(""));
+            formDataMap.put(Common.FORM_CAC_SUBJECT_DN, Collections.singletonList("CN=test"));
 
             when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
             when(validationContext.getEvent()).thenReturn(eventBuilder);
@@ -149,6 +152,8 @@ class RegistrationX509PasswordTest {
 
             RegistrationX509Password registrationX509Password = new RegistrationX509Password();
             registrationX509Password.validate(validationContext);
+
+            verify(validationContext).success();
         }
     }
 
@@ -160,6 +165,7 @@ class RegistrationX509PasswordTest {
             formDataMap.put(RegistrationPage.FIELD_PASSWORD, Collections.singletonList("password"));
             formDataMap.put(RegistrationPage.FIELD_PASSWORD_CONFIRM, Collections.singletonList("password"));
             formDataMap.put(RegistrationPage.FIELD_EMAIL, Collections.singletonList("test.user@test.test"));
+            formDataMap.put(RegistrationPage.FIELD_USERNAME, Collections.singletonList("test.user"));
 
             x509ToolsMock.when(() -> X509Tools.getX509Username(eq(validationContext))).thenReturn("something");
             when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
@@ -189,6 +195,7 @@ class RegistrationX509PasswordTest {
             formDataMap.put(RegistrationPage.FIELD_PASSWORD, Collections.singletonList("password"));
             formDataMap.put(RegistrationPage.FIELD_PASSWORD_CONFIRM, Collections.singletonList("password"));
             formDataMap.put(RegistrationPage.FIELD_EMAIL, Collections.singletonList("test.user@test.test"));
+            formDataMap.put(RegistrationPage.FIELD_USERNAME, Collections.singletonList("test.user"));
 
             x509ToolsMock.when(() -> X509Tools.getX509Username(eq(validationContext))).thenReturn("something");
             when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
@@ -203,6 +210,32 @@ class RegistrationX509PasswordTest {
 
             RegistrationX509Password registrationX509Password = new RegistrationX509Password();
             registrationX509Password.validate(validationContext);
+
+            verify(validationContext).error(Errors.INVALID_REGISTRATION);
+            verify(validationContext).validationError(any(), any());
+        }
+    }
+
+    @Test
+    public void testValidateWeakPasswordWithoutX509Fails() {
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            Map<String, List<String>> formDataMap = new HashMap<>();
+            formDataMap.put(RegistrationPage.FIELD_PASSWORD, Collections.singletonList("me"));
+            formDataMap.put(RegistrationPage.FIELD_PASSWORD_CONFIRM, Collections.singletonList("me"));
+            formDataMap.put(RegistrationPage.FIELD_EMAIL, Collections.singletonList("me@test.test"));
+            formDataMap.put(RegistrationPage.FIELD_USERNAME, Collections.singletonList("me"));
+
+            x509ToolsMock.when(() -> X509Tools.getX509Username(eq(validationContext))).thenReturn(null);
+            when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
+            when(validationContext.getEvent()).thenReturn(eventBuilder);
+            when(validationContext.getRealm().getPasswordPolicy()).thenReturn(passwordPolicy);
+            when(passwordPolicy.getPolicyConfig("length")).thenReturn(15);
+
+            RegistrationX509Password registrationX509Password = new RegistrationX509Password();
+            registrationX509Password.validate(validationContext);
+
+            verify(validationContext).error(Errors.INVALID_REGISTRATION);
+            verify(validationContext).validationError(any(), any());
         }
     }
     
@@ -218,9 +251,14 @@ class RegistrationX509PasswordTest {
             x509ToolsMock.when(() -> X509Tools.getX509Username(eq(validationContext))).thenReturn("something");
             when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
             when(validationContext.getEvent()).thenReturn(eventBuilder);
+            when(validationContext.getSession().getProvider(PasswordPolicyManagerProvider.class))
+                    .thenReturn(passwordPolicyManagerProvider);
 
             RegistrationX509Password registrationX509Password = new RegistrationX509Password();
             registrationX509Password.validate(validationContext);
+
+            verify(validationContext).error(Errors.INVALID_REGISTRATION);
+            verify(validationContext).validationError(any(), any());
         }
     }
     
@@ -265,6 +303,7 @@ class RegistrationX509PasswordTest {
     
         when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(formData);
         when(validationContext.getUser()).thenReturn(userModel);
+        when(validationContext.getAuthenticationSession()).thenReturn(authenticationSessionModel);
     
         RegistrationX509Password registrationX509Password = new RegistrationX509Password();
         registrationX509Password.success(validationContext);
