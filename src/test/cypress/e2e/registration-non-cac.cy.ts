@@ -70,7 +70,9 @@ function assertUserCount(username: string, expected: number) {
 }
 
 function submitRegistration() {
+  cy.intercept("POST", "**/realms/uds/login-actions/registration*").as("registrationSubmit");
   cy.get("#do-register").should("not.be.disabled").click();
+  cy.wait("@registrationSubmit");
 }
 
 describe("Non-CAC Registration Flow", () => {
