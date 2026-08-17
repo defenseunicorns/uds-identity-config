@@ -23,7 +23,10 @@ import org.keycloak.policy.PolicyError;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.services.messages.Messages;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class RegistrationX509Password extends RegistrationPassword {
@@ -51,7 +54,7 @@ public class RegistrationX509Password extends RegistrationPassword {
      */
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return new ArrayList<>();
+        return super.getConfigProperties();
     }
 
     /**
@@ -60,7 +63,7 @@ public class RegistrationX509Password extends RegistrationPassword {
     @Override
     public void validate(final ValidationContext context) {
         if (X509Tools.getX509Username(context) == null) {
-            super.validate(context);
+            super.validate(withAlwaysSetPasswordConfig(context, ValidationContext.class));
             return;
         }
 
@@ -77,7 +80,7 @@ public class RegistrationX509Password extends RegistrationPassword {
             return;
         }
 
-        if (!password.equals(passwordConfirm)) {
+        if (password == null || !password.equals(passwordConfirm)) {
             errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD_CONFIRM, Messages.INVALID_PASSWORD_CONFIRM));
         }
 
@@ -124,8 +127,32 @@ public class RegistrationX509Password extends RegistrationPassword {
     @Override
     public void buildPage(final FormContext context, final LoginFormsProvider form) {
         if (X509Tools.getX509Username(context) == null) {
-            form.setAttribute("passwordRequired", true);
+            super.buildPage(withAlwaysSetPasswordConfig(context, FormContext.class), form);
         }
+    }
+
+    /**
+     * Supplies Keycloak's native password behavior without persisting an authenticator config in the realm.
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends FormContext> T withAlwaysSetPasswordConfig(final T context, final Class<T> contextType) {
+        AuthenticatorConfigModel config = new AuthenticatorConfigModel();
+        config.setConfig(Collections.singletonMap(ALWAYS_SET_PASSWORD_ON_REGISTER_FORM, "true"));
+
+        return (T) Proxy.newProxyInstance(
+                contextType.getClassLoader(),
+                new Class<?>[]{contextType},
+                (proxy, method, args) -> {
+                    if (method.getName().equals("getAuthenticatorConfig") && method.getParameterCount() == 0) {
+                        return config;
+                    }
+
+                    try {
+                        return method.invoke(context, args);
+                    } catch (InvocationTargetException exception) {
+                        throw exception.getCause();
+                    }
+                });
     }
 
     /**

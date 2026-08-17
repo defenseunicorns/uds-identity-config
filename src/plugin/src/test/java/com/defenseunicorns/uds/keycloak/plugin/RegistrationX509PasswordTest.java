@@ -39,8 +39,8 @@ import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 
 @ExtendWith(MockitoExtension.class)
 @org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
@@ -128,12 +128,6 @@ class RegistrationX509PasswordTest {
     }
 
     @Test
-    public void testGetConfigProperties() {
-        RegistrationX509Password registrationX509Password = new RegistrationX509Password();
-        registrationX509Password.getConfigProperties();
-    }
-
-    @Test
     public void testValidatePasswordEmpty() {
         try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
             x509ToolsMock.when(() -> X509Tools.getX509Username(any(ValidationContext.class))).thenReturn("thing");
@@ -149,6 +143,48 @@ class RegistrationX509PasswordTest {
 
             RegistrationX509Password registrationX509Password = new RegistrationX509Password();
             registrationX509Password.validate(validationContext);
+        }
+    }
+
+    @Test
+    public void testValidatePasswordMissingButConfirmationProvided() {
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            x509ToolsMock.when(() -> X509Tools.getX509Username(any(ValidationContext.class))).thenReturn("thing");
+
+            Map<String, List<String>> formDataMap = new HashMap<>();
+            formDataMap.put(RegistrationPage.FIELD_PASSWORD_CONFIRM, Collections.singletonList("password"));
+
+            when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
+            when(validationContext.getEvent()).thenReturn(eventBuilder);
+
+            RegistrationX509Password registrationX509Password = new RegistrationX509Password();
+            registrationX509Password.validate(validationContext);
+
+            verify(validationContext).validationError(any(MultivaluedMap.class), anyList());
+        }
+    }
+
+    @Test
+    public void testNonCacPasswordIsRequiredWhenVerifyEmailIsEnabled() {
+        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
+            x509ToolsMock.when(() -> X509Tools.getX509Username(validationContext)).thenReturn(null);
+
+            Map<String, List<String>> formDataMap = new HashMap<>();
+            formDataMap.put(RegistrationPage.FIELD_PASSWORD, Collections.singletonList(""));
+            formDataMap.put(RegistrationPage.FIELD_PASSWORD_CONFIRM, Collections.singletonList(""));
+
+            when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
+            when(validationContext.getEvent()).thenReturn(eventBuilder);
+            when(realmModel.isVerifyEmail()).thenReturn(true);
+            when(validationContext.getSession().getProvider(PasswordPolicyManagerProvider.class))
+                    .thenReturn(passwordPolicyManagerProvider);
+            when(passwordPolicyManagerProvider.validate(any(String.class), any(String.class))).thenReturn(null);
+
+            RegistrationX509Password registrationX509Password = new RegistrationX509Password();
+            registrationX509Password.validate(validationContext);
+
+            verify(validationContext).validationError(any(MultivaluedMap.class), argThat(errors -> errors.stream()
+                    .anyMatch(error -> RegistrationPage.FIELD_PASSWORD.equals(error.getField()))));
         }
     }
 
