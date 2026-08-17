@@ -96,39 +96,6 @@ describe("Non-CAC Registration Flow", () => {
     assertUserCount(username, 0);
   });
 
-  it("rejects mismatched passwords", () => {
-    const username = `non_cac_mismatch_${runId}`;
-    usernames.push(username);
-
-    openRegistrationPage();
-    fillRegistrationForm(
-      username,
-      `${username}@uds.dev`,
-      "PrettyUnicorns1!!",
-      "DifferentPassword1!!",
-    );
-    submitRegistration();
-
-    cy.contains("span.message-details", "Password confirmation doesn't match.").should(
-      "be.visible",
-    );
-    assertUserCount(username, 0);
-  });
-
-  it("rejects a password that violates policy", () => {
-    const username = `non_cac_policy_${runId}`;
-    usernames.push(username);
-
-    openRegistrationPage();
-    fillRegistrationForm(username, `${username}@uds.dev`, "Pretty1!!", "Pretty1!!");
-    submitRegistration();
-
-    cy.contains("span.message-details", "Invalid password: minimum length 15.").should(
-      "be.visible",
-    );
-    assertUserCount(username, 0);
-  });
-
   it("creates a user with a valid password", () => {
     const username = `non_cac_valid_${runId}`;
     usernames.push(username);

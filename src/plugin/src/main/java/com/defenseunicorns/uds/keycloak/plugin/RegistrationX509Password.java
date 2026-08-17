@@ -54,7 +54,7 @@ public class RegistrationX509Password extends RegistrationPassword {
      */
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return super.getConfigProperties();
+        return new ArrayList<>();
     }
 
     /**
@@ -80,7 +80,7 @@ public class RegistrationX509Password extends RegistrationPassword {
             return;
         }
 
-        if (password == null || !password.equals(passwordConfirm)) {
+        if (!password.equals(passwordConfirm)) {
             errors.add(new FormMessage(RegistrationPage.FIELD_PASSWORD_CONFIRM, Messages.INVALID_PASSWORD_CONFIRM));
         }
 

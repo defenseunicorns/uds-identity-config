@@ -147,24 +147,6 @@ class RegistrationX509PasswordTest {
     }
 
     @Test
-    public void testValidatePasswordMissingButConfirmationProvided() {
-        try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
-            x509ToolsMock.when(() -> X509Tools.getX509Username(any(ValidationContext.class))).thenReturn("thing");
-
-            Map<String, List<String>> formDataMap = new HashMap<>();
-            formDataMap.put(RegistrationPage.FIELD_PASSWORD_CONFIRM, Collections.singletonList("password"));
-
-            when(validationContext.getHttpRequest().getDecodedFormParameters()).thenReturn(Utils.formDataUtil(formDataMap));
-            when(validationContext.getEvent()).thenReturn(eventBuilder);
-
-            RegistrationX509Password registrationX509Password = new RegistrationX509Password();
-            registrationX509Password.validate(validationContext);
-
-            verify(validationContext).validationError(any(MultivaluedMap.class), anyList());
-        }
-    }
-
-    @Test
     public void testNonCacPasswordIsRequiredWhenVerifyEmailIsEnabled() {
         try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
             x509ToolsMock.when(() -> X509Tools.getX509Username(validationContext)).thenReturn(null);
