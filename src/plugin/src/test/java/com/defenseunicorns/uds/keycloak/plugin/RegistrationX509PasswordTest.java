@@ -301,17 +301,15 @@ class RegistrationX509PasswordTest {
     }
 
     @Test
-    public void testBuildPage() {
-        // force to null
-        when(validationContext.getSession()).thenReturn(null);
-
-        RegistrationX509Password registrationX509Password = new RegistrationX509Password();
-        registrationX509Password.buildPage(validationContext, loginFormsProvider);
-
-        // force a valid value
+    public void testNonCacRegistrationBuildPageRequiresPasswordWhenVerifyEmailIsEnabled() {
         try (MockedStatic<X509Tools> x509ToolsMock = mockStatic(X509Tools.class)) {
-            x509ToolsMock.when(() -> X509Tools.getX509Username(eq(validationContext))).thenReturn("something");
+            x509ToolsMock.when(() -> X509Tools.getX509Username(validationContext)).thenReturn(null);
+            when(realmModel.isVerifyEmail()).thenReturn(true);
+
+            RegistrationX509Password registrationX509Password = new RegistrationX509Password();
             registrationX509Password.buildPage(validationContext, loginFormsProvider);
+
+            verify(loginFormsProvider).setAttribute("passwordRequired", true);
         }
     }
 

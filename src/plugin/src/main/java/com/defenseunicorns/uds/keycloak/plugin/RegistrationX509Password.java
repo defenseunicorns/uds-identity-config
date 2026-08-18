@@ -23,10 +23,7 @@ import org.keycloak.policy.PolicyError;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.services.messages.Messages;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class RegistrationX509Password extends RegistrationPassword {
@@ -63,7 +60,7 @@ public class RegistrationX509Password extends RegistrationPassword {
     @Override
     public void validate(final ValidationContext context) {
         if (X509Tools.getX509Username(context) == null) {
-            super.validate(withAlwaysSetPasswordConfig(context, ValidationContext.class));
+            super.validate(new AlwaysSetPasswordValidationContext(context));
             return;
         }
 
@@ -127,32 +124,8 @@ public class RegistrationX509Password extends RegistrationPassword {
     @Override
     public void buildPage(final FormContext context, final LoginFormsProvider form) {
         if (X509Tools.getX509Username(context) == null) {
-            super.buildPage(withAlwaysSetPasswordConfig(context, FormContext.class), form);
+            super.buildPage(new AlwaysSetPasswordFormContext(context), form);
         }
-    }
-
-    /**
-     * Supplies Keycloak's native password behavior without persisting an authenticator config in the realm.
-     */
-    @SuppressWarnings("unchecked")
-    private <T extends FormContext> T withAlwaysSetPasswordConfig(final T context, final Class<T> contextType) {
-        AuthenticatorConfigModel config = new AuthenticatorConfigModel();
-        config.setConfig(Collections.singletonMap(ALWAYS_SET_PASSWORD_ON_REGISTER_FORM, "true"));
-
-        return (T) Proxy.newProxyInstance(
-                contextType.getClassLoader(),
-                new Class<?>[]{contextType},
-                (proxy, method, args) -> {
-                    if (method.getName().equals("getAuthenticatorConfig") && method.getParameterCount() == 0) {
-                        return config;
-                    }
-
-                    try {
-                        return method.invoke(context, args);
-                    } catch (InvocationTargetException exception) {
-                        throw exception.getCause();
-                    }
-                });
     }
 
     /**
