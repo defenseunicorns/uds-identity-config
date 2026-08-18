@@ -60,7 +60,7 @@ public class RegistrationX509Password extends RegistrationPassword {
     @Override
     public void validate(final ValidationContext context) {
         if (X509Tools.getX509Username(context) == null) {
-            super.validate(context);
+            super.validate(new AlwaysSetPasswordValidationContext(context));
             return;
         }
 
@@ -124,7 +124,7 @@ public class RegistrationX509Password extends RegistrationPassword {
     @Override
     public void buildPage(final FormContext context, final LoginFormsProvider form) {
         if (X509Tools.getX509Username(context) == null) {
-            form.setAttribute("passwordRequired", true);
+            super.buildPage(new AlwaysSetPasswordFormContext(context), form);
         }
     }
 
