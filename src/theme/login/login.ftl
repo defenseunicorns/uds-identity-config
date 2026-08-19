@@ -34,7 +34,12 @@
                     </div>
                     <div class="form-group text-right">
                         <#if realm.resetPasswordAllowed>
-                            <a tabindex="5" href="${url.loginResetCredentialsUrl}">
+                            <#-- Keycloak returns this path relative to the request host; use the public origin from loginAction. -->
+                            <#assign resetPasswordUrl = url.loginResetCredentialsUrl>
+                            <#if !url.loginResetCredentialsUrl?starts_with('http') && !url.loginResetCredentialsUrl?starts_with('//')>
+                                <#assign resetPasswordUrl = url.loginAction?keep_before('/realms/') + url.loginResetCredentialsUrl>
+                            </#if>
+                            <a tabindex="5" href="${resetPasswordUrl}">
                                 ${msg("doForgotPassword")}
                             </a>
                         </#if>
