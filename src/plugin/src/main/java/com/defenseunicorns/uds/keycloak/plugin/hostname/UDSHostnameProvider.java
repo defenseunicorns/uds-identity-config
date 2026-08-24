@@ -19,6 +19,8 @@ import org.keycloak.urls.UrlType;
  * Public requests continue to use the configured frontend origin.
  */
 public final class UDSHostnameProvider implements HostnameProvider {
+    private static final String KUBERNETES_SERVICE_HOST_SUFFIX = ".svc.cluster.local";
+
     private final HostnameProvider delegate;
     private final URI adminUrl;
 
@@ -31,16 +33,29 @@ public final class UDSHostnameProvider implements HostnameProvider {
     public URI getBaseUri(UriInfo originalUriInfo, UrlType type) {
         URI baseUri = delegate.getBaseUri(originalUriInfo, type);
 
-        if (type != UrlType.FRONTEND || !isAdminRequest(originalUriInfo)) {
+        if (type != UrlType.FRONTEND) {
             return baseUri;
         }
 
+        if (isAdminRequest(originalUriInfo)) {
+            return withOrigin(baseUri, adminUrl);
+        }
+
+        if (isKubernetesServiceRequest(originalUriInfo)) {
+            return originalUriInfo.getBaseUri();
+        }
+
+        return baseUri;
+    }
+
+    private URI withOrigin(URI baseUri, URI origin) {
+
         try {
             URI adminOrigin = new URI(
-                    adminUrl.getScheme(),
+                    origin.getScheme(),
                     null,
-                    adminUrl.getHost(),
-                    normalizedPort(adminUrl),
+                    origin.getHost(),
+                    normalizedPort(origin),
                     null,
                     null,
                     null
@@ -112,6 +127,11 @@ public final class UDSHostnameProvider implements HostnameProvider {
         return adminUrl.getScheme().equalsIgnoreCase(requestUri.getScheme())
                 && adminUrl.getHost().equalsIgnoreCase(requestUri.getHost())
                 && normalizedPort(adminUrl) == normalizedPort(requestUri);
+    }
+
+    private boolean isKubernetesServiceRequest(UriInfo originalUriInfo) {
+        String host = originalUriInfo.getBaseUri().getHost();
+        return host != null && host.endsWith(KUBERNETES_SERVICE_HOST_SUFFIX);
     }
 
     private static int normalizedPort(URI uri) {

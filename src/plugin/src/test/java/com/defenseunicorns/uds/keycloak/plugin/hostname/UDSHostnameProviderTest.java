@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 class UDSHostnameProviderTest {
     private static final URI PUBLIC_URL = URI.create("https://sso.uds.dev/");
     private static final URI ADMIN_URL = URI.create("https://keycloak.admin.uds.dev/");
+    private static final URI INTERNAL_URL = URI.create("http://keycloak-http.keycloak.svc.cluster.local:8080/");
 
     @Test
     void usesAdminOriginForFrontendUrlsFromAdminGateway() {
@@ -39,6 +40,13 @@ class UDSHostnameProviderTest {
         UDSHostnameProvider provider = provider(PUBLIC_URL);
 
         assertEquals(PUBLIC_URL, provider.getBaseUri(request(PUBLIC_URL), UrlType.FRONTEND));
+    }
+
+    @Test
+    void keepsInternalOriginForKubernetesServiceRequests() {
+        UDSHostnameProvider provider = provider(PUBLIC_URL);
+
+        assertEquals(INTERNAL_URL, provider.getBaseUri(request(INTERNAL_URL), UrlType.FRONTEND));
     }
 
     @Test
