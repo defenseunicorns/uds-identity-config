@@ -36,15 +36,28 @@ public final class UDSHostnameProvider implements HostnameProvider {
         }
 
         try {
-            return new URI(
+            URI adminOrigin = new URI(
                     adminUrl.getScheme(),
                     null,
                     adminUrl.getHost(),
                     normalizedPort(adminUrl),
-                    baseUri.getPath(),
-                    baseUri.getQuery(),
-                    baseUri.getFragment()
+                    null,
+                    null,
+                    null
             );
+            StringBuilder adminUri = new StringBuilder(adminOrigin.toString());
+
+            if (baseUri.getRawPath() != null) {
+                adminUri.append(baseUri.getRawPath());
+            }
+            if (baseUri.getRawQuery() != null) {
+                adminUri.append('?').append(baseUri.getRawQuery());
+            }
+            if (baseUri.getRawFragment() != null) {
+                adminUri.append('#').append(baseUri.getRawFragment());
+            }
+
+            return new URI(adminUri.toString());
         } catch (URISyntaxException e) {
             throw new IllegalStateException("Unable to construct the admin frontend URL", e);
         }

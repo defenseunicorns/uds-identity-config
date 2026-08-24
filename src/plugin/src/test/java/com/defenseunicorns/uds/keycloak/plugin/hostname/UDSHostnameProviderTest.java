@@ -60,6 +60,24 @@ class UDSHostnameProviderTest {
     }
 
     @Test
+    void preservesEncodedFrontendUrlComponents() {
+        URI delegatedBaseUri = URI.create(
+                "https://sso.uds.dev/realms/%2Fuds"
+                        + "?redirect_uri=https%3A%2F%2Fapp.example%2Fcallback%3Fnext%3Da%252Fb%26x%3D1"
+                        + "#frag%20ment"
+        );
+
+        assertEquals(
+                URI.create(
+                        "https://keycloak.admin.uds.dev/realms/%2Fuds"
+                                + "?redirect_uri=https%3A%2F%2Fapp.example%2Fcallback%3Fnext%3Da%252Fb%26x%3D1"
+                                + "#frag%20ment"
+                ),
+                provider(delegatedBaseUri).getBaseUri(request(ADMIN_URL), UrlType.FRONTEND)
+        );
+    }
+
+    @Test
     void doesNotTreatAnUnconfiguredOriginAsTheAdminGateway() {
         UDSHostnameProvider provider = provider(PUBLIC_URL);
         URI untrustedUrl = URI.create("https://attacker.example/");
