@@ -7,31 +7,36 @@ package com.defenseunicorns.uds.keycloak.plugin.hostname;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Objects;
 
 import jakarta.ws.rs.core.UriInfo;
 
-import org.keycloak.urls.HostnameProvider;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.url.HostnameV2Provider;
 import org.keycloak.urls.UrlType;
 
 /**
  * Keeps Keycloak's hostname-v2 behavior while making admin-console frontend URLs same-origin with the admin gateway.
  * Public requests continue to use the configured frontend origin.
  */
-public final class UDSHostnameProvider implements HostnameProvider {
-    private static final String KUBERNETES_SERVICE_HOST_SUFFIX = ".svc.cluster.local";
+public final class UDSHostnameProvider extends HostnameV2Provider {
+    private static final String KUBERNETES_SERVICE_HOST_SEGMENT = ".svc";
 
-    private final HostnameProvider delegate;
     private final URI adminUrl;
 
-    public UDSHostnameProvider(HostnameProvider delegate, URI adminUrl) {
-        this.delegate = Objects.requireNonNull(delegate, "delegate");
+    public UDSHostnameProvider(
+            KeycloakSession session,
+            String hostname,
+            URI hostnameUrl,
+            URI adminUrl,
+            Boolean backchannelDynamic
+    ) {
+        super(session, hostname, hostnameUrl, adminUrl, backchannelDynamic);
         this.adminUrl = adminUrl;
     }
 
     @Override
     public URI getBaseUri(UriInfo originalUriInfo, UrlType type) {
-        URI baseUri = delegate.getBaseUri(originalUriInfo, type);
+        URI baseUri = super.getBaseUri(originalUriInfo, type);
 
         if (type != UrlType.FRONTEND) {
             return baseUri;
@@ -78,46 +83,6 @@ public final class UDSHostnameProvider implements HostnameProvider {
         }
     }
 
-    @Override
-    public String getScheme(UriInfo originalUriInfo, UrlType type) {
-        return getBaseUri(originalUriInfo, type).getScheme();
-    }
-
-    @Override
-    public String getScheme(UriInfo originalUriInfo) {
-        return getScheme(originalUriInfo, UrlType.FRONTEND);
-    }
-
-    @Override
-    public String getHostname(UriInfo originalUriInfo, UrlType type) {
-        return getBaseUri(originalUriInfo, type).getHost();
-    }
-
-    @Override
-    public String getHostname(UriInfo originalUriInfo) {
-        return getHostname(originalUriInfo, UrlType.FRONTEND);
-    }
-
-    @Override
-    public int getPort(UriInfo originalUriInfo, UrlType type) {
-        return getBaseUri(originalUriInfo, type).getPort();
-    }
-
-    @Override
-    public int getPort(UriInfo originalUriInfo) {
-        return getPort(originalUriInfo, UrlType.FRONTEND);
-    }
-
-    @Override
-    public String getContextPath(UriInfo originalUriInfo, UrlType type) {
-        return getBaseUri(originalUriInfo, type).getPath();
-    }
-
-    @Override
-    public String getContextPath(UriInfo originalUriInfo) {
-        return getContextPath(originalUriInfo, UrlType.FRONTEND);
-    }
-
     private boolean isAdminRequest(UriInfo originalUriInfo) {
         if (adminUrl == null) {
             return false;
@@ -131,7 +96,9 @@ public final class UDSHostnameProvider implements HostnameProvider {
 
     private boolean isKubernetesServiceRequest(UriInfo originalUriInfo) {
         String host = originalUriInfo.getBaseUri().getHost();
-        return host != null && host.endsWith(KUBERNETES_SERVICE_HOST_SUFFIX);
+        return host != null
+                && (host.endsWith(KUBERNETES_SERVICE_HOST_SEGMENT)
+                        || host.contains(KUBERNETES_SERVICE_HOST_SEGMENT + "."));
     }
 
     private static int normalizedPort(URI uri) {
@@ -142,8 +109,4 @@ public final class UDSHostnameProvider implements HostnameProvider {
         return uri.getPort();
     }
 
-    @Override
-    public void close() {
-        delegate.close();
-    }
 }

@@ -16,21 +16,35 @@ import org.keycloak.urls.HostnameProvider;
  * Replaces Keycloak's hostname-v2 factory so the stock hostname configuration remains authoritative.
  */
 public final class UDSHostnameProviderFactory extends HostnameV2ProviderFactory {
+    private String hostname;
+    private URI hostnameUrl;
     private URI adminUrl;
+    private Boolean backchannelDynamic;
 
     @Override
     public void init(Config.Scope config) {
         super.init(config);
 
-        String configuredAdminUrl = config.get("hostname-admin");
-        if (configuredAdminUrl != null) {
-            adminUrl = URI.create(configuredAdminUrl.endsWith("/") ? configuredAdminUrl : configuredAdminUrl + "/");
+        String configuredHostname = config.get("hostname");
+        if (configuredHostname != null) {
+            if (configuredHostname.startsWith("http://") || configuredHostname.startsWith("https://")) {
+                hostnameUrl = toUri(configuredHostname);
+            } else {
+                hostname = configuredHostname;
+            }
         }
+
+        adminUrl = toUri(config.get("hostname-admin"));
+        backchannelDynamic = config.getBoolean("hostname-backchannel-dynamic", false);
     }
 
     @Override
     public HostnameProvider create(KeycloakSession session) {
-        return new UDSHostnameProvider(super.create(session), adminUrl);
+        return new UDSHostnameProvider(session, hostname, hostnameUrl, adminUrl, backchannelDynamic);
+    }
+
+    private static URI toUri(String value) {
+        return value == null ? null : URI.create(value.endsWith("/") ? value : value + "/");
     }
 
     @Override
