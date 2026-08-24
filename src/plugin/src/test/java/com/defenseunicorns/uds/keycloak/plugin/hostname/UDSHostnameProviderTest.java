@@ -31,6 +31,7 @@ class UDSHostnameProviderTest {
     private static final URI INTERNAL_URL = URI.create("http://keycloak-http.keycloak.svc.cluster.local:8080/");
     private static final URI CUSTOM_DOMAIN_INTERNAL_URL =
             URI.create("http://keycloak-http.keycloak.svc.cluster.internal:8080/");
+    private static final URI EXTERNAL_SVC_URL = URI.create("https://tenant.svc.example.com/");
 
     @Test
     void usesAdminOriginForFrontendUrlsFromAdminGateway() {
@@ -59,12 +60,19 @@ class UDSHostnameProviderTest {
 
     @Test
     void keepsInternalOriginForKubernetesServiceRequestsWithCustomClusterDomain() {
-        UDSHostnameProvider provider = provider();
+        UDSHostnameProvider provider = provider(ADMIN_URL, "cluster.internal");
 
         assertEquals(
                 CUSTOM_DOMAIN_INTERNAL_URL,
                 provider.getBaseUri(request(CUSTOM_DOMAIN_INTERNAL_URL, PUBLIC_URL), UrlType.FRONTEND)
         );
+    }
+
+    @Test
+    void doesNotTreatAnExternalSvcHostAsAnInternalService() {
+        UDSHostnameProvider provider = provider();
+
+        assertEquals(PUBLIC_URL, provider.getBaseUri(request(EXTERNAL_SVC_URL, PUBLIC_URL), UrlType.FRONTEND));
     }
 
     @Test
@@ -166,7 +174,11 @@ class UDSHostnameProviderTest {
     }
 
     private UDSHostnameProvider provider(URI configuredAdminUrl) {
-        return new UDSHostnameProvider(null, null, null, configuredAdminUrl, false);
+        return provider(configuredAdminUrl, "cluster.local");
+    }
+
+    private UDSHostnameProvider provider(URI configuredAdminUrl, String clusterDomain) {
+        return new UDSHostnameProvider(null, null, null, configuredAdminUrl, false, clusterDomain);
     }
 
     private UDSHostnameProviderFactory factory(URI hostnameUrl, URI configuredAdminUrl, boolean backchannelDynamic) {

@@ -19,19 +19,24 @@ import org.keycloak.urls.UrlType;
  * Public requests continue to use the configured frontend origin.
  */
 public final class UDSHostnameProvider extends HostnameV2Provider {
+    private static final String DEFAULT_CLUSTER_DOMAIN = "cluster.local";
     private static final String KUBERNETES_SERVICE_HOST_SEGMENT = ".svc";
 
     private final URI adminUrl;
+    private final String kubernetesServiceHostSuffix;
 
     public UDSHostnameProvider(
             KeycloakSession session,
             String hostname,
             URI hostnameUrl,
             URI adminUrl,
-            Boolean backchannelDynamic
+            Boolean backchannelDynamic,
+            String clusterDomain
     ) {
         super(session, hostname, hostnameUrl, adminUrl, backchannelDynamic);
         this.adminUrl = adminUrl;
+        this.kubernetesServiceHostSuffix = KUBERNETES_SERVICE_HOST_SEGMENT + "."
+                + normalizeClusterDomain(clusterDomain);
     }
 
     @Override
@@ -98,7 +103,22 @@ public final class UDSHostnameProvider extends HostnameV2Provider {
         String host = originalUriInfo.getBaseUri().getHost();
         return host != null
                 && (host.endsWith(KUBERNETES_SERVICE_HOST_SEGMENT)
-                        || host.contains(KUBERNETES_SERVICE_HOST_SEGMENT + "."));
+                        || host.endsWith(kubernetesServiceHostSuffix));
+    }
+
+    private static String normalizeClusterDomain(String clusterDomain) {
+        if (clusterDomain == null || clusterDomain.isBlank()) {
+            return DEFAULT_CLUSTER_DOMAIN;
+        }
+
+        String normalized = clusterDomain.trim();
+        while (normalized.startsWith(".")) {
+            normalized = normalized.substring(1);
+        }
+        while (normalized.endsWith(".")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+        return normalized;
     }
 
     private static int normalizedPort(URI uri) {
