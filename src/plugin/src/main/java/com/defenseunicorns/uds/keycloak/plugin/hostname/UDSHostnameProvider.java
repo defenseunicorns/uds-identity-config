@@ -6,8 +6,8 @@
 package com.defenseunicorns.uds.keycloak.plugin.hostname;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
+import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 
 import org.keycloak.models.KeycloakSession;
@@ -44,48 +44,31 @@ public final class UDSHostnameProvider extends HostnameV2Provider {
         URI baseUri = super.getBaseUri(originalUriInfo, type);
 
         if (type != UrlType.FRONTEND) {
+            // Backend and admin URL types retain the stock Keycloak behavior.
             return baseUri;
         }
 
         if (isAdminRequest(originalUriInfo)) {
+            // Requests through the admin gateway must generate frontend URLs on the admin origin.
             return withOrigin(baseUri, adminUrl);
         }
 
         if (isKubernetesServiceRequest(originalUriInfo)) {
+            // In-cluster requests must continue using their service origin for internal callbacks.
             return originalUriInfo.getBaseUri();
         }
 
+        // Public and tenant gateway requests use the configured public frontend origin.
         return baseUri;
     }
 
-    private URI withOrigin(URI baseUri, URI origin) {
-
-        try {
-            URI adminOrigin = new URI(
-                    origin.getScheme(),
-                    null,
-                    origin.getHost(),
-                    normalizedPort(origin),
-                    null,
-                    null,
-                    null
-            );
-            StringBuilder adminUri = new StringBuilder(adminOrigin.toString());
-
-            if (baseUri.getRawPath() != null) {
-                adminUri.append(baseUri.getRawPath());
-            }
-            if (baseUri.getRawQuery() != null) {
-                adminUri.append('?').append(baseUri.getRawQuery());
-            }
-            if (baseUri.getRawFragment() != null) {
-                adminUri.append('#').append(baseUri.getRawFragment());
-            }
-
-            return new URI(adminUri.toString());
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException("Unable to construct the admin frontend URL", e);
-        }
+    private static URI withOrigin(URI baseUri, URI origin) {
+        return UriBuilder.fromUri(baseUri)
+                .scheme(origin.getScheme())
+                .userInfo(null)
+                .host(origin.getHost())
+                .port(normalizedPort(origin))
+                .build();
     }
 
     private boolean isAdminRequest(UriInfo originalUriInfo) {
