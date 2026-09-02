@@ -273,7 +273,17 @@ public interface Common {
 
             // ######## ADO PKI Assurance Levels ########
             "1.2.36.1.334.1.2.1.2", // ADO Individual Medium Assurance
-            "1.2.36.1.334.1.2.2.2" // ADO Resource Medium Assurance
+            "1.2.36.1.334.1.2.2.2", // ADO Resource Medium Assurance
+
+            // ######## CNSS PKI Certificate Policies ########
+            "2.16.840.1.101.3.2.1.21.1", // id-CNSS-software
+            "2.16.840.1.101.3.2.1.21.2", // id-CNSS-hardware
+            "2.16.840.1.101.3.2.1.21.3", // id-CNSS-device
+            "2.16.840.1.101.3.2.1.21.4", // id-CNSS-peer-software
+            "2.16.840.1.101.3.2.1.21.5", // id-CNSS-peer-hardware
+            "2.16.840.1.101.3.2.1.21.6", // id-CNSS-device-autoenroll
+            "2.16.840.1.101.3.2.1.21.7", // id-CNSS-device-edge
+            "2.16.840.1.101.3.2.1.21.8"  // id-CNSS-hardware-admin
     );
 
     /**
