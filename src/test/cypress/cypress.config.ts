@@ -3,29 +3,69 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
+import { exec } from "node:child_process";
 import { defineConfig } from "cypress";
 
 const useCAC = process.env.USE_CAC === "true";
 
+type ExecTaskInput =
+  | string
+  | {
+      command: string;
+      failOnNonZeroExit?: boolean;
+    };
+
+interface ExecTaskResult {
+  exitCode: number;
+  stderr: string;
+  stdout: string;
+}
+
+function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
+  const command = typeof input === "string" ? input : input.command;
+  const failOnNonZeroExit = typeof input === "string" || input.failOnNonZeroExit !== false;
+
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      const result = {
+        exitCode: typeof error?.code === "number" ? error.code : error ? 1 : 0,
+        stderr,
+        stdout,
+      };
+
+      if (error && failOnNonZeroExit) {
+        reject(
+          new Error(`Command failed with exit code ${result.exitCode}: ${command}\n${stderr}`),
+        );
+        return;
+      }
+
+      resolve(result);
+    });
+  });
+}
+
 module.exports = defineConfig({
   clientCertificates: useCAC
     ? [
-      {
-        url: "https://sso.uds.dev/**",
-        ca: [],
-        certs: [
-          {
-            pfx: "certs/test.pfx",
-            passphrase: "certs/pfx_passphrase.txt",
-          },
-        ],
-      },
-    ]
+        {
+          url: "https://sso.uds.dev/**",
+          ca: [],
+          certs: [
+            {
+              pfx: "certs/test.pfx",
+              passphrase: "certs/pfx_passphrase.txt",
+            },
+          ],
+        },
+      ]
     : [],
 
   e2e: {
-    setupNodeEvents(on, config) {
-      // implement node event listeners here
+    setupNodeEvents(on) {
+      on("task", {
+        exec: runCommand,
+      });
     },
     retries: 3,
     specPattern: "e2e/**/*.cy.ts",

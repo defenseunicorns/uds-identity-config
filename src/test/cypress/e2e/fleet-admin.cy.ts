@@ -12,13 +12,13 @@ const SETUP_MANIFEST = "./resources/fleet-admin-test-setup.yaml";
 
 describe("Fleet Admin Client (federated JWT)", () => {
   before(() => {
-    cy.exec(`uds zarf tools kubectl apply -f ${SETUP_MANIFEST}`)
+    cy.task("exec", `uds zarf tools kubectl apply -f ${SETUP_MANIFEST}`)
       .its("exitCode")
       .should("eq", 0);
   });
 
   after(() => {
-    cy.exec(`uds zarf tools kubectl delete -f ${SETUP_MANIFEST} --ignore-not-found`)
+    cy.task("exec", `uds zarf tools kubectl delete -f ${SETUP_MANIFEST} --ignore-not-found`)
       .its("exitCode")
       .should("eq", 0);
   });
@@ -45,7 +45,7 @@ describe("Fleet Admin Client (federated JWT)", () => {
           redirectUris: ["http://localhost/*"],
         },
       })
-        .then((response) => {
+        .then(response => {
           expect(response.status).to.eq(201);
           return response.headers["location"] as string;
         })
@@ -58,7 +58,7 @@ describe("Fleet Admin Client (federated JWT)", () => {
               Authorization: `Bearer ${accessToken}`,
               "Content-Type": "application/json",
             },
-          }).then((getResponse) => {
+          }).then(getResponse => {
             expect(getResponse.status).to.eq(200);
             expect(getResponse.body.clientId).to.eq(fleetClientId);
             expect(getResponse.body.attributes["created-by"]).to.eq("uds-fleet-admin");
@@ -72,7 +72,7 @@ describe("Fleet Admin Client (federated JWT)", () => {
               Authorization: `Bearer ${accessToken}`,
               "Content-Type": "application/json",
             },
-          }).then((response) => {
+          }).then(response => {
             expect(response.status).to.eq(204);
           });
         });
@@ -95,7 +95,7 @@ describe("Fleet Admin Client (federated JWT)", () => {
           publicClient: true,
           redirectUris: ["http://localhost/*"],
         },
-      }).then((response) => {
+      }).then(response => {
         expect(response.status).to.eq(400);
         expect(response.body).to.deep.equal({
           error: "invalid_client",
@@ -124,7 +124,7 @@ describe("Fleet Admin Client (federated JWT)", () => {
           redirectUris: ["http://localhost/*"],
         },
       })
-        .then((response) => {
+        .then(response => {
           expect(response.status).to.eq(201);
           return response.headers["location"] as string;
         })
@@ -143,7 +143,7 @@ describe("Fleet Admin Client (federated JWT)", () => {
               publicClient: true,
               redirectUris: ["http://localhost/*"],
             },
-          }).then((updateResponse) => {
+          }).then(updateResponse => {
             cy.request({
               method: "DELETE",
               url: clientUrl,
@@ -151,7 +151,7 @@ describe("Fleet Admin Client (federated JWT)", () => {
                 Authorization: `Bearer ${accessToken}`,
                 "Content-Type": "application/json",
               },
-            }).then((deleteResponse) => {
+            }).then(deleteResponse => {
               expect(deleteResponse.status).to.eq(204);
               expect(updateResponse.status).to.eq(400);
               expect(updateResponse.body).to.deep.equal({
@@ -173,12 +173,15 @@ describe("Fleet Admin Client (federated JWT)", () => {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-      }).then((response) => {
+      }).then(response => {
         expect(response.status).to.eq(200);
         // "broker" is a built-in client that uds-fleet-admin did not create.
         const brokerClient = response.body.find((client: any) => client.clientId === "broker");
         expect(brokerClient, "broker client visible in list").to.exist;
-        expect(brokerClient.attributes?.["created-by"], "broker not owned by uds-fleet-admin").to.not.eq("uds-fleet-admin");
+        expect(
+          brokerClient.attributes?.["created-by"],
+          "broker not owned by uds-fleet-admin",
+        ).to.not.eq("uds-fleet-admin");
         const clientUrl = `${CLIENTS_URL}/${brokerClient.id}`;
         cy.request({
           failOnStatusCode: false,
@@ -188,11 +191,12 @@ describe("Fleet Admin Client (federated JWT)", () => {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-        }).then((response) => {
+        }).then(response => {
           expect(response.status).to.eq(400);
           expect(response.body).to.deep.equal({
             error: "unauthorized_client",
-            error_description: "The Client doesn't have the created-by=uds-fleet-admin attribute. Rejecting request.",
+            error_description:
+              "The Client doesn't have the created-by=uds-fleet-admin attribute. Rejecting request.",
           });
         });
       });

@@ -24,6 +24,12 @@ declare namespace Cypress {
   }
 
   interface Chainable {
+    task(
+      event: "exec",
+      arg: string | { command: string; failOnNonZeroExit?: boolean },
+      options?: Partial<Loggable & Timeoutable>,
+    ): Chainable<Exec>;
+
     loginPage(): Chainable;
 
     loginUser(username: string, password: string): Chainable;
@@ -41,7 +47,7 @@ declare namespace Cypress {
      * - Default (or when subject is 'UDS_OPERATOR'): uses client credentials for the 'uds-operator' client
      * - When subject is 'KEYCLOAK_ADMIN': uses admin username/password from the 'keycloak-admin-password' Secret
      */
-    getAccessToken(subject?: 'UDS_OPERATOR' | 'KEYCLOAK_ADMIN'): Chainable<string>;
+    getAccessToken(subject?: "UDS_OPERATOR" | "KEYCLOAK_ADMIN"): Chainable<string>;
 
     /**
      * Retrieve an access token for the 'uds-fleet-admin' client using federated JWT
