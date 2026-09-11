@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.32.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.31.0...v0.32.0) (2026-09-11)
+
+
+### Features
+
+* add cnss policy oid for sipr tokens ([#919](https://github.com/defenseunicorns/uds-identity-config/issues/919)) ([fa70aa7](https://github.com/defenseunicorns/uds-identity-config/commit/fa70aa78e51ecbb6e9747c9b1a613b42efbdc26f))
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps ([#921](https://github.com/defenseunicorns/uds-identity-config/issues/921)) ([683f3bc](https://github.com/defenseunicorns/uds-identity-config/commit/683f3bc4fcf5ed9c87eb5c461ef3aaa57dc7a83c))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#920](https://github.com/defenseunicorns/uds-identity-config/issues/920)) ([4e3a62f](https://github.com/defenseunicorns/uds-identity-config/commit/4e3a62f09ac3753b82077ed53a1827d62b42dcbb))
+* **deps:** update dependency cypress to v15.21.1 ([#917](https://github.com/defenseunicorns/uds-identity-config/issues/917)) ([c63317a](https://github.com/defenseunicorns/uds-identity-config/commit/c63317a9aefd787b137a397dd65858bb54b6a643))
+* **deps:** update dependency defenseunicorns/uds-cli to v0.37.0 ([#922](https://github.com/defenseunicorns/uds-identity-config/issues/922)) ([896a7d5](https://github.com/defenseunicorns/uds-identity-config/commit/896a7d549ff0b116278779e9416ce32d9404a60c))
+
 ## [0.31.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.30.0...v0.31.0) (2026-08-28)
 
 
