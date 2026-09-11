@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
-import { RegistrationFormData } from "./types";
+import type { RegistrationFormData } from "./types";
 
 /**
  * Navigate to the login page and verifying it's exsistence
@@ -21,62 +21,67 @@ Cypress.Commands.add("loginPage", () => {
 /**
  * Navigate to the registration page, supply form data, and attempt to register user
  */
-Cypress.Commands.add("registrationPage", (formData: RegistrationFormData, expectNewUser: boolean) => {
-  cy.loginPage();
+Cypress.Commands.add(
+  "registrationPage",
+  (formData: Required<RegistrationFormData>, expectNewUser: boolean) => {
+    cy.loginPage();
 
-  // The CAC registration has two variants - if a new user tries to register, it shows a link to the
-  // registration in the alerts panel. If it some other case - in the footer
-  if (expectNewUser) {
-    cy.contains("a", "Create account with CAC").should("be.visible").click();
-  } else {
-    cy.contains(".footer-text a", "Create Account").should("be.visible").click();
-  }
+    // The CAC registration has two variants - if a new user tries to register, it shows a link to the
+    // registration in the alerts panel. If it some other case - in the footer
+    if (expectNewUser) {
+      cy.contains("a", "Create account with CAC").should("be.visible").click();
+    } else {
+      cy.contains(".footer-text a", "Create Account").should("be.visible").click();
+    }
 
-  // Verify client cert has been loaded properly by this header being present
-  cy.contains("h3", "DoD PKI User Registration").should("be.visible");
-  cy.get("#certificate_subjectDN")
-    .should("be.visible")
-    // FIPS and non-FIPS mode use different formats for the subject DN. That's why we check if all parts are present instead of
-    // a full string match.
-    .contains(formData.cac_c).contains(formData.cac_o).contains(formData.cac_cn)
+    // Verify client cert has been loaded properly by this header being present
+    cy.contains("h3", "DoD PKI User Registration").should("be.visible");
+    cy.get("#certificate_subjectDN")
+      .should("be.visible")
+      // FIPS and non-FIPS mode use different formats for the subject DN. That's why we check if all parts are present instead of
+      // a full string match.
+      .contains(formData.cac_c)
+      .contains(formData.cac_o)
+      .contains(formData.cac_cn);
 
-  // Pre-filled user registration information based on CAC
-  if (expectNewUser) {
-    cy.get('#firstName').should('be.visible').and('have.value', formData.firstName);
-    cy.get('#lastName').should('be.visible').and('have.value', formData.lastName);
-    cy.get('#email').should('be.visible').and('have.value', formData.email);
-  }
+    // Pre-filled user registration information based on CAC
+    if (expectNewUser) {
+      cy.get("#firstName").should("be.visible").and("have.value", formData.firstName);
+      cy.get("#lastName").should("be.visible").and("have.value", formData.lastName);
+      cy.get("#email").should("be.visible").and("have.value", formData.email);
+    }
 
-  // Fill Registration form inputs
-  cy.get("label").contains("First name").next("input").clear().type(formData.firstName);
-  cy.get("label").contains("Last name").next("input").clear().type(formData.lastName);
-  cy.get("label")
-    .contains("Unit, Organization or Company Name")
-    .next("input")
-    .type(formData.organization);
-  cy.get("label").contains("Username").next("input").clear().type(formData.username);
-  cy.get("label").contains("Email").next("input").clear().type(formData.email);
+    // Fill Registration form inputs
+    cy.get("label").contains("First name").next("input").clear().type(formData.firstName);
+    cy.get("label").contains("Last name").next("input").clear().type(formData.lastName);
+    cy.get("label")
+      .contains("Unit, Organization or Company Name")
+      .next("input")
+      .type(formData.organization);
+    cy.get("label").contains("Username").next("input").clear().type(formData.username);
+    cy.get("label").contains("Email").next("input").clear().type(formData.email);
 
-  // only use password fields if not using CAC registration
-  if (formData.password != "CAC") {
-    cy.get("label").contains("Password").next("input").type(formData.password);
-    cy.get("label").contains("Confirm password").next("input").type(formData.password);
-  }
+    // only use password fields if not using CAC registration
+    if (formData.password != "CAC") {
+      cy.get("label").contains("Password").next("input").type(formData.password);
+      cy.get("label").contains("Confirm password").next("input").type(formData.password);
+    }
 
-  // Fill Registration form Drop-downs
-  cy.get("#affiliation").should("be.visible").select(formData.affiliation);
-  cy.get("#rank").should("be.visible").select(formData.payGrade);
+    // Fill Registration form Drop-downs
+    cy.get("#affiliation").should("be.visible").select(formData.affiliation);
+    cy.get("#rank").should("be.visible").select(formData.payGrade);
 
-  // bypass human confidence check by filling the access request notes textarea
-  cy.get("body")
-    .should("be.visible")
-    .type(
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae nunc nec est mattis faucibus ac at justo. Nullam auctor tellus nec sapien tristique, eget feugiat dolor accumsan. Duis sit amet aliquet sapien. Suspendisse non felis et ante posuere dapibus.",
-    );
+    // bypass human confidence check by filling the access request notes textarea
+    cy.get("body")
+      .should("be.visible")
+      .type(
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae nunc nec est mattis faucibus ac at justo. Nullam auctor tellus nec sapien tristique, eget feugiat dolor accumsan. Duis sit amet aliquet sapien. Suspendisse non felis et ante posuere dapibus.",
+      );
 
-  // register user
-  cy.get("#do-register").should("be.visible").click();
-});
+    // register user
+    cy.get("#do-register").should("be.visible").click();
+  },
+);
 
 /**
  * Supply the login page user creds and attempt to login
@@ -96,31 +101,29 @@ Cypress.Commands.add("loginUser", (username: string, password: string) => {
 Cypress.Commands.add("verifyLoggedIn", () => {
   // Intercept the GET request to verify successful login
   cy.intercept({
-    method: 'GET',
-    url: 'https://sso.uds.dev/realms/uds/account/?userProfileMetadata=true',
-  }).as('getUserProfile');
+    method: "GET",
+    url: "https://sso.uds.dev/realms/uds/account/?userProfileMetadata=true",
+  }).as("getUserProfile");
 
   // skip the DoD PKI Detected Pop Up
   cy.avoidX509();
 
   // Wait for the network request to complete with an increased timeout
-  cy.wait('@getUserProfile', { timeout: 10000 }).its('response.statusCode').should('eq', 200);
+  cy.wait("@getUserProfile", { timeout: 10000 }).its("response.statusCode").should("eq", 200);
 });
 
 /**
  * Navigate to grafana URL and verify redirected to sso.uds.dev
  */
 Cypress.Commands.add("accessGrafana", () => {
-
-  cy.visit('https://grafana.admin.uds.dev');
+  cy.visit("https://grafana.admin.uds.dev");
   // Assert that the URL is redirected to the SSO URL
-  cy.url().should('include', 'https://sso.uds.dev');
+  cy.url().should("include", "https://sso.uds.dev");
 
   cy.avoidX509();
 
   // Verify login page via existence of button
   cy.get('input[name="login"][type="submit"]').should("be.visible");
-
 });
 
 /**
@@ -130,17 +133,14 @@ Cypress.Commands.add("avoidX509", () => {
   // Check if the cancel button is present and click it if it is
   cy.wait(1000);
 
-  cy.document().then((doc) => {
-    const cancelButton = doc.querySelector('#kc-cancel');
+  cy.document().then(doc => {
+    const cancelButton = doc.querySelector("#kc-cancel");
 
     if (cancelButton) {
-      cy.wrap(cancelButton)
-        .scrollIntoView()
-        .should('be.visible')
-        .click();
+      cy.wrap(cancelButton).scrollIntoView().should("be.visible").click();
     }
   });
-})
+});
 
 /**
  * Gets the client secret for a specified client from Keycloak
@@ -148,37 +148,41 @@ Cypress.Commands.add("avoidX509", () => {
  * @returns {Promise<{accessToken: string, clientSecret: string}>} An object containing the access token and client secret
  */
 Cypress.Commands.add("getClientSecret", (clientId: string) => {
-  return cy.getAccessToken().then((accessToken) => {
-    return cy.request({
-      method: 'GET',
-      url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${encodeURIComponent(clientId)}`,
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
-    }).then((response) => {
-      const client = response.body.find((c: any) => c.clientId === clientId);
-      if (!client) {
-        throw new Error(`Client with ID '${clientId}' not found`);
-      }
-      return cy.request({
-        method: 'GET',
-        url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients/${client.id}/client-secret`,
+  return cy.getAccessToken().then(accessToken => {
+    return cy
+      .request({
+        method: "GET",
+        url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${encodeURIComponent(clientId)}`,
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .then(response => {
+        const client = response.body.find((c: any) => c.clientId === clientId);
+        if (!client) {
+          throw new Error(`Client with ID '${clientId}' not found`);
         }
-      }).then((secretResponse) => {
-        return {
-          accessToken,
-          clientSecret: secretResponse.body.value
-        };
+        return cy
+          .request({
+            method: "GET",
+            url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients/${client.id}/client-secret`,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          })
+          .then(secretResponse => {
+            return {
+              accessToken,
+              clientSecret: secretResponse.body.value,
+            };
+          });
       });
-    });
   });
 });
 
-type TokenSubject = 'UDS_OPERATOR' | 'KEYCLOAK_ADMIN';
+type TokenSubject = "UDS_OPERATOR" | "KEYCLOAK_ADMIN";
 
 function base64UrlDecode(segment: string): string {
   const base64 = segment.replace(/-/g, "+").replace(/_/g, "/");
@@ -194,72 +198,83 @@ function assertManageClientsToken(accessToken: string): string {
   const tokenParts = accessToken.split(".");
   expect(tokenParts, "JWT parts").to.have.length(3);
   const tokenPayload = JSON.parse(base64UrlDecode(tokenParts[1]));
-  expect(tokenPayload.resource_access?.["realm-management"]?.roles || []).to.include("manage-clients");
+  expect(tokenPayload.resource_access?.["realm-management"]?.roles || []).to.include(
+    "manage-clients",
+  );
   return accessToken;
 }
 
 Cypress.Commands.add("getAccessToken", (subject?: TokenSubject) => {
-  const which: TokenSubject = subject || 'UDS_OPERATOR';
+  const which: TokenSubject = subject || "UDS_OPERATOR";
 
-  if (which === 'KEYCLOAK_ADMIN') {
+  if (which === "KEYCLOAK_ADMIN") {
     // Use admin username/password from the keycloak-admin-password Secret in the keycloak namespace
     return cy
-      .getValueFromSecret('keycloak', 'keycloak-admin-password', 'username')
-      .then((adminUsername) => {
-        expect(adminUsername, 'admin username from secret').to.be.a('string').and.not.be.empty;
+      .getValueFromSecret("keycloak", "keycloak-admin-password", "username")
+      .then(adminUsername => {
+        expect(adminUsername, "admin username from secret").to.be.a("string").and.not.be.empty;
         return cy
-          .getValueFromSecret('keycloak', 'keycloak-admin-password', 'password')
-          .then((adminPassword) => ({ adminUsername, adminPassword }));
+          .getValueFromSecret("keycloak", "keycloak-admin-password", "password")
+          .then(adminPassword => ({ adminUsername, adminPassword }));
       })
       .then(({ adminUsername, adminPassword }) => {
-        return cy.request({
-          method: 'POST',
-          url: 'https://keycloak.admin.uds.dev/realms/master/protocol/openid-connect/token',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          form: true,
-          body: {
-            client_id: 'admin-cli',
-            grant_type: 'password',
-            username: adminUsername,
-            password: adminPassword,
-          },
-          failOnStatusCode: false,
-        }).then((response) => {
-          if (response.status !== 200) {
-            throw new Error(`Failed to obtain KEYCLOAK_ADMIN token: HTTP ${response.status}`);
-          }
-          const accessToken = response.body && response.body.access_token;
-          expect(accessToken, 'access token (admin)').to.be.a('string').and.not.be.empty;
-          return accessToken as string;
-        });
+        return cy
+          .request({
+            method: "POST",
+            url: "https://keycloak.admin.uds.dev/realms/master/protocol/openid-connect/token",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            form: true,
+            body: {
+              client_id: "admin-cli",
+              grant_type: "password",
+              username: adminUsername,
+              password: adminPassword,
+            },
+            failOnStatusCode: false,
+          })
+          .then(response => {
+            if (response.status !== 200) {
+              throw new Error(`Failed to obtain KEYCLOAK_ADMIN token: HTTP ${response.status}`);
+            }
+            const accessToken = response.body && response.body.access_token;
+            expect(accessToken, "access token (admin)").to.be.a("string").and.not.be.empty;
+            return accessToken as string;
+          });
       });
   }
 
   // Default: UDS_OPERATOR client credentials flow
-  return cy.exec('uds zarf tools kubectl get secret keycloak-client-secrets -n keycloak -o jsonpath="{.data.uds-operator}"').then((result) => {
-    expect(result.exitCode).to.eq(0);
-    expect(result.stdout).not.contains(" ");
+  return cy
+    .task(
+      "exec",
+      'uds zarf tools kubectl get secret keycloak-client-secrets -n keycloak -o jsonpath="{.data.uds-operator}"',
+    )
+    .then(result => {
+      expect(result.exitCode).to.eq(0);
+      expect(result.stdout).not.contains(" ");
 
-    const clientSecret = Buffer.from(result.stdout, 'base64').toString('utf-8');
+      const clientSecret = Buffer.from(result.stdout, "base64").toString("utf-8");
 
-    return cy.request({
-      method: "POST",
-      url: "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: {
-        client_id: "uds-operator",
-        client_secret: `${clientSecret}`,
-        grant_type: "client_credentials",
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      return assertManageClientsToken(response.body.access_token);
+      return cy
+        .request({
+          method: "POST",
+          url: "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: {
+            client_id: "uds-operator",
+            client_secret: `${clientSecret}`,
+            grant_type: "client_credentials",
+          },
+        })
+        .then(response => {
+          expect(response.status).to.eq(200);
+          return assertManageClientsToken(response.body.access_token);
+        });
     });
-  });
 });
 
 /**
@@ -277,35 +292,37 @@ Cypress.Commands.add("getFleetAdminAccessToken", () => {
 
   // The SA token must be addressed to the realm issuer (audience). Read it from the realm's discovery doc
   // so the audience always matches what Keycloak advertises, regardless of the configured frontend URL.
-  return cy.request({ method: "GET", url: wellKnownUrl }).then((wellKnown) => {
+  return cy.request({ method: "GET", url: wellKnownUrl }).then(wellKnown => {
     expect(wellKnown.status).to.eq(200);
     const issuer = wellKnown.body.issuer as string;
     expect(issuer, "realm issuer").to.be.a("string").and.not.be.empty;
 
     // Mint a short-lived projected SA token addressed to the realm issuer.
     const mintCmd = `uds zarf tools kubectl create token ${saName} -n ${saNamespace} --audience "${issuer}"`;
-    return cy.exec(mintCmd, { log: false }).then((result) => {
+    return cy.task("exec", mintCmd, { log: false }).then(result => {
       expect(result.exitCode, "kubectl create token").to.eq(0);
       const saToken = result.stdout.trim();
       expect(saToken, "service account token").to.be.a("string").and.not.be.empty;
 
-      return cy.request({
-        log: false,
-        method: "POST",
-        url: realmTokenUrl,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        form: true,
-        body: {
-          // No client_id: with federated-jwt Keycloak resolves the client from the assertion's
-          // issuer + sub (the kubernetes IdP alias + the configured SA), not from a client_id param.
-          grant_type: "client_credentials",
-          client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-          client_assertion: saToken,
-        },
-      }).then((response) => {
-        expect(response.status, "uds-fleet-admin token response").to.eq(200);
-        return assertManageClientsToken(response.body.access_token);
-      });
+      return cy
+        .request({
+          log: false,
+          method: "POST",
+          url: realmTokenUrl,
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          form: true,
+          body: {
+            // No client_id: with federated-jwt Keycloak resolves the client from the assertion's
+            // issuer + sub (the kubernetes IdP alias + the configured SA), not from a client_id param.
+            grant_type: "client_credentials",
+            client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+            client_assertion: saToken,
+          },
+        })
+        .then(response => {
+          expect(response.status, "uds-fleet-admin token response").to.eq(200);
+          return assertManageClientsToken(response.body.access_token);
+        });
     });
   });
 });
@@ -319,19 +336,25 @@ Cypress.Commands.add("getValueFromSecret", (namespace: string, secretName: strin
     throw new Error('getValueFromSecret: "key" is required and cannot be empty');
   }
   const cmd = `uds zarf tools kubectl get secret -n ${namespace} ${secretName} -o json`;
-  return cy.exec(cmd).then((result) => {
-    expect(result.exitCode, `Failed to fetch Secret '${secretName}' in namespace '${namespace}'`).to.eq(0);
+  return cy.task("exec", cmd).then(result => {
+    expect(
+      result.exitCode,
+      `Failed to fetch Secret '${secretName}' in namespace '${namespace}'`,
+    ).to.eq(0);
 
     let parsed: any = {};
     try {
       parsed = JSON.parse(result.stdout || "{}");
     } catch (e) {
-      throw new Error(`Unable to parse Secret JSON for '${secretName}' in '${namespace}': ${(e as Error).message}`);
+      throw new Error(
+        `Unable to parse Secret JSON for '${secretName}' in '${namespace}': ${(e as Error).message}`,
+      );
     }
 
     const data = (parsed && parsed.data) || {};
     const b64Value = data[key];
-    expect(b64Value, `Secret '${secretName}' in ns '${namespace}' must contain key '${key}'`).to.exist;
+    expect(b64Value, `Secret '${secretName}' in ns '${namespace}' must contain key '${key}'`).to
+      .exist;
     const decoded = Buffer.from((b64Value || "").trim(), "base64").toString("utf-8");
     return decoded;
   });
@@ -347,7 +370,7 @@ Cypress.Commands.add("deleteUserByUsername", (username: string) => {
     return cy.wrap(undefined);
   }
 
-  return cy.getAccessToken("KEYCLOAK_ADMIN").then((accessToken) => {
+  return cy.getAccessToken("KEYCLOAK_ADMIN").then(accessToken => {
     return cy
       .request({
         method: "GET",
@@ -359,11 +382,11 @@ Cypress.Commands.add("deleteUserByUsername", (username: string) => {
         },
         failOnStatusCode: false,
       })
-      .then((response) => {
+      .then(response => {
         if (response.status !== 200) {
           // Do not fail test — just log and exit
           cy.log(
-            `deleteUserByUsername: user search returned status ${response.status}; skipping delete for '${username}'`
+            `deleteUserByUsername: user search returned status ${response.status}; skipping delete for '${username}'`,
           );
           return;
         }
@@ -381,24 +404,26 @@ Cypress.Commands.add("deleteUserByUsername", (username: string) => {
           return;
         }
 
-        return cy.request({
-          method: "DELETE",
-          url: `https://keycloak.admin.uds.dev/admin/realms/uds/users/${userId}`,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          failOnStatusCode: false,
-        }).then((delResp) => {
-          if (delResp.status === 204) {
-            cy.log(`deleteUserByUsername: user '${username}' deleted`);
-          } else if (delResp.status === 404) {
-            cy.log(`deleteUserByUsername: user '${username}' not found at delete time`);
-          } else {
-            cy.log(
-              `deleteUserByUsername: unexpected status ${delResp.status} while deleting '${username}'`
-            );
-          }
-        });
+        return cy
+          .request({
+            method: "DELETE",
+            url: `https://keycloak.admin.uds.dev/admin/realms/uds/users/${userId}`,
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            failOnStatusCode: false,
+          })
+          .then(delResp => {
+            if (delResp.status === 204) {
+              cy.log(`deleteUserByUsername: user '${username}' deleted`);
+            } else if (delResp.status === 404) {
+              cy.log(`deleteUserByUsername: user '${username}' not found at delete time`);
+            } else {
+              cy.log(
+                `deleteUserByUsername: unexpected status ${delResp.status} while deleting '${username}'`,
+              );
+            }
+          });
       });
   });
 });
