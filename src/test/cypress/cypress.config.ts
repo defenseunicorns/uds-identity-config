@@ -7,6 +7,8 @@ import { exec } from "node:child_process";
 import { defineConfig } from "cypress";
 
 const useCAC = process.env.USE_CAC === "true";
+const EXEC_PROCESS_TIMEOUT_MS = 305_000;
+const TASK_TIMEOUT_GRACE_MS = 5_000;
 
 type ExecTaskInput =
   | string
@@ -26,22 +28,28 @@ function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
   const failOnNonZeroExit = typeof input === "string" || input.failOnNonZeroExit !== false;
 
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      const result = {
-        exitCode: typeof error?.code === "number" ? error.code : error ? 1 : 0,
-        stderr,
-        stdout,
-      };
+    // Kill the process before Cypress reaches its task timeout so retries cannot
+    // leave an earlier command running in the background.
+    exec(
+      command,
+      { timeout: EXEC_PROCESS_TIMEOUT_MS, killSignal: "SIGTERM" },
+      (error, stdout, stderr) => {
+        const result = {
+          exitCode: typeof error?.code === "number" ? error.code : error ? 1 : 0,
+          stderr,
+          stdout,
+        };
 
-      if (error && failOnNonZeroExit) {
-        reject(
-          new Error(`Command failed with exit code ${result.exitCode}: ${command}\n${stderr}`),
-        );
-        return;
-      }
+        if (error && failOnNonZeroExit) {
+          reject(
+            new Error(`Command failed with exit code ${result.exitCode}: ${command}\n${stderr}`),
+          );
+          return;
+        }
 
-      resolve(result);
-    });
+        resolve(result);
+      },
+    );
   });
 }
 
@@ -77,4 +85,5 @@ module.exports = defineConfig({
   },
 
   pageLoadTimeout: 12000,
+  taskTimeout: EXEC_PROCESS_TIMEOUT_MS + TASK_TIMEOUT_GRACE_MS,
 });
