@@ -23,6 +23,8 @@ interface ExecTaskResult {
   stdout: string;
 }
 
+// Cypress 16 removed cy.exec(). Keep command execution in one Node-side task so
+// specs share consistent exit handling and process cleanup without duplication.
 function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
   const command = typeof input === "string" ? input : input.command;
   const failOnNonZeroExit = typeof input === "string" || input.failOnNonZeroExit !== false;
