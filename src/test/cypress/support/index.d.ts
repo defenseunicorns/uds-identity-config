@@ -24,6 +24,12 @@ declare namespace Cypress {
   }
 
   interface Chainable {
+    task(
+      event: "exec",
+      arg: string | { command: string; failOnNonZeroExit?: boolean },
+      options?: Partial<Loggable & Timeoutable>,
+    ): Chainable<Exec>;
+
     loginPage(): Chainable;
 
     loginUser(username: string, password: string): Chainable;

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
-import { exec } from "node:child_process";
+import { spawn } from "node:child_process";
 import { defineConfig } from "cypress";
 
 const useCAC = process.env.USE_CAC === "true";
@@ -28,28 +28,31 @@ function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
   const failOnNonZeroExit = typeof input === "string" || input.failOnNonZeroExit !== false;
 
   return new Promise((resolve, reject) => {
+    const child = spawn(command, { detached: process.platform !== "win32", shell: true });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", data => (stdout += data));
+    child.stderr.on("data", data => (stderr += data));
     // Kill the process before Cypress reaches its task timeout so retries cannot
     // leave an earlier command running in the background.
-    exec(
-      command,
-      { timeout: EXEC_PROCESS_TIMEOUT_MS, killSignal: "SIGTERM" },
-      (error, stdout, stderr) => {
-        const result = {
-          exitCode: typeof error?.code === "number" ? error.code : error ? 1 : 0,
-          stderr,
-          stdout,
-        };
-
-        if (error && failOnNonZeroExit) {
-          reject(
-            new Error(`Command failed with exit code ${result.exitCode}: ${command}\n${stderr}`),
-          );
-          return;
-        }
-
-        resolve(result);
-      },
-    );
+    const timeout = setTimeout(() => {
+      try {
+        if (child.pid && process.platform !== "win32") process.kill(-child.pid, "SIGTERM");
+        else child.kill("SIGTERM");
+      } catch {
+        // The command already exited.
+      }
+    }, EXEC_PROCESS_TIMEOUT_MS);
+    child.on("error", reject);
+    child.on("close", exitCode => {
+      clearTimeout(timeout);
+      const result = { exitCode: exitCode ?? 1, stderr, stdout };
+      if (result.exitCode && failOnNonZeroExit) {
+        reject(new Error(`Command failed with exit code ${result.exitCode}: ${command}\n${stderr}`));
+        return;
+      }
+      resolve(result);
+    });
   });
 }
 
