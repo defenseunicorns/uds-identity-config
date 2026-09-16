@@ -28,9 +28,10 @@ interface ExecTaskResult {
 function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
   const command = typeof input === "string" ? input : input.command;
   const failOnNonZeroExit = typeof input === "string" || input.failOnNonZeroExit !== false;
+  const supportsProcessGroups = process.platform !== "win32";
 
   return new Promise((resolve, reject) => {
-    const child = spawn(command, { detached: process.platform !== "win32", shell: true });
+    const child = spawn(command, { detached: supportsProcessGroups, shell: true });
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", data => (stdout += data));
@@ -38,9 +39,9 @@ function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
     // Kill the process before Cypress reaches its task timeout so retries cannot
     // leave an earlier command running in the background.
     const timeout = setTimeout(() => {
+      if (!supportsProcessGroups || !child.pid) return;
       try {
-        if (child.pid && process.platform !== "win32") process.kill(-child.pid, "SIGTERM");
-        else child.kill("SIGTERM");
+        process.kill(-child.pid, "SIGTERM");
       } catch {
         // The command already exited.
       }
