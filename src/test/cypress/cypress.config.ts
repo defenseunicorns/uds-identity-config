@@ -56,17 +56,17 @@ function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
 module.exports = defineConfig({
   clientCertificates: useCAC
     ? [
-        {
-          url: "https://sso.uds.dev/**",
-          ca: [],
-          certs: [
-            {
-              pfx: "certs/test.pfx",
-              passphrase: "certs/pfx_passphrase.txt",
-            },
-          ],
-        },
-      ]
+      {
+        url: "https://sso.uds.dev/**",
+        ca: [],
+        certs: [
+          {
+            pfx: "certs/test.pfx",
+            passphrase: "certs/pfx_passphrase.txt",
+          },
+        ],
+      },
+    ]
     : [],
 
   e2e: {
