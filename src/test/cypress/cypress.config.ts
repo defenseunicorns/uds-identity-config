@@ -9,6 +9,7 @@ import { defineConfig } from "cypress";
 const useCAC = process.env.USE_CAC === "true";
 const EXEC_PROCESS_TIMEOUT_MS = 305_000;
 const TASK_TIMEOUT_GRACE_MS = 5_000;
+const activeTaskGroups = new Set<number>();
 
 type ExecTaskInput =
   | string
@@ -23,6 +24,19 @@ interface ExecTaskResult {
   stdout: string;
 }
 
+function cleanupTaskGroups(): void {
+  for (const pid of activeTaskGroups) {
+    try {
+      process.kill(-pid, "SIGTERM");
+    } catch {
+      // The command already exited.
+    }
+  }
+  activeTaskGroups.clear();
+}
+
+process.once("exit", cleanupTaskGroups);
+
 // Cypress 16 removed cy.exec(). Keep command execution in one Node-side task so
 // specs share consistent exit handling and process cleanup without duplication.
 function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
@@ -32,6 +46,7 @@ function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
 
   return new Promise((resolve, reject) => {
     const child = spawn(command, { detached: supportsProcessGroups, shell: true });
+    if (supportsProcessGroups && child.pid) activeTaskGroups.add(child.pid);
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", data => (stdout += data));
@@ -49,6 +64,7 @@ function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
     child.on("error", reject);
     child.on("close", exitCode => {
       clearTimeout(timeout);
+      if (child.pid) activeTaskGroups.delete(child.pid);
       const result = { exitCode: exitCode ?? 1, stderr, stdout };
       if (result.exitCode && failOnNonZeroExit) {
         reject(new Error(`Command failed with exit code ${result.exitCode}: ${command}\n${stderr}`));
