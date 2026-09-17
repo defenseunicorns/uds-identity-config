@@ -238,7 +238,7 @@ Cypress.Commands.add("getAccessToken", (subject?: TokenSubject) => {
   }
 
   // Default: UDS_OPERATOR client credentials flow
-  return cy.exec('uds zarf tools kubectl get secret keycloak-client-secrets -n keycloak -o jsonpath="{.data.uds-operator}"').then((result) => {
+  return cy.task("exec", 'uds zarf tools kubectl get secret keycloak-client-secrets -n keycloak -o jsonpath="{.data.uds-operator}"').then((result) => {
     expect(result.exitCode).to.eq(0);
     expect(result.stdout).not.contains(" ");
 
@@ -284,7 +284,7 @@ Cypress.Commands.add("getFleetAdminAccessToken", () => {
 
     // Mint a short-lived projected SA token addressed to the realm issuer.
     const mintCmd = `uds zarf tools kubectl create token ${saName} -n ${saNamespace} --audience "${issuer}"`;
-    return cy.exec(mintCmd, { log: false }).then((result) => {
+    return cy.task("exec", mintCmd, { log: false }).then((result) => {
       expect(result.exitCode, "kubectl create token").to.eq(0);
       const saToken = result.stdout.trim();
       expect(saToken, "service account token").to.be.a("string").and.not.be.empty;
@@ -319,7 +319,7 @@ Cypress.Commands.add("getValueFromSecret", (namespace: string, secretName: strin
     throw new Error('getValueFromSecret: "key" is required and cannot be empty');
   }
   const cmd = `uds zarf tools kubectl get secret -n ${namespace} ${secretName} -o json`;
-  return cy.exec(cmd).then((result) => {
+  return cy.task("exec", cmd).then((result) => {
     expect(result.exitCode, `Failed to fetch Secret '${secretName}' in namespace '${namespace}'`).to.eq(0);
 
     let parsed: any = {};

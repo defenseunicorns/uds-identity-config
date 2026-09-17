@@ -59,7 +59,7 @@ describe("Tofu Client Management", () => {
             `;
 
             // Create directory and write the single OpenTofu file
-            cy.exec(`mkdir -p ${tfDir}`);
+            cy.task("exec", `mkdir -p ${tfDir}`);
             cy.writeFile(`${tfDir}/main.tf`, tfConfig);
         });
     });
@@ -70,7 +70,8 @@ describe("Tofu Client Management", () => {
         const { accessToken, clientSecret } = credentials;
 
         // Run OpenTofu destroy with the client secret
-        cy.exec(`cd ${tfDir} && tofu destroy -auto-approve -var="keycloak_client_secret=${clientSecret}"`, {
+        cy.task("exec", {
+            command: `cd ${tfDir} && tofu destroy -auto-approve -var="keycloak_client_secret=${clientSecret}"`,
             failOnNonZeroExit: false
         }).then((result) => {
             expect(result.exitCode).to.eq(0, "OpenTofu destroy should succeed");
@@ -91,7 +92,7 @@ describe("Tofu Client Management", () => {
         });
 
         // Clean up test directory
-        cy.exec(`rm -rf ${tfDir}`);
+        cy.task("exec", `rm -rf ${tfDir}`);
     });
 
     it("should apply OpenTofu configuration", () => {
@@ -116,16 +117,17 @@ describe("Tofu Client Management", () => {
         });
 
         // Initialize OpenTofu
-        cy.exec(`cd ${tfDir} && tofu init`, {
+        cy.task("exec", {
+            command: `cd ${tfDir} && tofu init`,
             failOnNonZeroExit: false
         }).then(() => {
             // Apply OpenTofu with detailed logging
-            return cy.exec(
-                `cd ${tfDir} && tofu apply -auto-approve ` +
-                `-var="keycloak_client_secret=${clientSecret}" ` +
-                '-no-color -input=false -json',
-                { failOnNonZeroExit: false }
-            ).then((applyResult) => {
+            return cy.task("exec", {
+                command: `cd ${tfDir} && tofu apply -auto-approve ` +
+                    `-var="keycloak_client_secret=${clientSecret}" ` +
+                    '-no-color -input=false -json',
+                failOnNonZeroExit: false
+            }).then((applyResult) => {
                 if (applyResult.exitCode !== 0) {
                     // Try to parse JSON output if available
                     let errorDetails = applyResult.stderr;
@@ -177,20 +179,21 @@ describe("Tofu Client Management", () => {
         const tempDir = "./test-temp-invalid-secret";
 
         // Create a clean directory for this test
-        cy.exec(`mkdir -p ${tempDir}`);
+        cy.task("exec", `mkdir -p ${tempDir}`);
 
         // Copy the main.tf file to the temp directory
-        cy.exec(`cp ${tfDir}/main.tf ${tempDir}/`);
+        cy.task("exec", `cp ${tfDir}/main.tf ${tempDir}/`);
 
         // Initialize OpenTofu
-        return cy.exec(`cd ${tempDir} && tofu init`, {
+        return cy.task("exec", {
+            command: `cd ${tempDir} && tofu init`,
             failOnNonZeroExit: false
         }).then(() => {
             // Apply OpenTofu with invalid secret
-            return cy.exec(
-                `cd ${tempDir} && tofu apply -auto-approve -var="keycloak_client_secret=${invalidSecret}"`,
-                { failOnNonZeroExit: false }
-            );
+            return cy.task("exec", {
+                command: `cd ${tempDir} && tofu apply -auto-approve -var="keycloak_client_secret=${invalidSecret}"`,
+                failOnNonZeroExit: false
+            });
         }).then((result) => {
             // Log the error for debugging
             cy.log('OpenTofu apply result:', result);
@@ -202,7 +205,7 @@ describe("Tofu Client Management", () => {
             expect(result.stderr).to.include('401');
 
             // Clean up
-            return cy.exec(`rm -rf ${tempDir}`);
+            return cy.task("exec", `rm -rf ${tempDir}`);
         });
     });
 
@@ -236,17 +239,17 @@ describe("Tofu Client Management", () => {
 
         // Write the invalid config to a temporary file
         const tempDir = "./test-tf-unauthorized";
-        cy.exec(`mkdir -p ${tempDir}`);
+        cy.task("exec", `mkdir -p ${tempDir}`);
         cy.writeFile(`${tempDir}/main.tf`, unauthorizedConfig);
 
         // Initialize OpenTofu
-        return cy.exec(`cd ${tempDir} && tofu init`, { failOnNonZeroExit: false })
+        return cy.task("exec", { command: `cd ${tempDir} && tofu init`, failOnNonZeroExit: false })
             .then(() => {
                 // Try to apply with invalid client
-                return cy.exec(
-                    `cd ${tempDir} && tofu apply -auto-approve`,
-                    { failOnNonZeroExit: false }
-                );
+                return cy.task("exec", {
+                    command: `cd ${tempDir} && tofu apply -auto-approve`,
+                    failOnNonZeroExit: false
+                });
             })
             .then((result) => {
                 // Log the full error for debugging
@@ -260,7 +263,7 @@ describe("Tofu Client Management", () => {
                 expect(errorOutput).to.match(/401 Unauthorized|403 Forbidden/);
 
                 // Clean up
-                return cy.exec(`rm -rf ${tempDir}`);
+                return cy.task("exec", `rm -rf ${tempDir}`);
             });
     });
 });

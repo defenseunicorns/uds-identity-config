@@ -12,13 +12,13 @@ const SETUP_MANIFEST = "./resources/fleet-admin-test-setup.yaml";
 
 describe("Fleet Admin Client (federated JWT)", () => {
   before(() => {
-    cy.exec(`uds zarf tools kubectl apply -f ${SETUP_MANIFEST}`)
+    cy.task("exec", `uds zarf tools kubectl apply -f ${SETUP_MANIFEST}`)
       .its("exitCode")
       .should("eq", 0);
   });
 
   after(() => {
-    cy.exec(`uds zarf tools kubectl delete -f ${SETUP_MANIFEST} --ignore-not-found`)
+    cy.task("exec", `uds zarf tools kubectl delete -f ${SETUP_MANIFEST} --ignore-not-found`)
       .its("exitCode")
       .should("eq", 0);
   });
