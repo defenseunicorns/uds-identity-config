@@ -9,14 +9,15 @@ describe("UDS Operator Public Clients", () => {
     const namespace = "test-package-public-client";
 
     after(() => {
-        cy.exec(`uds zarf tools kubectl delete -f ${manifest} --ignore-not-found`, {
+        cy.task("exec", {
+            command: `uds zarf tools kubectl delete -f ${manifest} --ignore-not-found`,
             failOnNonZeroExit: false,
         });
     });
 
     it("admits a UDS Package with a PKCE public client and creates it in Keycloak", () => {
-        cy.exec(`uds zarf tools kubectl apply -f ${manifest}`).its("exitCode").should("eq", 0);
-        cy.exec(
+        cy.task("exec", `uds zarf tools kubectl apply -f ${manifest}`).its("exitCode").should("eq", 0);
+        cy.task("exec",
             `uds zarf tools kubectl wait --for=condition=Ready=true package/${clientId} -n ${namespace} --timeout=300s`,
         ).its("exitCode").should("eq", 0);
 
