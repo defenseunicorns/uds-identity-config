@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.32.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.0...v0.32.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* cypress 16 migration ([#923](https://github.com/defenseunicorns/uds-identity-config/issues/923)) ([5a3e15f](https://github.com/defenseunicorns/uds-identity-config/commit/5a3e15fe84b9a71757ad59d4259e60def65602af))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#925](https://github.com/defenseunicorns/uds-identity-config/issues/925)) ([492f9c1](https://github.com/defenseunicorns/uds-identity-config/commit/492f9c1574ca2bfef9cc778f65c16314c879cc67))
+* **deps:** update gha-deps ([#926](https://github.com/defenseunicorns/uds-identity-config/issues/926)) ([3fc5771](https://github.com/defenseunicorns/uds-identity-config/commit/3fc57716f5a13bda06aeebbf3da7a8d471f99943))
+* limit permissions on tag-and-release workflow ([#928](https://github.com/defenseunicorns/uds-identity-config/issues/928)) ([83e0dfc](https://github.com/defenseunicorns/uds-identity-config/commit/83e0dfcc1b8193dadc36fd47823dbfb34a5d51cd))
+
 ## [0.32.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.31.0...v0.32.0) (2026-09-11)
 
 
