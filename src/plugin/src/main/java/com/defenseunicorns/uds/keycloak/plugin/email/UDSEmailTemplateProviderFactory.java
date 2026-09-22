@@ -53,6 +53,14 @@ public final class UDSEmailTemplateProviderFactory implements EmailTemplateProvi
     private static URI toUri(String value) {
         String normalized = value.endsWith("/") ? value : value + "/";
         URI uri = URI.create(normalized);
+        if (uri.getScheme() == null) {
+            if (isPlainHostname(value)) {
+                // Keycloak resolves the scheme, port, and context path for host-only hostname values.
+                // Leave rewriting disabled so we do not guess any of those components here.
+                return null;
+            }
+            throw new IllegalArgumentException("Provided hostname is not a valid URL: " + value);
+        }
         if (!("http".equals(uri.getScheme()) || "https".equals(uri.getScheme()))
                 || uri.getRawUserInfo() != null
                 || uri.getRawQuery() != null
@@ -60,5 +68,10 @@ public final class UDSEmailTemplateProviderFactory implements EmailTemplateProvi
             throw new IllegalArgumentException("Provided hostname is not a valid URL: " + value);
         }
         return uri;
+    }
+
+    private static boolean isPlainHostname(String value) {
+        URI uri = URI.create("https://" + value);
+        return value.equals(uri.getHost());
     }
 }
