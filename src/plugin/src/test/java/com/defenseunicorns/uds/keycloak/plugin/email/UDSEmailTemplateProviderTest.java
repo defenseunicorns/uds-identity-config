@@ -30,6 +30,7 @@ import org.keycloak.authentication.actiontoken.execactions.ExecuteActionsActionT
 import org.keycloak.util.JsonSerialization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -90,6 +91,7 @@ class UDSEmailTemplateProviderTest {
         UDSEmailTemplateProvider provider = new UDSEmailTemplateProvider(session, PUBLIC_URL);
         provider.setRealm(realm);
         String adminLink = actionLink(session, realm, ADMIN_URL);
+        ExecuteActionsActionToken originalToken = parseToken(adminLink);
 
         String publicLink = provider.publicExecuteActionsLink(adminLink);
 
@@ -102,6 +104,49 @@ class UDSEmailTemplateProviderTest {
         assertEquals(List.of("UPDATE_PASSWORD"), publicToken.getRequiredActions());
         assertEquals(CLIENT_ID, publicToken.getIssuedFor());
         assertEquals("compound-auth-session-id", publicToken.getCompoundAuthenticationSessionId());
+        assertEquals(originalToken.getId(), publicToken.getId());
+        assertEquals(originalToken.getActionVerificationNonce(), publicToken.getActionVerificationNonce());
+        assertEquals(originalToken.getExp(), publicToken.getExp());
+        assertEquals(originalToken.getOtherClaims(), publicToken.getOtherClaims());
+        assertTrue(publicToken.getIat() >= originalToken.getIat());
+    }
+
+    @Test
+    void normalizesDefaultPublicPortInLinkAndTokenClaims() throws Exception {
+        URI publicUrlWithDefaultPort = URI.create("https://sso.uds.dev:443/");
+        KeycloakSession session = sessionWithTokenEncoder(ADMIN_URL);
+        RealmModel realm = mock(RealmModel.class);
+        when(realm.getName()).thenReturn(REALM_NAME);
+
+        UDSEmailTemplateProvider provider = new UDSEmailTemplateProvider(session, publicUrlWithDefaultPort);
+        provider.setRealm(realm);
+
+        String publicLink = provider.publicExecuteActionsLink(actionLink(session, realm, ADMIN_URL));
+        URI publicLinkUri = URI.create(publicLink);
+        ExecuteActionsActionToken publicToken = parseToken(publicLink);
+
+        assertEquals(-1, publicLinkUri.getPort());
+        assertEquals("https://sso.uds.dev/realms/uds", publicToken.getIssuer());
+        assertEquals("https://sso.uds.dev/realms/uds", publicToken.getAudience()[0]);
+    }
+
+    @Test
+    void preservesNonDefaultPublicPortInLinkAndTokenClaims() throws Exception {
+        URI publicUrlWithNonDefaultPort = URI.create("https://sso.uds.dev:8443/");
+        KeycloakSession session = sessionWithTokenEncoder(ADMIN_URL);
+        RealmModel realm = mock(RealmModel.class);
+        when(realm.getName()).thenReturn(REALM_NAME);
+
+        UDSEmailTemplateProvider provider = new UDSEmailTemplateProvider(session, publicUrlWithNonDefaultPort);
+        provider.setRealm(realm);
+
+        String publicLink = provider.publicExecuteActionsLink(actionLink(session, realm, ADMIN_URL));
+        URI publicLinkUri = URI.create(publicLink);
+        ExecuteActionsActionToken publicToken = parseToken(publicLink);
+
+        assertEquals(8443, publicLinkUri.getPort());
+        assertEquals("https://sso.uds.dev:8443/realms/uds", publicToken.getIssuer());
+        assertEquals("https://sso.uds.dev:8443/realms/uds", publicToken.getAudience()[0]);
     }
 
     @Test
@@ -112,6 +157,20 @@ class UDSEmailTemplateProviderTest {
         String link = ADMIN_URL + "realms/" + REALM_NAME + "/login-actions/action-token";
 
         assertEquals(link, provider.publicExecuteActionsLink(link));
+    }
+
+    @Test
+    void rejectsMalformedActionTokens() {
+        KeycloakSession session = mock(KeycloakSession.class);
+        UDSEmailTemplateProvider provider = new UDSEmailTemplateProvider(session, PUBLIC_URL);
+        String link = ADMIN_URL + "realms/" + REALM_NAME + "/login-actions/action-token?key=malformed-token";
+
+        EmailException exception = assertThrows(
+                EmailException.class,
+                () -> provider.publicExecuteActionsLink(link)
+        );
+
+        assertEquals("Unable to transform execute-actions token", exception.getMessage());
     }
 
     @Test
@@ -143,6 +202,7 @@ class UDSEmailTemplateProviderTest {
         );
         token.id("token-id");
         token.setCompoundAuthenticationSessionId("compound-auth-session-id");
+        token.setNote("custom-note", "preserve-me");
         return baseUri + "realms/" + REALM_NAME + "/login-actions/action-token?key="
                 + token.serialize(session, realm, session.getContext().getUri());
     }

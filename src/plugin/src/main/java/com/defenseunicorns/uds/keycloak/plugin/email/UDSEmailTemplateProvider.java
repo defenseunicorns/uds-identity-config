@@ -5,11 +5,8 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.email;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Proxy;
 import java.net.URI;
-
-import jakarta.ws.rs.core.UriInfo;
+import java.net.URISyntaxException;
 
 import org.keycloak.TokenVerifier;
 import org.keycloak.authentication.actiontoken.execactions.ExecuteActionsActionToken;
@@ -17,6 +14,7 @@ import org.keycloak.common.VerificationException;
 import org.keycloak.email.EmailException;
 import org.keycloak.email.freemarker.FreeMarkerEmailTemplateProvider;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.services.Urls;
 
 /**
  * Keeps the admin-origin request context intact while generating execute-actions links for the public frontend.
@@ -47,37 +45,26 @@ public final class UDSEmailTemplateProvider extends FreeMarkerEmailTemplateProvi
             return link;
         }
 
-        final ExecuteActionsActionToken adminToken;
+        final ExecuteActionsActionToken actionToken;
         try {
-            adminToken = TokenVerifier.create(serializedToken, ExecuteActionsActionToken.class).getToken();
+            actionToken = TokenVerifier.create(serializedToken, ExecuteActionsActionToken.class).getToken();
         } catch (VerificationException exception) {
             throw new EmailException("Unable to transform execute-actions token", exception);
         }
-        ExecuteActionsActionToken publicToken = new ExecuteActionsActionToken(
-                adminToken.getUserId(),
-                adminToken.getEmail(),
-                Math.toIntExact(adminToken.getExp()),
-                adminToken.getRequiredActions(),
-                adminToken.getRedirectUri(),
-                adminToken.getIssuedFor()
-        );
-        publicToken.id(adminToken.getId());
-        publicToken.setCompoundAuthenticationSessionId(adminToken.getCompoundAuthenticationSessionId());
-        publicToken.getOtherClaims().putAll(adminToken.getOtherClaims());
+        URI publicBaseUri = normalizedBaseUri(publicHostname);
+        String publicIssuer = Urls.realmIssuer(publicBaseUri, realm.getName());
+        actionToken.issuedNow();
+        actionToken.issuer(publicIssuer);
+        actionToken.audience(publicIssuer);
+        String publicSerializedToken = session.tokens().encode(actionToken);
 
-        String publicSerializedToken = publicToken.serialize(
-                session,
-                realm,
-                withBaseUri(session.getContext().getUri(), publicHostname)
-        );
-
-        int publicPort = normalizedPort(publicHostname);
-        String publicHost = publicHostname.getHost();
+        int publicPort = publicBaseUri.getPort();
+        String publicHost = publicBaseUri.getHost();
         if (publicHost != null && publicHost.indexOf(':') >= 0 && !publicHost.startsWith("[")) {
             publicHost = "[" + publicHost + "]";
         }
         StringBuilder publicLink = new StringBuilder()
-                .append(publicHostname.getScheme())
+                .append(publicBaseUri.getScheme())
                 .append("://")
                 .append(publicHost)
                 .append(publicPort < 0 ? "" : ":" + publicPort)
@@ -144,21 +131,25 @@ public final class UDSEmailTemplateProvider extends FreeMarkerEmailTemplateProvi
         query.append(parameter);
     }
 
-    private static UriInfo withBaseUri(UriInfo delegate, URI baseUri) {
-        return (UriInfo) Proxy.newProxyInstance(
-                UriInfo.class.getClassLoader(),
-                new Class<?>[]{UriInfo.class},
-                (proxy, method, args) -> {
-                    if ("getBaseUri".equals(method.getName())) {
-                        return baseUri;
-                    }
-                    try {
-                        return method.invoke(delegate, args);
-                    } catch (InvocationTargetException exception) {
-                        throw exception.getCause();
-                    }
-                }
-        );
+    private static URI normalizedBaseUri(URI uri) {
+        int normalizedPort = normalizedPort(uri);
+        if (normalizedPort == uri.getPort()) {
+            return uri;
+        }
+
+        try {
+            return new URI(
+                    uri.getScheme(),
+                    uri.getUserInfo(),
+                    uri.getHost(),
+                    normalizedPort,
+                    uri.getPath(),
+                    uri.getQuery(),
+                    uri.getFragment()
+            );
+        } catch (URISyntaxException exception) {
+            throw new IllegalArgumentException("Unable to normalize public hostname", exception);
+        }
     }
 
     private static int normalizedPort(URI uri) {
