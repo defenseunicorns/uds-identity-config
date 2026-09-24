@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.32.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.0...v0.32.1) (2026-09-24)
+
+
+### Bug Fixes
+
+* cypress 16 migration ([#923](https://github.com/defenseunicorns/uds-identity-config/issues/923)) ([5a3e15f](https://github.com/defenseunicorns/uds-identity-config/commit/5a3e15fe84b9a71757ad59d4259e60def65602af))
+* **deps:** update plugin-deps to v26.7.4 ([#931](https://github.com/defenseunicorns/uds-identity-config/issues/931)) ([23f460b](https://github.com/defenseunicorns/uds-identity-config/commit/23f460bf59f7eb99d68ee185bb9d3c6c461d8108))
+* use public origin for admin reset links ([#932](https://github.com/defenseunicorns/uds-identity-config/issues/932)) ([a42486c](https://github.com/defenseunicorns/uds-identity-config/commit/a42486c16cf179df3541b963fe888e7ae4e69e0a))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#925](https://github.com/defenseunicorns/uds-identity-config/issues/925)) ([492f9c1](https://github.com/defenseunicorns/uds-identity-config/commit/492f9c1574ca2bfef9cc778f65c16314c879cc67))
+* **deps:** update all dependencies ([#930](https://github.com/defenseunicorns/uds-identity-config/issues/930)) ([c4abba3](https://github.com/defenseunicorns/uds-identity-config/commit/c4abba3eeca2e414f51565b7ee8c29cfcb286e1e))
+* **deps:** update dependency defenseunicorns/uds-common to v1.30.0 ([#936](https://github.com/defenseunicorns/uds-identity-config/issues/936)) ([f78cf99](https://github.com/defenseunicorns/uds-identity-config/commit/f78cf993d8a908fdad31546d51466c1f00d74013))
+* **deps:** update gha-deps ([#926](https://github.com/defenseunicorns/uds-identity-config/issues/926)) ([3fc5771](https://github.com/defenseunicorns/uds-identity-config/commit/3fc57716f5a13bda06aeebbf3da7a8d471f99943))
+* **deps:** update gha-deps ([#929](https://github.com/defenseunicorns/uds-identity-config/issues/929)) ([02c957a](https://github.com/defenseunicorns/uds-identity-config/commit/02c957a9d0d06ffe8f0b4147478cb3192a179dd4))
+* **deps:** update gha-deps to v21.2.3 ([#934](https://github.com/defenseunicorns/uds-identity-config/issues/934)) ([9d29312](https://github.com/defenseunicorns/uds-identity-config/commit/9d29312b38c350cab2d571d37a592bb25960b4c4))
+* limit permissions on tag-and-release workflow ([#928](https://github.com/defenseunicorns/uds-identity-config/issues/928)) ([83e0dfc](https://github.com/defenseunicorns/uds-identity-config/commit/83e0dfcc1b8193dadc36fd47823dbfb34a5d51cd))
+
 ## [0.32.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.31.0...v0.32.0) (2026-09-11)
 
 
