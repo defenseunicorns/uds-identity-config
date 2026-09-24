@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Defense Unicorns
+ * Copyright 2024-2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -162,6 +162,7 @@ Cypress.Commands.add("getClientSecret", (clientId: string) => {
         throw new Error(`Client with ID '${clientId}' not found`);
       }
       return cy.request({
+        log: false,
         method: 'GET',
         url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients/${client.id}/client-secret`,
         headers: {
@@ -238,13 +239,14 @@ Cypress.Commands.add("getAccessToken", (subject?: TokenSubject) => {
   }
 
   // Default: UDS_OPERATOR client credentials flow
-  return cy.task("exec", 'uds zarf tools kubectl get secret keycloak-client-secrets -n keycloak -o jsonpath="{.data.uds-operator}"').then((result) => {
+  return cy.task("exec", 'uds zarf tools kubectl get secret keycloak-client-secrets -n keycloak -o jsonpath="{.data.uds-operator}"', { log: false }).then((result) => {
     expect(result.exitCode).to.eq(0);
     expect(result.stdout).not.contains(" ");
 
     const clientSecret = Buffer.from(result.stdout, 'base64').toString('utf-8');
 
     return cy.request({
+      log: false,
       method: "POST",
       url: "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token",
       headers: {

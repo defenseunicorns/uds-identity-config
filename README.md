@@ -46,3 +46,7 @@ If the default realm, plugin, theme, truststore, or jars do not provide enough f
 ## Upgrading Identity Config
 
 When upgrading the Identity Config version, check the [Version Upgrade](./docs/reference/UDS%20Core/IdAM/upgrading-versions.md) docs for help.
+
+Fresh Keycloak realms import these settings automatically. Keycloak imports `realm.json` only when it creates the realm, so upgrading the image does not rewrite existing `uds` realms.
+
+Before setting `fullScopeAllowed` to `false` on existing service-account clients, add explicit `realm-management` scope mappings for every role those clients require. Without a matching scope mapping, Keycloak can omit an assigned role from the service-account token. Preserve the existing role assignments: `manage-clients` for `uds-operator` and `uds-fleet-admin`, and `realm-admin` for `uds-opentofu-client`. If you added roles to `uds-operator`, keep their scope mappings too. Keep browser flows disabled. You can remove the unused `/*` redirect URI from `uds-operator`.

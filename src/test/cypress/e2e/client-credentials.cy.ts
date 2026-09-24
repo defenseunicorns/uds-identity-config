@@ -1,9 +1,77 @@
 /**
- * Copyright 2024 Defense Unicorns
+ * Copyright 2024-2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
 describe("UDS Operator Client Credentials", () => {
+    it("limits service-account clients to explicitly scoped roles", () => {
+        const clients = [
+            { clientId: "uds-operator", scopeRole: "manage-clients" },
+            { clientId: "uds-opentofu-client", scopeRole: "realm-admin" },
+            { clientId: "uds-fleet-admin", scopeRole: "manage-clients" },
+        ];
+
+        cy.getAccessToken().then((accessToken) => {
+            return cy.request({
+                method: "GET",
+                url: "https://keycloak.admin.uds.dev/admin/realms/uds/clients",
+                qs: { clientId: "realm-management" },
+                headers: { Authorization: `Bearer ${accessToken}` },
+            }).then((managementResponse) => {
+                const [realmManagement] = managementResponse.body;
+                expect(realmManagement.clientId).to.eq("realm-management");
+
+                return cy.wrap(clients).each(({ clientId, scopeRole }) => {
+                    return cy.request({
+                        method: "GET",
+                        url: "https://keycloak.admin.uds.dev/admin/realms/uds/clients",
+                        qs: { clientId },
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                    }).then((scopeResponse) => {
+                        expect(scopeResponse.status).to.eq(200);
+                        const [client] = scopeResponse.body;
+                        expect(client.clientId).to.eq(clientId);
+                        expect(client.fullScopeAllowed).to.be.false;
+                        expect(client.standardFlowEnabled).to.be.false;
+                        expect(client.implicitFlowEnabled).to.be.false;
+                        expect(client.directAccessGrantsEnabled).to.be.false;
+                        expect(client.serviceAccountsEnabled).to.be.true;
+                        expect(client.redirectUris).to.deep.equal([]);
+
+                        return cy.request({
+                            method: "GET",
+                            url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients/${client.id}/scope-mappings/clients/${realmManagement.id}`,
+                            headers: { Authorization: `Bearer ${accessToken}` },
+                        }).then((mappingResponse) => {
+                            expect(mappingResponse.body.map((role: { name: string }) => role.name)).to.deep.equal([scopeRole]);
+                        });
+                    });
+                });
+            });
+        });
+
+        cy.getClientSecret("uds-opentofu-client").then(({ clientSecret }) => {
+            cy.request({
+                log: false,
+                method: "POST",
+                url: "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                form: true,
+                body: {
+                    client_id: "uds-opentofu-client",
+                    client_secret: clientSecret,
+                    grant_type: "client_credentials",
+                },
+            }).then((response) => {
+                expect(response.status).to.eq(200);
+                const token = response.body.access_token.split(".")[1];
+                const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
+                const payload = JSON.parse(atob(base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=")));
+                expect(payload.resource_access?.["realm-management"]?.roles || []).to.include("manage-clients");
+            });
+        });
+    });
+
     it("UDS Operator can obtain Access Token", () => {
         cy.getAccessToken()
     });

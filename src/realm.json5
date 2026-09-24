@@ -551,6 +551,26 @@
                     "view-groups"
                 ]
             }
+        ],
+        "realm-management": [
+            {
+                "client": "uds-operator",
+                "roles": [
+                    "manage-clients"
+                ]
+            },
+            {
+                "client": "uds-opentofu-client",
+                "roles": [
+                    "realm-admin"
+                ]
+            },
+            {
+                "client": "uds-fleet-admin",
+                "roles": [
+                    "manage-clients"
+                ]
+            }
         ]
     },
     "clients": [
@@ -871,9 +891,7 @@
             "alwaysDisplayInConsole": false,
             "clientAuthenticatorType": "client-kubernetes-secret",
             "secret": "**********",
-            "redirectUris": [
-                "/*"
-            ],
+            "redirectUris": [],
             "bearerOnly": false,
             "standardFlowEnabled": false,
             "implicitFlowEnabled": false,
@@ -893,7 +911,7 @@
                 "use.jwks.url": "false",
                 "backchannel.logout.revoke.offline.tokens": "false"
             },
-            "fullScopeAllowed": true
+            "fullScopeAllowed": false
         },
         {
             "id": "d70f0f89-1400-4197-a162-84c6b9cf335f",
@@ -918,7 +936,7 @@
             "protocol": "openid-connect",
             "attributes": {},
             "authenticationFlowBindingOverrides": {},
-            "fullScopeAllowed": true,
+            "fullScopeAllowed": false,
             "nodeReRegistrationTimeout": 0
         },
         {
@@ -948,7 +966,7 @@
                 "jwt.credential.sub": "${REALM_FLEET_SERVICE_ACCOUNT:system:serviceaccount:uds-fleet-command:uds-fleet-command-sa}"
             },
             "authenticationFlowBindingOverrides": {},
-            "fullScopeAllowed": true,
+            "fullScopeAllowed": false,
             "nodeReRegistrationTimeout": 0
         }
     ],
