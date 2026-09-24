@@ -37,6 +37,13 @@ public final class UDSRealmFrontendUrlProviderFactory
     private String publicFrontendUrl;
     private String adminFrontendUrl;
 
+    UDSRealmFrontendUrlProviderFactory(String domain, String adminDomain) {
+        configure(domain, adminDomain);
+    }
+
+    public UDSRealmFrontendUrlProviderFactory() {
+    }
+
     @Override
     public EventListenerProvider create(KeycloakSession session) {
         return new EventListenerProvider() {
@@ -58,8 +65,10 @@ public final class UDSRealmFrontendUrlProviderFactory
 
     @Override
     public void init(Config.Scope config) {
-        String domain = System.getenv("UDS_DOMAIN");
-        String adminDomain = System.getenv("UDS_ADMIN_DOMAIN");
+        configure(System.getenv("UDS_DOMAIN"), System.getenv("UDS_ADMIN_DOMAIN"));
+    }
+
+    private void configure(String domain, String adminDomain) {
         publicFrontendUrl = frontendUrl("sso", domain);
         adminFrontendUrl = frontendUrl("keycloak", adminDomain);
 
