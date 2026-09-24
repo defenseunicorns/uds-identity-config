@@ -10,10 +10,10 @@ describe("Keycloak Hostname Routing", () => {
       .should("eq", "https://sso.uds.dev/realms/uds");
   });
 
-  it("uses the admin origin for admin discovery", () => {
+  it("uses the public origin for admin-host discovery", () => {
     cy.request("https://keycloak.admin.uds.dev/realms/uds/.well-known/openid-configuration")
       .its("body.issuer")
-      .should("eq", "https://keycloak.admin.uds.dev/realms/uds");
+      .should("eq", "https://sso.uds.dev/realms/uds");
   });
 
   it("keeps the admin console on the admin origin", () => {
