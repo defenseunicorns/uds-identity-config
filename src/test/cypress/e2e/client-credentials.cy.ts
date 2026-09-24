@@ -67,7 +67,7 @@ describe("UDS Operator Client Credentials", () => {
                 const token = response.body.access_token.split(".")[1];
                 const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
                 const payload = JSON.parse(atob(base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=")));
-                expect(payload.resource_access?.["realm-management"]?.roles || []).to.include("manage-clients");
+                expect(payload.resource_access?.["realm-management"]?.roles || []).to.include("realm-admin");
             });
         });
     });
