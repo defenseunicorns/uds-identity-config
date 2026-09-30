@@ -2373,7 +2373,7 @@
                     "requirement": "ALTERNATIVE",
                     "priority": 3,
                     "autheticatorFlow": true,
-                    "flowAlias": "Username/Password Authentication",
+                    "flowAlias": "Username-Password Authentication",
                     "userSetupAllowed": false
                 }
             ]
@@ -2604,7 +2604,7 @@
         },
         {
             "id": "cdf1be21-4140-4652-9d68-3b60742cc8ad",
-            "alias": "Username/Password Authentication",
+            "alias": "Username-Password Authentication",
             "description": "",
             "providerId": "basic-flow",
             "topLevel": false,
