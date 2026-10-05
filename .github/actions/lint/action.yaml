@@ -1,4 +1,4 @@
-# Copyright 2024 Defense Unicorns
+# Copyright 2024-2026 Defense Unicorns
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 name: lint-check
@@ -13,4 +13,8 @@ runs:
 
     - name: Run License Linting Checks
       run: uds run license --no-progress
+      shell: bash
+
+    - name: Validate Renovate Configuration
+      run: uds run renovate --no-progress
       shell: bash
