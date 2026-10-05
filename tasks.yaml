@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.30.1/tasks/lint.yaml
+  - common-lint: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.30.1/tasks/lint.yaml
   - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.30.1/tasks/setup.yaml
   - lb-setup: ./tasks/setup.yaml
 
@@ -271,18 +271,18 @@ tasks:
   - name: license
     actions:
       - description: Lint for the SPDX license identifier being in source files
-        task: remote:license
+        task: common-lint:license
 
   - name: lint
     description: Run lint checks
     actions:
-      - task: remote:license
-      - task: remote:renovate
+      - task: common-lint:license
+      - task: common-lint:renovate
 
   - name: fix-license
     actions:
       - description: Add the SPDX license identifier to source files
-        task: remote:fix-license
+        task: common-lint:fix-license
 
   # Note that due to cloning the docs repo (which is private) this task will require organization access to the repo
   # This task does not clone in/manage docs outside of the identity repo so you may hit some 404s during development
