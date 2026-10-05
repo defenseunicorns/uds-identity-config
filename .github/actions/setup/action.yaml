@@ -23,6 +23,12 @@ runs:
       with:
         node-version: 24
 
+    - name: Install Docker Compose
+      uses: docker/setup-compose-action@54042514f505b273907334ae2b9cdbb9a0213c1a # v2
+      with:
+        # renovate: datasource=github-releases depName=docker/compose versioning=semver
+        version: v5.5.1
+
     - name: Install k3d
       shell: bash
       run: |
