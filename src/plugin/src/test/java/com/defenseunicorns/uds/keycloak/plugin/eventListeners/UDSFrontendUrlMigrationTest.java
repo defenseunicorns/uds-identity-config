@@ -58,6 +58,20 @@ class UDSFrontendUrlMigrationTest {
     }
 
     @Test
+    void treatsAnEmptyValueAsUnsetAndPreservesIt() {
+        Map<String, String> attributes = new HashMap<>(Map.of("frontendUrl", "", "operatorSetting", "keep-me"));
+        RealmModel udsRealm = realm("uds", attributes);
+
+        assertEquals(UDSFrontendUrlMigration.Result.NOTHING_TO_REMOVE,
+                UDSFrontendUrlMigration.migrate(udsRealm, DOMAIN));
+
+        assertEquals("", attributes.get("frontendUrl"));
+        assertEquals("keep-me", attributes.get("operatorSetting"));
+        assertEquals("complete", attributes.get(UDSFrontendUrlMigration.COMPLETION_ATTRIBUTE));
+        verify(udsRealm, never()).removeAttribute("frontendUrl");
+    }
+
+    @Test
     void preservesCustomAndOlderDomainValuesForManualReview() {
         for (String currentValue : new String[] {"https://login.example.test", "https://sso.older.example.test"}) {
             Map<String, String> attributes = new HashMap<>(Map.of("frontendUrl", currentValue, "other", "unchanged"));

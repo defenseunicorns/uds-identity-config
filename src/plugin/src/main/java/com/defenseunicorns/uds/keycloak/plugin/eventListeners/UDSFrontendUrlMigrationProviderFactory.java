@@ -23,6 +23,13 @@ public final class UDSFrontendUrlMigrationProviderFactory
     private static final Logger LOG = Logger.getLogger(UDSFrontendUrlMigrationProviderFactory.class);
     private String domain;
 
+    public UDSFrontendUrlMigrationProviderFactory() {
+    }
+
+    UDSFrontendUrlMigrationProviderFactory(final String domain) {
+        this.domain = domain;
+    }
+
     @Override
     public EventListenerProvider create(final KeycloakSession session) {
         return new EventListenerProvider() {
@@ -75,7 +82,7 @@ public final class UDSFrontendUrlMigrationProviderFactory
             case REVIEW_VALUE_MISMATCH -> LOG.warnf(
                     "Preserved uds.frontendUrl '%s': it does not match the current UDS_DOMAIN; review this realm value manually",
                     realm.getAttribute(UDSFrontendUrlMigration.FRONTEND_URL_ATTRIBUTE));
-            case NOTHING_TO_REMOVE -> LOG.info("No uds.frontendUrl was present during the Identity Config 0.32.1 migration");
+            case NOTHING_TO_REMOVE -> LOG.info("No uds.frontendUrl value was set during the Identity Config 0.32.1 migration");
             case SKIPPED_ALREADY_COMPLETE -> LOG.debug("The Identity Config 0.32.1 frontendUrl migration already ran");
         }
     }

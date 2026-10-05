@@ -31,7 +31,7 @@ final class UDSFrontendUrlMigration {
         }
 
         String currentValue = realm.getAttribute(FRONTEND_URL_ATTRIBUTE);
-        if (currentValue == null) {
+        if (currentValue == null || currentValue.isEmpty()) {
             realm.setAttribute(COMPLETION_ATTRIBUTE, COMPLETED);
             return Result.NOTHING_TO_REMOVE;
         }
