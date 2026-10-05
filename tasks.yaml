@@ -273,9 +273,10 @@ tasks:
       - description: Lint for the SPDX license identifier being in source files
         task: remote:license
 
-  - name: renovate
-    description: Validate Renovate configuration
+  - name: lint
+    description: Run lint checks
     actions:
+      - task: remote:license
       - task: remote:renovate
 
   - name: fix-license

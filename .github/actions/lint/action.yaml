@@ -12,9 +12,5 @@ runs:
       shell: bash
 
     - name: Run License Linting Checks
-      run: uds run license --no-progress
-      shell: bash
-
-    - name: Validate Renovate Configuration
-      run: uds run renovate --no-progress
+      run: uds run lint --no-progress
       shell: bash
