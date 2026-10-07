@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.32.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.1...v0.32.2) (2026-10-07)
+
+
+### Bug Fixes
+
+* migrate legacy Keycloak frontend URL ([#943](https://github.com/defenseunicorns/uds-identity-config/issues/943)) ([4c040b4](https://github.com/defenseunicorns/uds-identity-config/commit/4c040b4b8fde11d657d9ba47f9355f6199a86830))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#940](https://github.com/defenseunicorns/uds-identity-config/issues/940)) ([1b14b1e](https://github.com/defenseunicorns/uds-identity-config/commit/1b14b1e00cbe6050e8dffbe1f471aa803382d261))
+* **deps:** update dependency defenseunicorns/uds-cli to v0.39.0 ([#944](https://github.com/defenseunicorns/uds-identity-config/issues/944)) ([be1de41](https://github.com/defenseunicorns/uds-identity-config/commit/be1de41de4dbdc85649ef34f43ffbeecb903012e))
+* **deps:** update dependency prettier to v3.9.9 ([#937](https://github.com/defenseunicorns/uds-identity-config/issues/937)) ([4126589](https://github.com/defenseunicorns/uds-identity-config/commit/412658916d103903941b4c2142e027387129313c))
+* **deps:** update gha-deps to v1.13.1 ([#941](https://github.com/defenseunicorns/uds-identity-config/issues/941)) ([b1cd7c6](https://github.com/defenseunicorns/uds-identity-config/commit/b1cd7c6f1ae36fd3905594922eb832b5578c95a0))
+
 ## [0.32.1](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.0...v0.32.1) (2026-09-24)
 
 
