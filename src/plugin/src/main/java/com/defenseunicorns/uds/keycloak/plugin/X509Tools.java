@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Defense Unicorns
+ * Copyright 2024-2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -164,7 +164,7 @@ public final class X509Tools {
 
         if (realm.getAuthenticatorConfigsStream().findAny().isPresent()) {
             return realm.getAuthenticatorConfigsStream().filter(config -> config.getConfig().containsKey(AbstractX509ClientCertificateAuthenticator.CUSTOM_ATTRIBUTE_NAME)).map(config -> {
-                X509ClientCertificateAuthenticator authenticator = new X509ClientCertificateAuthenticator();
+                X509ClientCertificateAuthenticator authenticator = new X509ClientCertificateAuthenticator(false);
                 X509AuthenticatorConfigModel model = new X509AuthenticatorConfigModel(config);
                 return authenticator.getUserIdentityExtractor(model).extractUserIdentity(certs);
             }).findFirst().orElse(null);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Defense Unicorns
+ * Copyright 2024-2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ValidationUtils {
 
@@ -223,6 +224,16 @@ public class ValidationUtils {
                     @Override
                     public Map<String, Object> getAttributes() {
                         return null;
+                    }
+
+                    @Override
+                    public boolean isReadOnly() {
+                        throw new UnsupportedOperationException("Unimplemented method 'isReadOnly'");
+                    }
+
+                    @Override
+                    public <T> T runAsReadOnly(Supplier<T> supplier) {
+                        throw new UnsupportedOperationException("Unimplemented method 'runAsReadOnly'");
                     }
 
                     @Override
