@@ -7,6 +7,7 @@ package com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes;
 
 import org.keycloak.broker.kubernetes.KubernetesIdentityProviderConfig;
 import org.keycloak.models.IdentityProviderModel;
+import org.keycloak.models.IdentityProviderType;
 import org.keycloak.models.RealmModel;
 import org.keycloak.utils.KeycloakSessionUtil;
 
@@ -58,7 +59,9 @@ public class UDSKubernetesIdentityProviderConfig extends KubernetesIdentityProvi
     @Override
     public void validate(RealmModel realm) {
         resolveAndPersistIssuer();
-        super.validate(realm);
+        // Keycloak 26.8 superclass validation repeats discovery and ignores the UDS discovery controls.
+        getConfig().put(ISSUER, getIssuer());
+        validateIssuer(realm, IdentityProviderType.CLIENT_ASSERTION);
     }
 
     /**

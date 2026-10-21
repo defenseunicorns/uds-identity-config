@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ValidationUtils {
 
@@ -223,6 +224,16 @@ public class ValidationUtils {
                     @Override
                     public Map<String, Object> getAttributes() {
                         return null;
+                    }
+
+                    @Override
+                    public boolean isReadOnly() {
+                        throw new UnsupportedOperationException("Unimplemented method 'isReadOnly'");
+                    }
+
+                    @Override
+                    public <T> T runAsReadOnly(Supplier<T> supplier) {
+                        throw new UnsupportedOperationException("Unimplemented method 'runAsReadOnly'");
                     }
 
                     @Override

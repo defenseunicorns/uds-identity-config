@@ -95,7 +95,7 @@ final class KubernetesUtils {
                 || "kubernetes.default.svc".equals(host) || "kubernetes.default.svc.cluster.local".equals(host)) {
             return isTrustedKubernetesApiPort(uri);
         }
-        String serviceHost = System.getenv(KubernetesConstants.KUBERNETES_SERVICE_HOST_KEY);
+        String serviceHost = System.getenv("KUBERNETES_SERVICE_HOST");
         if (serviceHost == null || !host.equals(serviceHost)) {
             return false;
         }
@@ -138,7 +138,7 @@ final class KubernetesUtils {
     }
 
     private static boolean isTrustedKubernetesApiPort(URI uri) {
-        String servicePort = System.getenv(KubernetesConstants.KUBERNETES_SERVICE_PORT_HTTPS_KEY);
+        String servicePort = System.getenv("KUBERNETES_SERVICE_PORT_HTTPS");
         int port = uri.getPort();
         if (port == -1) {
             return true;
