@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.32.3](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.2...v0.32.3) (2026-10-21)
+
+
+### Miscellaneous
+
+* **deps:** bump BC-FIPS libraries v2.1.3 ([#951](https://github.com/defenseunicorns/uds-identity-config/issues/951)) ([88ea2ae](https://github.com/defenseunicorns/uds-identity-config/commit/88ea2aeab30deaecaf1e1b508ad51bfcd7435cf8))
+* **deps:** update actions/setup-java action to v6.1.0 ([#949](https://github.com/defenseunicorns/uds-identity-config/issues/949)) ([00f19b5](https://github.com/defenseunicorns/uds-identity-config/commit/00f19b5c4b28dba45e5b4b9eb2e0faefca3c5e6c))
+* **deps:** update all dependencies ([#945](https://github.com/defenseunicorns/uds-identity-config/issues/945)) ([206f017](https://github.com/defenseunicorns/uds-identity-config/commit/206f0175d10de7be88af6124682fa811f994a2b5))
+* **deps:** update all dependencies ([#948](https://github.com/defenseunicorns/uds-identity-config/issues/948)) ([37bedc3](https://github.com/defenseunicorns/uds-identity-config/commit/37bedc372dc10ddc805f523e7ed0133e1ac65e43))
+* **deps:** update gha-deps ([#946](https://github.com/defenseunicorns/uds-identity-config/issues/946)) ([f319594](https://github.com/defenseunicorns/uds-identity-config/commit/f31959466759488ac7df30d5cd5c75e9ec3297a3))
+
 ## [0.32.2](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.1...v0.32.2) (2026-10-07)
 
 
