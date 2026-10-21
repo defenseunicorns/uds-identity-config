@@ -5,12 +5,29 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.broker.kubernetes;
 
-import org.keycloak.broker.kubernetes.KubernetesIdentityProviderFactory;
+import org.keycloak.Config;
+import org.keycloak.broker.provider.AbstractIdentityProviderFactory;
+import org.keycloak.broker.provider.ClientAssertionIdentityProviderFactory;
+import org.keycloak.common.Profile;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.provider.EnvironmentDependentProviderFactory;
 
-/** Preserves the provider ID used by existing UDS realms. */
-public class UDSKubernetesIdentityProviderFactory extends KubernetesIdentityProviderFactory {
+import java.util.Map;
+
+/**
+ * Registers the UDS Kubernetes identity provider. Client resolution uses the stock client-assertion strategy
+ * (the default), which works because the provider persists the resolved issuer onto the IdP at validation time.
+ * <p>
+ * Modeled on the upstream Kubernetes / SPIFFE identity provider factories.
+ * <p>
+ * <b>WORKAROUND:</b> temporary bridge. Once
+ * <a href="https://github.com/keycloak/keycloak/issues/49039">keycloak/keycloak#49039</a> ships destination-based
+ * token forwarding and managed-issuer discovery in the runtime version UDS ships, delete this whole plugin and set
+ * the realm IdP back to {@code providerId: "kubernetes"}.
+ */
+public class UDSKubernetesIdentityProviderFactory extends AbstractIdentityProviderFactory<UDSKubernetesIdentityProvider>
+        implements EnvironmentDependentProviderFactory, ClientAssertionIdentityProviderFactory {
 
     public static final String PROVIDER_ID = "uds-kubernetes";
 
@@ -25,6 +42,11 @@ public class UDSKubernetesIdentityProviderFactory extends KubernetesIdentityProv
     }
 
     @Override
+    public Map<String, String> parseConfig(KeycloakSession session, String configString) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public IdentityProviderModel createConfig() {
         return new UDSKubernetesIdentityProviderConfig();
     }
@@ -32,5 +54,10 @@ public class UDSKubernetesIdentityProviderFactory extends KubernetesIdentityProv
     @Override
     public String getId() {
         return PROVIDER_ID;
+    }
+
+    @Override
+    public boolean isSupported(Config.Scope config) {
+        return Profile.isFeatureEnabled(Profile.Feature.KUBERNETES_SERVICE_ACCOUNTS);
     }
 }
