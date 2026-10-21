@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ValidationUtils {
 
@@ -311,6 +312,17 @@ public class ValidationUtils {
                     public boolean isClosed() {
                         throw new UnsupportedOperationException("Unimplemented method 'isClosed'");
                     }
+
+                    @Override
+                    public <T> T runAsReadOnly(Supplier<T> task) {
+                        return task.get();
+                    }
+
+                    @Override
+                    public boolean isReadOnly() {
+                        return false;
+                    }
+
                     @Override
                     public IdentityProviderStorageProvider identityProviders() {
                         throw new UnsupportedOperationException("Unimplemented method 'identityProviders'");
