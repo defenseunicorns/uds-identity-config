@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.32.5](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.4...v0.32.5) (2026-10-29)
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#958](https://github.com/defenseunicorns/uds-identity-config/issues/958)) ([c2a3ab3](https://github.com/defenseunicorns/uds-identity-config/commit/c2a3ab3722c863995403fd0ad46e24b132fabcb5))
+* **deps:** update dependency node to v26 ([#959](https://github.com/defenseunicorns/uds-identity-config/issues/959)) ([7f42e5f](https://github.com/defenseunicorns/uds-identity-config/commit/7f42e5f8100c848b8a9bce17f79fcd3896378256))
+* **deps:** update dependency org.jacoco:jacoco-maven-plugin to v0.8.16 ([#960](https://github.com/defenseunicorns/uds-identity-config/issues/960)) ([a9489e0](https://github.com/defenseunicorns/uds-identity-config/commit/a9489e04d7e62d5cc02b99280220acb5589bf452))
+* **deps:** update gha-deps to v1.13.2 ([#955](https://github.com/defenseunicorns/uds-identity-config/issues/955)) ([e2916ba](https://github.com/defenseunicorns/uds-identity-config/commit/e2916ba9d9a4e904357bd51b655458b319b8cb98))
+* **deps:** update plugin-deps to v3.6.1 ([#956](https://github.com/defenseunicorns/uds-identity-config/issues/956)) ([e7e2060](https://github.com/defenseunicorns/uds-identity-config/commit/e7e2060ed72eaa1eec7645a9e0d9dd91c3b8b074))
+
 ## [0.32.4](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.3...v0.32.4) (2026-10-21)
 
 
