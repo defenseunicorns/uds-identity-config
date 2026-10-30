@@ -17,6 +17,12 @@ packages:
     keylessVerification:
       certificateIdentityRegexp: https://github\.com/zarf-dev/zarf/\.github/workflows/release\.yml@refs/tags/v\d+\.\d+\.\d+
       certificateOIDCIssuer: https://token.actions.githubusercontent.com
+    overrides:
+      zarf-agent:
+        zarf-agent:
+          values:
+            - path: mutationPolicy
+              value: all
   - name: keycloak-identity-config
     path: ../../
     ref: dev
