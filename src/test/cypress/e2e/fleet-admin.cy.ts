@@ -198,4 +198,44 @@ describe("Fleet Admin Client (federated JWT)", () => {
       });
     });
   });
+
+  it("uds-fleet-admin manages its own client sub-resources", () => {
+    cy.getFleetAdminAccessToken().then((accessToken: string) => {
+      const headers = { Authorization: `Bearer ${accessToken}` };
+      cy.request({
+        method: "POST",
+        url: CLIENTS_URL,
+        headers,
+        body: { clientId: `fleet-secret-${Date.now()}`, enabled: true, publicClient: false },
+      }).then((created) => {
+        const clientUrl = created.headers.location as string;
+        cy.request({ url: `${clientUrl}/client-secret`, headers, log: false }).then((secret) => {
+          expect(secret.status).to.eq(200);
+          expect(secret.body.value).to.be.a("string").and.not.be.empty;
+        });
+        cy.request({ url: CLIENTS_URL, headers }).then((clients) => {
+          const operator = clients.body.find((client: any) => client.clientId === "uds-operator");
+          expect(operator, "operator client").to.exist;
+          expect(operator.secret, "operator secret masked in client list").to.eq("**********");
+          cy.request({
+            method: "DELETE",
+            url: `${CLIENTS_URL}/${operator.id}`,
+            headers,
+            failOnStatusCode: false,
+            log: false,
+          }).its("status").should("eq", 400);
+          for (const method of ["GET", "POST"]) {
+            cy.request({
+              method,
+              url: `${CLIENTS_URL}/${operator.id}/client-secret`,
+              headers,
+              failOnStatusCode: false,
+              log: false,
+            }).its("status").should("eq", 403);
+          }
+        });
+        cy.request({ method: "DELETE", url: clientUrl, headers }).its("status").should("eq", 204);
+      });
+    });
+  });
 });

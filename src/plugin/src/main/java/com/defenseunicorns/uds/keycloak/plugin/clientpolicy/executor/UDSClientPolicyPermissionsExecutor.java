@@ -13,6 +13,7 @@ import org.keycloak.events.Errors;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.UserModel;
 import org.keycloak.protocol.ProtocolMapper;
 import org.keycloak.protocol.saml.mappers.GroupMembershipMapper;
 import org.keycloak.protocol.oidc.mappers.UserAttributeMapper;
@@ -41,10 +42,11 @@ import java.util.stream.Collectors;
 import static org.keycloak.common.util.CollectionUtil.*;
 
 /**
- * Keycloak Client Policy Executor for UDS-managed admin clients (e.g. uds-operator, uds-fleet-admin).
+ * Keycloak Client Policy Executor enforcing ownership for service-account applications.
  * <p>
- * The executor only acts when the request is authenticated as one of the managed clients
- * ({@link #MANAGED_CLIENT_ID_PREFIXES}). For those clients the following rules apply:
+ * Service-account applications can only manage clients stamped with their client ID.
+ * All such applications use the configured mapper/scope restrictions.
+ * The existing UDS-specific naming rules remain in {@link #MANAGED_CLIENT_ID_PREFIXES}:
  * * Clients created by a managed client are stamped with "created-by=&lt;authenticated clientId&gt;".
  * * A managed client may only update/view/delete clients it created (matching "created-by" attribute).
  * * A managed client may only create clients whose clientId starts with its required prefix (empty = no constraint).
@@ -56,10 +58,8 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     public static final String ATTRIBUTE_CREATED_BY = "created-by";
 
     /**
-     * Clients governed by this executor, mapped to the clientId prefix required for clients they create.
-     * The authenticated clientId is still stamped directly into created-by; this map only acts as the
-     * managed-client allowlist and per-client prefix configuration. An empty prefix imposes no naming
-     * constraint (preserves uds-operator's existing behavior).
+     * Existing UDS-managed clients and their required naming prefixes.
+     * Other service-account applications also enforce ownership, without a naming prefix.
      */
     public static final Map<String, String> MANAGED_CLIENT_ID_PREFIXES = Map.of(
             "uds-operator", "",
@@ -119,7 +119,8 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         if ((context instanceof ClientCRUDContext clientCRUDContext)) {
             String authenticatedClientId = getAuthenticatedClientId(clientCRUDContext);
             boolean hasAuthenticatedClient = clientCRUDContext.getAuthenticatedClient() != null;
-            boolean managedClient = isManagedClient(authenticatedClientId);
+            boolean managedClient = getOwnerClientId(clientCRUDContext.getAuthenticatedClient(),
+                    clientCRUDContext.getAuthenticatedUser()) != null;
             String requiredClientIdPrefix = getRequiredClientIdPrefix(authenticatedClientId);
             logger.debug(
                     "Executing UDSClientPolicyPermissionsExecutor, event: {}, hasAuthenticatedClient: {}, authenticatedClientId: {}, managedClient: {}, requiredClientIdPrefix: {}",
@@ -170,6 +171,18 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         }
     }
 
+    /** Human administrators keep their privileges; application credentials are bound to their owner. */
+    public static String getOwnerClientId(ClientModel client, UserModel user) {
+        if (client == null || client.getClientId() == null) {
+            return null;
+        }
+        if (MANAGED_CLIENT_ID_PREFIXES.containsKey(client.getClientId())
+                || (user != null && user.getServiceAccountClientLink() != null)) {
+            return client.getClientId();
+        }
+        return null;
+    }
+
     private void ensureOwnedBy(ClientModel client, String authenticatedClientId) throws ClientPolicyException {
         if (!isOwnedBy(client, authenticatedClientId)) {
             throw new ClientPolicyException(Errors.UNAUTHORIZED_CLIENT, "The Client doesn't have the " + ATTRIBUTE_CREATED_BY + "=" + authenticatedClientId + " attribute. Rejecting request.");
@@ -185,10 +198,6 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     boolean isOwnedBy(ClientModel client, String ownerClientId) {
         return ownerClientId.equals(client.getAttribute(ATTRIBUTE_CREATED_BY));
-    }
-
-    boolean isManagedClient(String clientId) {
-        return clientId != null && MANAGED_CLIENT_ID_PREFIXES.containsKey(clientId);
     }
 
     String getRequiredClientIdPrefix(String clientId) {
