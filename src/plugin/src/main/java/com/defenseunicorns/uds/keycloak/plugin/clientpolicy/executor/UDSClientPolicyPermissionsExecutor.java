@@ -14,6 +14,8 @@ import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.UserModel;
+import org.keycloak.services.resources.admin.AdminRoot;
+import org.keycloak.services.resources.admin.fgap.AdminPermissions;
 import org.keycloak.protocol.ProtocolMapper;
 import org.keycloak.protocol.saml.mappers.GroupMembershipMapper;
 import org.keycloak.protocol.oidc.mappers.UserAttributeMapper;
@@ -117,6 +119,9 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     @Override
     public void executeOnEvent(ClientPolicyContext context) throws ClientPolicyException {
         if ((context instanceof ClientCRUDContext clientCRUDContext)) {
+            if (isRealmAdmin(keycloakSession)) {
+                return;
+            }
             String authenticatedClientId = getAuthenticatedClientId(clientCRUDContext);
             boolean hasAuthenticatedClient = clientCRUDContext.getAuthenticatedClient() != null;
             boolean managedClient = getOwnerClientId(clientCRUDContext.getAuthenticatedClient(),
@@ -169,6 +174,14 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                 }
             }
         }
+    }
+
+    public static boolean isRealmAdmin(KeycloakSession session) {
+        // Full administrators must manage existing unowned clients; native endpoint authorization still applies.
+        // manage-clients, unrelated admin roles, and the target's privileges do not grant this exemption.
+        return AdminRoot.getRealmAdminAuth(session)
+                .map(auth -> AdminPermissions.evaluator(session, session.getContext().getRealm(), auth).isRealmAdmin())
+                .orElse(false);
     }
 
     /** Human administrators keep their privileges; application credentials are bound to their owner. */

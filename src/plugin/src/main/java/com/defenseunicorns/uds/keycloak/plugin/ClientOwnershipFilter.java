@@ -12,6 +12,7 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.PathSegment;
 import jakarta.ws.rs.ext.Provider;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
@@ -19,33 +20,43 @@ import org.keycloak.models.utils.StripSecretsUtils;
 import org.keycloak.services.resources.admin.AdminRoot;
 import org.keycloak.representations.idm.ClientRepresentation;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 /** Enforces client ownership on client sub-resources not covered by client-policy events. */
 @Provider
 public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerResponseFilter {
+    private static final String UDS_REALM = "uds";
     private final boolean enabled;
+
+    private static class Configuration {
+        // Cache only process configuration, never request-specific authorization.
+        private static final boolean ENABLED = !"false".equalsIgnoreCase(System.getenv("UDS_CLIENT_OWNERSHIP_FILTER_ENABLED"));
+    }
 
     @Context
     KeycloakSession session;
 
     public ClientOwnershipFilter() {
-        this(System.getenv("UDS_CLIENT_OWNERSHIP_FILTER_ENABLED"));
+        this(Configuration.ENABLED);
     }
 
     ClientOwnershipFilter(String enabled) {
-        this.enabled = !"false".equalsIgnoreCase(enabled);
+        this(!"false".equalsIgnoreCase(enabled));
+    }
+
+    private ClientOwnershipFilter(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override
     public void filter(ContainerRequestContext request) {
+        // This switch disables only the filters; the client policy remains active.
         if (!enabled) {
             return;
         }
         var path = request.getUriInfo().getPathSegments();
-        // /admin/realms/{realm}/clients/{uuid}: leave CRUD and its errors to the policy.
-        if (path.size() <= 5 || !"admin".equals(path.get(0).getPath())
-                || !"realms".equals(path.get(1).getPath()) || !"clients".equals(path.get(3).getPath())) {
+        if (!isClientSubResource(path)) {
             return;
         }
 
@@ -63,6 +74,7 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
 
     @Override
     public void filter(ContainerRequestContext request, ContainerResponseContext response) {
+        // This switch disables only the filters; the client policy remains active.
         if (!enabled) {
             return;
         }
@@ -80,9 +92,18 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
         }
     }
 
+    static boolean isClientSubResource(List<PathSegment> path) {
+        // Other realms are unaffected; client CRUD keeps the policy's existing errors.
+        return path.size() > 5 && "admin".equals(path.get(0).getPath())
+                && "realms".equals(path.get(1).getPath()) && UDS_REALM.equals(path.get(2).getPath())
+                && "clients".equals(path.get(3).getPath());
+    }
+
     private String getOwnerClientId() {
-        // Post-matching: AdminRoot has already authenticated and verified this token.
+        // No authenticated admin context means Keycloak handles authentication itself.
         return AdminRoot.getRealmAdminAuth(session)
+                .filter(auth -> UDS_REALM.equals(session.getContext().getRealm().getName()))
+                .filter(auth -> !UDSClientPolicyPermissionsExecutor.isRealmAdmin(session))
                 .map(auth -> UDSClientPolicyPermissionsExecutor.getOwnerClientId(auth.getClient(), auth.getUser()))
                 .orElse(null);
     }

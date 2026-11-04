@@ -200,20 +200,28 @@ describe("Fleet Admin Client (federated JWT)", () => {
   });
 
   it("uds-fleet-admin manages its own client sub-resources", () => {
+    const clientId = `fleet-secret-${Date.now()}`;
     cy.getFleetAdminAccessToken().then((accessToken: string) => {
       const headers = { Authorization: `Bearer ${accessToken}` };
       cy.request({
         method: "POST",
         url: CLIENTS_URL,
         headers,
-        body: { clientId: `fleet-secret-${Date.now()}`, enabled: true, publicClient: false },
+        body: { clientId, enabled: true, publicClient: false },
       }).then((created) => {
         const clientUrl = created.headers.location as string;
+        let realSecret: string;
         cy.request({ url: `${clientUrl}/client-secret`, headers, log: false }).then((secret) => {
           expect(secret.status).to.eq(200);
           expect(secret.body.value).to.be.a("string").and.not.be.empty;
+          expect(secret.body.value).not.to.eq("**********");
+          realSecret = secret.body.value;
         });
-        cy.request({ url: CLIENTS_URL, headers }).then((clients) => {
+        cy.request({ url: CLIENTS_URL, headers, log: false }).then((clients) => {
+          // Establish that the list returns the actual secret to its owner.
+          const owned = clients.body.find((client: any) => client.clientId === clientId);
+          expect(owned, "owned client visible in list").to.exist;
+          expect(owned.secret).to.eq(realSecret);
           const operator = clients.body.find((client: any) => client.clientId === "uds-operator");
           expect(operator, "operator client").to.exist;
           expect(operator.secret, "operator secret masked in client list").to.eq("**********");
@@ -233,6 +241,18 @@ describe("Fleet Admin Client (federated JWT)", () => {
               log: false,
             }).its("status").should("eq", 403);
           }
+        });
+        cy.getAccessToken("UDS_OPERATOR").then((operatorToken: string) => {
+          // The same stored secret must be masked for a different owner.
+          cy.request({
+            url: CLIENTS_URL,
+            headers: { Authorization: `Bearer ${operatorToken}` },
+            log: false,
+          }).then((clients) => {
+            const nonOwned = clients.body.find((client: any) => client.clientId === clientId);
+            expect(nonOwned, "non-owned client visible in list").to.exist;
+            expect(nonOwned.secret).to.eq("**********");
+          });
         });
         cy.request({ method: "DELETE", url: clientUrl, headers }).its("status").should("eq", 204);
       });

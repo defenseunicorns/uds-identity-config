@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class UDSClientPolicyPermissionsExecutorTest {
 
-    final UDSClientPolicyPermissionsExecutor executor = new UDSClientPolicyPermissionsExecutor(null);
+    UDSClientPolicyPermissionsExecutor executor;
 
     @Mock
     KeycloakSession session;
@@ -50,6 +50,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
 
     @BeforeEach
     public void before() {
+        executor = new UDSClientPolicyPermissionsExecutor(session);
         UDSClientPolicyPermissionsExecutorConfiguration config = new UDSClientPolicyPermissionsExecutorConfiguration();
         config.setUseDefaultAllowedProtocolMappers(false);
         config.setAllowedProtocolMappers(UDSClientPolicyPermissionsExecutor.DEFAULT_ALLOWED_PROTOCOL_MAPPERS);

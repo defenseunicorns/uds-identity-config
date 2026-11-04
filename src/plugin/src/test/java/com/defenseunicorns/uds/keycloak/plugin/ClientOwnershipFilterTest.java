@@ -5,6 +5,8 @@
 
 package com.defenseunicorns.uds.keycloak.plugin;
 
+import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.UDSClientPolicyPermissionsExecutor;
+import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -12,13 +14,21 @@ import jakarta.ws.rs.core.PathSegment;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.keycloak.common.Profile;
+import org.mockito.MockedStatic;
 import org.junit.jupiter.api.function.Executable;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientProvider;
 import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
+import org.keycloak.models.RealmProvider;
+import org.keycloak.models.RoleModel;
+import org.keycloak.representations.AccessToken;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.UserSessionModel;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.services.resources.admin.AdminAuth;
 import org.mockito.ArgumentCaptor;
@@ -38,6 +48,19 @@ class ClientOwnershipFilterTest {
     private final RealmModel realm = mock(RealmModel.class);
     private final ClientProvider clients = mock(ClientProvider.class);
     private final ClientOwnershipFilter filter = new ClientOwnershipFilter(null);
+
+    private MockedStatic<Profile> profile;
+
+    @BeforeEach
+    void configureProfile() {
+        // Exercise Keycloak's role evaluator without bootstrapping fine-grained authorization services.
+        profile = mockStatic(Profile.class);
+    }
+
+    @AfterEach
+    void restoreProfile() {
+        profile.close();
+    }
 
     ClientOwnershipFilterTest() {
         filter.session = session;
@@ -173,6 +196,64 @@ class ClientOwnershipFilterTest {
         verify(response, never()).setEntity(any());
     }
 
+    @Test
+    void recognizesOnlyFullAdministratorsAndPreservesTheirResponses() throws Exception {
+        for (String roleName : new String[] {"realm-admin", "admin", "manage-clients", "manage-users"}) {
+            authenticate("application", "service-account-id");
+            target("other-application");
+            AdminAuth auth = session.getAttribute("ignored", AdminAuth.class);
+            RoleModel granted = mock(RoleModel.class);
+            if (roleName.equals("admin")) {
+                when(session.realms().getRealmByName("master").getRole("admin")).thenReturn(granted);
+            } else {
+                ClientModel management = mock(ClientModel.class);
+                when(realm.getClientByClientId("realm-management")).thenReturn(management);
+                when(management.getRealm()).thenReturn(realm);
+                when(management.getRole(roleName)).thenReturn(granted);
+            }
+            when(auth.getUser().hasRole(granted)).thenReturn(true);
+            boolean fullAdmin = roleName.equals("admin") || roleName.equals("realm-admin");
+            assertEquals(fullAdmin, UDSClientPolicyPermissionsExecutor.isRealmAdmin(session));
+            ContainerRequestContext request = request("admin/realms/uds/clients/target/client-secret");
+            if (fullAdmin) {
+                ClientCRUDContext crud = mock(ClientCRUDContext.class);
+                new UDSClientPolicyPermissionsExecutor(session).executeOnEvent(crud);
+                verifyNoInteractions(crud);
+                assertDoesNotThrow(() -> filter.filter(request));
+                ContainerResponseContext response = mock(ContainerResponseContext.class);
+                filter.filter(request, response);
+                verifyNoInteractions(response);
+            } else {
+                assertForbidden(() -> filter.filter(request));
+            }
+        }
+    }
+
+    @Test
+    void excludesOtherRealmsFromBothFilters() {
+        authenticate("application", "service-account-id");
+        when(realm.getName()).thenReturn("other");
+        ContainerRequestContext request = request("admin/realms/other/clients/target/client-secret");
+        ContainerResponseContext response = mock(ContainerResponseContext.class);
+        filter.filter(request);
+        filter.filter(request, response);
+        verify(session, never()).clients();
+        verifyNoInteractions(response);
+    }
+
+    @Test
+    void matchesOnlyUdsClientSubResourcePaths() {
+        for (String path : new String[] {"", "admin", "admin/realms", "admin/realms/uds",
+                "admin/realms/uds/clients", "admin/realms/uds/clients/id",
+                "admin/realms/other/clients/id/client-secret", "admin/realms/uds/users/id/credentials"}) {
+            assertFalse(ClientOwnershipFilter.isClientSubResource(request(path).getUriInfo().getPathSegments()), path);
+        }
+        assertTrue(ClientOwnershipFilter.isClientSubResource(
+                request("admin/realms/uds/clients/id/client-secret").getUriInfo().getPathSegments()));
+        assertTrue(ClientOwnershipFilter.isClientSubResource(
+                request("admin/realms/uds/clients/id/protocol-mappers/models").getUriInfo().getPathSegments()));
+    }
+
     private void assertForbidden(Executable action) {
         // The unit-test classpath has the Jakarta API, without a REST server implementation.
         Response response = mock(Response.class);
@@ -191,14 +272,25 @@ class ClientOwnershipFilterTest {
         when(application.getClientId()).thenReturn(clientId);
         UserModel user = mock(UserModel.class);
         when(user.getServiceAccountClientLink()).thenReturn(serviceAccountLink);
-        when(session.getAttribute(anyString(), eq(AdminAuth.class)))
-                .thenReturn(new AdminAuth(realm, null, user, application));
-    }
-
-    private ClientModel target(String owner) {
         KeycloakContext context = mock(KeycloakContext.class);
         when(session.getContext()).thenReturn(context);
         when(context.getRealm()).thenReturn(realm);
+        UserSessionModel userSession = mock(UserSessionModel.class);
+        when(context.getUserSession()).thenReturn(userSession);
+        when(userSession.getId()).thenReturn("session");
+        when(userSession.getUser()).thenReturn(user);
+        AccessToken token = new AccessToken();
+        token.setSessionId("session");
+        when(realm.getName()).thenReturn("uds");
+        RealmProvider realms = mock(RealmProvider.class);
+        RealmModel master = mock(RealmModel.class);
+        when(session.realms()).thenReturn(realms);
+        when(realms.getRealmByName("master")).thenReturn(master);
+        when(session.getAttribute(anyString(), eq(AdminAuth.class)))
+                .thenReturn(new AdminAuth(realm, token, user, application));
+    }
+
+    private ClientModel target(String owner) {
         when(session.clients()).thenReturn(clients);
         ClientModel target = mock(ClientModel.class);
         when(target.getAttribute("created-by")).thenReturn(owner);
