@@ -11,21 +11,21 @@ const CLIENTS_URL = "https://keycloak.admin.uds.dev/admin/realms/uds/clients";
 const SETUP_MANIFEST = "./resources/fleet-admin-test-setup.yaml";
 
 describe("Fleet Admin Client (federated JWT)", () => {
-  let secretClientUrl: string | undefined;
+  let fixtureClientUrl: string | undefined;
 
   afterEach(() => {
-    if (!secretClientUrl) return;
+    if (!fixtureClientUrl) return;
     cy.getFleetAdminAccessToken().then((accessToken: string) => {
       cy.request({
         method: "DELETE",
-        url: secretClientUrl!,
+        url: fixtureClientUrl!,
         headers: { Authorization: `Bearer ${accessToken}` },
         failOnStatusCode: false,
         log: false,
       }).its("status").should("be.oneOf", [204, 404]);
     });
     // Clear after queued cleanup so retries cannot reuse an earlier fixture.
-    cy.then(() => { secretClientUrl = undefined; });
+    cy.then(() => { fixtureClientUrl = undefined; });
   });
 
   before(() => {
@@ -238,7 +238,7 @@ describe("Fleet Admin Client (federated JWT)", () => {
         body: { clientId, enabled: true, publicClient: false },
       }).then((created) => {
         const clientUrl = created.headers.location as string;
-        secretClientUrl = clientUrl;
+        fixtureClientUrl = clientUrl;
         let realSecret: string;
         cy.request({ url: `${clientUrl}/client-secret`, headers, log: false }).then((secret) => {
           expect(secret.status).to.eq(200);
@@ -270,4 +270,66 @@ describe("Fleet Admin Client (federated JWT)", () => {
       });
     });
   });
+  function createOwnedRole() {
+    return cy.getFleetAdminAccessToken().then((ownerToken: string) => {
+      const headers = { Authorization: `Bearer ${ownerToken}` };
+      return cy.request({
+        method: "POST", url: CLIENTS_URL, headers, log: false,
+        body: { clientId: `fleet-role-${Date.now()}`, publicClient: true },
+      }).then((created) => {
+        const clientUrl = created.headers.location as string;
+        fixtureClientUrl = clientUrl;
+        return cy.request({
+          method: "POST", url: `${clientUrl}/roles`, headers, log: false,
+          body: { name: "test-role", description: "Original role" },
+        }).then(() => cy.request({ url: `${clientUrl}/roles/test-role`, headers, log: false }))
+          .then((role) => ({
+            ownerToken,
+            namedRoleUrl: `${clientUrl}/roles/test-role`,
+            roleUrl: `https://keycloak.admin.uds.dev/admin/realms/uds/roles-by-id/${role.body.id}`,
+          }));
+      });
+    });
+  }
+
+  for (const method of ["GET", "PUT", "DELETE"]) {
+    it(`non-owners can't ${method} a client role through either route`, () => {
+      createOwnedRole().then(({ ownerToken, namedRoleUrl, roleUrl }) => {
+        cy.getAccessToken("UDS_OPERATOR").then((token: string) => {
+          for (const url of [namedRoleUrl, roleUrl]) {
+            cy.request({
+              method, url, headers: { Authorization: `Bearer ${token}` },
+              ...(method === "PUT" ? { body: { name: "test-role", description: "Unauthorized update" } } : {}),
+              failOnStatusCode: false, log: false,
+            }).its("status").should("eq", 403);
+          }
+        });
+        cy.request({ url: roleUrl, headers: { Authorization: `Bearer ${ownerToken}` }, log: false })
+          .its("body.description").should("eq", "Original role");
+      });
+    });
+  }
+
+  for (const actor of ["owner", "full admin"]) {
+    it(`${actor} can read, update, and delete a client role by ID`, () => {
+      createOwnedRole().then(({ ownerToken, roleUrl }) => {
+        const token = actor === "owner"
+          ? cy.wrap(ownerToken, { log: false })
+          : cy.getAccessToken("KEYCLOAK_ADMIN");
+        token.then((accessToken: string) => {
+          const headers = { Authorization: `Bearer ${accessToken}` };
+          cy.request({ url: roleUrl, headers, log: false }).its("status").should("eq", 200);
+          cy.request({
+            method: "PUT", url: roleUrl, headers, log: false,
+            body: { name: "test-role", description: "Authorized update" },
+          }).its("status").should("eq", 204);
+          cy.request({ url: roleUrl, headers, log: false })
+            .its("body.description").should("eq", "Authorized update");
+          cy.request({ method: "DELETE", url: roleUrl, headers, log: false })
+            .its("status").should("eq", 204);
+        });
+      });
+    });
+  }
+
 });

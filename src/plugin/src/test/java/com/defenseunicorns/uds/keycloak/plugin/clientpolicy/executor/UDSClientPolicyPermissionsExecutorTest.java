@@ -418,4 +418,92 @@ public class UDSClientPolicyPermissionsExecutorTest {
         // then: no exception, and the executor never touched the proposed client
         verify(context, never()).getProposedClientRepresentation();
     }
+
+    private ClientCRUDContext applicationRequest(ClientPolicyEvent event) {
+        ClientCRUDContext context = crudContext(event, "application");
+        UserModel user = mock(UserModel.class);
+        when(user.getServiceAccountClientLink()).thenReturn("application-uuid");
+        when(context.getAuthenticatedUser()).thenReturn(user);
+        return context;
+    }
+
+    @Test
+    public void shouldStampGenericServiceAccountAndOverwriteForgedOwner() throws ClientPolicyException {
+        ClientCRUDContext context = applicationRequest(ClientPolicyEvent.REGISTER);
+        ClientRepresentation proposed = new ClientRepresentation();
+        proposed.setClientId("any-client-name");
+        proposed.setAttributes(new java.util.HashMap<>(java.util.Map.of("created-by", "another-application")));
+        when(context.getProposedClientRepresentation()).thenReturn(proposed);
+
+        executor.executeOnEvent(context);
+
+        assertEquals("application", proposed.getAttributes().get("created-by"));
+    }
+
+    @Test
+    public void shouldKeepGenericServiceAccountOwnershipOnUpdate() throws ClientPolicyException {
+        ClientCRUDContext context = applicationRequest(ClientPolicyEvent.UPDATE);
+        when(client.getAttribute("created-by")).thenReturn("application");
+        when(context.getTargetClient()).thenReturn(client);
+        ClientRepresentation proposed = new ClientRepresentation();
+        proposed.setClientId("renamed-without-a-prefix");
+        proposed.setAttributes(new java.util.HashMap<>(java.util.Map.of("created-by", "another-application")));
+        when(context.getProposedClientRepresentation()).thenReturn(proposed);
+
+        executor.executeOnEvent(context);
+
+        assertEquals("application", proposed.getAttributes().get("created-by"));
+    }
+
+    @Test
+    public void shouldAllowGenericServiceAccountToReadAndDeleteOwnedClients() {
+        when(client.getAttribute("created-by")).thenReturn("application");
+        for (ClientPolicyEvent event : List.of(ClientPolicyEvent.VIEW, ClientPolicyEvent.UNREGISTER)) {
+            ClientCRUDContext context = applicationRequest(event);
+            when(context.getTargetClient()).thenReturn(client);
+            assertDoesNotThrow(() -> executor.executeOnEvent(context), event.toString());
+        }
+    }
+
+    @Test
+    public void shouldRejectGenericServiceAccountCrudForForeignAndUnownedClients() {
+        for (String owner : new String[] {"another-application", null}) {
+            when(client.getAttribute("created-by")).thenReturn(owner);
+            for (ClientPolicyEvent event : List.of(ClientPolicyEvent.VIEW, ClientPolicyEvent.UPDATE, ClientPolicyEvent.UNREGISTER)) {
+                ClientCRUDContext context = applicationRequest(event);
+                when(context.getTargetClient()).thenReturn(client);
+
+                ClientPolicyException error = assertThrows(ClientPolicyException.class,
+                        () -> executor.executeOnEvent(context), event + " owner=" + owner);
+                assertEquals(Errors.UNAUTHORIZED_CLIENT, error.getError());
+            }
+        }
+    }
+
+    @Test
+    public void shouldValidateSettingsForGenericServiceAccount() {
+        ClientCRUDContext context = applicationRequest(ClientPolicyEvent.REGISTER);
+        ClientRepresentation proposed = new ClientRepresentation();
+        proposed.setOptionalClientScopes(List.of("disallowed-scope"));
+        when(context.getProposedClientRepresentation()).thenReturn(proposed);
+
+        ClientPolicyException error = assertThrows(ClientPolicyException.class,
+                () -> executor.executeOnEvent(context));
+
+        assertEquals(Errors.INVALID_CLIENT, error.getError());
+        assertNull(proposed.getAttributes());
+    }
+
+    @Test
+    public void shouldLeaveOrdinaryHumanCallerOutsideServiceAccountOwnership() throws ClientPolicyException {
+        ClientCRUDContext context = crudContext(ClientPolicyEvent.REGISTER, "application");
+        UserModel user = mock(UserModel.class);
+        when(context.getAuthenticatedUser()).thenReturn(user);
+
+        executor.executeOnEvent(context);
+
+        verify(context, never()).getProposedClientRepresentation();
+        verify(user).getServiceAccountClientLink();
+    }
+
 }

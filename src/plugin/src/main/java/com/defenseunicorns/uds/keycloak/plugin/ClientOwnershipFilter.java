@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.PathSegment;
 import jakarta.ws.rs.ext.Provider;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.RoleModel;
 import org.keycloak.models.utils.StripSecretsUtils;
 import org.keycloak.services.resources.admin.AdminRoot;
 import org.keycloak.representations.idm.ClientRepresentation;
@@ -47,7 +48,7 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
             return;
         }
         var path = request.getUriInfo().getPathSegments();
-        if (!isClientSubResource(path)) {
+        if (!isOwnershipResource(path)) {
             return;
         }
 
@@ -56,7 +57,17 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
             return;
         }
 
-        ClientModel client = session.clients().getClientById(session.getContext().getRealm(), path.get(4).getPath());
+        ClientModel client;
+        if ("roles-by-id".equals(path.get(3).getPath())) {
+            RoleModel role = session.getContext().getRealm().getRoleById(path.get(4).getPath());
+            // Client roles inherit ownership; realm roles and missing roles use native authorization/errors.
+            if (role == null || !(role.getContainer() instanceof ClientModel roleClient)) {
+                return;
+            }
+            client = roleClient;
+        } else {
+            client = session.clients().getClientById(session.getContext().getRealm(), path.get(4).getPath());
+        }
         if (client == null || !owner.equals(
                 client.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY))) {
             throw new ForbiddenException();
@@ -83,11 +94,12 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
         }
     }
 
-    static boolean isClientSubResource(List<PathSegment> path) {
+    static boolean isOwnershipResource(List<PathSegment> path) {
         // Other realms are unaffected; client CRUD keeps the policy's existing errors.
-        return path.size() > 5 && "admin".equals(path.get(0).getPath())
+        return path.size() > 4 && "admin".equals(path.get(0).getPath())
                 && "realms".equals(path.get(1).getPath()) && UDS_REALM.equals(path.get(2).getPath())
-                && "clients".equals(path.get(3).getPath());
+                && (("clients".equals(path.get(3).getPath()) && path.size() > 5)
+                    || "roles-by-id".equals(path.get(3).getPath()));
     }
 
     private String getOwnerClientId() {

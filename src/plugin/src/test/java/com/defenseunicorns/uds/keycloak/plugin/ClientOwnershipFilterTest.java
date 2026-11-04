@@ -403,16 +403,65 @@ class ClientOwnershipFilterTest {
     }
 
     @Test
-    void matchesOnlyUdsClientSubResourcePaths() {
+    void matchesOnlyUdsOwnershipResourcePaths() {
         for (String path : new String[] {"", "admin", "admin/realms", "admin/realms/uds",
                 "admin/realms/uds/clients", "admin/realms/uds/clients/id",
-                "admin/realms/other/clients/id/client-secret", "admin/realms/uds/users/id/credentials"}) {
-            assertFalse(ClientOwnershipFilter.isClientSubResource(request(path).getUriInfo().getPathSegments()), path);
+                "admin/realms/other/clients/id/client-secret", "admin/realms/uds/users/id/credentials",
+                "admin/realms/uds/roles-by-id", "admin/realms/other/roles-by-id/id"}) {
+            assertFalse(ClientOwnershipFilter.isOwnershipResource(request(path).getUriInfo().getPathSegments()), path);
         }
-        assertTrue(ClientOwnershipFilter.isClientSubResource(
+        assertTrue(ClientOwnershipFilter.isOwnershipResource(
                 request("admin/realms/uds/clients/id/client-secret").getUriInfo().getPathSegments()));
-        assertTrue(ClientOwnershipFilter.isClientSubResource(
+        assertTrue(ClientOwnershipFilter.isOwnershipResource(
                 request("admin/realms/uds/clients/id/protocol-mappers/models").getUriInfo().getPathSegments()));
+    }
+
+    @Test
+    void allowsOwnedClientRolesById() {
+        authenticate("application", "service-account-id");
+        RoleModel role = mock(RoleModel.class);
+        when(realm.getRoleById("role")).thenReturn(role);
+        ClientModel client = target("application");
+        when(role.getContainer()).thenReturn(client);
+
+        for (String suffix : List.of("", "/composites", "/management/permissions")) {
+            assertDoesNotThrow(() -> filter.filter(request("admin/realms/uds/roles-by-id/role" + suffix)));
+        }
+    }
+
+    @Test
+    void rejectsForeignAndUnownedClientRolesById() {
+        authenticate("application", "service-account-id");
+        RoleModel role = mock(RoleModel.class);
+        when(realm.getRoleById("role")).thenReturn(role);
+        for (String owner : new String[] {"other-application", null}) {
+            ClientModel client = target(owner);
+            when(role.getContainer()).thenReturn(client);
+            for (String suffix : List.of("", "/composites", "/management/permissions")) {
+                assertForbidden(() -> filter.filter(request("admin/realms/uds/roles-by-id/role" + suffix)));
+            }
+        }
+    }
+
+    @Test
+    void leavesRealmAndMissingRolesToKeycloak() {
+        authenticate("application", "service-account-id");
+        RoleModel role = mock(RoleModel.class);
+        when(realm.getRoleById("realm-role")).thenReturn(role);
+        when(role.getContainer()).thenReturn(realm);
+
+        assertDoesNotThrow(() -> filter.filter(request("admin/realms/uds/roles-by-id/realm-role")));
+        assertDoesNotThrow(() -> filter.filter(request("admin/realms/uds/roles-by-id/missing")));
+        verify(session, never()).clients();
+    }
+
+    @Test
+    void fullAdminsBypassRoleOwnership() {
+        for (String role : List.of("realm-admin", "admin")) {
+            authenticateWithRole(role);
+            assertDoesNotThrow(() -> filter.filter(request("admin/realms/uds/roles-by-id/foreign-role")));
+            verify(realm, never()).getRoleById(anyString());
+        }
     }
 
     private void assertForbidden(Executable action) {
