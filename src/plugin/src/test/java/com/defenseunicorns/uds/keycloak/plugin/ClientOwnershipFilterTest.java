@@ -6,7 +6,12 @@
 package com.defenseunicorns.uds.keycloak.plugin;
 
 import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.UDSClientPolicyPermissionsExecutor;
+import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.UDSClientPolicyPermissionsExecutorConfiguration;
+import org.keycloak.events.Errors;
+import org.keycloak.services.clientpolicy.ClientPolicyEvent;
+import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
+import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -48,6 +53,7 @@ class ClientOwnershipFilterTest {
     private final RealmModel realm = mock(RealmModel.class);
     private final ClientProvider clients = mock(ClientProvider.class);
     private final ClientOwnershipFilter filter = new ClientOwnershipFilter(null);
+    private final UDSClientPolicyPermissionsExecutor executor = new UDSClientPolicyPermissionsExecutor(session);
 
     private MockedStatic<Profile> profile;
 
@@ -55,6 +61,10 @@ class ClientOwnershipFilterTest {
     void configureProfile() {
         // Exercise Keycloak's role evaluator without bootstrapping fine-grained authorization services.
         profile = mockStatic(Profile.class);
+        UDSClientPolicyPermissionsExecutorConfiguration config = new UDSClientPolicyPermissionsExecutorConfiguration();
+        config.setUseDefaultAllowedProtocolMappers(false);
+        config.setUseDefaultAllowedClientScopes(false);
+        executor.setupConfiguration(config);
     }
 
     @AfterEach
@@ -100,17 +110,33 @@ class ClientOwnershipFilterTest {
     }
 
     @Test
-    void requiresMatchingOwnershipForSubResources() {
+    void rejectsSubResourcesOwnedByAnotherApplication() {
+        // given
         authenticate("application", "service-account-id");
-        ClientModel target = target("other-application");
-        ContainerRequestContext request = request("admin/realms/uds/clients/target/client-secret");
-        assertForbidden(() -> filter.filter(request));
+        target("other-application");
 
-        when(target.getAttribute("created-by")).thenReturn(null);
-        assertForbidden(() -> filter.filter(request));
+        // when / then
+        assertForbidden(() -> filter.filter(request("admin/realms/uds/clients/target/client-secret")));
+    }
 
-        when(clients.getClientById(realm, "target")).thenReturn(null);
-        assertForbidden(() -> filter.filter(request));
+    @Test
+    void rejectsUnownedSubResources() {
+        // given
+        authenticate("application", "service-account-id");
+        target(null);
+
+        // when / then
+        assertForbidden(() -> filter.filter(request("admin/realms/uds/clients/target/client-secret")));
+    }
+
+    @Test
+    void rejectsMissingClients() {
+        // given
+        authenticate("application", "service-account-id");
+        when(session.clients()).thenReturn(clients);
+
+        // when / then
+        assertForbidden(() -> filter.filter(request("admin/realms/uds/clients/target/client-secret")));
     }
 
     @Test
@@ -121,10 +147,22 @@ class ClientOwnershipFilterTest {
     }
 
     @Test
-    void leavesHumanAndUnauthenticatedRequestsToKeycloak() {
+    void leavesUnauthenticatedRequestsToKeycloak() {
+        // given
         ContainerRequestContext request = request("admin/realms/uds/clients/target/client-secret");
+
+        // when / then
         assertDoesNotThrow(() -> filter.filter(request));
+        verify(session, never()).clients();
+    }
+
+    @Test
+    void leavesHumanRequestsToKeycloak() {
+        // given
         authenticate("admin-cli", null);
+        ContainerRequestContext request = request("admin/realms/uds/clients/target/client-secret");
+
+        // when / then
         assertDoesNotThrow(() -> filter.filter(request));
         verify(session, never()).clients();
     }
@@ -144,26 +182,26 @@ class ClientOwnershipFilterTest {
     }
 
     @Test
-    void masksOtherOwnersInListsAndPreservesStreamClosure() {
+    void preservesOwnedSecretsAndMasksOtherOwnersInLists() {
+        // given
         authenticate("application", "service-account-id");
         ClientRepresentation owned = representation("application");
         ClientRepresentation other = representation("other-application");
         ClientRepresentation unowned = representation(null);
         ClientRepresentation withoutAttributes = representation(null);
         withoutAttributes.setAttributes(null);
-        AtomicBoolean closed = new AtomicBoolean();
         ContainerResponseContext response = mock(ContainerResponseContext.class);
-        when(response.getEntity()).thenReturn(Stream.of(owned, other, unowned, withoutAttributes, "unchanged")
-                .onClose(() -> closed.set(true)));
+        when(response.getEntity()).thenReturn(Stream.of(owned, other, unowned, withoutAttributes, "unchanged"));
 
+        // when
         filter.filter(mock(ContainerRequestContext.class), response);
+
+        // then
         ArgumentCaptor<Object> entity = ArgumentCaptor.forClass(Object.class);
         verify(response).setEntity(entity.capture());
-        assertFalse(closed.get());
         try (Stream<?> result = (Stream<?>) entity.getValue()) {
             assertEquals(List.of(owned, other, unowned, withoutAttributes, "unchanged"), result.toList());
         }
-        assertTrue(closed.get());
         assertEquals("test-secret", owned.getSecret());
         assertEquals("test-registration-token", owned.getRegistrationAccessToken());
         assertEquals("test-rotated-secret", owned.getAttributes().get("client.secret.rotated"));
@@ -177,6 +215,25 @@ class ClientOwnershipFilterTest {
                 assertEquals("unchanged", client.getAttributes().get("description"));
             }
         }
+    }
+
+    @Test
+    void closesTheOriginalStreamWhenTheFilteredStreamCloses() {
+        // given
+        authenticate("application", "service-account-id");
+        AtomicBoolean closed = new AtomicBoolean();
+        ContainerResponseContext response = mock(ContainerResponseContext.class);
+        when(response.getEntity()).thenReturn(Stream.empty().onClose(() -> closed.set(true)));
+
+        // when
+        filter.filter(mock(ContainerRequestContext.class), response);
+        ArgumentCaptor<Object> entity = ArgumentCaptor.forClass(Object.class);
+        verify(response).setEntity(entity.capture());
+
+        // then
+        assertFalse(closed.get());
+        ((Stream<?>) entity.getValue()).close();
+        assertTrue(closed.get());
     }
 
     @Test
@@ -197,34 +254,138 @@ class ClientOwnershipFilterTest {
     }
 
     @Test
-    void recognizesOnlyFullAdministratorsAndPreservesTheirResponses() throws Exception {
-        for (String roleName : new String[] {"realm-admin", "admin", "manage-clients", "manage-users"}) {
-            authenticate("application", "service-account-id");
-            target("other-application");
-            AdminAuth auth = session.getAttribute("ignored", AdminAuth.class);
-            RoleModel granted = mock(RoleModel.class);
-            if (roleName.equals("admin")) {
-                when(session.realms().getRealmByName("master").getRole("admin")).thenReturn(granted);
-            } else {
-                ClientModel management = mock(ClientModel.class);
-                when(realm.getClientByClientId("realm-management")).thenReturn(management);
-                when(management.getRealm()).thenReturn(realm);
-                when(management.getRole(roleName)).thenReturn(granted);
-            }
-            when(auth.getUser().hasRole(granted)).thenReturn(true);
-            boolean fullAdmin = roleName.equals("admin") || roleName.equals("realm-admin");
-            assertEquals(fullAdmin, UDSClientPolicyPermissionsExecutor.isRealmAdmin(session));
+    void recognizesOnlyFullAdministrators() {
+        for (String role : new String[] {"realm-admin", "admin", "manage-clients", "manage-users"}) {
+            // given
+            authenticateWithRole(role);
+
+            // when / then
+            assertEquals(role.equals("admin") || role.equals("realm-admin"),
+                    UDSClientPolicyPermissionsExecutor.isRealmAdmin(session), role);
+        }
+    }
+
+    @Test
+    void allowsFullAdministratorsToAccessNonOwnedSubResources() {
+        for (String role : new String[] {"realm-admin", "admin"}) {
+            // given
+            authenticateWithRole(role);
             ContainerRequestContext request = request("admin/realms/uds/clients/target/client-secret");
-            if (fullAdmin) {
-                ClientCRUDContext crud = mock(ClientCRUDContext.class);
-                new UDSClientPolicyPermissionsExecutor(session).executeOnEvent(crud);
-                verifyNoInteractions(crud);
-                assertDoesNotThrow(() -> filter.filter(request));
-                ContainerResponseContext response = mock(ContainerResponseContext.class);
-                filter.filter(request, response);
-                verifyNoInteractions(response);
-            } else {
-                assertForbidden(() -> filter.filter(request));
+
+            // when / then
+            assertDoesNotThrow(() -> filter.filter(request), role);
+            verify(session, never()).clients();
+        }
+    }
+
+    @Test
+    void leavesFullAdministratorResponsesUnchanged() {
+        for (String role : new String[] {"realm-admin", "admin"}) {
+            // given
+            authenticateWithRole(role);
+            ContainerResponseContext response = mock(ContainerResponseContext.class);
+
+            // when
+            filter.filter(mock(ContainerRequestContext.class), response);
+
+            // then
+            verifyNoInteractions(response);
+        }
+    }
+
+    @Test
+    void rejectsNonOwnedSubResourcesForLimitedAdministrators() {
+        for (String role : new String[] {"manage-clients", "manage-users"}) {
+            // given
+            authenticateWithRole(role);
+            target("other-application");
+
+            // when / then
+            assertForbidden(() -> filter.filter(request("admin/realms/uds/clients/target/client-secret")));
+        }
+    }
+
+    @Test
+    void adminUpdatesPreserveExistingOwnership() throws Exception {
+        for (String clientId : new String[] {"admin-cli", "uds-opentofu-client"}) {
+            for (String owner : new String[] {null, "another-application"}) {
+                // given
+                ClientRepresentation proposed = representation(owner);
+                ClientCRUDContext context = adminRequest(ClientPolicyEvent.UPDATE, clientId, proposed);
+
+                // when
+                executor.executeOnEvent(context);
+
+                // then
+                assertEquals(owner, proposed.getAttributes().get("created-by"), clientId);
+            }
+        }
+    }
+
+    @Test
+    void adminCreationDoesNotStampOwnership() throws Exception {
+        for (String clientId : new String[] {"admin-cli", "uds-opentofu-client"}) {
+            // given
+            ClientRepresentation proposed = new ClientRepresentation();
+            ClientCRUDContext context = adminRequest(ClientPolicyEvent.REGISTER, clientId, proposed);
+
+            // when
+            executor.executeOnEvent(context);
+
+            // then
+            assertNull(proposed.getAttributes(), clientId);
+        }
+    }
+
+    @Test
+    void adminsCanReadAndDeleteOtherClients() throws Exception {
+        for (String clientId : new String[] {"admin-cli", "uds-opentofu-client"}) {
+            for (ClientPolicyEvent event : List.of(ClientPolicyEvent.VIEW, ClientPolicyEvent.UNREGISTER)) {
+                // given
+                ClientCRUDContext context = adminRequest(event, clientId, null);
+
+                // when / then
+                assertDoesNotThrow(() -> executor.executeOnEvent(context), clientId + " " + event);
+            }
+        }
+    }
+
+    @Test
+    void adminWritesStillValidateProtocolMappers() {
+        for (String clientId : new String[] {"admin-cli", "uds-opentofu-client"}) {
+            for (ClientPolicyEvent event : List.of(ClientPolicyEvent.REGISTER, ClientPolicyEvent.UPDATE)) {
+                // given
+                ClientRepresentation proposed = new ClientRepresentation();
+                ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
+                mapper.setProtocolMapper("disallowed-mapper");
+                proposed.setProtocolMappers(List.of(mapper));
+                ClientCRUDContext context = adminRequest(event, clientId, proposed);
+
+                // when
+                ClientPolicyException error = assertThrows(ClientPolicyException.class,
+                        () -> executor.executeOnEvent(context), clientId + " " + event);
+
+                // then
+                assertEquals(Errors.INVALID_CLIENT, error.getMessage());
+            }
+        }
+    }
+
+    @Test
+    void adminWritesStillValidateClientScopes() {
+        for (String clientId : new String[] {"admin-cli", "uds-opentofu-client"}) {
+            for (ClientPolicyEvent event : List.of(ClientPolicyEvent.REGISTER, ClientPolicyEvent.UPDATE)) {
+                // given
+                ClientRepresentation proposed = new ClientRepresentation();
+                proposed.setDefaultClientScopes(List.of("disallowed-scope"));
+                ClientCRUDContext context = adminRequest(event, clientId, proposed);
+
+                // when
+                ClientPolicyException error = assertThrows(ClientPolicyException.class,
+                        () -> executor.executeOnEvent(context), clientId + " " + event);
+
+                // then
+                assertEquals(Errors.INVALID_CLIENT, error.getMessage());
             }
         }
     }
@@ -288,6 +449,39 @@ class ClientOwnershipFilterTest {
         when(realms.getRealmByName("master")).thenReturn(master);
         when(session.getAttribute(anyString(), eq(AdminAuth.class)))
                 .thenReturn(new AdminAuth(realm, token, user, application));
+    }
+
+    private void authenticateWithRole(String roleName) {
+        authenticate("application", "service-account-id");
+        grantRole(roleName);
+    }
+
+    private void grantRole(String roleName) {
+        AdminAuth auth = session.getAttribute("ignored", AdminAuth.class);
+        RoleModel granted = mock(RoleModel.class);
+        if (roleName.equals("admin")) {
+            when(session.realms().getRealmByName("master").getRole("admin")).thenReturn(granted);
+        } else {
+            ClientModel management = mock(ClientModel.class);
+            when(realm.getClientByClientId("realm-management")).thenReturn(management);
+            when(management.getRealm()).thenReturn(realm);
+            when(management.getRole(roleName)).thenReturn(granted);
+        }
+        when(auth.getUser().hasRole(granted)).thenReturn(true);
+    }
+
+    private ClientCRUDContext adminRequest(ClientPolicyEvent event, String clientId, ClientRepresentation proposed) {
+        authenticate(clientId, clientId.equals("admin-cli") ? null : "service-account-id");
+        grantRole("realm-admin");
+        AdminAuth auth = session.getAttribute("ignored", AdminAuth.class);
+        ClientCRUDContext context = mock(ClientCRUDContext.class);
+        when(context.getEvent()).thenReturn(event);
+        when(context.getAuthenticatedClient()).thenReturn(auth.getClient());
+        when(context.getAuthenticatedUser()).thenReturn(auth.getUser());
+        when(context.getProposedClientRepresentation()).thenReturn(proposed);
+        ClientModel target = target("another-application");
+        when(context.getTargetClient()).thenReturn(target);
+        return context;
     }
 
     private ClientModel target(String owner) {

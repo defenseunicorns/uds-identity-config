@@ -11,6 +11,23 @@ const CLIENTS_URL = "https://keycloak.admin.uds.dev/admin/realms/uds/clients";
 const SETUP_MANIFEST = "./resources/fleet-admin-test-setup.yaml";
 
 describe("Fleet Admin Client (federated JWT)", () => {
+  let secretClientUrl: string | undefined;
+
+  afterEach(() => {
+    if (!secretClientUrl) return;
+    cy.getFleetAdminAccessToken().then((accessToken: string) => {
+      cy.request({
+        method: "DELETE",
+        url: secretClientUrl!,
+        headers: { Authorization: `Bearer ${accessToken}` },
+        failOnStatusCode: false,
+        log: false,
+      }).its("status").should("be.oneOf", [204, 404]);
+    });
+    // Clear after queued cleanup so retries cannot reuse an earlier fixture.
+    cy.then(() => { secretClientUrl = undefined; });
+  });
+
   before(() => {
     cy.task("exec", `uds zarf tools kubectl apply -f ${SETUP_MANIFEST}`)
       .its("exitCode")
@@ -164,42 +181,53 @@ describe("Fleet Admin Client (federated JWT)", () => {
     });
   });
 
-  it("uds-fleet-admin can't delete a Client it didn't create", () => {
-    cy.getFleetAdminAccessToken().then((accessToken: string) => {
-      cy.request({
-        method: "GET",
-        url: CLIENTS_URL,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        // "broker" is a built-in client that uds-fleet-admin did not create.
-        const brokerClient = response.body.find((client: any) => client.clientId === "broker");
-        expect(brokerClient, "broker client visible in list").to.exist;
-        expect(brokerClient.attributes?.["created-by"], "broker not owned by uds-fleet-admin").to.not.eq("uds-fleet-admin");
-        const clientUrl = `${CLIENTS_URL}/${brokerClient.id}`;
-        cy.request({
-          failOnStatusCode: false,
-          method: "DELETE",
-          url: clientUrl,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-        }).then((response) => {
-          expect(response.status).to.eq(400);
-          expect(response.body).to.deep.equal({
-            error: "unauthorized_client",
-            error_description: "The Client doesn't have the created-by=uds-fleet-admin attribute. Rejecting request.",
+  for (const clientId of ["broker", "uds-operator"]) {
+    it(`uds-fleet-admin can't delete non-owned ${clientId}`, () => {
+      cy.getFleetAdminAccessToken().then((accessToken: string) => {
+        const headers = { Authorization: `Bearer ${accessToken}` };
+        cy.request({ url: CLIENTS_URL, headers, log: false }).then((response) => {
+          expect(response.status).to.eq(200);
+          const client = response.body.find((client: any) => client.clientId === clientId);
+          expect(client, "non-owned client visible in list").to.exist;
+          expect(client.attributes?.["created-by"]).not.to.eq("uds-fleet-admin");
+          cy.request({
+            method: "DELETE",
+            url: `${CLIENTS_URL}/${client.id}`,
+            headers,
+            failOnStatusCode: false,
+            log: false,
+          }).then((response) => {
+            expect(response.status).to.eq(400);
+            expect(response.body).to.deep.equal({
+              error: "unauthorized_client",
+              error_description: "The Client doesn't have the created-by=uds-fleet-admin attribute. Rejecting request.",
+            });
           });
         });
       });
     });
-  });
+  }
 
-  it("uds-fleet-admin manages its own client sub-resources", () => {
+  for (const method of ["GET", "POST"]) {
+    it(`uds-fleet-admin can't ${method} another client's secret`, () => {
+      cy.getFleetAdminAccessToken().then((accessToken: string) => {
+        const headers = { Authorization: `Bearer ${accessToken}` };
+        cy.request({ url: CLIENTS_URL, headers, log: false }).then((response) => {
+          const operator = response.body.find((client: any) => client.clientId === "uds-operator");
+          expect(operator, "operator client").to.exist;
+          cy.request({
+            method,
+            url: `${CLIENTS_URL}/${operator.id}/client-secret`,
+            headers,
+            failOnStatusCode: false,
+            log: false,
+          }).its("status").should("eq", 403);
+        });
+      });
+    });
+  }
+
+  it("client lists expose the real secret only to its owner", () => {
     const clientId = `fleet-secret-${Date.now()}`;
     cy.getFleetAdminAccessToken().then((accessToken: string) => {
       const headers = { Authorization: `Bearer ${accessToken}` };
@@ -210,6 +238,7 @@ describe("Fleet Admin Client (federated JWT)", () => {
         body: { clientId, enabled: true, publicClient: false },
       }).then((created) => {
         const clientUrl = created.headers.location as string;
+        secretClientUrl = clientUrl;
         let realSecret: string;
         cy.request({ url: `${clientUrl}/client-secret`, headers, log: false }).then((secret) => {
           expect(secret.status).to.eq(200);
@@ -225,22 +254,6 @@ describe("Fleet Admin Client (federated JWT)", () => {
           const operator = clients.body.find((client: any) => client.clientId === "uds-operator");
           expect(operator, "operator client").to.exist;
           expect(operator.secret, "operator secret masked in client list").to.eq("**********");
-          cy.request({
-            method: "DELETE",
-            url: `${CLIENTS_URL}/${operator.id}`,
-            headers,
-            failOnStatusCode: false,
-            log: false,
-          }).its("status").should("eq", 400);
-          for (const method of ["GET", "POST"]) {
-            cy.request({
-              method,
-              url: `${CLIENTS_URL}/${operator.id}/client-secret`,
-              headers,
-              failOnStatusCode: false,
-              log: false,
-            }).its("status").should("eq", 403);
-          }
         });
         cy.getAccessToken("UDS_OPERATOR").then((operatorToken: string) => {
           // The same stored secret must be masked for a different owner.
@@ -254,7 +267,6 @@ describe("Fleet Admin Client (federated JWT)", () => {
             expect(nonOwned.secret).to.eq("**********");
           });
         });
-        cy.request({ method: "DELETE", url: clientUrl, headers }).its("status").should("eq", 204);
       });
     });
   });

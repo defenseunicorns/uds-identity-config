@@ -46,8 +46,8 @@ import static org.keycloak.common.util.CollectionUtil.*;
 /**
  * Keycloak Client Policy Executor enforcing ownership for service-account applications.
  * <p>
- * Service-account applications can only manage clients stamped with their client ID.
- * All such applications use the configured mapper/scope restrictions.
+ * Non-admin service-account applications can only manage clients stamped with their client ID.
+ * Full administrators retain client access, but also use the configured mapper/scope restrictions.
  * The existing UDS-specific naming rules remain in {@link #MANAGED_CLIENT_ID_PREFIXES}:
  * * Clients created by a managed client are stamped with "created-by=&lt;authenticated clientId&gt;".
  * * A managed client may only update/view/delete clients it created (matching "created-by" attribute).
@@ -119,13 +119,11 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     @Override
     public void executeOnEvent(ClientPolicyContext context) throws ClientPolicyException {
         if ((context instanceof ClientCRUDContext clientCRUDContext)) {
-            if (isRealmAdmin(keycloakSession)) {
-                return;
-            }
+            boolean realmAdmin = isRealmAdmin(keycloakSession);
             String authenticatedClientId = getAuthenticatedClientId(clientCRUDContext);
             boolean hasAuthenticatedClient = clientCRUDContext.getAuthenticatedClient() != null;
-            boolean managedClient = getOwnerClientId(clientCRUDContext.getAuthenticatedClient(),
-                    clientCRUDContext.getAuthenticatedUser()) != null;
+            boolean managedClient = isManagedClient(clientCRUDContext.getAuthenticatedClient(),
+                    clientCRUDContext.getAuthenticatedUser());
             String requiredClientIdPrefix = getRequiredClientIdPrefix(authenticatedClientId);
             logger.debug(
                     "Executing UDSClientPolicyPermissionsExecutor, event: {}, hasAuthenticatedClient: {}, authenticatedClientId: {}, managedClient: {}, requiredClientIdPrefix: {}",
@@ -136,7 +134,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                     requiredClientIdPrefix
             );
 
-            if (hasAuthenticatedClient && managedClient) {
+            if (realmAdmin || (hasAuthenticatedClient && managedClient)) {
                 ClientModel targetClient = clientCRUDContext.getTargetClient();
                 ClientRepresentation proposedClient = clientCRUDContext.getProposedClientRepresentation();
                 logger.debug(
@@ -151,23 +149,31 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                 switch (context.getEvent()) {
                     case UPDATE:
                         logger.trace("Updating existing Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
-                        ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
+                        if (!realmAdmin) {
+                            ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
+                        }
                         validateClientSettings(clientCRUDContext.getProposedClientRepresentation());
-                        validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
-                        setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                        if (!realmAdmin) {
+                            validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                            setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                        }
                         break;
 
                     case REGISTER:
                         logger.trace("Creating new Client with Client ID: {}", clientCRUDContext.getProposedClientRepresentation().getClientId());
                         validateClientSettings(clientCRUDContext.getProposedClientRepresentation());
-                        validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
-                        setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                        if (!realmAdmin) {
+                            validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                            setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                        }
                         break;
 
                     case VIEW:
                     case UNREGISTER:
                         logger.trace("Viewing or deleting Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
-                        ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
+                        if (!realmAdmin) {
+                            ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
+                        }
                         break;
                     default:
                         break;
@@ -184,16 +190,13 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                 .orElse(false);
     }
 
-    /** Human administrators keep their privileges; application credentials are bound to their owner. */
-    public static String getOwnerClientId(ClientModel client, UserModel user) {
+    /** Identifies applications subject to ownership restrictions unless they have full admin privileges. */
+    public static boolean isManagedClient(ClientModel client, UserModel user) {
         if (client == null || client.getClientId() == null) {
-            return null;
+            return false;
         }
-        if (MANAGED_CLIENT_ID_PREFIXES.containsKey(client.getClientId())
-                || (user != null && user.getServiceAccountClientLink() != null)) {
-            return client.getClientId();
-        }
-        return null;
+        return MANAGED_CLIENT_ID_PREFIXES.containsKey(client.getClientId())
+                || (user != null && user.getServiceAccountClientLink() != null);
     }
 
     private void ensureOwnedBy(ClientModel client, String authenticatedClientId) throws ClientPolicyException {

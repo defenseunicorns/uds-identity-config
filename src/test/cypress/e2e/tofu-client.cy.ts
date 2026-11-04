@@ -113,7 +113,7 @@ describe("Tofu Client Management", () => {
         // Human-admin creation models a pre-upgrade client with no ownership stamp.
         cy.request({
             method: 'POST', url: clientsUrl, headers: adminHeaders,
-            body: { clientId: `legacy-tofu-${Date.now()}`, publicClient: false, enabled: true },
+            body: { clientId: `legacy-tofu-${Date.now()}`, publicClient: false, enabled: true, optionalClientScopes: [] },
         }).then((created) => {
             const clientUrl = created.headers.location as string;
             legacyClientUrl = clientUrl;

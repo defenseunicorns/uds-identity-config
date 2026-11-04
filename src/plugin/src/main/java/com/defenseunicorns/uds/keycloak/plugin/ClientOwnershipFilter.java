@@ -29,24 +29,15 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
     private static final String UDS_REALM = "uds";
     private final boolean enabled;
 
-    private static class Configuration {
-        // Cache only process configuration, never request-specific authorization.
-        private static final boolean ENABLED = !"false".equalsIgnoreCase(System.getenv("UDS_CLIENT_OWNERSHIP_FILTER_ENABLED"));
-    }
-
     @Context
     KeycloakSession session;
 
     public ClientOwnershipFilter() {
-        this(Configuration.ENABLED);
+        this(System.getenv("UDS_CLIENT_OWNERSHIP_FILTER_ENABLED"));
     }
 
     ClientOwnershipFilter(String enabled) {
-        this(!"false".equalsIgnoreCase(enabled));
-    }
-
-    private ClientOwnershipFilter(boolean enabled) {
-        this.enabled = enabled;
+        this.enabled = !"false".equalsIgnoreCase(enabled);
     }
 
     @Override
@@ -104,7 +95,8 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
         return AdminRoot.getRealmAdminAuth(session)
                 .filter(auth -> UDS_REALM.equals(session.getContext().getRealm().getName()))
                 .filter(auth -> !UDSClientPolicyPermissionsExecutor.isRealmAdmin(session))
-                .map(auth -> UDSClientPolicyPermissionsExecutor.getOwnerClientId(auth.getClient(), auth.getUser()))
+                .filter(auth -> UDSClientPolicyPermissionsExecutor.isManagedClient(auth.getClient(), auth.getUser()))
+                .map(auth -> auth.getClient().getClientId())
                 .orElse(null);
     }
 }
