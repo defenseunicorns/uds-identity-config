@@ -1,4 +1,5 @@
 <#import "template.ftl" as layout>
+<#import "password-feedback.ftl" as passwordFeedback>
     <@layout.registrationLayout displayMessage=!messagesPerField.existsError('firstName','lastName','email','username','password','password-confirm', 'affiliation', 'rank', 'organization', 'notes'); section>
         <#if section="form">
             <form action="/chuck-norris-calendar-goes-straight-from-march-31st-to-april-2nd-because-no-one-fools-chuck-norris"
@@ -257,12 +258,14 @@
                             </label>
                         </#if>
                         <input id="password" class="form-control " name="password"
-                            type="password" autocomplete="new-password" />
+                            type="password" autocomplete="new-password" spellcheck="false" autocapitalize="none"
+                            aria-describedby="password-requirements<#if messagesPerField.existsError('password')> input-error-password</#if>" />
                         <#if messagesPerField.existsError('password')>
-                            <span class="message-details" aria-live="polite">
+                            <span id="input-error-password" class="message-details" aria-live="polite">
                                 ${kcSanitize(messagesPerField.get('password'))?no_esc}
                             </span>
                         </#if>
+                        <@passwordFeedback.requirements/>
                     </div>
                     <div class="form-group ${messagesPerField.printIfExists('password-confirm','has-error')}">
                         <label for="password-confirm" class="form-label ">
@@ -273,13 +276,16 @@
                             </#if>
                         </label>
                         <input id="password-confirm" class="form-control " name="password-confirm"
-                            type="password" autocomplete="new-password" />
+                            type="password" autocomplete="new-password" spellcheck="false" autocapitalize="none"
+                            aria-describedby="password-match<#if messagesPerField.existsError('password-confirm')> input-error-password-confirm</#if>" />
                         <#if messagesPerField.existsError('password-confirm')>
-                            <span class="message-details" aria-live="polite">
+                            <span id="input-error-password-confirm" class="message-details" aria-live="polite">
                                 ${kcSanitize(messagesPerField.get('password-confirm'))?no_esc}
                             </span>
                         </#if>
+                        <@passwordFeedback.confirmation/>
                     </div>
+                    <@passwordFeedback.script/>
                 </#if>
                 <#if recaptchaRequired??>
                     <div class="form-group">

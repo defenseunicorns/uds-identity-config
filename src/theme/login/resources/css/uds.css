@@ -356,6 +356,52 @@ ul#kc-totp-supported-apps {
     color: #ffffff
 }
 
+.password-requirements {
+    color: #D1D5DB;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.password-requirements-title {
+    margin: 0.75rem 0 0.375rem;
+    font-weight: 500;
+}
+
+.password-requirements ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0.25rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.password-requirements li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    color: #F8B4B4;
+}
+
+.password-requirements [hidden] {
+    display: none;
+}
+
+.password-rule-icon {
+    flex: 0 0 1em;
+    text-align: center;
+}
+
+.password-match.is-match {
+    color: #84E1BC;
+}
+
+.password-match {
+    margin: 0.5rem 0 0;
+    color: #F8B4B4;
+    font-size: 0.875rem;
+}
+
 .card {
     background: none;
     border: 0;
