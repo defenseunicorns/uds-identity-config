@@ -11,6 +11,7 @@
     const requirements = document.getElementById('password-requirements');
     if (!requirements) return;
     const rules = Array.from(requirements.querySelectorAll('[data-password-rule]'));
+    const pending = requirements.querySelector('[data-password-pending]');
     const progress = requirements.querySelector('[data-password-progress]');
     const match = document.getElementById('password-match');
     let confirmationBlurred = false;
@@ -30,11 +31,10 @@
         let met = 0;
         for (const rule of rules) {
             const valid = password.value.length > 0 && checks[rule.dataset.passwordRule](password.value, Number(rule.dataset.minimum));
-            rule.classList.toggle('is-met', valid);
-            rule.querySelector('.password-rule-icon').textContent = valid ? '✓' : '×';
-            rule.querySelector('[data-rule-status]').textContent = password.value ? `${valid ? requirements.dataset.met : requirements.dataset.unmet} ` : '';
+            rule.hidden = valid;
             if (valid) met++;
         }
+        if (pending) pending.hidden = met === rules.length;
         clearTimeout(announcement);
         // Announce a summary after typing pauses instead of reading every rule on every keystroke.
         announcement = setTimeout(() => {
@@ -69,22 +69,6 @@
     // Password managers may populate fields through change events.
     password.addEventListener('change', updateFeedback);
     confirmation.addEventListener('change', updateConfirmation);
-
-    for (const toggle of document.querySelectorAll('[data-password-toggle]')) {
-        const input = document.getElementById(toggle.getAttribute('aria-controls'));
-        toggle.hidden = false;
-        toggle.addEventListener('click', () => {
-            const show = input.type === 'password';
-            input.type = show ? 'text' : 'password';
-            toggle.classList.toggle('is-visible', show);
-            toggle.setAttribute('aria-label', show ? toggle.dataset.hideLabel : toggle.dataset.showLabel);
-        });
-    }
-
-    password.form.addEventListener('submit', () => {
-        password.type = 'password';
-        confirmation.type = 'password';
-    });
 
     // These checks provide guidance; Keycloak validates all policies on submission.
     updateFeedback();

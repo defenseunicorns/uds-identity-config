@@ -10,13 +10,12 @@
                     <label for="password-new" class="${properties.kcLabelClass!}">${msg("passwordNew")}</label>
                 </div>
                 <div class="${properties.kcInputWrapperClass!}">
-                    <div class="${properties.kcInputGroup!} password-control" dir="ltr">
+                    <div class="${properties.kcInputGroup!}" dir="ltr">
                         <input type="password" id="password-new" name="password-new" class="${properties.kcInputClass!}"
                                autofocus autocomplete="new-password" spellcheck="false" autocapitalize="none"
                                aria-describedby="password-requirements<#if messagesPerField.existsError('password')> input-error-password</#if>"
                                aria-invalid="<#if messagesPerField.existsError('password','password-confirm')>true</#if>"
                         />
-                        <@passwordFeedback.toggle inputId="password-new" label=msg('passwordNew')/>
                     </div>
 
                     <#if messagesPerField.existsError('password')>
@@ -33,14 +32,13 @@
                     <label for="password-confirm" class="${properties.kcLabelClass!}">${msg("passwordConfirm")}</label>
                 </div>
                 <div class="${properties.kcInputWrapperClass!}">
-                    <div class="${properties.kcInputGroup!} password-control" dir="ltr">
+                    <div class="${properties.kcInputGroup!}" dir="ltr">
                         <input type="password" id="password-confirm" name="password-confirm"
                                class="${properties.kcInputClass!}"
                                autocomplete="new-password" spellcheck="false" autocapitalize="none"
                                aria-describedby="password-match<#if messagesPerField.existsError('password-confirm')> input-error-password-confirm</#if>"
                                aria-invalid="<#if messagesPerField.existsError('password-confirm')>true</#if>"
                         />
-                        <@passwordFeedback.toggle inputId="password-confirm" label=msg('passwordConfirm')/>
                     </div>
 
                     <#if messagesPerField.existsError('password-confirm')>

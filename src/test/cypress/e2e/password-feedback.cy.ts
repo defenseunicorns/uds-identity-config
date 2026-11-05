@@ -15,21 +15,34 @@ describe("Password feedback", () => {
     cy.get("#password-requirements").should("be.visible");
   });
 
-  it("starts neutral, updates all rules, and clears progress when the password is removed", () => {
-    cy.get("[data-password-rule].is-met").should("not.exist");
+  it("hides completed requirements and restores them when they are no longer met", () => {
+    cy.get("#password, #password-confirm").each(input => {
+      cy.wrap(input).should("have.attr", "type", "password");
+    });
+    cy.get("[data-password-toggle]").should("not.exist");
+    cy.get("[data-password-rule]").each(rule => {
+      cy.wrap(rule).should("be.visible");
+    });
     cy.get("#password").should("have.attr", "aria-describedby", "password-requirements");
     cy.get("#password").type("a");
-    cy.get('[data-password-rule="lowerCase"]').should("have.class", "is-met");
-    cy.get('[data-password-rule="length"]').should("not.have.class", "is-met");
+    cy.get('[data-password-rule="lowerCase"]').should("not.be.visible");
+    cy.get('[data-password-rule="length"]').should("be.visible");
 
     cy.get("#password").clear().type("PrettyUnicorns1!!");
     cy.get("[data-password-rule]").each(rule => {
-      cy.wrap(rule).should("have.class", "is-met");
+      cy.wrap(rule).should("not.be.visible");
     });
+    cy.get("[data-password-pending]").should("not.be.visible");
     cy.get("[data-password-progress]").should("contain.text", "5 of 5 character requirements met.");
 
+    cy.get("#password").type("{backspace}{backspace}");
+    cy.get('[data-password-rule="specialChars"]').should("be.visible");
+    cy.get('[data-password-rule="lowerCase"]').should("not.be.visible");
+
     cy.get("#password").clear();
-    cy.get("[data-password-rule].is-met").should("not.exist");
+    cy.get("[data-password-rule]").each(rule => {
+      cy.wrap(rule).should("be.visible");
+    });
     cy.get("[data-password-progress]").should("have.text", "");
   });
 
@@ -51,19 +64,7 @@ describe("Password feedback", () => {
   it("supports Unicode character classes and counts spaces as special characters like Keycloak", () => {
     cy.get("#password").invoke("val", "Éé١  abcdefghijkl").trigger("input");
     cy.get("[data-password-rule]").each(rule => {
-      cy.wrap(rule).should("have.class", "is-met");
+      cy.wrap(rule).should("not.be.visible");
     });
-  });
-
-  it("shows and hides each password independently without changing its value", () => {
-    cy.get("#password").should("have.attr", "type", "password").type("PrettyUnicorns1!!");
-    cy.get('[data-password-toggle][aria-controls="password"]').as("toggle");
-    cy.get("@toggle").should("have.attr", "aria-label", "Show Password").click();
-    cy.get("#password").should("have.attr", "type", "text").and("have.value", "PrettyUnicorns1!!");
-    cy.get("#password-confirm").should("have.attr", "type", "password");
-    cy.get("@toggle").should("have.attr", "aria-label", "Hide Password").click();
-    cy.get("#password")
-      .should("have.attr", "type", "password")
-      .and("have.value", "PrettyUnicorns1!!");
   });
 });

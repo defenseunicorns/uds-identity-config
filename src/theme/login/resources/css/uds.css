@@ -356,63 +356,14 @@ ul#kc-totp-supported-apps {
     color: #ffffff
 }
 
-.password-control,
-.password-field {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: 0.5rem;
-}
-
-.password-field > :not(input):not(button) {
-    grid-column: 1 / -1;
-}
-
-.password-toggle {
-    min-width: 2.75rem;
-    min-height: 2.75rem;
-    padding: 0.5rem;
-    border: 1px solid #4B5563;
-    border-radius: 4px;
-    background: #1F2A37;
-    color: #D1D5DB;
-    font-size: 0.875rem;
-    cursor: pointer;
-}
-
-.password-toggle:hover {
-    background: #374151;
-    color: #fff;
-}
-
-.password-toggle:focus-visible {
-    outline: 2px solid #76A9FA;
-    outline-offset: 2px;
-}
-
-.password-toggle svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    vertical-align: middle;
-}
-
-.password-eye-off,
-.password-toggle.is-visible .password-eye {
-    display: none;
-}
-
-.password-toggle.is-visible .password-eye-off {
-    display: inline-block;
-}
-
 .password-requirements {
-    margin-top: 0.75rem;
     color: #D1D5DB;
     font-size: 0.875rem;
     line-height: 1.5;
 }
 
 .password-requirements-title {
-    margin-bottom: 0.375rem;
+    margin: 0.75rem 0 0.375rem;
     font-weight: 500;
 }
 
@@ -432,12 +383,15 @@ ul#kc-totp-supported-apps {
     color: #F8B4B4;
 }
 
+.password-requirements [hidden] {
+    display: none;
+}
+
 .password-rule-icon {
     flex: 0 0 1em;
     text-align: center;
 }
 
-.password-requirements .is-met,
 .password-match.is-match {
     color: #84E1BC;
 }
