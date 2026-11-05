@@ -1,4 +1,5 @@
 <#import "template.ftl" as layout>
+<#import "password-feedback.ftl" as passwordFeedback>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('password','password-confirm') cancelButton=true; section>
     <h4>${msg("updatePasswordTitle")}</h4>
     <hr class="form-separator">
@@ -9,11 +10,13 @@
                     <label for="password-new" class="${properties.kcLabelClass!}">${msg("passwordNew")}</label>
                 </div>
                 <div class="${properties.kcInputWrapperClass!}">
-                    <div class="${properties.kcInputGroup!}" dir="ltr">
+                    <div class="${properties.kcInputGroup!} password-control" dir="ltr">
                         <input type="password" id="password-new" name="password-new" class="${properties.kcInputClass!}"
-                               autofocus autocomplete="new-password"
+                               autofocus autocomplete="new-password" spellcheck="false" autocapitalize="none"
+                               aria-describedby="password-requirements<#if messagesPerField.existsError('password')> input-error-password</#if>"
                                aria-invalid="<#if messagesPerField.existsError('password','password-confirm')>true</#if>"
                         />
+                        <@passwordFeedback.toggle inputId="password-new" label=msg('passwordNew')/>
                     </div>
 
                     <#if messagesPerField.existsError('password')>
@@ -21,6 +24,7 @@
                             ${kcSanitize(messagesPerField.get('password'))?no_esc}
                         </span>
                     </#if>
+                    <@passwordFeedback.requirements/>
                 </div>
             </div>
 
@@ -29,12 +33,14 @@
                     <label for="password-confirm" class="${properties.kcLabelClass!}">${msg("passwordConfirm")}</label>
                 </div>
                 <div class="${properties.kcInputWrapperClass!}">
-                    <div class="${properties.kcInputGroup!}" dir="ltr">
+                    <div class="${properties.kcInputGroup!} password-control" dir="ltr">
                         <input type="password" id="password-confirm" name="password-confirm"
                                class="${properties.kcInputClass!}"
-                               autocomplete="new-password"
+                               autocomplete="new-password" spellcheck="false" autocapitalize="none"
+                               aria-describedby="password-match<#if messagesPerField.existsError('password-confirm')> input-error-password-confirm</#if>"
                                aria-invalid="<#if messagesPerField.existsError('password-confirm')>true</#if>"
                         />
+                        <@passwordFeedback.toggle inputId="password-confirm" label=msg('passwordConfirm')/>
                     </div>
 
                     <#if messagesPerField.existsError('password-confirm')>
@@ -42,6 +48,7 @@
                             ${kcSanitize(messagesPerField.get('password-confirm'))?no_esc}
                         </span>
                     </#if>
+                    <@passwordFeedback.confirmation/>
 
                 </div>
             </div>
@@ -77,6 +84,7 @@
                 </div>
             </div>
         </form>
+        <@passwordFeedback.script/>
         <script>
             // Gray the reset button out until both fields are filled
             (function () {
@@ -84,8 +92,8 @@
                     var password = document.getElementById('password-new');
                     var passwordConfirm = document.getElementById('password-confirm');
                     var submitButton = document.getElementById('kc-accept');
-                    if ((!password && !passwordConfirm) || !submitButton) return;
-                    if (password.value.trim() && passwordConfirm.value.trim()) {
+                    if (!password || !passwordConfirm || !submitButton) return;
+                    if (password.value.length && passwordConfirm.value.length) {
                         submitButton.removeAttribute('disabled');
                     } else {
                         submitButton.setAttribute('disabled', 'disabled');
