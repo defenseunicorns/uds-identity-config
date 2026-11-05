@@ -153,8 +153,11 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                             ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
                         }
                         validateClientSettings(clientCRUDContext.getProposedClientRepresentation());
+                        // Admins may update any client's name and explicitly reassign ownership.
+                        // Automatically stamping an admin update would take ownership from its current owner.
                         if (!realmAdmin) {
                             validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                            // Keep the verified owner even if a delegated caller submits a different stamp.
                             setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
                         }
                         break;
@@ -162,6 +165,9 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                     case REGISTER:
                         logger.trace("Creating new Client with Client ID: {}", clientCRUDContext.getProposedClientRepresentation().getClientId());
                         validateClientSettings(clientCRUDContext.getProposedClientRepresentation());
+                        // Admin-created clients are not automatically stamped; admins may assign an owner explicitly.
+                        // Admin privileges bypass ownership checks, not the absence of a stamp: restricted
+                        // service accounts still cannot access an unstamped client. Policy validation applies above.
                         if (!realmAdmin) {
                             validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
                             setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);

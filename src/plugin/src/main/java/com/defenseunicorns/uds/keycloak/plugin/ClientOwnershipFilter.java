@@ -24,7 +24,27 @@ import org.keycloak.representations.idm.ClientRepresentation;
 import java.util.List;
 import java.util.stream.Stream;
 
-/** Enforces client ownership on client sub-resources not covered by client-policy events. */
+/**
+ * Enforces ownership for service-account applications in the {@code uds} realm where
+ * client-policy CRUD events do not cover subresource access or client listing.
+ * <p>
+ * Both filter phases are required:
+ * <ul>
+ *   <li>The request filter checks ownership before the endpoint executes. For example,
+ *       {@code DELETE /admin/realms/uds/roles-by-id/{role-uuid}} must be rejected before
+ *       another owner's client role is deleted. Named client-role routes and other client
+ *       subresources receive the same protection. Checking only in the response filter
+ *       would be too late: returning HTTP 403 does not itself undo an endpoint's changes.</li>
+ *   <li>The response filter masks sensitive fields in returned client representations.
+ *       For example, {@code GET /admin/realms/uds/clients} can list clients belonging to
+ *       several owners. It preserves the caller's own client credentials and masks those
+ *       of other or unowned clients, without removing entries from the list. This requires
+ *       the endpoint's result, which is not available in the request filter.</li>
+ * </ul>
+ * Full administrators bypass these ownership checks and masking. Native Keycloak
+ * authorization still applies, and enabled client-policy validation remains responsible
+ * for client create/update requests, including those made by administrators.
+ */
 @Provider
 public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerResponseFilter {
     private static final String UDS_REALM = "uds";
@@ -47,7 +67,10 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
         if (!enabled) {
             return;
         }
+        // Segments are zero-based: /admin/realms/uds/{resource}/{id}/... puts resource at 3 and ID at 4.
         var path = request.getUriInfo().getPathSegments();
+        // Match client subresources and roles-by-id only in uds. For example, /clients/{uuid}/roles
+        // is protected here; /clients/{uuid} uses client-policy CRUD checks, and other realms are skipped.
         if (!isOwnershipResource(path)) {
             return;
         }
@@ -59,6 +82,9 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
 
         ClientModel client;
         if ("roles-by-id".equals(path.get(3).getPath())) {
+            // /admin/realms/uds/roles-by-id/{role-uuid}, including suffixes such as /composites,
+            // contains a role UUID, not a client UUID. Resolve its containing client so this alternate
+            // route cannot bypass the ownership enforced on /clients/{client-uuid}/roles/{role-name}.
             RoleModel role = session.getContext().getRealm().getRoleById(path.get(4).getPath());
             // Client roles inherit ownership; realm roles and missing roles use native authorization/errors.
             if (role == null || !(role.getContainer() instanceof ClientModel roleClient)) {
@@ -66,6 +92,9 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
             }
             client = roleClient;
         } else {
+            // /admin/realms/uds/clients/{client-uuid}/roles/{role-name} or /protocol-mappers/models:
+            // segment 4 is the client's internal UUID, not its readable clientId. Every subresource
+            // under that client inherits the same ownership check, regardless of HTTP method.
             client = session.clients().getClientById(session.getContext().getRealm(), path.get(4).getPath());
         }
         if (client == null || !owner.equals(
