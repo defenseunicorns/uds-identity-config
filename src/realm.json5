@@ -3507,7 +3507,8 @@
         "parRequestUriLifespan": "60",
         "clientSessionMaxLifespan": "0",
         "frontendUrl": "",
-        "acr.loa.map": "{}"
+        "acr.loa.map": "{}",
+        "allowedProtocolMapperTypesForClientAdministrators": "saml-user-attribute-mapper,oidc-usermodel-attribute-mapper,saml-user-property-mapper,saml-group-membership-mapper,oidc-audience-mapper,oidc-usermodel-property-mapper,oidc-full-name-mapper,oidc-address-mapper,oidc-sha256-pairwise-sub-mapper,saml-role-list-mapper,aws-saml-group-mapper,oidc-group-membership-mapper,${REALM_SECURITY_HARDENING_ADDITIONAL_PROTOCOL_MAPPERS:}"
     },
     "userManagedAccessAllowed": false,
     "clientProfiles": {
