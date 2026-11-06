@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.32.6](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.5...v0.32.6) (2026-11-06)
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.8.2 ([#968](https://github.com/defenseunicorns/uds-identity-config/issues/968)) ([bf2c986](https://github.com/defenseunicorns/uds-identity-config/commit/bf2c986d7c8ce42f75bc18ded1c7a6b00632ca57))
+
+
+### Miscellaneous
+
+* **deps:** update dependency defenseunicorns/uds-common to v1.33.0 ([#966](https://github.com/defenseunicorns/uds-identity-config/issues/966)) ([00a50de](https://github.com/defenseunicorns/uds-identity-config/commit/00a50de1bef17457f8d6b9c991291818662cd2eb))
+* **deps:** update gha-deps ([#969](https://github.com/defenseunicorns/uds-identity-config/issues/969)) ([2fe149e](https://github.com/defenseunicorns/uds-identity-config/commit/2fe149e33da21c4455d5f1e91bc96b9470c7adc6))
+
 ## [0.32.5](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.4...v0.32.5) (2026-11-03)
 
 
