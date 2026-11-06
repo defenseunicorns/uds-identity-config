@@ -18,11 +18,15 @@ import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.services.clientpolicy.ClientPolicyEvent;
 import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperRegisterContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperRemoveContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperUpdateContext;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -204,6 +208,89 @@ public class UDSClientPolicyPermissionsExecutorTest {
             assertEquals(Errors.INVALID_CLIENT, e.getMessage());
             assertEquals("The Protocol Mapper invalid is not allowed. Rejecting request.", e.getErrorDetail());
         }
+    }
+
+    @Test
+    public void shouldAllowAudienceMapperForOwnedClient() throws ClientPolicyException {
+        ClientProtocolMapperRegisterContext context = mock(ClientProtocolMapperRegisterContext.class);
+        ClientModel operator = mock(ClientModel.class);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        when(operator.getClientScopes(true)).thenReturn(Map.of("kc-admin-api", mock(ClientScopeModel.class)));
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+        when(context.getProtocolMapperContainer()).thenReturn(client);
+        when(client.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
+        ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
+        mapper.setProtocolMapper("oidc-audience-mapper");
+        mapper.setConfig(Map.of("included.client.audience", "test-client"));
+        when(context.getProposedProtocolMappers()).thenReturn(List.of(mapper));
+
+        assertDoesNotThrow(() -> executor.executeOnEvent(context));
+    }
+
+    @Test
+    public void shouldRejectMapperOnAnotherOwnersClient() {
+        ClientProtocolMapperRegisterContext context = mock(ClientProtocolMapperRegisterContext.class);
+        ClientModel operator = mock(ClientModel.class);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        when(operator.getClientScopes(true)).thenReturn(Map.of("kc-admin-api", mock(ClientScopeModel.class)));
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+        when(context.getProtocolMapperContainer()).thenReturn(client);
+        when(client.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-fleet-admin");
+
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(context));
+    }
+
+    @Test
+    public void shouldRejectMapperRemovalOnAnotherOwnersClient() {
+        ClientProtocolMapperRemoveContext context = mock(ClientProtocolMapperRemoveContext.class);
+        ClientModel operator = mock(ClientModel.class);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        when(operator.getClientScopes(true)).thenReturn(Map.of("kc-admin-api", mock(ClientScopeModel.class)));
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+        when(context.getProtocolMapperContainer()).thenReturn(client);
+        when(client.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-fleet-admin");
+
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(context));
+    }
+
+    @Test
+    public void shouldRejectProtectedClaimButAllowCustomClaim() {
+        ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
+        mapper.setProtocolMapper("oidc-usermodel-attribute-mapper");
+        mapper.setConfig(Map.of("claim.name", "resource_access.admin.roles"));
+        assertThrows(ClientPolicyException.class, () -> executor.validateAllowedProtocolMapper(mapper));
+
+        mapper.setConfig(Map.of("claim.name", "custom.profile"));
+        assertDoesNotThrow(() -> executor.validateAllowedProtocolMapper(mapper));
+    }
+
+    @Test
+    public void shouldRejectProtectedClaimOnMapperUpdate() {
+        ClientProtocolMapperUpdateContext context = mock(ClientProtocolMapperUpdateContext.class);
+        ClientModel operator = mock(ClientModel.class);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        when(operator.getClientScopes(true)).thenReturn(Map.of("kc-admin-api", mock(ClientScopeModel.class)));
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+        when(context.getProtocolMapperContainer()).thenReturn(client);
+        when(client.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
+        ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
+        mapper.setProtocolMapper("oidc-usermodel-attribute-mapper");
+        mapper.setConfig(Map.of("claim.name", "resource_access.admin.roles"));
+        when(context.getProposedProtocolMapper()).thenReturn(mapper);
+
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(context));
+    }
+
+    @Test
+    public void shouldSkipMapperEventBeforeAdminApiScopeIsAssigned() {
+        ClientProtocolMapperRegisterContext context = mock(ClientProtocolMapperRegisterContext.class);
+        ClientModel operator = mock(ClientModel.class);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        when(operator.getClientScopes(true)).thenReturn(Map.of());
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+
+        assertDoesNotThrow(() -> executor.executeOnEvent(context));
+        verify(context, never()).getProtocolMapperContainer();
     }
 
     @Test

@@ -5,16 +5,27 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor;
 
+import org.jboss.logging.Logger;
 import org.keycloak.Config;
+import org.keycloak.models.ClientModel;
+import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
+import org.keycloak.models.RealmModel;
+import org.keycloak.models.utils.KeycloakModelUtils;
+import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.protocol.ProtocolMapper;
 import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.provider.ProviderEvent;
+import org.keycloak.provider.ProviderEventListener;
 import org.keycloak.provider.ProviderFactory;
 import org.keycloak.services.clientpolicy.executor.ClientPolicyExecutorProviderFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -30,9 +41,15 @@ import java.util.stream.Collectors;
  * Without this factory, Keycloak would not be able to instantiate and manage the custom policy
  * executor, and the UDS-specific client policies would not be enforced.
  */
-public class UDSClientPolicyPermissionsExecutorFactory implements ClientPolicyExecutorProviderFactory {
+public class UDSClientPolicyPermissionsExecutorFactory implements ClientPolicyExecutorProviderFactory, ProviderEventListener {
 
     public static final String PROVIDER_ID = "uds-operator-permissions";
+    private static final Logger LOG = Logger.getLogger(UDSClientPolicyPermissionsExecutorFactory.class);
+    private static final String ADMIN_SCOPE = "kc-admin-api";
+    private static final String ALLOWED_MAPPER_TYPES = "allowedProtocolMapperTypesForClientAdministrators";
+    private static final String ADDITIONAL_MAPPER_TYPES_ENV = "REALM_SECURITY_HARDENING_ADDITIONAL_PROTOCOL_MAPPERS";
+    private static final String MIGRATION_COMPLETE = "uds.keycloak.26.8.2.migrationComplete";
+    private static final List<String> ADMIN_CLIENTS = List.of("uds-operator", "uds-fleet-admin", "uds-opentofu-client");
 
     public static final String ADDITIONAL_ALLOWED_PROTOCOL_MAPPER_TYPES = "allowed-protocol-mappers";
     public static final String ADDITIONAL_ALLOWED_PROTOCOL_MAPPER_TYPES_AS_STRING = "allowed-protocol-mappers-as-string";
@@ -90,6 +107,59 @@ public class UDSClientPolicyPermissionsExecutorFactory implements ClientPolicyEx
         // Factory init is tricky and might be called multiple times.
         // We initialize everything at the instance construction time and keep updating the options.
         additionalAllowedProtocolMappers.setOptions(getProtocolMapperFactoryIds(factory));
+        factory.register(this);
+    }
+
+    @Override
+    public void onEvent(ProviderEvent event) {
+        if (event instanceof PostMigrationEvent postMigration) {
+            KeycloakModelUtils.runJobInTransaction(postMigration.getFactory(), this::migrateAdminApiConfiguration);
+        }
+    }
+
+    void migrateAdminApiConfiguration(KeycloakSession session) {
+        RealmModel realm = session.realms().getRealmByName("uds");
+        if (realm == null || "true".equals(realm.getAttribute(MIGRATION_COMPLETE))) {
+            return;
+        }
+
+        // Keycloak creates the scope on upgrade and after a fresh realm import.
+        ClientScopeModel scope = realm.getClientScopesStream()
+                .filter(candidate -> ADMIN_SCOPE.equals(candidate.getName()))
+                .findFirst()
+                .orElse(null);
+        if (scope == null) {
+            LOG.warnf("Client scope %s is unavailable in the uds realm; UDS Admin API clients cannot be migrated yet", ADMIN_SCOPE);
+            return;
+        }
+
+        for (String clientId : ADMIN_CLIENTS) {
+            ClientModel client = realm.getClientByClientId(clientId);
+            if (client != null && !client.getClientScopes(true).containsKey(ADMIN_SCOPE)) {
+                client.addClientScope(scope, true);
+                LOG.infof("Assigned %s client scope to %s", ADMIN_SCOPE, clientId);
+            }
+        }
+
+        Set<String> allowedTypes = new LinkedHashSet<>();
+        addMapperTypes(allowedTypes, realm.getAttribute(ALLOWED_MAPPER_TYPES));
+        allowedTypes.addAll(UDSClientPolicyPermissionsExecutor.DEFAULT_ALLOWED_PROTOCOL_MAPPERS);
+        addMapperTypes(allowedTypes, System.getenv(ADDITIONAL_MAPPER_TYPES_ENV));
+        String updated = String.join(",", allowedTypes);
+        if (!updated.equals(realm.getAttribute(ALLOWED_MAPPER_TYPES))) {
+            realm.setAttribute(ALLOWED_MAPPER_TYPES, updated);
+            LOG.info("Updated delegated client administrator protocol mapper types in the uds realm");
+        }
+        realm.setAttribute(MIGRATION_COMPLETE, "true");
+    }
+
+    private static void addMapperTypes(Set<String> target, String configured) {
+        if (configured != null) {
+            Arrays.stream(configured.split(","))
+                    .map(String::trim)
+                    .filter(value -> !value.isEmpty())
+                    .forEach(target::add);
+        }
     }
 
     private List<String> getProtocolMapperFactoryIds(KeycloakSessionFactory sessionFactory) {

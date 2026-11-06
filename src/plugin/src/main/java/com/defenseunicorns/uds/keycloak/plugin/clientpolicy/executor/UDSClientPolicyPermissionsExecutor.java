@@ -29,6 +29,9 @@ import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.services.clientpolicy.ClientPolicyContext;
 import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperRegisterContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperUpdateContext;
 import org.keycloak.services.clientpolicy.executor.ClientPolicyExecutorProvider;
 import org.keycloak.utils.StringUtil;
 import org.slf4j.Logger;
@@ -81,6 +84,11 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             org.keycloak.protocol.oidc.mappers.GroupMembershipMapper.PROVIDER_ID
     );
 
+    private static final Set<String> PROTECTED_TOKEN_CLAIMS = Set.of(
+            "sub", "iss", "aud", "azp", "exp", "iat", "nbf", "jti", "typ", "scope", "sid",
+            "session_state", "realm_access", "resource_access"
+    );
+
     public static final List<String> DEFAULT_ALLOWED_CLIENT_SCOPES = List.of(
             "openid",
             "aws-groups",
@@ -116,6 +124,21 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     @Override
     public void executeOnEvent(ClientPolicyContext context) throws ClientPolicyException {
+        // Keycloak emits mapper policy events only for client models.
+        if (context instanceof ClientProtocolMapperContext mapperContext) {
+            ClientModel authenticatedClient = mapperContext.getAuthenticatedClient();
+            if (isManagedAdminClient(authenticatedClient)) {
+                ensureOwnedBy((ClientModel) mapperContext.getProtocolMapperContainer(), authenticatedClient.getClientId());
+                if (context instanceof ClientProtocolMapperRegisterContext registerContext) {
+                    for (ProtocolMapperRepresentation mapper : registerContext.getProposedProtocolMappers()) {
+                        validateAllowedProtocolMapper(mapper);
+                    }
+                } else if (context instanceof ClientProtocolMapperUpdateContext updateContext) {
+                    validateAllowedProtocolMapper(updateContext.getProposedProtocolMapper());
+                }
+            }
+            return;
+        }
         if ((context instanceof ClientCRUDContext clientCRUDContext)) {
             String authenticatedClientId = getAuthenticatedClientId(clientCRUDContext);
             boolean hasAuthenticatedClient = clientCRUDContext.getAuthenticatedClient() != null;
@@ -208,11 +231,33 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     void validateAllowedProtocolMappers(ClientRepresentation rep) throws ClientPolicyException {
         if (isNotEmpty(rep.getProtocolMappers()) && configuration.getAllowedProtocolMappers() != null) {
             for (ProtocolMapperRepresentation mapper : rep.getProtocolMappers()) {
-                if (!configuration.getAllowedProtocolMappers().contains(mapper.getProtocolMapper())) {
-                    throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Protocol Mapper " + mapper.getProtocolMapper() + " is not allowed. Rejecting request.");
-                }
+                validateAllowedProtocolMapper(mapper);
             }
         }
+    }
+
+    void validateAllowedProtocolMapper(ProtocolMapperRepresentation mapper) throws ClientPolicyException {
+        if (configuration.getAllowedProtocolMappers() != null
+                && !configuration.getAllowedProtocolMappers().contains(mapper.getProtocolMapper())) {
+            throw new ClientPolicyException(Errors.INVALID_CLIENT,
+                    "The Protocol Mapper " + mapper.getProtocolMapper() + " is not allowed. Rejecting request.");
+        }
+        if (mapper.getConfig() != null) {
+            String claimName = mapper.getConfig().get("claim.name");
+            if (claimName != null && PROTECTED_TOKEN_CLAIMS.contains(claimName.split("[.\\[]", 2)[0])) {
+                throw new ClientPolicyException(Errors.INVALID_CLIENT,
+                        "The Protocol Mapper cannot overwrite a protected token claim. Rejecting request.");
+            }
+        }
+    }
+
+    private static boolean hasAdminApiScope(ClientModel client) {
+        Map<String, ClientScopeModel> scopes = client.getClientScopes(true);
+        return scopes != null && scopes.containsKey("kc-admin-api");
+    }
+
+    private boolean isManagedAdminClient(ClientModel client) {
+        return client != null && isManagedClient(client.getClientId()) && hasAdminApiScope(client);
     }
 
     void validateAllowedCustomClientScopes(ClientRepresentation rep) throws ClientPolicyException {
