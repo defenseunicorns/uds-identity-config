@@ -10,6 +10,17 @@ describe("Tofu Client Management", () => {
     const tofuClientName = "uds-opentofu-client";
 
     let credentials: { accessToken: string; clientSecret: string } | null = null;
+    let legacyClientUrl: string | undefined;
+
+    afterEach(() => {
+        if (!legacyClientUrl || !credentials) return;
+        // Clean up even if the administrative-access assertion fails before deletion.
+        cy.request({
+            method: 'DELETE', url: legacyClientUrl,
+            headers: { Authorization: `Bearer ${credentials.accessToken}` }, failOnStatusCode: false,
+        }).its('status').should('be.oneOf', [204, 404]);
+        legacyClientUrl = undefined;
+    });
 
     before(() => {
         // Get credentials once
@@ -93,6 +104,45 @@ describe("Tofu Client Management", () => {
 
         // Clean up test directory
         cy.task("exec", `rm -rf ${tfDir}`);
+    });
+
+    it("realm-admin can manage an existing client without an ownership stamp", () => {
+        if (!credentials) throw new Error('Credentials not initialized');
+        const clientsUrl = 'https://keycloak.admin.uds.dev/admin/realms/uds/clients';
+        const adminHeaders = { Authorization: `Bearer ${credentials.accessToken}` };
+        // Human-admin creation models a pre-upgrade client with no ownership stamp.
+        cy.request({
+            method: 'POST', url: clientsUrl, headers: adminHeaders,
+            body: { clientId: `legacy-tofu-${Date.now()}`, publicClient: false, enabled: true, optionalClientScopes: [] },
+        }).then((created) => {
+            const clientUrl = created.headers.location as string;
+            legacyClientUrl = clientUrl;
+            cy.request({
+                method: 'POST',
+                url: 'https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token',
+                form: true, log: false,
+                body: { grant_type: 'client_credentials', client_id: tofuClientName, client_secret: credentials!.clientSecret },
+            }).then((token) => {
+                const headers = { Authorization: `Bearer ${token.body.access_token}` };
+                // Full realm administration must work even when this caller did not create the client.
+                cy.request({ url: clientUrl, headers, log: false }).then((client) => {
+                    expect(client.body.attributes?.['created-by']).to.be.undefined;
+                    cy.request({ url: `${clientUrl}/client-secret`, headers, log: false }).then((secret) => {
+                        expect(secret.body.value).to.be.a('string').and.not.be.empty;
+                        expect(secret.body.value).not.to.eq('**********');
+                        cy.request({ url: clientsUrl, headers, log: false }).then((list) => {
+                            expect(list.body.find((entry: any) => entry.id === client.body.id).secret).to.eq(secret.body.value);
+                        });
+                    });
+                    cy.request({ method: 'PUT', url: clientUrl, headers, body: { ...client.body, name: 'Updated by realm admin' } });
+                    cy.request({ url: clientUrl, headers, log: false }).then((updated) => {
+                        expect(updated.body.name).to.eq('Updated by realm admin');
+                        expect(updated.body.attributes?.['created-by']).to.be.undefined;
+                    });
+                });
+                cy.request({ method: 'DELETE', url: clientUrl, headers }).its('status').should('eq', 204);
+            });
+        });
     });
 
     it("should apply OpenTofu configuration", () => {
