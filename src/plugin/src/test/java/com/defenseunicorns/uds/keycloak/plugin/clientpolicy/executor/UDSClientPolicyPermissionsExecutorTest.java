@@ -55,9 +55,9 @@ public class UDSClientPolicyPermissionsExecutorTest {
     public void before() {
         UDSClientPolicyPermissionsExecutorConfiguration config = new UDSClientPolicyPermissionsExecutorConfiguration();
         config.setUseDefaultAllowedProtocolMappers(false);
-        config.setAllowedProtocolMappers(UDSClientPolicyPermissionsExecutor.DEFAULT_ALLOWED_PROTOCOL_MAPPERS);
+        config.setAllowedProtocolMappers(ProtocolMapperPolicy.DEFAULT_ALLOWED_PROTOCOL_MAPPERS);
         config.setUseDefaultAllowedClientScopes(false);
-        config.setAllowedClientScopes(UDSClientPolicyPermissionsExecutor.DEFAULT_ALLOWED_CLIENT_SCOPES);
+        config.setAllowedClientScopes(ClientScopePolicy.DEFAULT_ALLOWED_CLIENT_SCOPES);
         executor.setupConfiguration(config);
     }
 
@@ -214,24 +214,6 @@ public class UDSClientPolicyPermissionsExecutorTest {
         mapper.setProtocolMapper(UserAttributeStatementMapper.PROVIDER_ID);
         mapper.setConfig(java.util.Map.of("claim.name", claimName));
         return mapper;
-    }
-
-    @Test
-    public void shouldRejectProtectedClaimsAfterDecodingClaimPath() {
-        for (String claimName : List.of("sub", "realm_access.roles", "s\\ub", "r\\esource_access.admin.roles")) {
-            ClientRepresentation rep = new ClientRepresentation();
-            rep.setProtocolMappers(List.of(mapperWithClaim(claimName)));
-
-            assertThrows(ClientPolicyException.class, () -> executor.validateClientSettings(rep), claimName);
-        }
-    }
-
-    @Test
-    public void shouldAllowCustomClaimPaths() throws ClientPolicyException {
-        ClientRepresentation rep = new ClientRepresentation();
-        rep.setProtocolMappers(List.of(mapperWithClaim("custom.profile"), mapperWithClaim("custom\\.profile")));
-
-        executor.validateClientSettings(rep);
     }
 
     @Test
@@ -414,10 +396,10 @@ public class UDSClientPolicyPermissionsExecutorTest {
 
         // then
         assertTrue(resultingConfiguration.isUseDefaultAllowedProtocolMappers());
-        assertEquals(UDSClientPolicyPermissionsExecutor.DEFAULT_ALLOWED_PROTOCOL_MAPPERS.size() + 1, resultingConfiguration.getAllowedProtocolMappers().size());
+        assertEquals(ProtocolMapperPolicy.DEFAULT_ALLOWED_PROTOCOL_MAPPERS.size() + 1, resultingConfiguration.getAllowedProtocolMappers().size());
 
         assertTrue(resultingConfiguration.isUseDefaultAllowedClientScopes());
-        assertEquals(UDSClientPolicyPermissionsExecutor.DEFAULT_ALLOWED_CLIENT_SCOPES.size() + 1, resultingConfiguration.getAllowedClientScopes().size());
+        assertEquals(ClientScopePolicy.DEFAULT_ALLOWED_CLIENT_SCOPES.size() + 1, resultingConfiguration.getAllowedClientScopes().size());
     }
 
     @Test

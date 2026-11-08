@@ -34,26 +34,31 @@ public class UDSAdminApiAudienceMapper extends AbstractOIDCProtocolMapper
 
     public static final String PROVIDER_ID = "uds-admin-api-audience-mapper";
 
+    /** {@inheritDoc} */
     @Override
     public String getId() {
         return PROVIDER_ID;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getDisplayType() {
         return "UDS Admin API Audience";
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getDisplayCategory() {
         return TOKEN_MAPPER_CATEGORY;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getHelpText() {
         return "Adds the request's realm Admin API audience to the token.";
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
         List<ProviderConfigProperty> properties = new ArrayList<>();
@@ -62,12 +67,14 @@ public class UDSAdminApiAudienceMapper extends AbstractOIDCProtocolMapper
         return properties;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void setClaim(IDToken token, ProtocolMapperModel mappingModel, UserSessionModel userSession,
                             KeycloakSession session, ClientSessionContext clientSessionCtx) {
         token.addAudience(getAdminApiAudience(session, session.getContext().getRealm()));
     }
 
+    /** Resolves the realm Admin API URL from the current frontend request, including dynamic hostnames. */
     public static String getAdminApiAudience(KeycloakSession session, RealmModel realm) {
         return AdminRoot.realmsUrl(session.getContext().getUri(UrlType.FRONTEND).getBaseUriBuilder())
                 .path(realm.getName())
@@ -75,6 +82,7 @@ public class UDSAdminApiAudienceMapper extends AbstractOIDCProtocolMapper
                 .toString();
     }
 
+    /** Builds a mapper enabled for ordinary, lightweight, and introspected access tokens. */
     public static ProtocolMapperModel createMapper(String name) {
         ProtocolMapperModel mapper = new ProtocolMapperModel();
         mapper.setName(name);

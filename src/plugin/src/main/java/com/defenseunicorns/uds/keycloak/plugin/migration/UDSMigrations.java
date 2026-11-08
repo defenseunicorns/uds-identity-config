@@ -15,6 +15,7 @@ import org.keycloak.provider.Provider;
 
 import java.util.List;
 
+/** Applies ordered UDS realm changes under Keycloak's boot database lock. */
 public final class UDSMigrations implements Provider {
     private static final Logger LOG = Logger.getLogger(UDSMigrations.class);
     private static final String MARKER_PREFIX = "uds.keycloak.migration.";
@@ -23,10 +24,15 @@ public final class UDSMigrations implements Provider {
 
     private final KeycloakSession session;
 
+    /** Uses the caller session for locking and its factory for the migration transaction. */
     public UDSMigrations(KeycloakSession session) {
         this.session = session;
     }
 
+    /**
+     * Migrates only the uds realm, committing each completion marker with its changes before
+     * releasing the lock. Failures propagate without recording successful completion.
+     */
     public void run() {
         DBLockProvider lock = new DBLockManager(session).getDBLock();
         lock.waitForLock(DBLockProvider.Namespace.KEYCLOAK_BOOT);
@@ -50,6 +56,7 @@ public final class UDSMigrations implements Provider {
         }
     }
 
+    /** No resources are held between invocations. */
     @Override
     public void close() {}
 }
