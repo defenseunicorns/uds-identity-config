@@ -29,7 +29,11 @@ import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.services.clientpolicy.ClientPolicyContext;
 import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperRegisterContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperUpdateContext;
 import org.keycloak.services.clientpolicy.executor.ClientPolicyExecutorProvider;
+import org.keycloak.utils.JsonUtils;
 import org.keycloak.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +58,11 @@ import static org.keycloak.common.util.CollectionUtil.*;
 public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorProvider<UDSClientPolicyPermissionsExecutorConfiguration> {
 
     public static final String ATTRIBUTE_CREATED_BY = "created-by";
+    private static final String ADMIN_API_SCOPE = "kc-admin-api";
+    private static final Set<String> PROTECTED_TOKEN_CLAIMS = Set.of(
+            "sub", "iss", "aud", "azp", "exp", "iat", "nbf", "jti", "typ", "scope", "sid",
+            "session_state", "realm_access", "resource_access"
+    );
 
     /**
      * Clients governed by this executor, mapped to the clientId prefix required for clients they create.
@@ -116,6 +125,9 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     @Override
     public void executeOnEvent(ClientPolicyContext context) throws ClientPolicyException {
+        if (context instanceof ClientProtocolMapperContext mapperContext) {
+            validateClientProtocolMapper(mapperContext);
+        }
         if ((context instanceof ClientCRUDContext clientCRUDContext)) {
             String authenticatedClientId = getAuthenticatedClientId(clientCRUDContext);
             boolean hasAuthenticatedClient = clientCRUDContext.getAuthenticatedClient() != null;
@@ -146,7 +158,9 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                     case UPDATE:
                         logger.trace("Updating existing Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
                         ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
-                        validateClientSettings(clientCRUDContext.getProposedClientRepresentation());
+                        boolean retainAdminApiScope = clientCRUDContext.getTargetClient()
+                                .getClientScopes(true).containsKey(ADMIN_API_SCOPE);
+                        validateClientSettings(clientCRUDContext.getProposedClientRepresentation(), retainAdminApiScope);
                         validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
                         setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
                         break;
@@ -167,6 +181,31 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                         break;
                 }
             }
+        }
+    }
+
+    private void validateClientProtocolMapper(ClientProtocolMapperContext context) throws ClientPolicyException {
+        if (!isManagedClient(getAuthenticatedClientId(context.getAuthenticatedClient()))) {
+            return;
+        }
+        if (context instanceof ClientProtocolMapperUpdateContext updateContext) {
+            validateAllowedProtocolMapper(updateContext.getProposedProtocolMapper());
+            validateAllowedProtocolMapper(updateContext.getExistingProtocolMapper().getProtocolMapper());
+        } else if (context instanceof ClientProtocolMapperRegisterContext registerContext
+                && registerContext.getProposedProtocolMappers() != null) {
+            for (ProtocolMapperRepresentation mapper : registerContext.getProposedProtocolMappers()) {
+                validateAllowedProtocolMapper(mapper);
+            }
+        }
+    }
+
+    private String getAuthenticatedClientId(ClientModel authenticatedClient) {
+        return authenticatedClient == null ? null : authenticatedClient.getClientId();
+    }
+
+    private void validateAllowedProtocolMapper(String mapperType) throws ClientPolicyException {
+        if (configuration.getAllowedProtocolMappers() != null && !configuration.getAllowedProtocolMappers().contains(mapperType)) {
+            throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Protocol Mapper " + mapperType + " is not allowed. Rejecting request.");
         }
     }
 
@@ -206,20 +245,30 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     }
 
     void validateAllowedProtocolMappers(ClientRepresentation rep) throws ClientPolicyException {
-        if (isNotEmpty(rep.getProtocolMappers()) && configuration.getAllowedProtocolMappers() != null) {
+        if (isNotEmpty(rep.getProtocolMappers())) {
             for (ProtocolMapperRepresentation mapper : rep.getProtocolMappers()) {
-                if (!configuration.getAllowedProtocolMappers().contains(mapper.getProtocolMapper())) {
-                    throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Protocol Mapper " + mapper.getProtocolMapper() + " is not allowed. Rejecting request.");
-                }
+                validateAllowedProtocolMapper(mapper);
             }
         }
     }
 
-    void validateAllowedCustomClientScopes(ClientRepresentation rep) throws ClientPolicyException {
+    void validateAllowedProtocolMapper(ProtocolMapperRepresentation mapper) throws ClientPolicyException {
+        validateAllowedProtocolMapper(mapper.getProtocolMapper());
+        if (mapper.getConfig() != null) {
+            String claimName = mapper.getConfig().get("claim.name");
+            if (claimName != null && JsonUtils.splitClaimPath(claimName).stream()
+                    .findFirst().filter(PROTECTED_TOKEN_CLAIMS::contains).isPresent()) {
+                throw new ClientPolicyException(Errors.INVALID_CLIENT,
+                        "The Protocol Mapper cannot overwrite a protected token claim. Rejecting request.");
+            }
+        }
+    }
+
+    private void validateAllowedCustomClientScopes(ClientRepresentation rep, boolean retainAdminApiScope) throws ClientPolicyException {
         if (configuration.getAllowedClientScopes() != null) {
             if (isNotEmpty(rep.getDefaultClientScopes())) {
                 for (String scope : rep.getDefaultClientScopes()) {
-                    if (!configuration.getAllowedClientScopes().contains(scope)) {
+                    if (!(retainAdminApiScope && ADMIN_API_SCOPE.equals(scope)) && !configuration.getAllowedClientScopes().contains(scope)) {
                         throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Client Scope " + scope + " is not allowed. Rejecting request.");
                     }
                 };
@@ -236,22 +285,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     @Override
     public void setupConfiguration(UDSClientPolicyPermissionsExecutorConfiguration config) {
-        Set<String> allowedProtocolMappers = new HashSet<>();
-        if (config.isUseDefaultAllowedProtocolMappers()) {
-            List<String> defenseUnicornsProtocolMappers = this.keycloakSession.getKeycloakSessionFactory().
-                    getProviderFactoriesStream(ProtocolMapper.class)
-                    .filter(o -> o.getClass().getPackageName().startsWith("com.defenseunicorns.uds.keycloak"))
-                    .map(o -> o.getId())
-                    .toList();
-
-            allowedProtocolMappers.addAll(DEFAULT_ALLOWED_PROTOCOL_MAPPERS);
-            allowedProtocolMappers.addAll(defenseUnicornsProtocolMappers);
-        }
-        if (StringUtils.isNotBlank(config.getAllowedProtocolMappersAsString()))
-            allowedProtocolMappers.addAll(StringUtils.parseCommaSeparatedStringToList(config.getAllowedProtocolMappersAsString()));
-        if (config.getAllowedProtocolMappers() != null)
-            allowedProtocolMappers.addAll(config.getAllowedProtocolMappers());
-        config.setAllowedProtocolMappers(new ArrayList<>(allowedProtocolMappers));
+        config.setAllowedProtocolMappers(resolveAllowedProtocolMappers(config, keycloakSession));
 
         Set<String> allowedClientScopes = new HashSet<>();
         if (config.isUseDefaultAllowedClientScopes()) {
@@ -269,6 +303,26 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         this.configuration = config;
     }
 
+    public static List<String> resolveAllowedProtocolMappers(UDSClientPolicyPermissionsExecutorConfiguration config,
+                                                               KeycloakSession session) {
+        Set<String> allowedProtocolMappers = new HashSet<>();
+        if (config.isUseDefaultAllowedProtocolMappers()) {
+            List<String> defenseUnicornsProtocolMappers = session.getKeycloakSessionFactory().
+                    getProviderFactoriesStream(ProtocolMapper.class)
+                    .filter(o -> o.getClass().getPackageName().startsWith("com.defenseunicorns.uds.keycloak"))
+                    .map(o -> o.getId())
+                    .toList();
+
+            allowedProtocolMappers.addAll(DEFAULT_ALLOWED_PROTOCOL_MAPPERS);
+            allowedProtocolMappers.addAll(defenseUnicornsProtocolMappers);
+        }
+        if (StringUtils.isNotBlank(config.getAllowedProtocolMappersAsString()))
+            allowedProtocolMappers.addAll(StringUtils.parseCommaSeparatedStringToList(config.getAllowedProtocolMappersAsString()));
+        if (config.getAllowedProtocolMappers() != null)
+            allowedProtocolMappers.addAll(config.getAllowedProtocolMappers());
+        return new ArrayList<>(allowedProtocolMappers);
+    }
+
     @Override
     public Class<UDSClientPolicyPermissionsExecutorConfiguration> getExecutorConfigurationClass() {
         return UDSClientPolicyPermissionsExecutorConfiguration.class;
@@ -280,10 +334,14 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     }
 
     void validateClientSettings(ClientRepresentation rep) throws ClientPolicyException {
+        validateClientSettings(rep, false);
+    }
+
+    private void validateClientSettings(ClientRepresentation rep, boolean retainAdminApiScope) throws ClientPolicyException {
         logger.trace("Validating Client Representation before enforcements: {}", toString(rep));
 
         validateAllowedProtocolMappers(rep);
-        validateAllowedCustomClientScopes(rep);
+        validateAllowedCustomClientScopes(rep, retainAdminApiScope);
 
         logger.trace("Client Representation after enforcements: {}", toString(rep));
     }

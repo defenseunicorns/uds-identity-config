@@ -18,6 +18,9 @@ import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.services.clientpolicy.ClientPolicyEvent;
 import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperRegisterContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperRemoveContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperUpdateContext;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -204,6 +207,162 @@ public class UDSClientPolicyPermissionsExecutorTest {
             assertEquals(Errors.INVALID_CLIENT, e.getMessage());
             assertEquals("The Protocol Mapper invalid is not allowed. Rejecting request.", e.getErrorDetail());
         }
+    }
+
+    private ProtocolMapperRepresentation mapperWithClaim(String claimName) {
+        ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
+        mapper.setProtocolMapper(UserAttributeStatementMapper.PROVIDER_ID);
+        mapper.setConfig(java.util.Map.of("claim.name", claimName));
+        return mapper;
+    }
+
+    @Test
+    public void shouldRejectProtectedClaimsAfterDecodingClaimPath() {
+        for (String claimName : List.of("sub", "realm_access.roles", "s\\ub", "r\\esource_access.admin.roles")) {
+            ClientRepresentation rep = new ClientRepresentation();
+            rep.setProtocolMappers(List.of(mapperWithClaim(claimName)));
+
+            assertThrows(ClientPolicyException.class, () -> executor.validateClientSettings(rep), claimName);
+        }
+    }
+
+    @Test
+    public void shouldAllowCustomClaimPaths() throws ClientPolicyException {
+        ClientRepresentation rep = new ClientRepresentation();
+        rep.setProtocolMappers(List.of(mapperWithClaim("custom.profile"), mapperWithClaim("custom\\.profile")));
+
+        executor.validateClientSettings(rep);
+    }
+
+    @Test
+    public void shouldValidateProtectedClaimsInBulkClientMapperUpdates() {
+        ClientCRUDContext context = crudContext(ClientPolicyEvent.REGISTER, "uds-operator");
+        ClientRepresentation proposed = new ClientRepresentation();
+        proposed.setClientId("created-client");
+        proposed.setProtocolMappers(List.of(
+                mapperWithClaim("custom.profile"), mapperWithClaim("r\\esource_access.admin.roles")));
+        when(context.getProposedClientRepresentation()).thenReturn(proposed);
+
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(context));
+    }
+
+    @Test
+    public void shouldValidateProposedStandaloneMapperButNotExistingMapperClaim() throws ClientPolicyException {
+        ClientProtocolMapperUpdateContext context = mock(ClientProtocolMapperUpdateContext.class);
+        ClientModel operator = mock(ClientModel.class);
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        ProtocolMapperModel existing = new ProtocolMapperModel();
+        existing.setProtocolMapper(UserAttributeStatementMapper.PROVIDER_ID);
+        existing.setConfig(java.util.Map.of("claim.name", "sub"));
+        when(context.getExistingProtocolMapper()).thenReturn(existing);
+        when(context.getProposedProtocolMapper()).thenReturn(mapperWithClaim("custom.profile"));
+
+        assertDoesNotThrow(() -> executor.executeOnEvent(context));
+
+        when(context.getProposedProtocolMapper()).thenReturn(mapperWithClaim("s\\ub"));
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(context));
+    }
+
+    @Test
+    public void shouldRejectDisallowedStandaloneMapperRegistration() {
+        ClientProtocolMapperRegisterContext context = mock(ClientProtocolMapperRegisterContext.class);
+        ClientModel operator = mock(ClientModel.class);
+        ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
+        mapper.setProtocolMapper("invalid");
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        when(context.getProposedProtocolMappers()).thenReturn(List.of(mapper));
+
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(context));
+    }
+
+    @Test
+    public void shouldAllowStandaloneMapperRegistration() throws ClientPolicyException {
+        ClientProtocolMapperRegisterContext context = mock(ClientProtocolMapperRegisterContext.class);
+        ClientModel operator = mock(ClientModel.class);
+        ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
+        mapper.setProtocolMapper(UserAttributeStatementMapper.PROVIDER_ID);
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        when(context.getProposedProtocolMappers()).thenReturn(List.of(mapper));
+
+        executor.executeOnEvent(context);
+    }
+
+    @Test
+    public void shouldRejectStandaloneMapperUpdateWhenExistingOrProposedTypeIsDisallowed() {
+        ClientProtocolMapperUpdateContext context = mock(ClientProtocolMapperUpdateContext.class);
+        ClientModel operator = mock(ClientModel.class);
+        ProtocolMapperRepresentation proposed = new ProtocolMapperRepresentation();
+        proposed.setProtocolMapper(UserAttributeStatementMapper.PROVIDER_ID);
+        ProtocolMapperModel existing = new ProtocolMapperModel();
+        existing.setProtocolMapper("invalid");
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        when(context.getProposedProtocolMapper()).thenReturn(proposed);
+        when(context.getExistingProtocolMapper()).thenReturn(existing);
+
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(context));
+
+        existing.setProtocolMapper(UserAttributeStatementMapper.PROVIDER_ID);
+        proposed.setProtocolMapper("invalid");
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(context));
+    }
+
+    @Test
+    public void shouldIgnoreMapperRemoval() throws ClientPolicyException {
+        ClientProtocolMapperRemoveContext context = mock(ClientProtocolMapperRemoveContext.class);
+        ClientModel operator = mock(ClientModel.class);
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+        when(operator.getClientId()).thenReturn("uds-operator");
+
+        executor.executeOnEvent(context);
+
+        verify(context, never()).getExistingProtocolMapper();
+        verify(context, never()).getProposedProtocolMapper();
+    }
+
+    @Test
+    public void shouldRetainExistingDefaultAdminApiScopeOnOwnedUpdate() throws ClientPolicyException {
+        ClientModel operator = mock(ClientModel.class);
+        ClientModel target = mock(ClientModel.class);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        when(target.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
+        when(target.getClientScopes(true)).thenReturn(java.util.Map.of("kc-admin-api", mock(ClientScopeModel.class)));
+        ClientCRUDContext context = crudContext(ClientPolicyEvent.UPDATE, "uds-operator");
+        when(context.getAuthenticatedClient()).thenReturn(operator);
+        when(context.getTargetClient()).thenReturn(target);
+        ClientRepresentation proposed = new ClientRepresentation();
+        proposed.setDefaultClientScopes(List.of("kc-admin-api"));
+        when(context.getProposedClientRepresentation()).thenReturn(proposed);
+
+        assertDoesNotThrow(() -> executor.executeOnEvent(context));
+    }
+
+    @Test
+    public void shouldRejectNewOrOptionalAdminApiScopeOnOwnedUpdate() {
+        ClientModel operator = mock(ClientModel.class);
+        ClientModel target = mock(ClientModel.class);
+        when(operator.getClientId()).thenReturn("uds-operator");
+        when(target.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
+
+        ClientCRUDContext newDefaultContext = crudContext(ClientPolicyEvent.UPDATE, "uds-operator");
+        when(newDefaultContext.getAuthenticatedClient()).thenReturn(operator);
+        when(newDefaultContext.getTargetClient()).thenReturn(target);
+        ClientRepresentation newDefault = new ClientRepresentation();
+        newDefault.setDefaultClientScopes(List.of("kc-admin-api"));
+        when(newDefaultContext.getProposedClientRepresentation()).thenReturn(newDefault);
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(newDefaultContext));
+
+        when(target.getClientScopes(true)).thenReturn(java.util.Map.of("kc-admin-api", mock(ClientScopeModel.class)));
+        ClientCRUDContext optionalContext = crudContext(ClientPolicyEvent.UPDATE, "uds-operator");
+        when(optionalContext.getAuthenticatedClient()).thenReturn(operator);
+        when(optionalContext.getTargetClient()).thenReturn(target);
+        ClientRepresentation optional = new ClientRepresentation();
+        optional.setOptionalClientScopes(List.of("kc-admin-api"));
+        when(optionalContext.getProposedClientRepresentation()).thenReturn(optional);
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(optionalContext));
     }
 
     @Test

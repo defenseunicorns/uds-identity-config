@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 Defense Unicorns
+ * Copyright 2024-2026 Defense Unicorns
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
@@ -100,8 +100,45 @@ describe("UDS Operator Client Credentials", () => {
     });
 
     it("UDSClientPolicyPermissionsExecutor supports adding additional Protocol Mappers declaratively", () => {
-      cy.task("exec", "uds zarf tools kubectl apply -f ./resources/test-package-allowed-protocol-mapper.yaml").its('exitCode').should('eq', 0);
-      cy.task("exec", "uds zarf tools kubectl wait --for=condition=Ready=true package/test-package-allowed-protocol-mapper -n test-package-allowed-protocol-mapper --timeout=300s").its('exitCode').should('eq', 0);
+        const clientId = "test-package-allowed-protocol-mapper";
+        const waitForPackage = (generation: number) => {
+            cy.task("exec", `uds zarf tools kubectl wait --for=jsonpath='{.status.observedGeneration}'=${generation} package/${clientId} -n ${clientId} --timeout=300s`).its("exitCode").should("eq", 0);
+            cy.task("exec", `uds zarf tools kubectl wait --for=condition=Ready=true package/${clientId} -n ${clientId} --timeout=300s`).its("exitCode").should("eq", 0);
+        };
+        const assertMapper = (present: boolean) => {
+            cy.getAccessToken("UDS_OPERATOR").then((token) => {
+                cy.request({
+                    url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${clientId}`,
+                    headers: { Authorization: `Bearer ${token}` },
+                    log: false,
+                }).then((response) => {
+                    const keycloakClient = response.body[0];
+                    return cy.request({
+                        url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients/${keycloakClient.id}/protocol-mappers/models`,
+                        headers: { Authorization: `Bearer ${token}` },
+                        log: false,
+                    }).then((mapperResponse) => {
+                        expect(mapperResponse.body.some((mapper: { name: string }) => mapper.name === "hardcoded-sub-claim")).to.eq(present);
+                    });
+                });
+            });
+        };
+
+        cy.task("exec", "uds zarf tools kubectl apply -f ./resources/test-package-allowed-protocol-mapper.yaml").its("exitCode").should("eq", 0);
+        cy.task("exec", `uds zarf tools kubectl wait --for=condition=Ready=true package/${clientId} -n ${clientId} --timeout=300s`).its("exitCode").should("eq", 0);
+        assertMapper(true);
+
+        cy.task("exec", `uds zarf tools kubectl patch package ${clientId} -n ${clientId} --type=json -p='[{"op":"replace","path":"/spec/sso/0/protocolMappers","value":[]}]' -o json`)
+            .then((result) => {
+                waitForPackage(JSON.parse(result.stdout).metadata.generation);
+                assertMapper(false);
+            });
+
+        cy.task("exec", `uds zarf tools kubectl patch package ${clientId} -n ${clientId} --type=json -p='[{"op":"add","path":"/spec/sso/0/protocolMappers/-","value":{"name":"hardcoded-sub-claim","protocol":"openid-connect","protocolMapper":"oidc-hardcoded-claim-mapper","config":{"claim.name":"groups","claim.value":"/UDS Core/Auditor","jsonType.label":"String","access.token.claim":"true"}}}]' -o json`)
+            .then((result) => {
+                waitForPackage(JSON.parse(result.stdout).metadata.generation);
+                assertMapper(true);
+            });
     });
 
     it("Dynamic Client Registration is disabled", () => {
