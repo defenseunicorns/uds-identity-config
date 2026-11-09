@@ -5,23 +5,21 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.migration;
 
-import com.defenseunicorns.uds.keycloak.plugin.UDSAdminApiAudienceMapper;
+import org.keycloak.protocol.oidc.mappers.AdminApiAudienceMapper;
 import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegationSyncer;
 import org.keycloak.models.Constants;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.ProtocolMapperModel;
 import org.keycloak.models.RealmModel;
 
 import java.util.List;
 
-/** Prepares existing realms for the 26.8.2 Admin API audience and mapper delegation requirements. */
+/** Applies the 26.8.2 Admin API scope assignments and mapper delegation settings to existing realms. */
 public final class MigrateTo26_8_2 implements RealmMigration {
     static final String SCOPE_NAME = "kc-admin-api";
-    private static final String MAPPER_NAME = "uds-admin-api-audience";
     private static final List<String> ADMIN_CLIENTS = List.of(
-            "uds-operator", "uds-fleet-admin", "uds-opentofu-client", "admin-cli", "security-admin-console");
+            "uds-operator", "uds-fleet-admin", "uds-opentofu-client");
 
     /** {@inheritDoc} */
     @Override
@@ -29,10 +27,9 @@ public final class MigrateTo26_8_2 implements RealmMigration {
         return "26.8.2";
     }
 
-    /** Adds the compatibility scope to existing admin clients and reconciles configured mapper types. */
+    /** Adds the Admin API scope to existing admin clients and reconciles configured mapper types. */
     @Override
     public void migrate(KeycloakSession session, RealmModel realm) {
-        session.getContext().setRealm(realm);
         ClientScopeModel scope = realm.getClientScopesStream()
                 .filter(candidate -> SCOPE_NAME.equals(candidate.getName()))
                 .findFirst()
@@ -50,24 +47,11 @@ public final class MigrateTo26_8_2 implements RealmMigration {
         ProtocolMapperDelegationSyncer.sync(session, realm, realm.getAttribute(Constants.CLIENT_PROFILES));
     }
 
-    /** Creates or repairs the UDS mapper without replacing a separately named native mapper. */
+    /** Adds the native mapper only when its provider is absent, regardless of mapper name. */
     private void addAudienceMapper(ClientScopeModel scope) {
-        ProtocolMapperModel mapper = scope.getProtocolMappersStream()
-                .filter(existing -> MAPPER_NAME.equals(existing.getName()))
-                .findFirst().orElse(null);
-        boolean isNew = mapper == null;
-        if (isNew) {
-            mapper = UDSAdminApiAudienceMapper.createMapper(MAPPER_NAME);
-        } else {
-            ProtocolMapperModel configured = UDSAdminApiAudienceMapper.createMapper(MAPPER_NAME);
-            mapper.setProtocol(configured.getProtocol());
-            mapper.setProtocolMapper(configured.getProtocolMapper());
-            mapper.setConfig(configured.getConfig());
-        }
-        if (isNew) {
-            scope.addProtocolMapper(mapper);
-        } else {
-            scope.updateProtocolMapper(mapper);
+        if (scope.getProtocolMappersStream()
+                .noneMatch(mapper -> AdminApiAudienceMapper.PROVIDER_ID.equals(mapper.getProtocolMapper()))) {
+            scope.addProtocolMapper(AdminApiAudienceMapper.createMapper("admin-api-audience", true, true, true));
         }
     }
 }

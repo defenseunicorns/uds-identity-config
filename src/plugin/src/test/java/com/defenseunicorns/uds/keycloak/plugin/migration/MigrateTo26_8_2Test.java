@@ -6,9 +6,8 @@ package com.defenseunicorns.uds.keycloak.plugin.migration;
 
 import com.defenseunicorns.uds.keycloak.plugin.CustomAWSSAMLAttributeMapper;
 import com.defenseunicorns.uds.keycloak.plugin.CustomGroupPathMapper;
-import com.defenseunicorns.uds.keycloak.plugin.UDSAdminApiAudienceMapper;
+import org.keycloak.protocol.oidc.mappers.AdminApiAudienceMapper;
 import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegationSyncer;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.models.*;
@@ -28,7 +27,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class MigrateTo26_8_2Test {
     @Mock private KeycloakSession session;
-    @Mock private KeycloakContext context;
     @Mock private RealmModel realm;
     @Mock private ClientScopeProvider scopes;
     @Mock private ClientScopeModel scope;
@@ -36,13 +34,8 @@ class MigrateTo26_8_2Test {
     @Mock private KeycloakSessionFactory factory;
     @Captor private ArgumentCaptor<ProtocolMapperModel> mapperCaptor;
 
-    @BeforeEach
-    void setupContext() {
-        when(session.getContext()).thenReturn(context);
-    }
-
     @Test
-    void createsScopeAndCompatibleAudienceMapper() {
+    void createsScopeAndNativeAudienceMapper() {
         // given
         when(realm.getClientScopesStream()).thenReturn(Stream.empty());
         when(session.clientScopes()).thenReturn(scopes);
@@ -57,26 +50,31 @@ class MigrateTo26_8_2Test {
         verify(scope).setAttribute("include.in.token.scope", "true");
         verify(scope).addProtocolMapper(mapperCaptor.capture());
         var mapper = mapperCaptor.getValue();
-        assertEquals(UDSAdminApiAudienceMapper.PROVIDER_ID, mapper.getProtocolMapper());
+        assertEquals(AdminApiAudienceMapper.PROVIDER_ID, mapper.getProtocolMapper());
         assertNull(mapper.getConfig().get("included.custom.audience"));
         assertEquals("true", mapper.getConfig().get("access.token.claim"));
         assertEquals("true", mapper.getConfig().get("introspection.token.claim"));
         assertEquals("true", mapper.getConfig().get("lightweight.claim"));
-        verify(context, never()).getUri(any());
     }
 
     @Test
-    void assignsScopeToExistingAdminClient() {
+    void assignsScopeToExistingUdsAdminClients() {
         // given
         existingScope();
-        when(realm.getClientByClientId("uds-operator")).thenReturn(operator);
-        when(operator.getClientScopes(true)).thenReturn(Map.of());
+        var clients = List.of(operator, mock(ClientModel.class), mock(ClientModel.class));
+        var clientIds = List.of("uds-operator", "uds-fleet-admin", "uds-opentofu-client");
+        for (int i = 0; i < clients.size(); i++) {
+            when(realm.getClientByClientId(clientIds.get(i))).thenReturn(clients.get(i));
+            when(clients.get(i).getClientScopes(true)).thenReturn(Map.of());
+        }
 
         // when
         new MigrateTo26_8_2().migrate(session, realm);
 
         // then
-        verify(operator).addClientScope(scope, true);
+        clients.forEach(client -> verify(client).addClientScope(scope, true));
+        verify(realm, never()).getClientByClientId("admin-cli");
+        verify(realm, never()).getClientByClientId("security-admin-console");
     }
 
     @Test
@@ -89,7 +87,7 @@ class MigrateTo26_8_2Test {
         when(realm.getAttribute(ProtocolMapperDelegationSyncer.ALLOWED_MAPPERS_ATTRIBUTE)).thenReturn("custom-existing");
         when(session.getKeycloakSessionFactory()).thenReturn(factory);
         when(factory.getProviderFactoriesStream(ProtocolMapper.class)).thenReturn(Stream.of(
-                new CustomGroupPathMapper(), new CustomAWSSAMLAttributeMapper(), new UDSAdminApiAudienceMapper()));
+                new CustomGroupPathMapper(), new CustomAWSSAMLAttributeMapper()));
 
         // when
         new MigrateTo26_8_2().migrate(session, realm);
@@ -97,7 +95,7 @@ class MigrateTo26_8_2Test {
         // then
         verify(realm).setAttribute(eq(ProtocolMapperDelegationSyncer.ALLOWED_MAPPERS_ATTRIBUTE), argThat((String value) ->
                 List.of(value.split(",")).containsAll(List.of("custom-existing", "oidc-audience-mapper",
-                        "bare-group-path-mapper", "aws-saml-attribute-mapper", "uds-admin-api-audience-mapper",
+                        "bare-group-path-mapper", "aws-saml-attribute-mapper",
                         "custom-from-profile", "custom-extra", "custom-list"))));
     }
 
@@ -123,7 +121,7 @@ class MigrateTo26_8_2Test {
     void reusesScopeAndPreservesNativeMapper() {
         // given
         var nativeMapper = new ProtocolMapperModel();
-        nativeMapper.setName("admin-api-audience");
+        nativeMapper.setName("renamed-native-mapper");
         nativeMapper.setProtocolMapper("oidc-admin-api-audience-mapper");
         existingScope(nativeMapper);
 
@@ -132,16 +130,16 @@ class MigrateTo26_8_2Test {
 
         // then
         verifyNoInteractions(scopes);
-        verify(scope).addProtocolMapper(any());
+        verify(scope, never()).addProtocolMapper(any());
         verify(scope, never()).removeProtocolMapper(any());
         verify(scope, never()).updateProtocolMapper(nativeMapper);
     }
 
     @Test
-    void repairsExistingCompatibilityMapper() {
+    void addsNativeMapperWhenExistingMapperHasAnotherProvider() {
         // given
         var mapper = new ProtocolMapperModel();
-        mapper.setName("uds-admin-api-audience");
+        mapper.setName("existing-audience");
         mapper.setProtocolMapper("oidc-audience-mapper");
         existingScope(mapper);
 
@@ -149,9 +147,10 @@ class MigrateTo26_8_2Test {
         new MigrateTo26_8_2().migrate(session, realm);
 
         // then
-        verify(scope, never()).addProtocolMapper(any());
-        verify(scope).updateProtocolMapper(mapper);
-        assertEquals(UDSAdminApiAudienceMapper.PROVIDER_ID, mapper.getProtocolMapper());
+        verify(scope).addProtocolMapper(mapperCaptor.capture());
+        assertEquals(AdminApiAudienceMapper.PROVIDER_ID, mapperCaptor.getValue().getProtocolMapper());
+        verify(scope, never()).updateProtocolMapper(any());
+        assertEquals("oidc-audience-mapper", mapper.getProtocolMapper());
     }
 
     @Test

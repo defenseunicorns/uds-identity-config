@@ -7,6 +7,7 @@ package com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.keycloak.json.RawJsonValue;
+import org.keycloak.models.Constants;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.representations.idm.ClientPolicyExecutorRepresentation;
@@ -30,11 +31,10 @@ public final class ProtocolMapperDelegationSyncer {
     /**
      * Keycloak 26.8.2's {@code Constants.ALLOWED_PROTOCOL_MAPPER_TYPES_FOR_CLIENT_ADMINISTRATORS},
      * read by {@code ProtocolMappersResource.requireManageProtocolMappers} as comma-separated IDs.
-     * Use the literal because the constant is absent in 26.8.1, our preparatory upgrade target.
      * @see <a href="https://github.com/keycloak/keycloak/blob/26.8.2/server-spi-private/src/main/java/org/keycloak/models/Constants.java#L276">Native attribute</a>
      * @see <a href="https://github.com/keycloak/keycloak/blob/26.8.2/services/src/main/java/org/keycloak/services/resources/admin/ProtocolMappersResource.java#L329">Native permission check</a>
      */
-    public static final String ALLOWED_MAPPERS_ATTRIBUTE = "allowedProtocolMapperTypesForClientAdministrators";
+    public static final String ALLOWED_MAPPERS_ATTRIBUTE = Constants.ALLOWED_PROTOCOL_MAPPER_TYPES_FOR_CLIENT_ADMINISTRATORS;
     static final String UDS_ADDED_MAPPERS_ATTRIBUTE = "uds.protocolMapperDelegation.addedTypes";
 
     /** Prevents construction of this stateless synchronizer. */

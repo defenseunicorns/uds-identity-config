@@ -983,9 +983,9 @@
             },
             "protocolMappers": [
                 {
-                    "name": "uds-admin-api-audience",
+                    "name": "admin-api-audience",
                     "protocol": "openid-connect",
-                    "protocolMapper": "uds-admin-api-audience-mapper",
+                    "protocolMapper": "oidc-admin-api-audience-mapper",
                     "consentRequired": false,
                     "config": {
                         "access.token.claim": "true",
