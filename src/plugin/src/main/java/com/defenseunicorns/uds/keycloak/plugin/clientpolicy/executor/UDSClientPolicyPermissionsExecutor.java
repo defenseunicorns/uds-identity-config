@@ -13,6 +13,9 @@ import org.keycloak.events.Errors;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.UserModel;
+import org.keycloak.services.resources.admin.AdminRoot;
+import org.keycloak.services.resources.admin.fgap.AdminPermissions;
 import org.keycloak.protocol.ProtocolMapper;
 import org.keycloak.protocol.saml.mappers.GroupMembershipMapper;
 import org.keycloak.protocol.oidc.mappers.UserAttributeMapper;
@@ -41,10 +44,11 @@ import java.util.stream.Collectors;
 import static org.keycloak.common.util.CollectionUtil.*;
 
 /**
- * Keycloak Client Policy Executor for UDS-managed admin clients (e.g. uds-operator, uds-fleet-admin).
+ * Keycloak Client Policy Executor enforcing ownership for service-account applications.
  * <p>
- * The executor only acts when the request is authenticated as one of the managed clients
- * ({@link #MANAGED_CLIENT_ID_PREFIXES}). For those clients the following rules apply:
+ * Non-admin service-account applications can only manage clients stamped with their client ID.
+ * Full administrators retain client access, but also use the configured mapper/scope restrictions.
+ * The existing UDS-specific naming rules remain in {@link #MANAGED_CLIENT_ID_PREFIXES}:
  * * Clients created by a managed client are stamped with "created-by=&lt;authenticated clientId&gt;".
  * * A managed client may only update/view/delete clients it created (matching "created-by" attribute).
  * * A managed client may only create clients whose clientId starts with its required prefix (empty = no constraint).
@@ -56,10 +60,8 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     public static final String ATTRIBUTE_CREATED_BY = "created-by";
 
     /**
-     * Clients governed by this executor, mapped to the clientId prefix required for clients they create.
-     * The authenticated clientId is still stamped directly into created-by; this map only acts as the
-     * managed-client allowlist and per-client prefix configuration. An empty prefix imposes no naming
-     * constraint (preserves uds-operator's existing behavior).
+     * Existing UDS-managed clients and their required naming prefixes.
+     * Other service-account applications also enforce ownership, without a naming prefix.
      */
     public static final Map<String, String> MANAGED_CLIENT_ID_PREFIXES = Map.of(
             "uds-operator", "",
@@ -117,9 +119,11 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     @Override
     public void executeOnEvent(ClientPolicyContext context) throws ClientPolicyException {
         if ((context instanceof ClientCRUDContext clientCRUDContext)) {
+            boolean realmAdmin = isRealmAdmin(keycloakSession);
             String authenticatedClientId = getAuthenticatedClientId(clientCRUDContext);
             boolean hasAuthenticatedClient = clientCRUDContext.getAuthenticatedClient() != null;
-            boolean managedClient = isManagedClient(authenticatedClientId);
+            boolean managedClient = isManagedClient(clientCRUDContext.getAuthenticatedClient(),
+                    clientCRUDContext.getAuthenticatedUser());
             String requiredClientIdPrefix = getRequiredClientIdPrefix(authenticatedClientId);
             logger.debug(
                     "Executing UDSClientPolicyPermissionsExecutor, event: {}, hasAuthenticatedClient: {}, authenticatedClientId: {}, managedClient: {}, requiredClientIdPrefix: {}",
@@ -130,7 +134,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                     requiredClientIdPrefix
             );
 
-            if (hasAuthenticatedClient && managedClient) {
+            if (realmAdmin || (hasAuthenticatedClient && managedClient)) {
                 ClientModel targetClient = clientCRUDContext.getTargetClient();
                 ClientRepresentation proposedClient = clientCRUDContext.getProposedClientRepresentation();
                 logger.debug(
@@ -145,29 +149,60 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                 switch (context.getEvent()) {
                     case UPDATE:
                         logger.trace("Updating existing Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
-                        ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
+                        if (!realmAdmin) {
+                            ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
+                        }
                         validateClientSettings(clientCRUDContext.getProposedClientRepresentation());
-                        validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
-                        setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                        // Admins may update any client's name and explicitly reassign ownership.
+                        // Automatically stamping an admin update would take ownership from its current owner.
+                        if (!realmAdmin) {
+                            validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                            // Keep the verified owner even if a delegated caller submits a different stamp.
+                            setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                        }
                         break;
 
                     case REGISTER:
                         logger.trace("Creating new Client with Client ID: {}", clientCRUDContext.getProposedClientRepresentation().getClientId());
                         validateClientSettings(clientCRUDContext.getProposedClientRepresentation());
-                        validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
-                        setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                        // Admin-created clients are not automatically stamped; admins may assign an owner explicitly.
+                        // Admin privileges bypass ownership checks, not the absence of a stamp: restricted
+                        // service accounts still cannot access an unstamped client. Policy validation applies above.
+                        if (!realmAdmin) {
+                            validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                            setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
+                        }
                         break;
 
                     case VIEW:
                     case UNREGISTER:
                         logger.trace("Viewing or deleting Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
-                        ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
+                        if (!realmAdmin) {
+                            ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
+                        }
                         break;
                     default:
                         break;
                 }
             }
         }
+    }
+
+    public static boolean isRealmAdmin(KeycloakSession session) {
+        // Full administrators must manage existing unowned clients; native endpoint authorization still applies.
+        // manage-clients, unrelated admin roles, and the target's privileges do not grant this exemption.
+        return AdminRoot.getRealmAdminAuth(session)
+                .map(auth -> AdminPermissions.evaluator(session, session.getContext().getRealm(), auth).isRealmAdmin())
+                .orElse(false);
+    }
+
+    /** Identifies applications subject to ownership restrictions unless they have full admin privileges. */
+    public static boolean isManagedClient(ClientModel client, UserModel user) {
+        if (client == null || client.getClientId() == null) {
+            return false;
+        }
+        return MANAGED_CLIENT_ID_PREFIXES.containsKey(client.getClientId())
+                || (user != null && user.getServiceAccountClientLink() != null);
     }
 
     private void ensureOwnedBy(ClientModel client, String authenticatedClientId) throws ClientPolicyException {
@@ -185,10 +220,6 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
 
     boolean isOwnedBy(ClientModel client, String ownerClientId) {
         return ownerClientId.equals(client.getAttribute(ATTRIBUTE_CREATED_BY));
-    }
-
-    boolean isManagedClient(String clientId) {
-        return clientId != null && MANAGED_CLIENT_ID_PREFIXES.containsKey(clientId);
     }
 
     String getRequiredClientIdPrefix(String clientId) {

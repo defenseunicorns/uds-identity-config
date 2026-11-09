@@ -102,6 +102,28 @@ describe("UDS Operator Client Credentials", () => {
     it("UDSClientPolicyPermissionsExecutor supports adding additional Protocol Mappers declaratively", () => {
       cy.task("exec", "uds zarf tools kubectl apply -f ./resources/test-package-allowed-protocol-mapper.yaml").its('exitCode').should('eq', 0);
       cy.task("exec", "uds zarf tools kubectl wait --for=condition=Ready=true package/test-package-allowed-protocol-mapper -n test-package-allowed-protocol-mapper --timeout=300s").its('exitCode').should('eq', 0);
+      const clientId = 'test-package-allowed-protocol-mapper';
+      // Reconcile an existing owned client too: masking must never become an application credential.
+      for (const name of ['Initial secret sync', 'Updated secret sync']) {
+        cy.task('exec', `uds zarf tools kubectl patch package ${clientId} -n ${clientId} --type=json -p='[{"op":"replace","path":"/spec/sso/0/name","value":"${name}"}]' -o json`)
+          .then((result) => {
+            const generation = JSON.parse(result.stdout).metadata.generation;
+            cy.task('exec', `uds zarf tools kubectl wait --for=jsonpath='{.status.observedGeneration}'=${generation} package/${clientId} -n ${clientId} --timeout=300s`).its('exitCode').should('eq', 0);
+            cy.task('exec', `uds zarf tools kubectl wait --for=condition=Ready=true package/${clientId} -n ${clientId} --timeout=300s`).its('exitCode').should('eq', 0);
+          });
+        cy.getAccessToken('UDS_OPERATOR').then((token) => {
+          cy.request({
+            url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${clientId}`,
+            headers: { Authorization: `Bearer ${token}` }, log: false,
+          }).then((response) => {
+            const client = response.body[0];
+            expect(client.attributes['created-by']).to.eq('uds-operator');
+            expect(client.secret).to.be.a('string').and.not.be.empty;
+            expect(client.secret).not.to.eq('**********');
+            cy.getValueFromSecret(clientId, `sso-client-${clientId}`, 'secret').should('eq', client.secret);
+          });
+        });
+      }
     });
 
     it("Dynamic Client Registration is disabled", () => {
