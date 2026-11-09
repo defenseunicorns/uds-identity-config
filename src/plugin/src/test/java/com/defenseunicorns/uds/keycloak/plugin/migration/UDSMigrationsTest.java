@@ -21,6 +21,38 @@ import static org.mockito.Mockito.*;
 
 class UDSMigrationsTest {
     @Test
+    void completedMigrationIsSkipped() {
+        // given
+        KeycloakSession session = mock(KeycloakSession.class);
+        KeycloakSessionFactory factory = mock(KeycloakSessionFactory.class);
+        KeycloakSession migrationSession = mock(KeycloakSession.class);
+        when(session.getKeycloakSessionFactory()).thenReturn(factory);
+        when(factory.create()).thenReturn(migrationSession);
+        KeycloakTransactionManager transaction = mock(KeycloakTransactionManager.class);
+        when(migrationSession.getTransactionManager()).thenReturn(transaction);
+        when(session.getProvider(DBLockProvider.class)).thenReturn(mock(DBLockProvider.class));
+        DBLockProvider lock = session.getProvider(DBLockProvider.class);
+        when(migrationSession.getContext()).thenReturn(mock(KeycloakContext.class));
+        RealmProvider realms = mock(RealmProvider.class);
+        RealmModel realm = mock(RealmModel.class);
+        when(migrationSession.realms()).thenReturn(realms);
+        when(realms.getRealmByName("uds")).thenReturn(realm);
+        when(realm.getAttribute("uds.keycloak.migration.26.8.2")).thenReturn("true");
+
+        // when
+        new UDSMigrations(session).run();
+
+        // then
+        verify(migrationSession, never()).getProvider(MigrationProvider.class);
+        verify(realm, never()).setAttribute("uds.keycloak.migration.26.8.2", true);
+        verify(transaction).begin();
+        verify(transaction, never()).setRollbackOnly();
+        verify(migrationSession).close();
+        verify(lock).waitForLock(DBLockProvider.Namespace.KEYCLOAK_BOOT);
+        verify(lock).releaseLock();
+    }
+
+    @Test
     void failedMigrationDoesNotPersistCompletionMarkerAndReleasesLock() {
         // given
         KeycloakSession session = mock(KeycloakSession.class);

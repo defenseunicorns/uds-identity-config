@@ -700,7 +700,8 @@
                 "acr",
                 "profile",
                 "roles",
-                "email"
+                "email",
+                "kc-admin-api"
             ],
             "optionalClientScopes": [
                 "address",
@@ -853,7 +854,8 @@
                 "acr",
                 "profile",
                 "roles",
-                "email"
+                "email",
+                "kc-admin-api"
             ],
             "optionalClientScopes": [
                 "address",
@@ -895,7 +897,7 @@
             },
             "fullScopeAllowed": true,
             "defaultClientScopes": [
-                "profile", "email", "roles", "web-origins", "acr"
+                "profile", "email", "roles", "web-origins", "acr", "kc-admin-api"
             ],
             "optionalClientScopes": [
                 "offline_access", "address", "phone", "microprofile-jwt", "bare-groups"
@@ -927,7 +929,7 @@
             "fullScopeAllowed": true,
             "nodeReRegistrationTimeout": 0,
             "defaultClientScopes": [
-                "profile", "email", "roles", "web-origins", "acr"
+                "profile", "email", "roles", "web-origins", "acr", "kc-admin-api"
             ],
             "optionalClientScopes": [
                 "offline_access", "address", "phone", "microprofile-jwt", "bare-groups"
@@ -963,7 +965,7 @@
             "fullScopeAllowed": true,
             "nodeReRegistrationTimeout": 0,
             "defaultClientScopes": [
-                "profile", "email", "roles", "web-origins", "acr"
+                "profile", "email", "roles", "web-origins", "acr", "kc-admin-api"
             ],
             "optionalClientScopes": [
                 "offline_access", "address", "phone", "microprofile-jwt", "bare-groups"
@@ -971,6 +973,29 @@
         }
     ],
     "clientScopes": [
+        {
+            "name": "kc-admin-api",
+            "description": "Keycloak Admin API scope",
+            "protocol": "openid-connect",
+            "attributes": {
+                "include.in.token.scope": "true",
+                "display.on.consent.screen": "false"
+            },
+            "protocolMappers": [
+                {
+                    "name": "admin-api-audience",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-admin-api-audience-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "introspection.token.claim": "true",
+                        "lightweight.claim": "true"
+                    }
+                }
+            ]
+        },
         {
             "id": "ad5955d0-5a02-4d77-9729-c9c50e3c614f",
             "name": "role_list",
@@ -3511,6 +3536,8 @@
     "dockerAuthenticationFlow": "docker auth",
     "firstBrokerLoginFlow": "first broker login",
     "attributes": {
+        // This fresh-realm template already contains the 26.8.2 migrated configuration.
+        "uds.keycloak.migration.26.8.2": "true",
         "cibaBackchannelTokenDeliveryMode": "poll",
         "cibaAuthRequestedUserHint": "login_hint",
         "clientOfflineSessionMaxLifespan": "0",
