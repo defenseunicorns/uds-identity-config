@@ -44,7 +44,7 @@ public final class UDSMigrations implements Provider {
                 }
                 for (RealmMigration migration : MIGRATIONS) {
                     String marker = MARKER_PREFIX + migration.version();
-                    if (!Boolean.parseBoolean(realm.getAttribute(marker))) {
+                    if (!Boolean.parseBoolean(realm.getAttribute(marker)) && migration.isSupported()) {
                         migration.migrate(migrationSession, realm);
                         realm.setAttribute(marker, true);
                         LOG.infof("Applied UDS realm migration %s", migration.version());

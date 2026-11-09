@@ -13,6 +13,11 @@ public interface RealmMigration {
     /** Returns the stable version used in the realm completion marker. */
     String version();
 
+    /** Returns whether the running Keycloak version supports this migration. */
+    default boolean isSupported() {
+        return true;
+    }
+
     /** Applies the change without committing; the runner records completion in the same transaction. */
     void migrate(KeycloakSession session, RealmModel realm);
 }

@@ -27,6 +27,17 @@ public final class MigrateTo26_8_2 implements RealmMigration {
         return "26.8.2";
     }
 
+    /** Waits for Keycloak's upstream Admin API scope migration method. */
+    @Override
+    public boolean isSupported() {
+        try {
+            MigrationProvider.class.getMethod("addOIDCAdminApiClientScope", RealmModel.class);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
     /** Adds the Admin API scope to UDS admin clients and reconciles configured mapper types. */
     @Override
     public void migrate(KeycloakSession session, RealmModel realm) {
