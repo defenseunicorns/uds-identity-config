@@ -40,6 +40,9 @@ describe("WebAuthn passwordless registration", () => {
         enabled: true,
       });
     });
+  });
+
+  beforeEach(() => {
     adminRequest("POST", "users", {
       username,
       firstName: "WebAuthn",
@@ -55,7 +58,6 @@ describe("WebAuthn passwordless registration", () => {
   });
 
   after(() => {
-    if (userId) adminRequest("DELETE", `users/${userId}`);
     if (originalAction) {
       adminRequest("PUT", `authentication/required-actions/${requiredAction}`, originalAction);
     }
@@ -63,6 +65,7 @@ describe("WebAuthn passwordless registration", () => {
 
   afterEach(() => {
     cy.then(() => webAuthnCommand("WebAuthn.disable"));
+    if (userId) adminRequest("DELETE", `users/${userId}`);
   });
 
   it("stores a passwordless credential when the authenticator returns its attachment", () => {
