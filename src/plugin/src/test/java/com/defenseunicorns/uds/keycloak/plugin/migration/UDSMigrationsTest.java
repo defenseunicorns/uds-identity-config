@@ -6,6 +6,7 @@
 package com.defenseunicorns.uds.keycloak.plugin.migration;
 
 import org.junit.jupiter.api.Test;
+import org.keycloak.migration.MigrationProvider;
 import org.keycloak.models.KeycloakContext;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
@@ -37,7 +38,9 @@ class UDSMigrationsTest {
         when(migrationSession.realms()).thenReturn(realms);
         when(realms.getRealmByName("uds")).thenReturn(realm);
         IllegalStateException failure = new IllegalStateException("migration failed");
-        when(realm.getClientScopesStream()).thenThrow(failure);
+        MigrationProvider migration = mock(MigrationProvider.class);
+        when(migrationSession.getProvider(MigrationProvider.class)).thenReturn(migration);
+        when(migration.addOIDCAdminApiClientScope(realm)).thenThrow(failure);
 
         // when / then
         assertSame(failure, assertThrows(IllegalStateException.class, () -> new UDSMigrations(session).run()));

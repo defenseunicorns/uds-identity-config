@@ -5,7 +5,7 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.migration;
 
-import org.keycloak.protocol.oidc.mappers.AdminApiAudienceMapper;
+import org.keycloak.migration.MigrationProvider;
 import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegationSyncer;
 import org.keycloak.models.Constants;
 import org.keycloak.models.ClientModel;
@@ -30,13 +30,7 @@ public final class MigrateTo26_8_2 implements RealmMigration {
     /** Adds the Admin API scope to existing admin clients and reconciles configured mapper types. */
     @Override
     public void migrate(KeycloakSession session, RealmModel realm) {
-        ClientScopeModel scope = realm.getClientScopesStream()
-                .filter(candidate -> SCOPE_NAME.equals(candidate.getName()))
-                .findFirst()
-                .orElseGet(() -> session.clientScopes().addClientScope(realm, SCOPE_NAME));
-        scope.setProtocol("openid-connect");
-        scope.setAttribute("include.in.token.scope", "true");
-        addAudienceMapper(scope);
+        ClientScopeModel scope = session.getProvider(MigrationProvider.class).addOIDCAdminApiClientScope(realm);
 
         for (String clientId : ADMIN_CLIENTS) {
             ClientModel client = realm.getClientByClientId(clientId);
@@ -45,13 +39,5 @@ public final class MigrateTo26_8_2 implements RealmMigration {
             }
         }
         ProtocolMapperDelegationSyncer.sync(session, realm, realm.getAttribute(Constants.CLIENT_PROFILES));
-    }
-
-    /** Adds the native mapper only when its provider is absent, regardless of mapper name. */
-    private void addAudienceMapper(ClientScopeModel scope) {
-        if (scope.getProtocolMappersStream()
-                .noneMatch(mapper -> AdminApiAudienceMapper.PROVIDER_ID.equals(mapper.getProtocolMapper()))) {
-            scope.addProtocolMapper(AdminApiAudienceMapper.createMapper("admin-api-audience", true, true, true));
-        }
     }
 }
