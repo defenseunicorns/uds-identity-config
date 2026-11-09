@@ -13,14 +13,9 @@ import org.keycloak.models.dblock.DBLockProvider;
 import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.provider.Provider;
 
-import java.util.List;
-
-/** Applies ordered UDS realm changes under Keycloak's boot database lock. */
+/** Applies the one-time UDS realm change under Keycloak's boot database lock. */
 public final class UDSMigrations implements Provider {
     private static final Logger LOG = Logger.getLogger(UDSMigrations.class);
-    private static final String MARKER_PREFIX = "uds.keycloak.migration.";
-    // Add migrations here in version order; each marker is committed with its realm changes under the boot DB lock.
-    private static final List<RealmMigration> MIGRATIONS = List.of(new MigrateTo26_8_2());
 
     private final KeycloakSession session;
 
@@ -30,7 +25,7 @@ public final class UDSMigrations implements Provider {
     }
 
     /**
-     * Migrates only the uds realm, committing each completion marker with its changes before
+     * Migrates only the uds realm, committing the completion marker with its changes before
      * releasing the lock. Failures propagate without recording successful completion.
      */
     public void run() {
@@ -42,13 +37,10 @@ public final class UDSMigrations implements Provider {
                 if (realm == null) {
                     return;
                 }
-                for (RealmMigration migration : MIGRATIONS) {
-                    String marker = MARKER_PREFIX + migration.version();
-                    if (!Boolean.parseBoolean(realm.getAttribute(marker))) {
-                        migration.migrate(migrationSession, realm);
-                        realm.setAttribute(marker, true);
-                        LOG.infof("Applied UDS realm migration %s", migration.version());
-                    }
+                if (!Boolean.parseBoolean(realm.getAttribute(MigrateTo26_8_2.MARKER))) {
+                    new MigrateTo26_8_2().migrate(migrationSession, realm);
+                    realm.setAttribute(MigrateTo26_8_2.MARKER, true);
+                    LOG.info("Applied UDS realm migration 26.8.2");
                 }
             });
         } finally {
