@@ -2302,7 +2302,7 @@
                     "enabled": ["${REALM_ACCOUNT_INACTIVITY_DAYS_ENABLED:false}"],
                     "restart-in-progress": ["true"],
                     "supports": ["USERS"],
-                    "conditions": ["NOT has-role(\"realm-management/realm-admin\")"]
+                    "conditions": ["NOT has-role(realm-management/realm-admin)"]
                 }
             }
         ]
