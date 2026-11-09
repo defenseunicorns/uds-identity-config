@@ -6,7 +6,7 @@
 package com.defenseunicorns.uds.keycloak.plugin.migration;
 
 import com.defenseunicorns.uds.keycloak.plugin.UDSAdminApiAudienceMapper;
-import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegation;
+import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegationSyncer;
 import org.keycloak.models.Constants;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientScopeModel;
@@ -47,7 +47,7 @@ public final class MigrateTo26_8_2 implements RealmMigration {
                 client.addClientScope(scope, true);
             }
         }
-        ProtocolMapperDelegation.sync(session, realm, realm.getAttribute(Constants.CLIENT_PROFILES));
+        ProtocolMapperDelegationSyncer.sync(session, realm, realm.getAttribute(Constants.CLIENT_PROFILES));
     }
 
     /** Creates or repairs the UDS mapper without replacing a separately named native mapper. */

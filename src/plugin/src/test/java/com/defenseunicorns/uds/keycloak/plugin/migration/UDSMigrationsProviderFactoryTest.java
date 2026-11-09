@@ -10,7 +10,7 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.Constants;
 import org.keycloak.models.RealmModel;
-import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegation;
+import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegationSyncer;
 import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.provider.ProviderEvent;
 import org.keycloak.provider.ProviderEventListener;
@@ -70,7 +70,7 @@ class UDSMigrationsProviderFactoryTest {
         listener.getValue().onEvent(event);
 
         // then
-        verify(realm).setAttribute(ProtocolMapperDelegation.ALLOWED_MAPPERS_ATTRIBUTE, "custom-mapper");
+        verify(realm).setAttribute(ProtocolMapperDelegationSyncer.ALLOWED_MAPPERS_ATTRIBUTE, "custom-mapper");
         verifyNoInteractions(session);
     }
 

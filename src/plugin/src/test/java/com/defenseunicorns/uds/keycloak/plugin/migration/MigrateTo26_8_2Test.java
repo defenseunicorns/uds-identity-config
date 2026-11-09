@@ -7,7 +7,7 @@ package com.defenseunicorns.uds.keycloak.plugin.migration;
 import com.defenseunicorns.uds.keycloak.plugin.CustomAWSSAMLAttributeMapper;
 import com.defenseunicorns.uds.keycloak.plugin.CustomGroupPathMapper;
 import com.defenseunicorns.uds.keycloak.plugin.UDSAdminApiAudienceMapper;
-import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegation;
+import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegationSyncer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -86,7 +86,7 @@ class MigrateTo26_8_2Test {
         when(realm.getAttribute(Constants.CLIENT_PROFILES)).thenReturn(profiles(Map.of(
                 "allowed-protocol-mappers-as-string", "custom-from-profile, custom-extra",
                 "allowed-protocol-mappers", List.of("custom-list"))));
-        when(realm.getAttribute(ProtocolMapperDelegation.ALLOWED_MAPPERS_ATTRIBUTE)).thenReturn("custom-existing");
+        when(realm.getAttribute(ProtocolMapperDelegationSyncer.ALLOWED_MAPPERS_ATTRIBUTE)).thenReturn("custom-existing");
         when(session.getKeycloakSessionFactory()).thenReturn(factory);
         when(factory.getProviderFactoriesStream(ProtocolMapper.class)).thenReturn(Stream.of(
                 new CustomGroupPathMapper(), new CustomAWSSAMLAttributeMapper(), new UDSAdminApiAudienceMapper()));
@@ -95,7 +95,7 @@ class MigrateTo26_8_2Test {
         new MigrateTo26_8_2().migrate(session, realm);
 
         // then
-        verify(realm).setAttribute(eq(ProtocolMapperDelegation.ALLOWED_MAPPERS_ATTRIBUTE), argThat((String value) ->
+        verify(realm).setAttribute(eq(ProtocolMapperDelegationSyncer.ALLOWED_MAPPERS_ATTRIBUTE), argThat((String value) ->
                 List.of(value.split(",")).containsAll(List.of("custom-existing", "oidc-audience-mapper",
                         "bare-group-path-mapper", "aws-saml-attribute-mapper", "uds-admin-api-audience-mapper",
                         "custom-from-profile", "custom-extra", "custom-list"))));
@@ -109,13 +109,13 @@ class MigrateTo26_8_2Test {
                 "use-default-allowed-protocol-mappers", false,
                 "allowed-protocol-mappers-as-string", "from-string, shared",
                 "allowed-protocol-mappers", List.of("from-list", "shared"))));
-        when(realm.getAttribute(ProtocolMapperDelegation.ALLOWED_MAPPERS_ATTRIBUTE)).thenReturn("custom-existing");
+        when(realm.getAttribute(ProtocolMapperDelegationSyncer.ALLOWED_MAPPERS_ATTRIBUTE)).thenReturn("custom-existing");
 
         // when
         new MigrateTo26_8_2().migrate(session, realm);
 
         // then
-        verify(realm).setAttribute(ProtocolMapperDelegation.ALLOWED_MAPPERS_ATTRIBUTE,
+        verify(realm).setAttribute(ProtocolMapperDelegationSyncer.ALLOWED_MAPPERS_ATTRIBUTE,
                 "custom-existing,from-list,from-string,shared");
     }
 

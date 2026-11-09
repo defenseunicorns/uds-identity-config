@@ -5,7 +5,7 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.migration;
 
-import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegation;
+import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegationSyncer;
 import org.keycloak.Config;
 import org.keycloak.models.Constants;
 import org.keycloak.models.RealmModel;
@@ -36,7 +36,7 @@ public final class UDSMigrationsProviderFactory implements ProviderFactory<UDSMi
             if (event instanceof RealmModel.RealmAttributeUpdateEvent update
                     && Constants.CLIENT_PROFILES.equals(update.getAttributeName())
                     && "uds".equals(update.getRealm().getName())) {
-                ProtocolMapperDelegation.sync(update.getKeycloakSession(), update.getRealm(), update.getAttributeValue());
+                ProtocolMapperDelegationSyncer.sync(update.getKeycloakSession(), update.getRealm(), update.getAttributeValue());
             } else if (event instanceof PostMigrationEvent postMigrationEvent) {
                 try (KeycloakSession session = postMigrationEvent.getFactory().create()) {
                     session.getProvider(UDSMigrations.class).run();

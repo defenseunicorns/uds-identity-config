@@ -18,12 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegation.*;
+import static com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ProtocolMapperDelegationSyncer.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProtocolMapperDelegationTest {
+class ProtocolMapperDelegationSyncerTest {
     @Mock private KeycloakSession session;
     @Mock private RealmModel realm;
     private final Map<String, String> attributes = new HashMap<>();
@@ -35,7 +35,7 @@ class ProtocolMapperDelegationTest {
         attributes.put(ALLOWED_MAPPERS_ATTRIBUTE, "manual,shared");
 
         // when
-        ProtocolMapperDelegation.sync(session, realm, profiles("shared", "managed"));
+        ProtocolMapperDelegationSyncer.sync(session, realm, profiles("shared", "managed"));
 
         // then
         assertEquals("managed,manual,shared", attributes.get(ALLOWED_MAPPERS_ATTRIBUTE));
@@ -50,7 +50,7 @@ class ProtocolMapperDelegationTest {
         attributes.put(UDS_ADDED_MAPPERS_ATTRIBUTE, "removed,retained");
 
         // when
-        ProtocolMapperDelegation.sync(session, realm, profiles("retained"));
+        ProtocolMapperDelegationSyncer.sync(session, realm, profiles("retained"));
 
         // then
         assertEquals("manual,retained", attributes.get(ALLOWED_MAPPERS_ATTRIBUTE));
@@ -65,7 +65,7 @@ class ProtocolMapperDelegationTest {
         attributes.put(UDS_ADDED_MAPPERS_ATTRIBUTE, "managed");
 
         // when
-        ProtocolMapperDelegation.sync(session, realm, null);
+        ProtocolMapperDelegationSyncer.sync(session, realm, null);
 
         // then
         assertEquals("manual,shared", attributes.get(ALLOWED_MAPPERS_ATTRIBUTE));
@@ -80,7 +80,7 @@ class ProtocolMapperDelegationTest {
         attributes.put(UDS_ADDED_MAPPERS_ATTRIBUTE, "managed");
 
         // when
-        ProtocolMapperDelegation.sync(session, realm, "{\"profiles\":[{\"name\":\"UDS\",\"executors\":[]}]}");
+        ProtocolMapperDelegationSyncer.sync(session, realm, "{\"profiles\":[{\"name\":\"UDS\",\"executors\":[]}]}");
 
         // then
         assertEquals("", attributes.get(ALLOWED_MAPPERS_ATTRIBUTE));
@@ -105,7 +105,7 @@ class ProtocolMapperDelegationTest {
                 """;
 
         // when
-        ProtocolMapperDelegation.sync(session, realm, profiles);
+        ProtocolMapperDelegationSyncer.sync(session, realm, profiles);
 
         // then
         assertEquals("alpha,beta,shared", attributes.get(ALLOWED_MAPPERS_ATTRIBUTE));
@@ -121,7 +121,7 @@ class ProtocolMapperDelegationTest {
         when(realm.getAttribute(anyString())).thenAnswer(invocation -> attributes.get(invocation.getArgument(0)));
 
         // when
-        ProtocolMapperDelegation.sync(session, realm, profiles("alpha"));
+        ProtocolMapperDelegationSyncer.sync(session, realm, profiles("alpha"));
 
         // then
         verify(realm, never()).setAttribute(anyString(), anyString());
@@ -131,7 +131,7 @@ class ProtocolMapperDelegationTest {
     void malformedProfilesFailBeforeAnyRealmWrite() {
         // given / when / then
         assertThrows(IllegalStateException.class,
-                () -> ProtocolMapperDelegation.sync(session, realm, "{not-json"));
+                () -> ProtocolMapperDelegationSyncer.sync(session, realm, "{not-json"));
         verifyNoInteractions(realm);
     }
 

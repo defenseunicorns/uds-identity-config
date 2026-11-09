@@ -124,6 +124,22 @@ describe("UDS Operator Client Credentials", () => {
             });
         };
 
+        cy.getAccessToken("KEYCLOAK_ADMIN").then((token) => {
+            cy.request({
+                url: "https://keycloak.admin.uds.dev/admin/realms/uds",
+                headers: { Authorization: `Bearer ${token}` },
+                log: false,
+            }).then(({ body }) => {
+                for (const attribute of [
+                    "allowedProtocolMapperTypesForClientAdministrators",
+                    "uds.protocolMapperDelegation.addedTypes",
+                ]) {
+                    expect(body.attributes[attribute], attribute).to.be.a("string");
+                    expect(body.attributes[attribute].split(","), attribute).to.include("oidc-hardcoded-claim-mapper");
+                }
+            });
+        });
+
         cy.task("exec", "uds zarf tools kubectl apply -f ./resources/test-package-allowed-protocol-mapper.yaml").its("exitCode").should("eq", 0);
         cy.task("exec", `uds zarf tools kubectl wait --for=condition=Ready=true package/${clientId} -n ${clientId} --timeout=300s`).its("exitCode").should("eq", 0);
         assertMapper(true);

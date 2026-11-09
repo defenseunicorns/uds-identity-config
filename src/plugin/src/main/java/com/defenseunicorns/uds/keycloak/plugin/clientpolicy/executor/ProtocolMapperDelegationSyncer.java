@@ -26,7 +26,7 @@ import static com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.UDSC
  * allowances remain independent, including types that also appear in a UDS profile.
  * Re-adding an already-present UDS-managed type manually cannot transfer its ownership.
  */
-public final class ProtocolMapperDelegation {
+public final class ProtocolMapperDelegationSyncer {
     /**
      * Keycloak 26.8.2's {@code Constants.ALLOWED_PROTOCOL_MAPPER_TYPES_FOR_CLIENT_ADMINISTRATORS},
      * read by {@code ProtocolMappersResource.requireManageProtocolMappers} as comma-separated IDs.
@@ -38,7 +38,7 @@ public final class ProtocolMapperDelegation {
     static final String UDS_ADDED_MAPPERS_ATTRIBUTE = "uds.protocolMapperDelegation.addedTypes";
 
     /** Prevents construction of this stateless synchronizer. */
-    private ProtocolMapperDelegation() {}
+    private ProtocolMapperDelegationSyncer() {}
 
     /**
      * Applies the new persisted profiles in the caller's transaction, without reading policy caches.
