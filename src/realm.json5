@@ -700,7 +700,8 @@
                 "acr",
                 "profile",
                 "roles",
-                "email"
+                "email",
+                "kc-admin-api"
             ],
             "optionalClientScopes": [
                 "address",
@@ -853,7 +854,8 @@
                 "acr",
                 "profile",
                 "roles",
-                "email"
+                "email",
+                "kc-admin-api"
             ],
             "optionalClientScopes": [
                 "address",
@@ -893,7 +895,13 @@
                 "use.jwks.url": "false",
                 "backchannel.logout.revoke.offline.tokens": "false"
             },
-            "fullScopeAllowed": true
+            "fullScopeAllowed": true,
+            "defaultClientScopes": [
+                "profile", "email", "roles", "web-origins", "acr", "kc-admin-api"
+            ],
+            "optionalClientScopes": [
+                "offline_access", "address", "phone", "microprofile-jwt", "bare-groups"
+            ]
         },
         {
             "id": "d70f0f89-1400-4197-a162-84c6b9cf335f",
@@ -919,7 +927,13 @@
             "attributes": {},
             "authenticationFlowBindingOverrides": {},
             "fullScopeAllowed": true,
-            "nodeReRegistrationTimeout": 0
+            "nodeReRegistrationTimeout": 0,
+            "defaultClientScopes": [
+                "profile", "email", "roles", "web-origins", "acr", "kc-admin-api"
+            ],
+            "optionalClientScopes": [
+                "offline_access", "address", "phone", "microprofile-jwt", "bare-groups"
+            ]
         },
         {
             "id": "94de6a0d-83f7-4875-93f0-05a986ecc3a5",
@@ -949,7 +963,13 @@
             },
             "authenticationFlowBindingOverrides": {},
             "fullScopeAllowed": true,
-            "nodeReRegistrationTimeout": 0
+            "nodeReRegistrationTimeout": 0,
+            "defaultClientScopes": [
+                "profile", "email", "roles", "web-origins", "acr", "kc-admin-api"
+            ],
+            "optionalClientScopes": [
+                "offline_access", "address", "phone", "microprofile-jwt", "bare-groups"
+            ]
         }
     ],
     "clientScopes": [
