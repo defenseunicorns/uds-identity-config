@@ -16,13 +16,19 @@ import org.keycloak.models.RealmModel;
 import java.util.List;
 
 /** Applies the 26.8.2 Admin API scope assignments and mapper delegation settings. */
-public final class MigrateTo26_8_2 {
-    static final String MARKER = "uds.keycloak.migration.26.8.2";
+public final class MigrateTo26_8_2 implements RealmMigration {
     static final String SCOPE_NAME = "kc-admin-api";
     private static final List<String> ADMIN_CLIENTS = List.of(
             "uds-operator", "uds-fleet-admin", "uds-opentofu-client");
 
+    /** {@inheritDoc} */
+    @Override
+    public String version() {
+        return "26.8.2";
+    }
+
     /** Adds the Admin API scope to UDS admin clients and reconciles configured mapper types. */
+    @Override
     public void migrate(KeycloakSession session, RealmModel realm) {
         ClientScopeModel scope = session.getProvider(MigrationProvider.class).addOIDCAdminApiClientScope(realm);
 
