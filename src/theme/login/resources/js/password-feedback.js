@@ -14,10 +14,14 @@
     const pending = requirements.querySelector('[data-password-pending]');
     const progress = requirements.querySelector('[data-password-progress]');
     const match = document.getElementById('password-match');
+    // Registration omits the username field when email is the username; use the email field instead.
+    const username = document.getElementById('username') || document.getElementById('email');
     let confirmationBlurred = false;
     let announcement;
 
     // Keycloak counts UTF-16 code units, including when applying Character predicates.
+    // Based on Length, MaximumLength, LowerCase, UpperCase, Digits, SpecialChars, and NotUsername policy providers:
+    // https://github.com/keycloak/keycloak/tree/26.8.2/server-spi-private/src/main/java/org/keycloak/policy
     const checks = {
         length: (value, minimum) => value.length >= minimum,
         maxLength: (value, maximum) => value.length <= maximum,
@@ -25,6 +29,10 @@
         upperCase: (value, minimum) => value.split('').filter(char => /\p{Uppercase}/u.test(char)).length >= minimum,
         digits: (value, minimum) => value.split('').filter(char => /\p{Decimal_Number}/u.test(char)).length >= minimum,
         specialChars: (value, minimum) => value.split('').filter(char => !/[\p{Letter}\p{Decimal_Number}]/u.test(char)).length >= minimum,
+        notUsername: value => {
+            const currentUsername = username ? username.value : requirements.dataset.username;
+            return value.toLowerCase() !== currentUsername.toLowerCase();
+        },
     };
 
     function updateRequirements() {
@@ -69,6 +77,10 @@
     // Password managers may populate fields through change events.
     password.addEventListener('change', updateFeedback);
     confirmation.addEventListener('change', updateConfirmation);
+    if (username) {
+        username.addEventListener('input', updateRequirements);
+        username.addEventListener('change', updateRequirements);
+    }
 
     // These checks provide guidance; Keycloak validates all policies on submission.
     updateFeedback();

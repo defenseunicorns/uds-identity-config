@@ -3,7 +3,7 @@ Copyright 2026 Defense Unicorns
 SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 -->
 
-<#macro rule name value>
+<#macro rule name value=0>
     <li data-password-rule="${name}" data-minimum="${value?c}">
         <span class="password-rule-icon" aria-hidden="true">×</span>
         <span>${msg('passwordRule' + name?cap_first + (value == 1)?then('One', ''), value)}</span>
@@ -19,15 +19,20 @@ SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commer
             </#if>
         </#list>
     </#if>
+    <#assign checkUsername = (passwordPolicies.notUsername)!false>
     <div id="password-requirements" class="password-requirements"
-         data-progress="${msg('passwordRequirementsProgress', '__met__', '__total__')}"<#if !rules?has_content> hidden</#if>>
-        <#if rules?has_content>
+         data-username="${username!''}"
+         data-progress="${msg('passwordRequirementsProgress', '__met__', '__total__')}"<#if !rules?has_content && !checkUsername> hidden</#if>>
+        <#if rules?has_content || checkUsername>
             <div data-password-pending>
                 <p class="password-requirements-title">${msg('passwordRequirements')}</p>
                 <ul role="list">
                     <#list rules as name>
                         <@rule name=name value=passwordPolicies[name]/>
                     </#list>
+                    <#if checkUsername>
+                        <@rule name='notUsername'/>
+                    </#if>
                 </ul>
             </div>
             <p class="sr-only" data-password-progress role="status" aria-live="polite" aria-atomic="true"></p>
