@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.32.6](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.5...v0.32.6) (2026-11-09)
+
+
+### Bug Fixes
+
+* **deps:** update plugin-deps to v26.8.2 ([#968](https://github.com/defenseunicorns/uds-identity-config/issues/968)) ([bf2c986](https://github.com/defenseunicorns/uds-identity-config/commit/bf2c986d7c8ce42f75bc18ded1c7a6b00632ca57))
+* disable-inactive-users workflow role arguments should be unquoted ([#972](https://github.com/defenseunicorns/uds-identity-config/issues/972)) ([caf8aab](https://github.com/defenseunicorns/uds-identity-config/commit/caf8aabbc7418b617384d1e7782b630f11aa98b2))
+* **keycloak:** prepare realms for Keycloak 26.8.2 ([#971](https://github.com/defenseunicorns/uds-identity-config/issues/971)) ([2445026](https://github.com/defenseunicorns/uds-identity-config/commit/244502619e41a985ec7f57c8314c6bdbac9685d8))
+* **theme:** restore passwordless credential registration ([#974](https://github.com/defenseunicorns/uds-identity-config/issues/974)) ([3143a1a](https://github.com/defenseunicorns/uds-identity-config/commit/3143a1ab45c62e8e1a712a279799161d6328ef8a))
+
+
+### Miscellaneous
+
+* **deps:** update dependency defenseunicorns/uds-common to v1.33.0 ([#966](https://github.com/defenseunicorns/uds-identity-config/issues/966)) ([00a50de](https://github.com/defenseunicorns/uds-identity-config/commit/00a50de1bef17457f8d6b9c991291818662cd2eb))
+* **deps:** update dependency defenseunicorns/uds-common to v1.33.1 ([#973](https://github.com/defenseunicorns/uds-identity-config/issues/973)) ([a11e115](https://github.com/defenseunicorns/uds-identity-config/commit/a11e115457bb15251e11cbf3fe1e83fccef434c9))
+* **deps:** update gha-deps ([#969](https://github.com/defenseunicorns/uds-identity-config/issues/969)) ([2fe149e](https://github.com/defenseunicorns/uds-identity-config/commit/2fe149e33da21c4455d5f1e91bc96b9470c7adc6))
+
 ## [0.32.5](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.4...v0.32.5) (2026-11-03)
 
 

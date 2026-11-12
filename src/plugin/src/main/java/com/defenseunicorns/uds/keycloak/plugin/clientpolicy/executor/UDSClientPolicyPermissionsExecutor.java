@@ -5,40 +5,22 @@
 
 package com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor;
 
-import com.defenseunicorns.uds.keycloak.plugin.CustomAWSSAMLGroupMapper;
-import com.defenseunicorns.uds.keycloak.plugin.CustomGroupPathMapper;
 import com.defenseunicorns.uds.keycloak.plugin.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.keycloak.events.Errors;
 import org.keycloak.models.ClientModel;
-import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.KeycloakSession;
-import org.keycloak.protocol.ProtocolMapper;
-import org.keycloak.protocol.saml.mappers.GroupMembershipMapper;
-import org.keycloak.protocol.oidc.mappers.UserAttributeMapper;
-import org.keycloak.protocol.oidc.mappers.AudienceProtocolMapper;
-import org.keycloak.protocol.oidc.mappers.UserPropertyMapper;
-import org.keycloak.protocol.oidc.mappers.FullNameMapper;
-import org.keycloak.protocol.oidc.mappers.AddressMapper;
-import org.keycloak.protocol.oidc.mappers.SHA256PairwiseSubMapper;
-import org.keycloak.protocol.saml.mappers.RoleListMapper;
-import org.keycloak.protocol.saml.mappers.UserAttributeStatementMapper;
-import org.keycloak.protocol.saml.mappers.UserPropertyAttributeStatementMapper;
 import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.services.clientpolicy.ClientPolicyContext;
 import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.context.ClientCRUDContext;
+import org.keycloak.services.clientpolicy.context.admin.ClientProtocolMapperContext;
 import org.keycloak.services.clientpolicy.executor.ClientPolicyExecutorProvider;
-import org.keycloak.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.keycloak.common.util.CollectionUtil.*;
 
 /**
  * Keycloak Client Policy Executor for UDS-managed admin clients (e.g. uds-operator, uds-fleet-admin).
@@ -66,37 +48,6 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
             "uds-fleet-admin", "fleet-"
     );
 
-    public static final List<String> DEFAULT_ALLOWED_PROTOCOL_MAPPERS = List.of(
-            UserAttributeStatementMapper.PROVIDER_ID,
-            UserAttributeMapper.PROVIDER_ID,
-            UserPropertyAttributeStatementMapper.PROVIDER_ID,
-            GroupMembershipMapper.PROVIDER_ID,
-            AudienceProtocolMapper.PROVIDER_ID,
-            UserPropertyMapper.PROVIDER_ID,
-            FullNameMapper.PROVIDER_ID,
-            AddressMapper.PROVIDER_ID,
-            new SHA256PairwiseSubMapper().getId(),
-            RoleListMapper.PROVIDER_ID,
-            CustomAWSSAMLGroupMapper.PROVIDER_ID,
-            org.keycloak.protocol.oidc.mappers.GroupMembershipMapper.PROVIDER_ID
-    );
-
-    public static final List<String> DEFAULT_ALLOWED_CLIENT_SCOPES = List.of(
-            "openid",
-            "aws-groups",
-            CustomGroupPathMapper.GROUPS_CLAIM,
-            CustomGroupPathMapper.BARE_GROUPS_CLAIM,
-            "mapper-saml-username-name",
-            "mapper-saml-email-email",
-            "mapper-saml-username-login",
-            "mapper-saml-firstname-first_name",
-            "mapper-saml-lastname-last_name",
-            "mapper-saml-grouplist-groups",
-            "mapper-oidc-username-username",
-            "mapper-oidc-mattermostid-id",
-            "mapper-oidc-email-email"
-    );
-
     protected final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     protected final KeycloakSession keycloakSession;
@@ -114,8 +65,12 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         }
     }
 
+    /** Routes client and mapper events while retaining existing managed-client and ownership checks. */
     @Override
     public void executeOnEvent(ClientPolicyContext context) throws ClientPolicyException {
+        if (context instanceof ClientProtocolMapperContext mapperContext) {
+            validateClientProtocolMapper(mapperContext);
+        }
         if ((context instanceof ClientCRUDContext clientCRUDContext)) {
             String authenticatedClientId = getAuthenticatedClientId(clientCRUDContext);
             boolean hasAuthenticatedClient = clientCRUDContext.getAuthenticatedClient() != null;
@@ -146,7 +101,8 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                     case UPDATE:
                         logger.trace("Updating existing Client with Client ID: {}", clientCRUDContext.getTargetClient().getClientId());
                         ensureOwnedBy(clientCRUDContext.getTargetClient(), authenticatedClientId);
-                        validateClientSettings(clientCRUDContext.getProposedClientRepresentation());
+                        boolean retainAdminApiScope = ClientScopePolicy.hasAdminApiScope(clientCRUDContext.getTargetClient());
+                        validateClientSettings(clientCRUDContext.getProposedClientRepresentation(), retainAdminApiScope);
                         validateClientIdPrefix(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
                         setOwner(clientCRUDContext.getProposedClientRepresentation(), authenticatedClientId);
                         break;
@@ -168,6 +124,19 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
                 }
             }
         }
+    }
+
+    /** Applies mapper rules only to callers already governed by this executor. */
+    private void validateClientProtocolMapper(ClientProtocolMapperContext context) throws ClientPolicyException {
+        if (!isManagedClient(getAuthenticatedClientId(context.getAuthenticatedClient()))) {
+            return;
+        }
+        ProtocolMapperPolicy.validateEvent(context, configuration.getAllowedProtocolMappers());
+    }
+
+    /** Returns the authenticated client ID, or null for non-client authentication. */
+    private String getAuthenticatedClientId(ClientModel authenticatedClient) {
+        return authenticatedClient == null ? null : authenticatedClient.getClientId();
     }
 
     private void ensureOwnedBy(ClientModel client, String authenticatedClientId) throws ClientPolicyException {
@@ -205,66 +174,11 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         }
     }
 
-    void validateAllowedProtocolMappers(ClientRepresentation rep) throws ClientPolicyException {
-        if (isNotEmpty(rep.getProtocolMappers()) && configuration.getAllowedProtocolMappers() != null) {
-            for (ProtocolMapperRepresentation mapper : rep.getProtocolMappers()) {
-                if (!configuration.getAllowedProtocolMappers().contains(mapper.getProtocolMapper())) {
-                    throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Protocol Mapper " + mapper.getProtocolMapper() + " is not allowed. Rejecting request.");
-                }
-            }
-        }
-    }
-
-    void validateAllowedCustomClientScopes(ClientRepresentation rep) throws ClientPolicyException {
-        if (configuration.getAllowedClientScopes() != null) {
-            if (isNotEmpty(rep.getDefaultClientScopes())) {
-                for (String scope : rep.getDefaultClientScopes()) {
-                    if (!configuration.getAllowedClientScopes().contains(scope)) {
-                        throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Client Scope " + scope + " is not allowed. Rejecting request.");
-                    }
-                };
-            }
-            if (isNotEmpty(rep.getOptionalClientScopes())) {
-                for (String scope : rep.getOptionalClientScopes()) {
-                    if (!configuration.getAllowedClientScopes().contains(scope)) {
-                        throw new ClientPolicyException(Errors.INVALID_CLIENT, "The Client Scope " + scope + " is not allowed. Rejecting request.");
-                    }
-                };
-            }
-        }
-    }
-
+    /** Resolves configured allowances once for this executor without mutating realm delegation. */
     @Override
     public void setupConfiguration(UDSClientPolicyPermissionsExecutorConfiguration config) {
-        Set<String> allowedProtocolMappers = new HashSet<>();
-        if (config.isUseDefaultAllowedProtocolMappers()) {
-            List<String> defenseUnicornsProtocolMappers = this.keycloakSession.getKeycloakSessionFactory().
-                    getProviderFactoriesStream(ProtocolMapper.class)
-                    .filter(o -> o.getClass().getPackageName().startsWith("com.defenseunicorns.uds.keycloak"))
-                    .map(o -> o.getId())
-                    .toList();
-
-            allowedProtocolMappers.addAll(DEFAULT_ALLOWED_PROTOCOL_MAPPERS);
-            allowedProtocolMappers.addAll(defenseUnicornsProtocolMappers);
-        }
-        if (StringUtils.isNotBlank(config.getAllowedProtocolMappersAsString()))
-            allowedProtocolMappers.addAll(StringUtils.parseCommaSeparatedStringToList(config.getAllowedProtocolMappersAsString()));
-        if (config.getAllowedProtocolMappers() != null)
-            allowedProtocolMappers.addAll(config.getAllowedProtocolMappers());
-        config.setAllowedProtocolMappers(new ArrayList<>(allowedProtocolMappers));
-
-        Set<String> allowedClientScopes = new HashSet<>();
-        if (config.isUseDefaultAllowedClientScopes()) {
-            allowedClientScopes.addAll(DEFAULT_ALLOWED_CLIENT_SCOPES);
-            // Add Realm defaults
-            allowedClientScopes.addAll(this.keycloakSession.getContext().getRealm().getDefaultClientScopesStream(true).map(ClientScopeModel::getName).collect(Collectors.toList()));
-        }
-        if (StringUtils.isNotBlank(config.getAllowedClientScopesAsString()))
-            allowedClientScopes.addAll(StringUtils.parseCommaSeparatedStringToList(config.getAllowedClientScopesAsString()));
-        if (config.getAllowedClientScopes() != null)
-            allowedClientScopes.addAll(config.getAllowedClientScopes());
-        config.setAllowedClientScopes(new ArrayList<>(allowedClientScopes));
-
+        config.setAllowedProtocolMappers(ProtocolMapperPolicy.resolveAllowed(config, keycloakSession));
+        config.setAllowedClientScopes(ClientScopePolicy.resolveAllowed(config, keycloakSession));
         logger.debug("Initializing with configuration: {}", config);
         this.configuration = config;
     }
@@ -279,11 +193,17 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
         return UDSClientPolicyPermissionsExecutorFactory.PROVIDER_ID;
     }
 
+    /** Validates registration without the existing-default-scope retention exception. */
     void validateClientSettings(ClientRepresentation rep) throws ClientPolicyException {
+        validateClientSettings(rep, false);
+    }
+
+    /** Validates mapper rules before scopes, with retention authorized by the caller. */
+    private void validateClientSettings(ClientRepresentation rep, boolean retainAdminApiScope) throws ClientPolicyException {
         logger.trace("Validating Client Representation before enforcements: {}", toString(rep));
 
-        validateAllowedProtocolMappers(rep);
-        validateAllowedCustomClientScopes(rep);
+        ProtocolMapperPolicy.validate(rep.getProtocolMappers(), configuration.getAllowedProtocolMappers());
+        ClientScopePolicy.validate(rep, configuration.getAllowedClientScopes(), retainAdminApiScope);
 
         logger.trace("Client Representation after enforcements: {}", toString(rep));
     }
