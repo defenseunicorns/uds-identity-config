@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.32.7](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.6...v0.32.7) (2026-11-13)
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#975](https://github.com/defenseunicorns/uds-identity-config/issues/975)) ([1b4d96d](https://github.com/defenseunicorns/uds-identity-config/commit/1b4d96dbdee2271aafcfa29c1a5d995b18b58de4))
+
 ## [0.32.6](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.5...v0.32.6) (2026-11-09)
 
 
