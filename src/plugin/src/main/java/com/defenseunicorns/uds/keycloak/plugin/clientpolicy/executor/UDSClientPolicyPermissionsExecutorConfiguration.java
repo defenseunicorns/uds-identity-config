@@ -12,6 +12,29 @@ import java.util.List;
 
 public class UDSClientPolicyPermissionsExecutorConfiguration extends ClientPolicyExecutorConfigurationRepresentation {
 
+    public static final String UDS_OPERATOR_CLIENT_ID = "uds-operator";
+    public static final String UDS_FLEET_ADMIN_CLIENT_ID = "uds-fleet-admin";
+    public static final String UDS_OPENTOFU_CLIENT_ID = "uds-opentofu-client";
+    public static final List<String> DEFAULT_OWNERSHIP_ENFORCED_CLIENTS = List.of(
+            UDS_OPERATOR_CLIENT_ID, UDS_FLEET_ADMIN_CLIENT_ID, UDS_OPENTOFU_CLIENT_ID);
+
+    @JsonProperty(UDSClientPolicyPermissionsExecutorFactory.OWNERSHIP_ENFORCED_CLIENTS)
+    private List<String> ownershipEnforcedClients;
+
+    /** Missing configuration preserves existing UDS callers; an explicit empty list enrolls none. */
+    public List<String> getOwnershipEnforcedClients() {
+        return ownershipEnforcedClients == null ? DEFAULT_OWNERSHIP_ENFORCED_CLIENTS : ownershipEnforcedClients;
+    }
+
+    public void setOwnershipEnforcedClients(List<String> ownershipEnforcedClients) {
+        this.ownershipEnforcedClients = ownershipEnforcedClients;
+    }
+
+    public boolean enforcesOwnershipFor(String clientId) {
+        return clientId != null && !clientId.isBlank() && getOwnershipEnforcedClients().stream()
+                .filter(java.util.Objects::nonNull).map(String::trim).anyMatch(clientId::equals);
+    }
+
     @JsonProperty(UDSClientPolicyPermissionsExecutorFactory.ADDITIONAL_ALLOWED_PROTOCOL_MAPPER_TYPES)
     private List<String> allowedProtocolMappers;
 

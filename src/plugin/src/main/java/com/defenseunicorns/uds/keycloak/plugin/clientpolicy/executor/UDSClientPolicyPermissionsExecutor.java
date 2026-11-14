@@ -26,7 +26,8 @@ import java.util.*;
  * Keycloak Client Policy Executor for UDS-managed admin clients (e.g. uds-operator, uds-fleet-admin).
  * <p>
  * The executor only acts when the request is authenticated as one of the managed clients
- * ({@link #MANAGED_CLIENT_ID_PREFIXES}). For those clients the following rules apply:
+ * configured in the executor's ownership-enforced clients list.
+ * For those clients the following rules apply:
  * * Clients created by a managed client are stamped with "created-by=&lt;authenticated clientId&gt;".
  * * A managed client may only update/view/delete clients it created (matching "created-by" attribute).
  * * A managed client may only create clients whose clientId starts with its required prefix (empty = no constraint).
@@ -38,14 +39,14 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     public static final String ATTRIBUTE_CREATED_BY = "created-by";
 
     /**
-     * Clients governed by this executor, mapped to the clientId prefix required for clients they create.
+     * Naming prefixes for the built-in UDS callers, when enrolled in this executor.
      * The authenticated clientId is still stamped directly into created-by; this map only acts as the
-     * managed-client allowlist and per-client prefix configuration. An empty prefix imposes no naming
+     * per-client prefix configuration. An empty prefix imposes no naming
      * constraint (preserves uds-operator's existing behavior).
      */
     public static final Map<String, String> MANAGED_CLIENT_ID_PREFIXES = Map.of(
-            "uds-operator", "",
-            "uds-fleet-admin", "fleet-"
+            UDSClientPolicyPermissionsExecutorConfiguration.UDS_OPERATOR_CLIENT_ID, "",
+            UDSClientPolicyPermissionsExecutorConfiguration.UDS_FLEET_ADMIN_CLIENT_ID, "fleet-"
     );
 
     protected final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -157,7 +158,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     }
 
     boolean isManagedClient(String clientId) {
-        return clientId != null && MANAGED_CLIENT_ID_PREFIXES.containsKey(clientId);
+        return configuration.enforcesOwnershipFor(clientId);
     }
 
     String getRequiredClientIdPrefix(String clientId) {
@@ -177,6 +178,7 @@ public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorP
     /** Resolves configured allowances once for this executor without mutating realm delegation. */
     @Override
     public void setupConfiguration(UDSClientPolicyPermissionsExecutorConfiguration config) {
+        if (config == null) config = new UDSClientPolicyPermissionsExecutorConfiguration();
         config.setAllowedProtocolMappers(ProtocolMapperPolicy.resolveAllowed(config, keycloakSession));
         config.setAllowedClientScopes(ClientScopePolicy.resolveAllowed(config, keycloakSession));
         logger.debug("Initializing with configuration: {}", config);

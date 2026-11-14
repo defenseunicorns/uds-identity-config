@@ -166,11 +166,36 @@ describe("Tofu Client Management", () => {
             const client = response.body.find((c: any) => c.clientId === testClientId);
             expect(client).to.exist;
 
+            expect(client.attributes["created-by"]).to.eq(tofuClientName);
             // Verify client configuration
             expect(client.enabled).to.be.true;
             expect(client.standardFlowEnabled).to.be.true;
             expect(client.directAccessGrantsEnabled).to.be.true;
             expect(client.redirectUris).to.include(testRedirectUri);
+        });
+    });
+
+    it("OpenTofu can read its owned client but cannot read an unowned client", () => {
+        if (!credentials) throw new Error("Credentials not initialized");
+        const { accessToken: adminToken, clientSecret } = credentials;
+        cy.request({
+            method: "POST", url: "https://keycloak.admin.uds.dev/realms/uds/protocol/openid-connect/token",
+            form: true, log: false,
+            body: { grant_type: "client_credentials", client_id: tofuClientName, client_secret: clientSecret },
+        }).then(({ body: token }) => {
+            for (const clientId of [testClientId, "broker"]) {
+                cy.request({
+                    url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${clientId}`,
+                    headers: { Authorization: `Bearer ${adminToken}` }, log: false,
+                }).then(({ body }) => {
+                    expect(body).to.have.length(1);
+                    cy.request({
+                        url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients/${body[0].id}`,
+                        headers: { Authorization: `Bearer ${token.access_token}` },
+                        failOnStatusCode: false, log: false,
+                    }).its("status").should("eq", clientId === testClientId ? 200 : 400);
+                });
+            }
         });
     });
 

@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
  */
 public class UDSClientPolicyPermissionsExecutorFactory implements ClientPolicyExecutorProviderFactory {
 
+    public static final String OWNERSHIP_ENFORCED_CLIENTS = "ownership-enforced-clients";
+
     public static final String PROVIDER_ID = "uds-operator-permissions";
 
     public static final String ADDITIONAL_ALLOWED_PROTOCOL_MAPPER_TYPES = "allowed-protocol-mappers";
@@ -43,12 +45,23 @@ public class UDSClientPolicyPermissionsExecutorFactory implements ClientPolicyEx
 
     protected static final List<ProviderConfigProperty> configProperties = new ArrayList<>();
 
+    ProviderConfigProperty ownershipEnforcedClients = new ProviderConfigProperty();
     ProviderConfigProperty additionalAllowedProtocolMappers = new ProviderConfigProperty();
     ProviderConfigProperty useDefaultAllowedProtocolMappers = new ProviderConfigProperty();
     ProviderConfigProperty additionalAllowedClientScopes = new ProviderConfigProperty();
     ProviderConfigProperty useDefaultAllowedClientScopes = new ProviderConfigProperty();
 
     {
+        ownershipEnforcedClients.setName(OWNERSHIP_ENFORCED_CLIENTS);
+        ownershipEnforcedClients.setLabel("Ownership-enforced clients");
+        ownershipEnforcedClients.setHelpText("Client IDs whose access is restricted to clients they own. "
+                + "New clients receive ownership automatically; existing clients need verified ownership. "
+                + "Administrator roles do not bypass enforcement. Keep uds-operator, uds-fleet-admin and uds-opentofu-client "
+                + "to preserve UDS defaults. This list also selects callers for this executor's mapper and scope rules.");
+        ownershipEnforcedClients.setType(ProviderConfigProperty.MULTIVALUED_STRING_TYPE);
+        ownershipEnforcedClients.setDefaultValue(UDSClientPolicyPermissionsExecutorConfiguration.DEFAULT_OWNERSHIP_ENFORCED_CLIENTS);
+        configProperties.add(ownershipEnforcedClients);
+
         additionalAllowedProtocolMappers.setName(ADDITIONAL_ALLOWED_PROTOCOL_MAPPER_TYPES);
         additionalAllowedProtocolMappers.setLabel("Additional Allowed Protocol Mappers");
         additionalAllowedProtocolMappers.setHelpText("Additional Allowed Protocol Mappers");
@@ -114,7 +127,7 @@ public class UDSClientPolicyPermissionsExecutorFactory implements ClientPolicyEx
 
     @Override
     public List<ProviderConfigProperty> getConfigProperties() {
-        return List.of(additionalAllowedProtocolMappers,
+        return List.of(ownershipEnforcedClients, additionalAllowedProtocolMappers,
                 useDefaultAllowedProtocolMappers,
                 additionalAllowedClientScopes,
                 useDefaultAllowedClientScopes);
