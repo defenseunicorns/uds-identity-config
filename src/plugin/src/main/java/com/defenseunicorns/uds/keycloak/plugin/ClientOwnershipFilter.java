@@ -43,30 +43,18 @@ import java.util.stream.Stream;
  *       credentials only for the caller's own clients.</li>
  * </ul>
  * Client CRUD remains covered by the client policy. Native Keycloak authorization still
- * applies. Setting {@code UDS_CLIENT_OWNERSHIP_FILTER_ENABLED=true} enables these two
- * filter phases; other values, including an unset variable, disable them without disabling the client policy.
+ * applies. Both filter phases follow the enabled client policies referencing the UDS executor.
+ * Disabling or removing those policies, or detaching their profiles, disables filtering.
  */
 @Provider
 public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerResponseFilter {
     private static final String UDS_REALM = "uds";
-    private final boolean enabled;
 
     @Context
     KeycloakSession session;
 
-    public ClientOwnershipFilter() {
-        this(System.getenv("UDS_CLIENT_OWNERSHIP_FILTER_ENABLED"));
-    }
-
-    ClientOwnershipFilter(String enabled) {
-        this.enabled = "true".equalsIgnoreCase(enabled);
-    }
-
     @Override
     public void filter(ContainerRequestContext request) {
-        if (!enabled) {
-            return;
-        }
         // Segments are zero-based: /admin/realms/uds/{resource}/{id}/... puts resource at 3 and ID at 4.
         var path = request.getUriInfo().getPathSegments();
         // Match client subresources and roles-by-id only in uds. For example, /clients/{uuid}/roles
@@ -105,9 +93,6 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
 
     @Override
     public void filter(ContainerRequestContext request, ContainerResponseContext response) {
-        if (!enabled) {
-            return;
-        }
         String owner = getOwnerClientId();
         if (owner != null && response.getEntity() instanceof Stream<?> clients) {
             response.setEntity(clients.map(value -> {
@@ -129,12 +114,17 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
                     || "roles-by-id".equals(path.get(3).getPath()));
     }
 
+    /** Checks enrollment only in UDS executor profiles attached to an enabled client policy. */
+    boolean isOwnershipEnforcementEnabled(String clientId) {
+        return ClientOwnershipPolicy.isManagedClient(session, clientId);
+    }
+
     private String getOwnerClientId() {
         return AdminRoot.getRealmAdminAuth(session)
                 .filter(auth -> UDS_REALM.equals(session.getContext().getRealm().getName()))
                 .map(auth -> auth.getClient())
                 .map(ClientModel::getClientId)
-                .filter(clientId -> ClientOwnershipPolicy.isManagedClient(session, clientId))
+                .filter(this::isOwnershipEnforcementEnabled)
                 .orElse(null);
     }
 }

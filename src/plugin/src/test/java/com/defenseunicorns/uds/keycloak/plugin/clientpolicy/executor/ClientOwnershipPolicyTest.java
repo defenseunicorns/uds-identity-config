@@ -12,6 +12,7 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.representations.idm.ClientProfilesRepresentation;
+import org.keycloak.representations.idm.ClientPoliciesRepresentation;
 import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.services.clientpolicy.ClientPolicyManager;
 import org.keycloak.util.JsonSerialization;
@@ -35,11 +36,14 @@ class ClientOwnershipPolicyTest {
     private KeycloakContext context;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         // The metadata-only test does not read realm profiles.
         lenient().when(session.getContext()).thenReturn(context);
         lenient().when(context.getRealm()).thenReturn(realm);
         lenient().when(session.clientPolicy()).thenReturn(manager);
+        lenient().when(manager.getClientPolicies(realm, false)).thenReturn(JsonSerialization.readValue(
+                "{\"policies\":[{\"enabled\":true,\"profiles\":[\"profile-0\",\"profile-1\"]}]}",
+                ClientPoliciesRepresentation.class));
     }
 
     @Test
@@ -100,6 +104,23 @@ class ClientOwnershipPolicyTest {
     }
 
     @Test
+    void detachedProfilesDoNotEnrollCallers() throws Exception {
+        // given
+        profiles("""
+                {"profiles":[
+                  {"executors":[{"executor":"uds-operator-permissions","configuration":{"ownership-enforced-clients":[]}}]},
+                  {"executors":[{"executor":"uds-operator-permissions","configuration":{"ownership-enforced-clients":["application"]}}]}
+                ]}
+                """);
+        when(manager.getClientPolicies(realm, false)).thenReturn(JsonSerialization.readValue(
+                "{\"policies\":[{\"enabled\":true,\"profiles\":[\"profile-0\"]}]}",
+                ClientPoliciesRepresentation.class));
+
+        // when / then
+        assertFalse(ClientOwnershipPolicy.isManagedClient(session, "application"));
+    }
+
+    @Test
     void configurationFailuresDoNotBypassEnforcement() throws Exception {
         // given
         when(manager.getClientProfiles(realm, false)).thenThrow(new ClientPolicyException("invalid profiles"));
@@ -127,7 +148,12 @@ class ClientOwnershipPolicyTest {
     }
 
     private void profiles(String json) throws Exception {
-        when(manager.getClientProfiles(realm, false)).thenReturn(
-                JsonSerialization.readValue(json, ClientProfilesRepresentation.class));
+        var profiles = JsonSerialization.readValue(json, ClientProfilesRepresentation.class);
+        if (profiles.getProfiles() != null) {
+            for (int i = 0; i < profiles.getProfiles().size(); i++) {
+                profiles.getProfiles().get(i).setName("profile-" + i);
+            }
+        }
+        when(manager.getClientProfiles(realm, false)).thenReturn(profiles);
     }
 }

@@ -16,6 +16,8 @@ import org.keycloak.models.RoleModel;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.services.clientpolicy.ClientPolicyManager;
 import org.keycloak.representations.idm.ClientProfilesRepresentation;
+import org.keycloak.representations.idm.ClientPoliciesRepresentation;
+import org.keycloak.services.clientpolicy.ClientPolicyException;
 import org.keycloak.util.JsonSerialization;
 import org.mockito.ArgumentCaptor;
 
@@ -34,7 +36,7 @@ class ClientOwnershipFilterTest {
     private final RealmModel realm = mock(RealmModel.class);
     private final ClientProvider clients = mock(ClientProvider.class);
     private final ClientOwnershipFilterFixture fixture = new ClientOwnershipFilterFixture(session, realm, clients);
-    private final ClientOwnershipFilter filter = new ClientOwnershipFilter("true");
+    private final ClientOwnershipFilter filter = new ClientOwnershipFilter();
     ClientOwnershipFilterTest() throws Exception {
         filter.session = session;
         configureOwnership("{}");
@@ -47,36 +49,81 @@ class ClientOwnershipFilterTest {
                 + "\"executors\":[{\"executor\":\"uds-operator-permissions\",\"configuration\":"
                 + configuration + "}]}]}", ClientProfilesRepresentation.class);
         when(manager.getClientProfiles(realm, false)).thenReturn(profiles);
+        when(manager.getClientPolicies(realm, false)).thenReturn(JsonSerialization.readValue(
+                "{\"policies\":[{\"enabled\":true,\"profiles\":[\"UDS Client Profile\"]}]}",
+                ClientPoliciesRepresentation.class));
+    }
+
+    private void configurePolicies(String json) throws Exception {
+        when(session.clientPolicy().getClientPolicies(realm, false)).thenReturn(
+                JsonSerialization.readValue(json, ClientPoliciesRepresentation.class));
     }
 
     @Test
-    void disablesBothFiltersUnlessExplicitlyEnabled() {
-        // given
-        ContainerRequestContext request = mock(ContainerRequestContext.class);
-        ContainerResponseContext response = mock(ContainerResponseContext.class);
-        for (String value : new String[] {null, "false", "FALSE", "", "invalid"}) {
-            ClientOwnershipFilter disabled = new ClientOwnershipFilter(value);
-            disabled.session = session;
-            // when
-            disabled.filter(request);
-            disabled.filter(request, response);
-        }
-        // then
-        verifyNoInteractions(session, request, response);
-    }
-
-    @Test
-    void enablesFilteringOnlyForExplicitTrue() {
+    void disabledRemovedAndDetachedPoliciesDisableBothFilters() throws Exception {
         // given
         fixture.authenticate("uds-operator");
-        fixture.target("other-application");
         ContainerRequestContext request = request("admin/realms/uds/clients/target/roles");
-        for (String value : new String[] {"true", "TRUE"}) {
-            ClientOwnershipFilter enabled = new ClientOwnershipFilter(value);
-            enabled.session = session;
-            // when / then
-            assertForbidden(() -> enabled.filter(request));
+        ContainerResponseContext response = mock(ContainerResponseContext.class);
+        for (String policies : List.of(
+                "{}", "{\"policies\":null}", "{\"policies\":[]}",
+                "{\"policies\":[{\"enabled\":false,\"profiles\":[\"UDS Client Profile\"]}]}",
+                "{\"policies\":[{\"profiles\":[\"UDS Client Profile\"]}]}",
+                "{\"policies\":[{\"enabled\":true}]}",
+                "{\"policies\":[{\"enabled\":true,\"profiles\":[]}]}",
+                "{\"policies\":[{\"enabled\":true,\"profiles\":[\"unrelated\"]}]}")) {
+            configurePolicies(policies);
+
+            // when
+            filter.filter(request);
+            filter.filter(request, response);
+
+            // then
+            assertFalse(filter.isOwnershipEnforcementEnabled("uds-operator"), policies);
+            verifyNoInteractions(clients, response);
         }
+    }
+
+    @Test
+    void reattachingPolicyImmediatelyRestoresBothFilters() throws Exception {
+        // given
+        fixture.authenticate("uds-operator");
+        fixture.target("other-owner");
+        ContainerRequestContext request = request("admin/realms/uds/clients/target/roles");
+        configurePolicies("{\"policies\":[]}");
+
+        // when / then
+        assertDoesNotThrow(() -> filter.filter(request));
+
+        // given
+        configurePolicies("{\"policies\":[{\"enabled\":true,\"profiles\":[\"UDS Client Profile\"]}]}");
+        ClientRepresentation foreign = representation("other-owner");
+        ContainerResponseContext response = mock(ContainerResponseContext.class);
+        when(response.getEntity()).thenReturn(Stream.of(foreign));
+
+        // when / then
+        assertTrue(filter.isOwnershipEnforcementEnabled("uds-operator"));
+        assertForbidden(() -> filter.filter(request));
+        filter.filter(request, response);
+        ArgumentCaptor<Object> entity = ArgumentCaptor.forClass(Object.class);
+        verify(response).setEntity(entity.capture());
+        ((Stream<?>) entity.getValue()).toList();
+        assertEquals("**********", foreign.getSecret());
+    }
+
+    @Test
+    void policyReadFailuresDoNotBypassEitherFilter() throws Exception {
+        // given
+        fixture.authenticate("uds-operator");
+        when(session.clientPolicy().getClientPolicies(realm, false))
+                .thenThrow(new ClientPolicyException("invalid policies"));
+        ContainerRequestContext request = request("admin/realms/uds/clients/target/roles");
+        ContainerResponseContext response = mock(ContainerResponseContext.class);
+
+        // when / then
+        assertThrows(IllegalStateException.class, () -> filter.filter(request));
+        assertThrows(IllegalStateException.class, () -> filter.filter(request, response));
+        verifyNoInteractions(clients, response);
     }
 
     @Test
