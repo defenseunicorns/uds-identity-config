@@ -143,7 +143,7 @@ tasks:
         cmd: |
           set -e
           test_zip="src/truststore/test-authorized_certs.zip"
-          test_zip_sha256="f12fe0ad2b2417b999760405aff285897e2553b64bf775ca64176ff536cd936e"
+          test_zip_sha256="f2cecee438ce0c0f7a7508bbd2466b85ae8c3a813546f1150dee5d9ed3bb2949"
           cp src/test/cypress/certs/authorized_certs.zip "${test_zip}"
           trap 'rm -f "${test_zip}"' EXIT
           docker build \
