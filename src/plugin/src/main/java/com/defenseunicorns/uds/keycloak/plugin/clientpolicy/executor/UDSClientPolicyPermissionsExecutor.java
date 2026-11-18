@@ -22,6 +22,10 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.*;
 
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.ATTRIBUTE_CREATED_BY;
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_FLEET_ADMIN_CLIENT_ID;
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_OPERATOR_CLIENT_ID;
+
 /**
  * Keycloak Client Policy Executor for UDS-managed admin clients (e.g. uds-operator, uds-fleet-admin).
  * <p>
@@ -36,17 +40,15 @@ import java.util.*;
  */
 public class UDSClientPolicyPermissionsExecutor implements ClientPolicyExecutorProvider<UDSClientPolicyPermissionsExecutorConfiguration> {
 
-    public static final String ATTRIBUTE_CREATED_BY = "created-by";
-
     /**
      * Naming prefixes for the built-in UDS callers, when enrolled in this executor.
      * The authenticated clientId is still stamped directly into created-by; this map only acts as the
      * per-client prefix configuration. An empty prefix imposes no naming
-     * constraint (preserves uds-operator's existing behavior).
+     * constraint because Pepr uses the client IDs supplied by Packages.
      */
-    public static final Map<String, String> MANAGED_CLIENT_ID_PREFIXES = Map.of(
-            UDSClientPolicyPermissionsExecutorConfiguration.UDS_OPERATOR_CLIENT_ID, "",
-            UDSClientPolicyPermissionsExecutorConfiguration.UDS_FLEET_ADMIN_CLIENT_ID, "fleet-"
+    private static final Map<String, String> MANAGED_CLIENT_ID_PREFIXES = Map.of(
+            UDS_OPERATOR_CLIENT_ID, "",
+            UDS_FLEET_ADMIN_CLIENT_ID, "fleet-"
     );
 
     protected final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

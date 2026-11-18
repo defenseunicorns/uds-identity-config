@@ -5,7 +5,6 @@
 
 package com.defenseunicorns.uds.keycloak.plugin;
 
-import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.UDSClientPolicyPermissionsExecutor;
 import com.defenseunicorns.uds.keycloak.plugin.clientpolicy.executor.ClientOwnershipPolicy;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -24,6 +23,9 @@ import org.keycloak.representations.idm.ClientRepresentation;
 
 import java.util.List;
 import java.util.stream.Stream;
+
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.ATTRIBUTE_CREATED_BY;
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_REALM;
 
 /**
  * Enforces client ownership for enrolled callers in the {@code uds} realm. The two UDS
@@ -48,8 +50,6 @@ import java.util.stream.Stream;
  */
 @Provider
 public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerResponseFilter {
-    private static final String UDS_REALM = "uds";
-
     @Context
     KeycloakSession session;
 
@@ -86,7 +86,7 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
             client = session.clients().getClientById(session.getContext().getRealm(), path.get(4).getPath());
         }
         if (client == null || !owner.equals(
-                client.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY))) {
+                client.getAttribute(ATTRIBUTE_CREATED_BY))) {
             throw new ForbiddenException();
         }
     }
@@ -98,7 +98,7 @@ public class ClientOwnershipFilter implements ContainerRequestFilter, ContainerR
             response.setEntity(clients.map(value -> {
                 if (value instanceof ClientRepresentation client
                         && (client.getAttributes() == null || !owner.equals(
-                                client.getAttributes().get(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)))) {
+                                client.getAttributes().get(ATTRIBUTE_CREATED_BY)))) {
                     StripSecretsUtils.stripClient(client);
                 }
                 return value;

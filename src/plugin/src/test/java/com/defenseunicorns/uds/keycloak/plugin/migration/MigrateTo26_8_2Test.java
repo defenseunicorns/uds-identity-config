@@ -19,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.ADMIN_API_SCOPE;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -108,7 +110,7 @@ class MigrateTo26_8_2Test {
         // given
         adminApiScope();
         when(realm.getClientByClientId("uds-operator")).thenReturn(operator);
-        when(operator.getClientScopes(true)).thenReturn(Map.of(MigrateTo26_8_2.SCOPE_NAME, scope));
+        when(operator.getClientScopes(true)).thenReturn(Map.of(ADMIN_API_SCOPE, scope));
 
         // when
         new MigrateTo26_8_2().migrate(session, realm);

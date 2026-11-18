@@ -15,11 +15,15 @@ import org.keycloak.models.RealmModel;
 
 import java.util.List;
 
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.ADMIN_API_SCOPE;
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_FLEET_ADMIN_CLIENT_ID;
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_OPENTOFU_CLIENT_ID;
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_OPERATOR_CLIENT_ID;
+
 /** Applies the 26.8.2 Admin API scope assignments and mapper delegation settings. */
 public final class MigrateTo26_8_2 implements RealmMigration {
-    static final String SCOPE_NAME = "kc-admin-api";
     private static final List<String> ADMIN_CLIENTS = List.of(
-            "uds-operator", "uds-fleet-admin", "uds-opentofu-client");
+            UDS_OPERATOR_CLIENT_ID, UDS_FLEET_ADMIN_CLIENT_ID, UDS_OPENTOFU_CLIENT_ID);
 
     /** {@inheritDoc} */
     @Override
@@ -45,7 +49,7 @@ public final class MigrateTo26_8_2 implements RealmMigration {
 
         for (String clientId : ADMIN_CLIENTS) {
             ClientModel client = realm.getClientByClientId(clientId);
-            if (client != null && !client.getClientScopes(true).containsKey(SCOPE_NAME)) {
+            if (client != null && !client.getClientScopes(true).containsKey(ADMIN_API_SCOPE)) {
                 client.addClientScope(scope, true);
             }
         }

@@ -10,11 +10,12 @@ import org.keycloak.representations.idm.ClientPolicyExecutorConfigurationReprese
 
 import java.util.List;
 
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_FLEET_ADMIN_CLIENT_ID;
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_OPENTOFU_CLIENT_ID;
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_OPERATOR_CLIENT_ID;
+
 public class UDSClientPolicyPermissionsExecutorConfiguration extends ClientPolicyExecutorConfigurationRepresentation {
 
-    public static final String UDS_OPERATOR_CLIENT_ID = "uds-operator";
-    public static final String UDS_FLEET_ADMIN_CLIENT_ID = "uds-fleet-admin";
-    public static final String UDS_OPENTOFU_CLIENT_ID = "uds-opentofu-client";
     public static final List<String> DEFAULT_OWNERSHIP_ENFORCED_CLIENTS = List.of(
             UDS_OPERATOR_CLIENT_ID, UDS_FLEET_ADMIN_CLIENT_ID, UDS_OPENTOFU_CLIENT_ID);
 
