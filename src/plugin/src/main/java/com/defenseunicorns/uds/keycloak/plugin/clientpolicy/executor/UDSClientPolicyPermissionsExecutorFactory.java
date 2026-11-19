@@ -56,7 +56,7 @@ public class UDSClientPolicyPermissionsExecutorFactory implements ClientPolicyEx
         ownershipEnforcedClients.setLabel("Ownership-enforced clients");
         ownershipEnforcedClients.setHelpText("Client IDs whose access is restricted to clients they own. "
                 + "New clients receive ownership automatically; existing clients need verified ownership. "
-                + "Administrator roles do not bypass enforcement. Keep uds-operator, uds-fleet-admin and uds-opentofu-client "
+                + "Administrator roles do not bypass enforcement. Keep uds-operator and uds-fleet-admin "
                 + "to preserve UDS defaults. This list also selects callers for this executor's mapper and scope rules.");
         ownershipEnforcedClients.setType(ProviderConfigProperty.MULTIVALUED_STRING_TYPE);
         ownershipEnforcedClients.setDefaultValue(UDSClientPolicyPermissionsExecutorConfiguration.DEFAULT_OWNERSHIP_ENFORCED_CLIENTS);

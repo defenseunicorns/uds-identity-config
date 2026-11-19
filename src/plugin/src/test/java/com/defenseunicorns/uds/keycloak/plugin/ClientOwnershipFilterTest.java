@@ -397,7 +397,7 @@ class ClientOwnershipFilterTest {
     @Test
     void defaultCallersRemainProtectedWithoutEnrollment() {
         // given
-        for (String caller : List.of("uds-operator", "uds-fleet-admin", "uds-opentofu-client")) {
+        for (String caller : List.of("uds-operator", "uds-fleet-admin")) {
             fixture.authenticate(caller);
             fixture.target("another-owner");
             // when / then

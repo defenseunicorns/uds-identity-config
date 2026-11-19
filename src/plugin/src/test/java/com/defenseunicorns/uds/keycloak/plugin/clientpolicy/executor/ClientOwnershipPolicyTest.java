@@ -54,7 +54,7 @@ class ClientOwnershipPolicyTest {
             // when / then
             assertTrue(ClientOwnershipPolicy.isManagedClient(session, "uds-operator"));
             assertTrue(ClientOwnershipPolicy.isManagedClient(session, "uds-fleet-admin"));
-            assertTrue(ClientOwnershipPolicy.isManagedClient(session, "uds-opentofu-client"));
+            assertFalse(ClientOwnershipPolicy.isManagedClient(session, "uds-opentofu-client"));
             assertFalse(ClientOwnershipPolicy.isManagedClient(session, "application"));
             assertFalse(ClientOwnershipPolicy.isManagedClient(session, null));
             assertFalse(ClientOwnershipPolicy.isManagedClient(session, " "));
@@ -137,7 +137,7 @@ class ClientOwnershipPolicyTest {
         var config = JsonSerialization.readValue("{}", UDSClientPolicyPermissionsExecutorConfiguration.class);
         // then
         assertEquals(ProviderConfigProperty.MULTIVALUED_STRING_TYPE, property.getType());
-        assertEquals(List.of("uds-operator", "uds-fleet-admin", "uds-opentofu-client"), config.getOwnershipEnforcedClients());
+        assertEquals(List.of("uds-operator", "uds-fleet-admin"), config.getOwnershipEnforcedClients());
         assertEquals(config.getOwnershipEnforcedClients(), property.getDefaultValue());
         // when
         var edited = JsonSerialization.readValue("{\"ownership-enforced-clients\":[\"application\"]}",

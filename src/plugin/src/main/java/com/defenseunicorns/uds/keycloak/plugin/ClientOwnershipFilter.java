@@ -28,9 +28,9 @@ import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.ATTRIBUTE_CRE
 import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_REALM;
 
 /**
- * Enforces client ownership for enrolled callers in the {@code uds} realm. The two UDS
- * management clients and OpenTofu are enrolled by default; edit the ownership-enforced clients list in
- * the UDS client profile executor to change enrollment.
+ * Enforces client ownership for enrolled callers in the {@code uds} realm. The UDS Operator and Fleet Admin
+ * are enrolled by default. Edit the ownership-enforced clients list in the UDS client profile
+ * executor to change enrollment.
  * Ownership requires {@code created-by} to match the authenticated caller's client ID;
  * an absent stamp does not grant access or cause automatic adoption.
  * <p>

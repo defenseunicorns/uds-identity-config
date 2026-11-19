@@ -541,7 +541,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
     @Test
     public void shouldDoNothingForUnmanagedAuthenticatedClient() throws ClientPolicyException {
         // given: a client that is not enrolled for ownership enforcement
-        ClientCRUDContext context = crudContext(ClientPolicyEvent.REGISTER, "some-other-client");
+        ClientCRUDContext context = crudContext(ClientPolicyEvent.UPDATE, "uds-opentofu-client");
 
         // when: no enforcement runs, so the proposed representation is never even read
         executor.executeOnEvent(context);
@@ -567,7 +567,6 @@ public class UDSClientPolicyPermissionsExecutorTest {
         // when / then
         assertTrue(executor.isManagedClient("uds-operator"));
         assertTrue(executor.isManagedClient("uds-fleet-admin"));
-        assertTrue(executor.isManagedClient("uds-opentofu-client"));
         assertFalse(executor.isManagedClient("application"));
 
         // given
@@ -580,7 +579,6 @@ public class UDSClientPolicyPermissionsExecutorTest {
         assertFalse(executor.isManagedClient(""));
         assertFalse(executor.isManagedClient("uds-operator"));
         assertFalse(executor.isManagedClient("uds-fleet-admin"));
-        assertFalse(executor.isManagedClient("uds-opentofu-client"));
 
         // given
         executor.configuration.setOwnershipEnforcedClients(List.of());
@@ -625,7 +623,6 @@ public class UDSClientPolicyPermissionsExecutorTest {
         // then
         assertTrue(executor.isManagedClient("uds-operator"));
         assertTrue(executor.isManagedClient("uds-fleet-admin"));
-        assertTrue(executor.isManagedClient("uds-opentofu-client"));
         assertFalse(executor.isManagedClient("application"));
         assertTrue(executor.configuration.getAllowedProtocolMappers()
                 .containsAll(ProtocolMapperPolicy.DEFAULT_ALLOWED_PROTOCOL_MAPPERS));
@@ -695,38 +692,4 @@ public class UDSClientPolicyPermissionsExecutorTest {
         // when / then
         assertDoesNotThrow(() -> executor.executeOnEvent(context));
     }
-
-    @Test
-    public void openTofuDefaultsStampOwnershipAndRejectForeignClients() throws ClientPolicyException {
-        // given
-        ClientCRUDContext registration = crudContext(ClientPolicyEvent.REGISTER, "uds-opentofu-client");
-        ClientRepresentation proposed = new ClientRepresentation();
-        proposed.setClientId("tofu-managed");
-        when(registration.getProposedClientRepresentation()).thenReturn(proposed);
-
-        // when
-        executor.executeOnEvent(registration);
-
-        // then
-        assertEquals("uds-opentofu-client", proposed.getAttributes().get("created-by"));
-
-        // given
-        ClientCRUDContext view = crudContext(ClientPolicyEvent.VIEW, "uds-opentofu-client");
-        when(view.getTargetClient()).thenReturn(client);
-        when(client.getAttribute("created-by")).thenReturn("uds-opentofu-client");
-
-        // when / then
-        assertDoesNotThrow(() -> executor.executeOnEvent(view));
-        for (String owner : new String[] {null, "another-owner"}) {
-            // given
-            when(client.getAttribute("created-by")).thenReturn(owner);
-            // when
-            ClientPolicyException error = assertThrows(ClientPolicyException.class,
-                    () -> executor.executeOnEvent(view));
-            // then
-            assertEquals(Errors.UNAUTHORIZED_CLIENT, error.getError());
-            verify(client, never()).setAttribute(anyString(), anyString());
-        }
-    }
-
 }
