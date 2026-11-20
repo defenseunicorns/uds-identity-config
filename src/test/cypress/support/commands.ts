@@ -148,7 +148,7 @@ Cypress.Commands.add("avoidX509", () => {
  * @returns {Promise<{accessToken: string, clientSecret: string}>} An object containing the access token and client secret
  */
 Cypress.Commands.add("getClientSecret", (clientId: string) => {
-  return cy.getAccessToken().then((accessToken) => {
+  return cy.getAccessToken("KEYCLOAK_ADMIN").then((accessToken) => {
     return cy.request({
       method: 'GET',
       url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${encodeURIComponent(clientId)}`,
@@ -163,15 +163,15 @@ Cypress.Commands.add("getClientSecret", (clientId: string) => {
       }
       return cy.request({
         method: 'GET',
-        url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients/${client.id}/client-secret`,
+        url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients/${client.id}`,
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         }
-      }).then((secretResponse) => {
+      }).then((clientResponse) => {
         return {
           accessToken,
-          clientSecret: secretResponse.body.value
+          clientSecret: clientResponse.body.secret
         };
       });
     });

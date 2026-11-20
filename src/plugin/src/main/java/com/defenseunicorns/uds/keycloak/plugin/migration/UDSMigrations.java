@@ -15,6 +15,8 @@ import org.keycloak.provider.Provider;
 
 import java.util.List;
 
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_REALM;
+
 /** Applies ordered UDS realm changes under Keycloak's boot database lock. */
 public final class UDSMigrations implements Provider {
     private static final Logger LOG = Logger.getLogger(UDSMigrations.class);
@@ -38,7 +40,7 @@ public final class UDSMigrations implements Provider {
         lock.waitForLock(DBLockProvider.Namespace.KEYCLOAK_BOOT);
         try {
             KeycloakModelUtils.runJobInTransaction(session.getKeycloakSessionFactory(), migrationSession -> {
-                RealmModel realm = migrationSession.realms().getRealmByName("uds");
+                RealmModel realm = migrationSession.realms().getRealmByName(UDS_REALM);
                 if (realm == null) {
                     return;
                 }

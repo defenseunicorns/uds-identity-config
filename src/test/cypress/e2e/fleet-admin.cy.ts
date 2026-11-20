@@ -11,6 +11,36 @@ const CLIENTS_URL = "https://keycloak.admin.uds.dev/admin/realms/uds/clients";
 const SETUP_MANIFEST = "./resources/fleet-admin-test-setup.yaml";
 
 describe("Fleet Admin Client (federated JWT)", () => {
+  let fixtureClientUrl: string | undefined;
+  let nonOwnedClientUrl: string | undefined;
+
+  afterEach(() => {
+    if (!fixtureClientUrl) return;
+    cy.getFleetAdminAccessToken().then((accessToken: string) => {
+      cy.request({
+        method: "DELETE",
+        url: fixtureClientUrl!,
+        headers: { Authorization: `Bearer ${accessToken}` },
+        failOnStatusCode: false,
+        log: false,
+      }).its("status").should("be.oneOf", [204, 404]);
+    });
+    // Clear after queued cleanup so retries cannot reuse an earlier fixture.
+    cy.then(() => { fixtureClientUrl = undefined; });
+  });
+
+  afterEach(() => {
+    if (!nonOwnedClientUrl) return;
+    cy.getAccessToken("KEYCLOAK_ADMIN").then((accessToken) => {
+      cy.request({
+        method: "DELETE", url: nonOwnedClientUrl!,
+        headers: { Authorization: `Bearer ${accessToken}` },
+        failOnStatusCode: false, log: false,
+      }).its("status").should("be.oneOf", [204, 404]);
+    });
+    cy.then(() => { nonOwnedClientUrl = undefined; });
+  });
+
   before(() => {
     cy.task("exec", `uds zarf tools kubectl apply -f ${SETUP_MANIFEST}`)
       .its("exitCode")
@@ -164,30 +194,16 @@ describe("Fleet Admin Client (federated JWT)", () => {
     });
   });
 
-  it("uds-fleet-admin can't delete a Client it didn't create", () => {
+  it("uds-fleet-admin can't delete the non-owned broker client", () => {
     cy.getFleetAdminAccessToken().then((accessToken: string) => {
-      cy.request({
-        method: "GET",
-        url: CLIENTS_URL,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        // "broker" is a built-in client that uds-fleet-admin did not create.
-        const brokerClient = response.body.find((client: any) => client.clientId === "broker");
-        expect(brokerClient, "broker client visible in list").to.exist;
-        expect(brokerClient.attributes?.["created-by"], "broker not owned by uds-fleet-admin").to.not.eq("uds-fleet-admin");
-        const clientUrl = `${CLIENTS_URL}/${brokerClient.id}`;
+      const headers = { Authorization: `Bearer ${accessToken}` };
+      cy.request({ url: `${CLIENTS_URL}?clientId=broker`, headers, log: false }).then(({ body }) => {
+        expect(body).to.have.length(1);
+        const client = body[0];
+        expect(client.attributes?.["created-by"]).not.to.eq("uds-fleet-admin");
         cy.request({
-          failOnStatusCode: false,
-          method: "DELETE",
-          url: clientUrl,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
+          method: "DELETE", url: `${CLIENTS_URL}/${client.id}`, headers,
+          failOnStatusCode: false, log: false,
         }).then((response) => {
           expect(response.status).to.eq(400);
           expect(response.body).to.deep.equal({
@@ -198,4 +214,174 @@ describe("Fleet Admin Client (federated JWT)", () => {
       });
     });
   });
+
+  for (const method of ["GET", "POST"]) {
+    it(`uds-fleet-admin can't ${method} another client's roles`, () => {
+      cy.getAccessToken("UDS_OPERATOR").then((operatorToken) => {
+        cy.request({
+          method: "POST", url: CLIENTS_URL,
+          headers: { Authorization: `Bearer ${operatorToken}` }, log: false,
+          body: { clientId: `operator-roles-${Date.now()}`, publicClient: false, enabled: true },
+        }).then((created) => {
+          nonOwnedClientUrl = created.headers.location as string;
+          cy.getFleetAdminAccessToken().then((accessToken: string) => {
+            cy.request({
+              method, url: `${nonOwnedClientUrl}/roles`,
+              ...(method === "POST" ? { body: { name: "unauthorized-role" } } : {}),
+              headers: { Authorization: `Bearer ${accessToken}` },
+              failOnStatusCode: false, log: false,
+            }).its("status").should("eq", 403);
+          });
+        });
+      });
+    });
+  }
+
+  it("client lists expose the real secret only to its owner", () => {
+    const clientId = `fleet-secret-${Date.now()}`;
+    cy.getFleetAdminAccessToken().then((accessToken: string) => {
+      const headers = { Authorization: `Bearer ${accessToken}` };
+      cy.request({
+        method: "POST",
+        url: CLIENTS_URL,
+        headers,
+        body: { clientId, enabled: true, publicClient: false },
+      }).then((created) => {
+        const clientUrl = created.headers.location as string;
+        fixtureClientUrl = clientUrl;
+        let realSecret: string;
+        cy.request({ url: `${clientUrl}/client-secret`, headers, log: false }).then((secret) => {
+          expect(secret.status).to.eq(200);
+          expect(secret.body.value).to.be.a("string").and.not.be.empty;
+          expect(secret.body.value).not.to.eq("**********");
+          realSecret = secret.body.value;
+        });
+        cy.request({ url: CLIENTS_URL, headers, log: false }).then((clients) => {
+          // Establish that the list returns the actual secret to its owner.
+          const owned = clients.body.find((client: any) => client.clientId === clientId);
+          expect(owned, "owned client visible in list").to.exist;
+          expect(owned.secret).to.eq(realSecret);
+          const operator = clients.body.find((client: any) => client.clientId === "uds-operator");
+          expect(operator, "operator client").to.exist;
+          expect(operator.secret, "operator secret masked in client list").to.eq("**********");
+          const tofu = clients.body.find((client: any) => client.clientId === "uds-opentofu-client");
+          expect(Boolean(tofu), "OpenTofu client visible in list").to.be.true;
+          expect(tofu.attributes?.["created-by"]).to.be.undefined;
+          expect(tofu.secret === "**********", "OpenTofu secret masked for Fleet").to.be.true;
+        });
+        cy.getAccessToken("UDS_OPERATOR").then((operatorToken: string) => {
+          // The same stored secret must be masked for a different owner.
+          cy.request({
+            url: CLIENTS_URL,
+            headers: { Authorization: `Bearer ${operatorToken}` },
+            log: false,
+          }).then((clients) => {
+            const nonOwned = clients.body.find((client: any) => client.clientId === clientId);
+            expect(nonOwned, "non-owned client visible in list").to.exist;
+            expect(nonOwned.secret).to.eq("**********");
+          });
+        });
+      });
+    });
+  });
+
+  for (const [creator, description] of [
+    ["UDS_OPERATOR", "an Operator-created client"],
+    ["KEYCLOAK_ADMIN", "a client without an owner, like the bundled OpenTofu client"],
+  ] as const) {
+    it(`Fleet cannot read, rotate, or replace the secret of ${description}`, () => {
+      cy.getAccessToken(creator).then((creatorToken) => {
+        const headers = { Authorization: `Bearer ${creatorToken}` };
+        const originalSecret = "disposable-test-secret";
+        cy.request({
+          method: "POST", url: CLIENTS_URL, headers, log: false,
+          body: {
+            clientId: `fleet-secret-fixture-${Date.now()}`,
+            enabled: false, publicClient: false, secret: originalSecret,
+          },
+        }).then((created) => {
+          expect(created.status).to.eq(201);
+          const clientUrl = created.headers.location as string;
+          nonOwnedClientUrl = clientUrl;
+          const secretUrl = `${clientUrl}/client-secret`;
+          cy.request({ url: clientUrl, headers, log: false }).then(({ body }) => {
+            expect(body.attributes?.["created-by"]).to.eq(creator === "UDS_OPERATOR" ? "uds-operator" : undefined);
+          });
+          cy.getFleetAdminAccessToken().then((fleetToken) => {
+            const fleetHeaders = { Authorization: `Bearer ${fleetToken}` };
+            for (const method of ["GET", "POST"]) {
+              cy.request({ method, url: secretUrl, headers: fleetHeaders, failOnStatusCode: false, log: false })
+                .its("status").should("eq", 403);
+            }
+            cy.request({
+              method: "PUT", url: clientUrl, headers: fleetHeaders, body: { secret: "disposable-replacement" },
+              failOnStatusCode: false, log: false,
+            }).then(({ status, body }) => {
+              expect(status).to.eq(400);
+              expect(body.error).to.eq("unauthorized_client");
+            });
+          });
+          cy.request({ url: secretUrl, headers, log: false }).then(({ body }) => {
+            expect(body.value === originalSecret, "fixture retained its original secret").to.be.true;
+          });
+        });
+      });
+    });
+  }
+
+  function createOwnedRole() {
+    return cy.getFleetAdminAccessToken().then((ownerToken: string) => {
+      const headers = { Authorization: `Bearer ${ownerToken}` };
+      return cy.request({
+        method: "POST", url: CLIENTS_URL, headers, log: false,
+        body: { clientId: `fleet-role-${Date.now()}`, publicClient: true },
+      }).then((created) => {
+        const clientUrl = created.headers.location as string;
+        fixtureClientUrl = clientUrl;
+        return cy.request({
+          method: "POST", url: `${clientUrl}/roles`, headers, log: false,
+          body: { name: "test-role", description: "Original role" },
+        }).then(() => cy.request({ url: `${clientUrl}/roles/test-role`, headers, log: false }))
+          .then((role) => ({
+            ownerToken,
+            namedRoleUrl: `${clientUrl}/roles/test-role`,
+            roleUrl: `https://keycloak.admin.uds.dev/admin/realms/uds/roles-by-id/${role.body.id}`,
+          }));
+      });
+    });
+  }
+
+  it("non-owners cannot read, update, or delete client roles through either route", () => {
+    createOwnedRole().then(({ ownerToken, namedRoleUrl, roleUrl }) => {
+      cy.getAccessToken("UDS_OPERATOR").then((token: string) => {
+        for (const url of [namedRoleUrl, roleUrl]) {
+          for (const method of ["GET", "PUT", "DELETE"]) {
+            cy.request({
+              method, url, headers: { Authorization: `Bearer ${token}` },
+              ...(method === "PUT" ? { body: { name: "test-role", description: "Unauthorized update" } } : {}),
+              failOnStatusCode: false, log: false,
+            }).its("status").should("eq", 403);
+          }
+        }
+        cy.request({ url: roleUrl, headers: { Authorization: `Bearer ${ownerToken}` }, log: false })
+          .its("body.description").should("eq", "Original role");
+      });
+    });
+  });
+
+  it("owner can read, update, and delete a client role by ID", () => {
+    createOwnedRole().then(({ ownerToken, roleUrl }) => {
+      const headers = { Authorization: `Bearer ${ownerToken}` };
+      cy.request({ url: roleUrl, headers, log: false }).its("status").should("eq", 200);
+      cy.request({
+        method: "PUT", url: roleUrl, headers, log: false,
+        body: { name: "test-role", description: "Authorized update" },
+      }).its("status").should("eq", 204);
+      cy.request({ url: roleUrl, headers, log: false })
+        .its("body.description").should("eq", "Authorized update");
+      cy.request({ method: "DELETE", url: roleUrl, headers, log: false })
+        .its("status").should("eq", 204);
+    });
+  });
+
 });

@@ -18,12 +18,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.ADMIN_API_SCOPE;
 import static org.keycloak.common.util.CollectionUtil.isNotEmpty;
 
 /** Resolves and validates allowed scopes while preserving existing default admin API assignments. */
 final class ClientScopePolicy {
-
-    private static final String ADMIN_API_SCOPE = "kc-admin-api";
 
     static final List<String> DEFAULT_ALLOWED_CLIENT_SCOPES = List.of(
             "openid",

@@ -4,6 +4,25 @@
  */
 
 describe("UDS Operator Client Credentials", () => {
+    let foreignClientUrl: string | undefined;
+    let cleanupOwnershipPackage = false;
+
+    afterEach(() => {
+        if (cleanupOwnershipPackage) {
+            cy.task("exec", "uds zarf tools kubectl delete -f ./resources/test-package-allowed-protocol-mapper.yaml --ignore-not-found")
+                .its("exitCode").should("eq", 0);
+            cy.then(() => { cleanupOwnershipPackage = false; });
+        }
+        if (foreignClientUrl) {
+            cy.getAccessToken("KEYCLOAK_ADMIN").then((token) => {
+                cy.request({
+                    method: "DELETE", url: foreignClientUrl!,
+                    headers: { Authorization: `Bearer ${token}` }, log: false,
+                }).its("status").should("eq", 204);
+            });
+            cy.then(() => { foreignClientUrl = undefined; });
+        }
+    });
     it("UDS Operator can obtain Access Token", () => {
         cy.getAccessToken()
     });
@@ -155,6 +174,72 @@ describe("UDS Operator Client Credentials", () => {
                 waitForPackage(JSON.parse(result.stdout).metadata.generation);
                 assertMapper(true);
             });
+
+    });
+
+    it("UDS Operator reconciles its owned client and synchronizes its real secret", () => {
+        const clientId = "test-package-allowed-protocol-mapper";
+        cleanupOwnershipPackage = true;
+        cy.task("exec", "uds zarf tools kubectl apply -f ./resources/test-package-allowed-protocol-mapper.yaml")
+            .its("exitCode").should("eq", 0);
+        cy.task("exec", `uds zarf tools kubectl wait --for=condition=Ready=true package/${clientId} -n ${clientId} --timeout=300s`)
+            .its("exitCode").should("eq", 0);
+        cy.task("exec", `uds zarf tools kubectl patch package ${clientId} -n ${clientId} --type=json -p='[{"op":"replace","path":"/spec/sso/0/name","value":"Secret sync ${Date.now()}"}]' -o json`)
+            .then((result) => {
+                expect(result.exitCode).to.eq(0);
+                const generation = JSON.parse(result.stdout).metadata.generation;
+                cy.task("exec", `uds zarf tools kubectl wait --for=jsonpath='{.status.observedGeneration}'=${generation} package/${clientId} -n ${clientId} --timeout=300s`)
+                    .its("exitCode").should("eq", 0);
+                cy.task("exec", `uds zarf tools kubectl wait --for=condition=Ready=true package/${clientId} -n ${clientId} --timeout=300s`)
+                    .its("exitCode").should("eq", 0);
+            });
+        cy.getAccessToken("UDS_OPERATOR").then((token) => {
+            cy.request({
+                url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${clientId}`,
+                headers: { Authorization: `Bearer ${token}` }, log: false,
+            }).then(({ body }) => {
+                expect(body).to.have.length(1);
+                const client = body[0];
+                expect(client.attributes["created-by"]).to.eq("uds-operator");
+                expect(client.secret).to.be.a("string").and.not.be.empty;
+                expect(client.secret).not.to.eq("**********");
+                cy.getValueFromSecret(clientId, `sso-client-${clientId}`, "secret").should("eq", client.secret);
+            });
+        });
+    });
+
+    it("UDS Operator cannot read another client's secret or client details", () => {
+        const clientId = `foreign-secret-${Date.now()}`;
+        cy.getAccessToken("KEYCLOAK_ADMIN").then((adminToken) => {
+            const headers = { Authorization: `Bearer ${adminToken}` };
+            cy.request({
+                method: "POST", url: "https://keycloak.admin.uds.dev/admin/realms/uds/clients",
+                headers, body: { clientId, enabled: true, publicClient: false }, log: false,
+            }).then((created) => {
+                foreignClientUrl = created.headers.location as string;
+                cy.request({ url: foreignClientUrl, headers, log: false }).then(({ body }) => {
+                    expect(body.secret).to.be.a("string").and.not.be.empty;
+                    expect(body.secret).not.to.eq("**********");
+                });
+                cy.getAccessToken("UDS_OPERATOR").then((token) => {
+                    const operatorHeaders = { Authorization: `Bearer ${token}` };
+                    cy.request({
+                        url: `https://keycloak.admin.uds.dev/admin/realms/uds/clients?clientId=${clientId}`,
+                        headers: operatorHeaders, log: false,
+                    }).then(({ body }) => {
+                        expect(body).to.have.length(1);
+                        expect(body[0].secret).to.eq("**********");
+                    });
+                    cy.request({
+                        url: foreignClientUrl, headers: operatorHeaders,
+                        failOnStatusCode: false, log: false,
+                    }).then((response) => {
+                        expect(response.status).to.eq(400);
+                        expect(response.body.error).to.eq("unauthorized_client");
+                    });
+                });
+            });
+        });
     });
 
     it("Dynamic Client Registration is disabled", () => {

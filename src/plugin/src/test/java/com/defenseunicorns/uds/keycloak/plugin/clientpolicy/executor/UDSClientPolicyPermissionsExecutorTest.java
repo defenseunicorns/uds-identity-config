@@ -28,13 +28,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.ATTRIBUTE_CREATED_BY;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UDSClientPolicyPermissionsExecutorTest {
 
-    final UDSClientPolicyPermissionsExecutor executor = new UDSClientPolicyPermissionsExecutor(null);
+    UDSClientPolicyPermissionsExecutor executor;
 
     @Mock
     KeycloakSession session;
@@ -53,6 +54,9 @@ public class UDSClientPolicyPermissionsExecutorTest {
 
     @BeforeEach
     public void before() {
+        executor = new UDSClientPolicyPermissionsExecutor(session);
+        lenient().when(session.getContext()).thenReturn(keycloakContext);
+        lenient().when(keycloakContext.getRealm()).thenReturn(realm);
         UDSClientPolicyPermissionsExecutorConfiguration config = new UDSClientPolicyPermissionsExecutorConfiguration();
         config.setUseDefaultAllowedProtocolMappers(false);
         config.setAllowedProtocolMappers(ProtocolMapperPolicy.DEFAULT_ALLOWED_PROTOCOL_MAPPERS);
@@ -64,7 +68,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
     @Test
     public void shouldReportAsOwnedByMatchingClient() {
         // given
-        when(client.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY))
+        when(client.getAttribute(ATTRIBUTE_CREATED_BY))
                 .thenReturn("uds-operator");
 
         // when
@@ -77,7 +81,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
     @Test
     public void shouldNotReportAsOwnedWhenAttributeMissing() {
         // given
-        when(client.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn(null);
+        when(client.getAttribute(ATTRIBUTE_CREATED_BY)).thenReturn(null);
 
         // when
         boolean result = executor.isOwnedBy(client, "uds-operator");
@@ -89,7 +93,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
     @Test
     public void shouldNotReportAsOwnedWhenCreatedByDifferentClient() {
         // given: a client created by uds-operator is not owned by uds-fleet-admin
-        when(client.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
+        when(client.getAttribute(ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
 
         // when
         boolean result = executor.isOwnedBy(client, "uds-fleet-admin");
@@ -125,13 +129,12 @@ public class UDSClientPolicyPermissionsExecutorTest {
     }
 
     @Test
-    public void shouldNotConstrainClientIdForUdsOperator() throws ClientPolicyException {
-        // given: uds-operator has an empty prefix, so any clientId is allowed
+    public void shouldAllowPackageClientIdsForUdsOperator() throws ClientPolicyException {
         ClientRepresentation rep = new ClientRepresentation();
-        rep.setClientId("anything-goes");
-
-        // when/then: no exception
-        executor.validateClientIdPrefix(rep, "uds-operator");
+        for (String clientId : List.of("podinfo", "uds-core-admin-grafana", "podinfo-probe")) {
+            rep.setClientId(clientId);
+            executor.validateClientIdPrefix(rep, "uds-operator");
+        }
     }
 
     @Test
@@ -148,7 +151,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
         when(clientCRUDContext.getEvent()).thenReturn(ClientPolicyEvent.UPDATE);
         when(clientCRUDContext.getTargetClient()).thenReturn(targetClient);
         when(targetClient.getClientId()).thenReturn("fleet-agent-123");
-        when(targetClient.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-fleet-admin");
+        when(targetClient.getAttribute(ATTRIBUTE_CREATED_BY)).thenReturn("uds-fleet-admin");
         when(clientCRUDContext.getProposedClientRepresentation()).thenReturn(proposedRep);
 
         // when/then
@@ -310,7 +313,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
         ClientModel operator = mock(ClientModel.class);
         ClientModel target = mock(ClientModel.class);
         when(operator.getClientId()).thenReturn("uds-operator");
-        when(target.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
+        when(target.getAttribute(ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
         when(target.getClientScopes(true)).thenReturn(java.util.Map.of("kc-admin-api", mock(ClientScopeModel.class)));
         ClientCRUDContext context = crudContext(ClientPolicyEvent.UPDATE, "uds-operator");
         when(context.getAuthenticatedClient()).thenReturn(operator);
@@ -327,7 +330,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
         ClientModel operator = mock(ClientModel.class);
         ClientModel target = mock(ClientModel.class);
         when(operator.getClientId()).thenReturn("uds-operator");
-        when(target.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
+        when(target.getAttribute(ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
 
         ClientCRUDContext newDefaultContext = crudContext(ClientPolicyEvent.UPDATE, "uds-operator");
         when(newDefaultContext.getAuthenticatedClient()).thenReturn(operator);
@@ -448,7 +451,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
         executor.executeOnEvent(context);
 
         // then: the plugin stamps ownership with the authenticated client id
-        assertEquals("uds-fleet-admin", proposed.getAttributes().get(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY));
+        assertEquals("uds-fleet-admin", proposed.getAttributes().get(ATTRIBUTE_CREATED_BY));
     }
 
     @Test
@@ -463,7 +466,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
         executor.executeOnEvent(context);
 
         // then
-        assertEquals("uds-operator", proposed.getAttributes().get(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY));
+        assertEquals("uds-operator", proposed.getAttributes().get(ATTRIBUTE_CREATED_BY));
     }
 
     @Test
@@ -472,14 +475,14 @@ public class UDSClientPolicyPermissionsExecutorTest {
         ClientCRUDContext context = crudContext(ClientPolicyEvent.REGISTER, "uds-fleet-admin");
         ClientRepresentation proposed = new ClientRepresentation();
         proposed.setClientId("fleet-agent-2");
-        proposed.setAttributes(new java.util.HashMap<>(java.util.Map.of(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY, "uds-operator")));
+        proposed.setAttributes(new java.util.HashMap<>(java.util.Map.of(ATTRIBUTE_CREATED_BY, "uds-operator")));
         when(context.getProposedClientRepresentation()).thenReturn(proposed);
 
         // when
         executor.executeOnEvent(context);
 
         // then: the forged value is overwritten with the actual authenticated client
-        assertEquals("uds-fleet-admin", proposed.getAttributes().get(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY));
+        assertEquals("uds-fleet-admin", proposed.getAttributes().get(ATTRIBUTE_CREATED_BY));
     }
 
     @Test
@@ -505,7 +508,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
         // given: uds-fleet-admin tries to update a client it does not own
         ClientCRUDContext context = crudContext(ClientPolicyEvent.UPDATE, "uds-fleet-admin");
         ClientModel target = mock(ClientModel.class);
-        when(target.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
+        when(target.getAttribute(ATTRIBUTE_CREATED_BY)).thenReturn("uds-operator");
         when(context.getTargetClient()).thenReturn(target);
 
         // when/then
@@ -523,7 +526,7 @@ public class UDSClientPolicyPermissionsExecutorTest {
         // given: built-in client with no created-by attribute
         ClientCRUDContext context = crudContext(ClientPolicyEvent.UNREGISTER, "uds-fleet-admin");
         ClientModel target = mock(ClientModel.class);
-        when(target.getAttribute(UDSClientPolicyPermissionsExecutor.ATTRIBUTE_CREATED_BY)).thenReturn(null);
+        when(target.getAttribute(ATTRIBUTE_CREATED_BY)).thenReturn(null);
         when(context.getTargetClient()).thenReturn(target);
 
         // when/then
@@ -537,8 +540,8 @@ public class UDSClientPolicyPermissionsExecutorTest {
 
     @Test
     public void shouldDoNothingForUnmanagedAuthenticatedClient() throws ClientPolicyException {
-        // given: a client that is not in MANAGED_CLIENT_ID_PREFIXES
-        ClientCRUDContext context = crudContext(ClientPolicyEvent.REGISTER, "some-other-client");
+        // given: a client that is not enrolled for ownership enforcement
+        ClientCRUDContext context = crudContext(ClientPolicyEvent.UPDATE, "uds-opentofu-client");
 
         // when: no enforcement runs, so the proposed representation is never even read
         executor.executeOnEvent(context);
@@ -557,5 +560,136 @@ public class UDSClientPolicyPermissionsExecutorTest {
 
         // then: no exception, and the executor never touched the proposed client
         verify(context, never()).getProposedClientRepresentation();
+    }
+    @Test
+    public void enrollmentDefaultsToUdsClientsAndCanBeReplaced() {
+        // given: the default configuration
+        // when / then
+        assertTrue(executor.isManagedClient("uds-operator"));
+        assertTrue(executor.isManagedClient("uds-fleet-admin"));
+        assertFalse(executor.isManagedClient("application"));
+
+        // given
+        executor.configuration.setOwnershipEnforcedClients(List.of(" application ", "other", "application", ""));
+        // when / then
+        assertTrue(executor.isManagedClient("application"));
+        assertFalse(executor.isManagedClient("app"));
+        assertFalse(executor.isManagedClient(" application "));
+        assertFalse(executor.isManagedClient(null));
+        assertFalse(executor.isManagedClient(""));
+        assertFalse(executor.isManagedClient("uds-operator"));
+        assertFalse(executor.isManagedClient("uds-fleet-admin"));
+
+        // given
+        executor.configuration.setOwnershipEnforcedClients(List.of());
+        // when / then
+        assertFalse(executor.isManagedClient("application"));
+        // given
+        executor.configuration.setOwnershipEnforcedClients(null);
+        // when / then
+        assertTrue(executor.isManagedClient("uds-operator"));
+    }
+
+    @Test
+    public void enrollmentAutomaticallyStampsNewClientsAndReplacesForgedOwnership() throws ClientPolicyException {
+        // given
+        ClientCRUDContext context = crudContext(ClientPolicyEvent.REGISTER, "application");
+        ClientRepresentation proposed = new ClientRepresentation();
+        proposed.setClientId("new-client");
+        proposed.setAttributes(new java.util.HashMap<>(java.util.Map.of("created-by", "forged")));
+        when(context.getProposedClientRepresentation()).thenReturn(proposed);
+
+        // when
+        executor.executeOnEvent(context);
+        // then
+        assertEquals("forged", proposed.getAttributes().get("created-by"));
+        // given
+        executor.configuration.setOwnershipEnforcedClients(List.of("application"));
+        // when
+        executor.executeOnEvent(context);
+        // then
+        assertEquals("application", proposed.getAttributes().get("created-by"));
+    }
+
+    @Test
+    public void missingExecutorConfigurationPreservesUdsDefaults() {
+        // given
+        when(session.getKeycloakSessionFactory()).thenReturn(factory);
+        when(factory.getProviderFactoriesStream(any())).thenReturn(Stream.empty());
+
+        // when
+        executor.setupConfiguration(null);
+
+        // then
+        assertTrue(executor.isManagedClient("uds-operator"));
+        assertTrue(executor.isManagedClient("uds-fleet-admin"));
+        assertFalse(executor.isManagedClient("application"));
+        assertTrue(executor.configuration.getAllowedProtocolMappers()
+                .containsAll(ProtocolMapperPolicy.DEFAULT_ALLOWED_PROTOCOL_MAPPERS));
+        assertTrue(executor.configuration.getAllowedClientScopes()
+                .containsAll(ClientScopePolicy.DEFAULT_ALLOWED_CLIENT_SCOPES));
+    }
+
+    @Test
+    public void enrolledCallerPreservesVerifiedOwnerOnUpdate() throws ClientPolicyException {
+        // given
+        executor.configuration.setOwnershipEnforcedClients(List.of("application"));
+        ClientCRUDContext context = crudContext(ClientPolicyEvent.UPDATE, "application");
+        when(client.getAttribute("created-by")).thenReturn("application");
+        when(context.getTargetClient()).thenReturn(client);
+        ClientRepresentation proposed = new ClientRepresentation();
+        proposed.setAttributes(new java.util.HashMap<>(java.util.Map.of("created-by", "forged")));
+        when(context.getProposedClientRepresentation()).thenReturn(proposed);
+
+        // when
+        executor.executeOnEvent(context);
+
+        // then
+        assertEquals("application", proposed.getAttributes().get("created-by"));
+    }
+
+    @Test
+    public void enrollmentDoesNotAdoptLegacyOrForeignClients() {
+        // given
+        executor.configuration.setOwnershipEnforcedClients(List.of("application"));
+        for (String owner : new String[] {null, "another-owner"}) {
+            when(client.getAttribute("created-by")).thenReturn(owner);
+            for (ClientPolicyEvent event : List.of(ClientPolicyEvent.UPDATE, ClientPolicyEvent.VIEW, ClientPolicyEvent.UNREGISTER)) {
+                ClientCRUDContext context = crudContext(event, "application");
+                when(context.getTargetClient()).thenReturn(client);
+                ClientRepresentation proposed = new ClientRepresentation();
+                when(context.getProposedClientRepresentation()).thenReturn(proposed);
+
+                // when
+                ClientPolicyException error = assertThrows(ClientPolicyException.class,
+                        () -> executor.executeOnEvent(context));
+                // then
+                assertEquals(Errors.UNAUTHORIZED_CLIENT, error.getError());
+                assertNull(proposed.getAttributes());
+                verify(client, never()).setAttribute(anyString(), anyString());
+            }
+        }
+    }
+
+    @Test
+    public void mapperPolicyTracksEnrollmentChanges() throws ClientPolicyException {
+        // given
+        ClientProtocolMapperRegisterContext context = mock(ClientProtocolMapperRegisterContext.class);
+        when(context.getAuthenticatedClient()).thenReturn(client);
+        when(client.getClientId()).thenReturn("application");
+        ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
+        mapper.setProtocolMapper("invalid");
+        when(context.getProposedProtocolMappers()).thenReturn(List.of(mapper));
+
+        // when / then
+        assertDoesNotThrow(() -> executor.executeOnEvent(context));
+        // given
+        executor.configuration.setOwnershipEnforcedClients(List.of("application"));
+        // when / then
+        assertThrows(ClientPolicyException.class, () -> executor.executeOnEvent(context));
+        // given
+        executor.configuration.setOwnershipEnforcedClients(List.of());
+        // when / then
+        assertDoesNotThrow(() -> executor.executeOnEvent(context));
     }
 }
