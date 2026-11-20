@@ -31,7 +31,7 @@ describe("Fleet Admin Client (federated JWT)", () => {
 
   afterEach(() => {
     if (!nonOwnedClientUrl) return;
-    cy.getAccessToken("UDS_OPERATOR").then((accessToken) => {
+    cy.getAccessToken("KEYCLOAK_ADMIN").then((accessToken) => {
       cy.request({
         method: "DELETE", url: nonOwnedClientUrl!,
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -250,11 +250,11 @@ describe("Fleet Admin Client (federated JWT)", () => {
         const clientUrl = created.headers.location as string;
         fixtureClientUrl = clientUrl;
         let realSecret: string;
-        cy.request({ url: clientUrl, headers, log: false }).then((client) => {
-          expect(client.status).to.eq(200);
-          expect(client.body.secret).to.be.a("string").and.not.be.empty;
-          expect(client.body.secret).not.to.eq("**********");
-          realSecret = client.body.secret;
+        cy.request({ url: `${clientUrl}/client-secret`, headers, log: false }).then((secret) => {
+          expect(secret.status).to.eq(200);
+          expect(secret.body.value).to.be.a("string").and.not.be.empty;
+          expect(secret.body.value).not.to.eq("**********");
+          realSecret = secret.body.value;
         });
         cy.request({ url: CLIENTS_URL, headers, log: false }).then((clients) => {
           // Establish that the list returns the actual secret to its owner.
@@ -264,6 +264,10 @@ describe("Fleet Admin Client (federated JWT)", () => {
           const operator = clients.body.find((client: any) => client.clientId === "uds-operator");
           expect(operator, "operator client").to.exist;
           expect(operator.secret, "operator secret masked in client list").to.eq("**********");
+          const tofu = clients.body.find((client: any) => client.clientId === "uds-opentofu-client");
+          expect(Boolean(tofu), "OpenTofu client visible in list").to.be.true;
+          expect(tofu.attributes?.["created-by"]).to.be.undefined;
+          expect(tofu.secret === "**********", "OpenTofu secret masked for Fleet").to.be.true;
         });
         cy.getAccessToken("UDS_OPERATOR").then((operatorToken: string) => {
           // The same stored secret must be masked for a different owner.
@@ -280,6 +284,51 @@ describe("Fleet Admin Client (federated JWT)", () => {
       });
     });
   });
+
+  for (const [creator, description] of [
+    ["UDS_OPERATOR", "an Operator-created client"],
+    ["KEYCLOAK_ADMIN", "a client without an owner, like the bundled OpenTofu client"],
+  ] as const) {
+    it(`Fleet cannot read, rotate, or replace the secret of ${description}`, () => {
+      cy.getAccessToken(creator).then((creatorToken) => {
+        const headers = { Authorization: `Bearer ${creatorToken}` };
+        const originalSecret = "disposable-test-secret";
+        cy.request({
+          method: "POST", url: CLIENTS_URL, headers, log: false,
+          body: {
+            clientId: `fleet-secret-fixture-${Date.now()}`,
+            enabled: false, publicClient: false, secret: originalSecret,
+          },
+        }).then((created) => {
+          expect(created.status).to.eq(201);
+          const clientUrl = created.headers.location as string;
+          nonOwnedClientUrl = clientUrl;
+          const secretUrl = `${clientUrl}/client-secret`;
+          cy.request({ url: clientUrl, headers, log: false }).then(({ body }) => {
+            expect(body.attributes?.["created-by"]).to.eq(creator === "UDS_OPERATOR" ? "uds-operator" : undefined);
+          });
+          cy.getFleetAdminAccessToken().then((fleetToken) => {
+            const fleetHeaders = { Authorization: `Bearer ${fleetToken}` };
+            for (const method of ["GET", "POST"]) {
+              cy.request({ method, url: secretUrl, headers: fleetHeaders, failOnStatusCode: false, log: false })
+                .its("status").should("eq", 403);
+            }
+            cy.request({
+              method: "PUT", url: clientUrl, headers: fleetHeaders, body: { secret: "disposable-replacement" },
+              failOnStatusCode: false, log: false,
+            }).then(({ status, body }) => {
+              expect(status).to.eq(400);
+              expect(body.error).to.eq("unauthorized_client");
+            });
+          });
+          cy.request({ url: secretUrl, headers, log: false }).then(({ body }) => {
+            expect(body.value === originalSecret, "fixture retained its original secret").to.be.true;
+          });
+        });
+      });
+    });
+  }
+
   function createOwnedRole() {
     return cy.getFleetAdminAccessToken().then((ownerToken: string) => {
       const headers = { Authorization: `Bearer ${ownerToken}` };
