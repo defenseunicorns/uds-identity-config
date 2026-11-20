@@ -3,20 +3,14 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
-import { existsSync } from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { defineConfig } from "cypress";
 
 const useCAC = process.env.USE_CAC === "true";
 const testPkiDir = process.env.UDS_TEST_PKI_DIR;
-if (
-  useCAC &&
-  (!testPkiDir || !path.isAbsolute(testPkiDir) || !existsSync(path.join(testPkiDir, ".complete")))
-) {
-  throw new Error(
-    "CAC tests require UDS_TEST_PKI_DIR from integration setup. Run uds run uds-core-integration-tests.",
-  );
+if (useCAC && !testPkiDir) {
+  throw new Error("Run uds run uds-core-integration-tests or set UDS_TEST_PKI_DIR from integration setup.");
 }
 const EXEC_PROCESS_TIMEOUT_MS = 305_000;
 const TASK_TIMEOUT_GRACE_MS = 5_000;
@@ -78,9 +72,7 @@ function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
       if (child.pid) activeTaskGroups.delete(child.pid);
       const result = { exitCode: exitCode ?? 1, stderr, stdout };
       if (result.exitCode && failOnNonZeroExit) {
-        reject(
-          new Error(`Command failed with exit code ${result.exitCode}: ${command}\n${stderr}`),
-        );
+        reject(new Error(`Command failed with exit code ${result.exitCode}: ${command}\n${stderr}`));
         return;
       }
       resolve(result);
@@ -91,17 +83,17 @@ function runCommand(input: ExecTaskInput): Promise<ExecTaskResult> {
 module.exports = defineConfig({
   clientCertificates: useCAC
     ? [
-        {
-          url: "https://sso.uds.dev/**",
-          ca: [],
-          certs: [
-            {
-              pfx: path.relative(__dirname, path.join(testPkiDir!, "test.pfx")),
-              passphrase: path.relative(__dirname, path.join(testPkiDir!, "pfx_passphrase.txt")),
-            },
-          ],
-        },
-      ]
+      {
+        url: "https://sso.uds.dev/**",
+        ca: [],
+        certs: [
+          {
+            pfx: path.relative(__dirname, path.join(testPkiDir!, "test.pfx")),
+            passphrase: path.relative(__dirname, path.join(testPkiDir!, "pfx_passphrase.txt")),
+          },
+        ],
+      },
+    ]
     : [],
 
   e2e: {

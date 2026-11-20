@@ -15,8 +15,6 @@ tasks:
   - name: external-loadbalancer
     Description: "Setup HAProxy as an external load balancer for the test-infra namespace"
     actions:
-      - description: "Require the PKI used by integration setup"
-        cmd: test -f "${UDS_TEST_PKI_DIR:?Run integration setup first}/.complete"
       - description: "Cleanup existing HAProxy containers"
         cmd: |
           docker kill haproxy || true
@@ -49,7 +47,7 @@ tasks:
           sleep 3
       - description: "Sanity check for HAProxy"
         cmd: |
-          STATUS_CODE=$(printf 'pass = "%s"\n' "$(cat "${UDS_TEST_PKI_DIR:?Run integration setup first}/pfx_passphrase.txt")" | curl --config - --max-time 10 -s --cert "${UDS_TEST_PKI_DIR:?Run integration setup first}/test.pfx" --cert-type P12 https://sso.uds.dev -o /dev/null -w "%{http_code}" -s || echo "unknown")
+          STATUS_CODE=$(curl --max-time 10 -s --cert "${UDS_TEST_PKI_DIR:?Run integration setup first}/test.pfx" --cert-type P12 https://sso.uds.dev -o /dev/null -w "%{http_code}" -s || echo "unknown")
           if [ "$STATUS_CODE" != "301" ]; then
             echo "\033[33m⚠️ Expected HTTP 301, got $STATUS. The setup may not work correctly \033[0m"
             echo "\033[33m⚠️ HAProxy logs \033[0m"
