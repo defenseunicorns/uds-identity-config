@@ -167,6 +167,12 @@ jobs:
           tofu_version: v1.13.9
           tofu_wrapper: false
 
+      - name: Validate generated CAC test PKI
+        run: |
+          npm --prefix src/test/cypress ci
+          npm --prefix src/test/cypress exec -- cypress install
+          TEST_PKI_DOCKER_BUILD=true uds run test-pki --no-progress
+
       - name: Cypress Integration Tests
         run: uds run uds-core-integration-tests --no-progress
 

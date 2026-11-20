@@ -15,6 +15,8 @@ tasks:
   - name: external-loadbalancer
     Description: "Setup HAProxy as an external load balancer for the test-infra namespace"
     actions:
+      - description: "Require the PKI used by integration setup"
+        cmd: test -f "${UDS_TEST_PKI_DIR:?Run integration setup first}/.complete"
       - description: "Cleanup existing HAProxy containers"
         cmd: |
           docker kill haproxy || true
@@ -23,7 +25,7 @@ tasks:
         cmd: |
           yq -r '.tls.cert' uds-core/src/istio/values/config-tenant.yaml | base64 -d > tasks/haproxy.pem
           yq -r '.tls.key' uds-core/src/istio/values/config-tenant.yaml | base64 -d > tasks/haproxy.pem.key
-          yq -r '.tls.cacert' src/test/cypress/certs/tls_cacert.yaml | base64 -d > tasks/haproxy-client-ca.pem
+          yq -r '.tls.cacert' "${UDS_TEST_PKI_DIR:?Run integration setup first}/tls_cacert.yaml" | base64 -d > tasks/haproxy-client-ca.pem
       - description: "Kill k3d Load Balancer to release 443 and 80 ports up. See 0003-alb-testing.md for more details. "
         cmd: |
           docker stop k3d-uds-serverlb || true
@@ -47,7 +49,7 @@ tasks:
           sleep 3
       - description: "Sanity check for HAProxy"
         cmd: |
-          STATUS_CODE=$(curl --max-time 10 -s --cert src/test/cypress/certs/test.pfx --cert-type P12 https://sso.uds.dev -o /dev/null -w "%{http_code}" -s || echo "unknown")
+          STATUS_CODE=$(printf 'pass = "%s"\n' "$(cat "${UDS_TEST_PKI_DIR:?Run integration setup first}/pfx_passphrase.txt")" | curl --config - --max-time 10 -s --cert "${UDS_TEST_PKI_DIR:?Run integration setup first}/test.pfx" --cert-type P12 https://sso.uds.dev -o /dev/null -w "%{http_code}" -s || echo "unknown")
           if [ "$STATUS_CODE" != "301" ]; then
             echo "\033[33m⚠️ Expected HTTP 301, got $STATUS. The setup may not work correctly \033[0m"
             echo "\033[33m⚠️ HAProxy logs \033[0m"
