@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 set -euo pipefail
-umask 077
+umask 022
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 mkdir -p .cache/test-pki
 work_dir="$(mktemp -d "$PWD/.cache/test-pki/validation.XXXXXX")"

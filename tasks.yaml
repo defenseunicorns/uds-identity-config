@@ -132,7 +132,6 @@ tasks:
     actions:
       - cmd: |
           set -e
-          umask 077
           mkdir -p .cache/test-pki
           run_dir="$(mktemp -d "$PWD/.cache/test-pki/run.XXXXXX")"
           export UDS_TEST_PKI_DIR="$run_dir/pki"
