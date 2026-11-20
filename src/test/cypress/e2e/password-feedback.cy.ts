@@ -83,6 +83,50 @@ describe("Password feedback", () => {
   });
 });
 
+describe("Custom password limits", () => {
+  const realmUrl = "https://keycloak.admin.uds.dev/admin/realms/uds";
+  let restorePolicy: (() => Cypress.Chainable) | undefined;
+
+  afterEach(() => {
+    const restore = restorePolicy;
+    restorePolicy = undefined;
+    if (restore) return restore();
+  });
+
+  it("uses the realm's configured minimum and maximum lengths", function () {
+    // Standalone previews do not have the UDS cluster admin credentials.
+    if (Cypress.config("baseUrl")) this.skip();
+
+    cy.getAccessToken("KEYCLOAK_ADMIN").then(token => {
+      const headers = { Authorization: `Bearer ${token}` };
+      const setPolicy = (passwordPolicy: string) =>
+        cy.request({ method: "PUT", url: realmUrl, headers, body: { passwordPolicy }, log: false });
+
+      cy.request<{ passwordPolicy?: string }>({ url: realmUrl, headers, log: false }).then(
+        ({ body }) => {
+          restorePolicy = () => setPolicy(body.passwordPolicy ?? "");
+          return setPolicy("length(12) and maxLength(20)");
+        },
+      );
+    });
+
+    openLoginPage();
+    cy.contains("a", "Create Account").click();
+
+    cy.get("#password").type("a".repeat(11));
+    cy.get('[data-password-rule="length"]').should("be.visible");
+    cy.get("#password").type("a");
+    cy.get('[data-password-rule="length"]').should("not.be.visible");
+
+    cy.get("#password").type("a".repeat(8));
+    cy.get('[data-password-rule="maxLength"]').should("not.be.visible");
+    cy.get("#password").type("a");
+    cy.get('[data-password-rule="maxLength"]').should("be.visible");
+    cy.get("#password").type("{backspace}");
+    cy.get('[data-password-rule="maxLength"]').should("not.be.visible");
+  });
+});
+
 describe("Update-password feedback", () => {
   it("shows live requirements and confirmation on the update-password form", () => {
     // Request the action without changing the shared test user's password or required actions.
