@@ -31,6 +31,8 @@
         specialChars: (value, minimum) => value.split('').filter(char => !/[\p{Letter}\p{Decimal_Number}]/u.test(char)).length >= minimum,
         notUsername: value => {
             const currentUsername = username ? username.value : requirements.dataset.username;
+            // Note: this does not exactly match Java's equalsIgnoreCase.
+            // Some special characters may be rejected by the server despite passing this check.
             return value.toLowerCase() !== currentUsername.toLowerCase();
         },
     };
