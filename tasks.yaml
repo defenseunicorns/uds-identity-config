@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - common-lint: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.34.0/tasks/lint.yaml
-  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.34.0/tasks/setup.yaml
+  - common-lint: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.34.1/tasks/lint.yaml
+  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.34.1/tasks/setup.yaml
   - lb-setup: ./tasks/setup.yaml
 
 variables:
@@ -143,7 +143,7 @@ tasks:
         cmd: |
           set -e
           test_zip="src/truststore/test-authorized_certs.zip"
-          test_zip_sha256="f2cecee438ce0c0f7a7508bbd2466b85ae8c3a813546f1150dee5d9ed3bb2949"
+          test_zip_sha256="291ea9ccc3ce4cb3b3a118653916ec3618c46e8aef1d726c11c4159f81cf733d"
           cp src/test/cypress/certs/authorized_certs.zip "${test_zip}"
           trap 'rm -f "${test_zip}"' EXIT
           docker build \
