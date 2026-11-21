@@ -3,10 +3,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
  */
 
+import path from "node:path";
 import { spawn } from "node:child_process";
 import { defineConfig } from "cypress";
 
 const useCAC = process.env.USE_CAC === "true";
+const testPkiDir = process.env.UDS_TEST_PKI_DIR;
+if (useCAC && !testPkiDir) {
+  throw new Error("Run uds run uds-core-integration-tests or set UDS_TEST_PKI_DIR from integration setup.");
+}
 const EXEC_PROCESS_TIMEOUT_MS = 305_000;
 const TASK_TIMEOUT_GRACE_MS = 5_000;
 const activeTaskGroups = new Set<number>();
@@ -83,8 +88,8 @@ module.exports = defineConfig({
         ca: [],
         certs: [
           {
-            pfx: "certs/test.pfx",
-            passphrase: "certs/pfx_passphrase.txt",
+            pfx: path.relative(__dirname, path.join(testPkiDir!, "test.pfx")),
+            passphrase: path.relative(__dirname, path.join(testPkiDir!, "pfx_passphrase.txt")),
           },
         ],
       },

@@ -103,25 +103,22 @@ tasks:
       - cmd: kubectl -n keycloak logs keycloak-0 -c istio-proxy -f
 
   - name: regenerate-test-pki
-    description: "Generate a PKI cert for testing"
+    description: "Generate ephemeral CAC credentials in a new UDS_TEST_PKI_DIR"
     actions:
-      - cmd: |
-          openssl genrsa -out test.pem 2048
-          openssl genrsa -out ca.pem 2048
-          # The CN uses the following format: LAST_NAME.FIRST_NAME.MIDDLE_NAME.EDI/PI
-          # See https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/pdf/unclass-dod_pki_nipr_cert_profiles.pdf
-          openssl req -x509 -new -nodes -key ca.pem -sha256 -days 1825 -out ca.cer -nameopt RFC2253 -subj "/C=US/O=U.S. Government/OU=CONTRACTOR/OU=DoD/OU=PKI/CN=UNICORN.DOUG.ROCKSTAR.1234567890"
-          openssl req -new -key test.pem -out test.csr -config src/csr.conf -batch
-          openssl x509 -req -in test.csr -CA ca.cer -CAkey ca.pem -CAcreateserial -out test.cer -days 365 -extensions v3_ext -extfile src/csr.conf
-          openssl pkcs12 -export -out test.pfx -inkey test.pem -in test.cer -certfile ca.cer -passout pass:
-          zip src/authorized_certs ca.cer
+      - cmd: bash scripts/generate-test-pki.sh
+
+  - name: test-pki
+    description: "Validate ephemeral CAC certificate generation and consumers"
+    actions:
+      - cmd: bash scripts/test-pki.sh
 
   - name: uds-core-gateway-cacert
     description: "Copy cacert values into istio gateways"
     actions:
       - cmd: |
-          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-tenant.yaml src/test/cypress/certs/tls_cacert.yaml
-          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-admin.yaml src/test/cypress/certs/tls_cacert.yaml
+          set -e
+          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-tenant.yaml "${UDS_TEST_PKI_DIR:?Run integration setup first}/tls_cacert.yaml"
+          yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-admin.yaml "${UDS_TEST_PKI_DIR:?Run integration setup first}/tls_cacert.yaml"
 
   - name: uds-core-smoke-test
     description: "UDS Core + Identity Config smoke test with base realm.json"
@@ -133,24 +130,33 @@ tasks:
   - name: uds-core-integration-tests
     description: "UDS Core + Identity Config Integration Testing"
     actions:
-      - task: uds-core-integration-setup
-      - task: integration-tests
+      - cmd: |
+          set -e
+          mkdir -p .cache/test-pki
+          run_dir="$(mktemp -d "$PWD/.cache/test-pki/run.XXXXXX")"
+          export UDS_TEST_PKI_DIR="$run_dir/pki"
+          trap 'rm -rf -- "$run_dir"' EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          uds run uds-core-integration-setup --no-progress
+          uds run integration-tests --no-progress
 
   - name: uds-core-integration-setup
     description: "UDS Core + Identity Config Integration Setup"
     actions:
-      - description: Build identity config image
+      - task: regenerate-test-pki
+      - description: Build identity config image with the generated CA
         cmd: |
           set -e
-          test_zip="src/truststore/test-authorized_certs.zip"
-          test_zip_sha256="291ea9ccc3ce4cb3b3a118653916ec3618c46e8aef1d726c11c4159f81cf733d"
-          cp src/test/cypress/certs/authorized_certs.zip "${test_zip}"
-          trap 'rm -f "${test_zip}"' EXIT
+          test_zip="$(mktemp src/truststore/.test-ca.XXXXXX)"
+          trap 'rm -f -- "$test_zip"' EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          cp "${UDS_TEST_PKI_DIR:?Run PKI generation first}/authorized_certs.zip" "$test_zip"
           docker build \
-            --build-arg CA_ZIP_URL="test-authorized_certs.zip" \
-            --build-arg CA_ZIP_SHA256="${test_zip_sha256}" \
-            -t uds-core-config:keycloak \
-            --no-cache src
+            --build-arg "CA_ZIP_URL=${test_zip##*/}" \
+            --build-arg "CA_ZIP_SHA256=$(cat "$UDS_TEST_PKI_DIR/authorized_certs.zip.sha256")" \
+            --tag uds-core-config:keycloak src
       - task: clone-core
       - task: uds-core-gateway-cacert
       - task: build-deploy-custom-slim
@@ -222,6 +228,7 @@ tasks:
     actions:
       - cmd: |
           npm --prefix src/test/cypress install
+          npm --prefix src/test/cypress exec -- cypress install
           npm --prefix src/test/cypress run cy.run
 
   - name: theme-customization-tests
