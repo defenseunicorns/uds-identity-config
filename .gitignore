@@ -28,3 +28,6 @@ uds-docs/**
 bundles/external-loadbalancer/uds-bundle.yaml
 bundles/k3d-core-slim-dev/uds-bundle.yaml
 bundles/theme-customizations/uds-bundle.yaml
+
+# Ephemeral integration credentials
+/.cache/test-pki/

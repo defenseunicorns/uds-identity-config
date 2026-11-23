@@ -83,8 +83,8 @@ module.exports = defineConfig({
         ca: [],
         certs: [
           {
-            pfx: "certs/test.pfx",
-            passphrase: "certs/pfx_passphrase.txt",
+            pfx: "../../../.cache/test-pki/test.pfx",
+            passphrase: "../../../.cache/test-pki/pfx_passphrase.txt",
           },
         ],
       },
