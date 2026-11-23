@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.33.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.7...v0.33.0) (2026-11-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* Ownership checks in the `uds` realm now cover client roles and secrets. Clients created and still managed by the UDS Operator or Fleet Admin normally need no update. Keycloak already sets `created-by` to `uds-operator` or `uds-fleet-admin`, respectively.
+
+  If `Package` SSO reconciliation fails with `unauthorized_client`, or a request for a client role or secret returns `403 Forbidden`, check `created-by` on the affected Keycloak client. It may be missing on a manually created client or name a previous owner after a handoff. If needed, set it to the managing service account’s client ID.
+
+  Clients managed only by OpenTofu need no update unless `uds-opentofu-client` is enrolled in `ownership-enforced-clients`.
+
+### Features
+
+* enforce client and role ownership for service accounts ([37490fe](https://github.com/defenseunicorns/uds-identity-config/commit/37490fee0b423841a59e8ad32e5bf8c63e2e5691))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#977](https://github.com/defenseunicorns/uds-identity-config/issues/977)) ([842cf67](https://github.com/defenseunicorns/uds-identity-config/commit/842cf67507541fefeb50fd55ac66057538ac3d6e))
+* **deps:** update gha-deps ([#978](https://github.com/defenseunicorns/uds-identity-config/issues/978)) ([9c88e0d](https://github.com/defenseunicorns/uds-identity-config/commit/9c88e0df6e3ee4d836e9da1cdc48bfd275e5adf9))
+* **test:** refresh Cypress PKI fixtures ([#979](https://github.com/defenseunicorns/uds-identity-config/issues/979)) ([8352f14](https://github.com/defenseunicorns/uds-identity-config/commit/8352f149bb462228f744b687fc40a31555ee6619))
+
 ## [0.32.7](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.6...v0.32.7) (2026-11-13)
 
 
