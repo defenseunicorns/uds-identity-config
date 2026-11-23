@@ -5,7 +5,11 @@
 
 ### ⚠ BREAKING CHANGES
 
-* Before upgrading, verify the `created-by` attribute on each existing client that an enrolled caller must continue managing. If the attribute is missing or incorrect, set it to the verified owner's Keycloak client ID. Client roles inherit their client's ownership.
+* Ownership checks now cover client roles and secrets. Before upgrading, fix missing or incorrect `created-by` values on these existing clients in the `uds` realm:
+  * For SSO clients managed through a UDS `Package` (`spec.sso[].clientId`), use `uds-operator`.
+  * For clients managed by Fleet Admin, use `uds-fleet-admin`.
+
+  If you customized `ownership-enforced-clients`, use the managing service account’s client ID. Clients managed only by OpenTofu need no update by default.
 
 ### Features
 
