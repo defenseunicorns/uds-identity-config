@@ -5,11 +5,11 @@
 
 ### ⚠ BREAKING CHANGES
 
-* Ownership checks now cover client roles and secrets. Before upgrading, fix missing or incorrect `created-by` values on these existing clients in the `uds` realm:
-  * For SSO clients managed through a UDS `Package` (`spec.sso[].clientId`), use `uds-operator`.
-  * For clients managed by Fleet Admin, use `uds-fleet-admin`.
+* Ownership checks in the `uds` realm now cover client roles and secrets. Clients created and still managed by the UDS Operator or Fleet Admin normally need no update. Keycloak already sets `created-by` to `uds-operator` or `uds-fleet-admin`, respectively.
 
-  If you customized `ownership-enforced-clients`, use the managing service account’s client ID. Clients managed only by OpenTofu need no update by default.
+  If `Package` SSO reconciliation fails with `unauthorized_client`, or a request for a client role or secret returns `403 Forbidden`, check `created-by` on the affected Keycloak client. It may be missing on a manually created client or name a previous owner after a handoff. If needed, set it to the managing service account’s client ID.
+
+  Clients managed only by OpenTofu need no update unless `uds-opentofu-client` is enrolled in `ownership-enforced-clients`.
 
 ### Features
 
