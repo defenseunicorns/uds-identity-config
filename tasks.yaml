@@ -40,15 +40,17 @@ tasks:
         default: "false"
     actions:
       - cmd: |
-          set -- --tag "$INPUT_TAG"
           if [ "$INPUT_TEST_PKI" = true ]; then
             test_zip=".cache/test-pki/authorized_certs.zip"
             checksum="$(shasum -a 256 "$test_zip")"
-            set -- "$@" --secret "id=test_ca,src=$test_zip" \
+            docker build --tag "$INPUT_TAG" \
+              --secret "id=test_ca,src=$test_zip" \
               --build-arg CA_ZIP_URL=/run/secrets/test_ca \
-              --build-arg "CA_ZIP_SHA256=${checksum%% *}"
+              --build-arg "CA_ZIP_SHA256=${checksum%% *}" \
+              src
+          else
+            docker build --tag "$INPUT_TAG" src
           fi
-          docker build "$@" src
 
   - name: dev-build
     description: "Build the image locally for dev"
