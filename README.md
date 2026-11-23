@@ -19,7 +19,8 @@ Available tasks used by `uds run <task name>`, also can be viewed via command li
 | dev-plugin                             | Build and run unit tests for keycloak plugin                                      |
 | dev-cacert                             | Get the CA cert value for the Istio Gateway from your local build                 |
 | debug-istio-traffic                    | Debug Istio traffic on keycloak                                                   |
-| regenerate-test-pki                    | Generate a PKI cert for testing                                                   |
+| generate-test-pki                      | Generate a PKI cert for testing                                                   |
+| test-pki                               | Validate the generated CAC test credentials                                       |
 | uds-core-integration-test              | Create cluster and deploy uds-core identity using local uds-identity-config image |
 | uds-core-registration-integration-test | Web flow registration integration test                                            |
 

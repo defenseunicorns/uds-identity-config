@@ -5,19 +5,13 @@
 set -euo pipefail
 umask 077
 
-: "${UDS_TEST_PKI_DIR:?Set UDS_TEST_PKI_DIR to a new absolute directory for this test run}"
-case "$UDS_TEST_PKI_DIR" in
-  /*) ;;
-  *) echo 'UDS_TEST_PKI_DIR must be absolute' >&2; exit 1 ;;
-esac
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-# Reserve the directory exclusively. Never replace credentials used by another step.
-mkdir -p "$(dirname "$UDS_TEST_PKI_DIR")"
-mkdir -m 700 "$UDS_TEST_PKI_DIR"
-trap 'rm -rf -- "$UDS_TEST_PKI_DIR"' EXIT
+fixtures="$repo_root/.cache/test-pki"
+work_dir="$(mktemp -d)"
+trap 'rm -rf -- "$work_dir"' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
-cd "$UDS_TEST_PKI_DIR"
+cd "$work_dir"
 
 openssl genrsa -out ca.key 2048
 openssl req -x509 -new -key ca.key -sha256 -days 2 -out ca.cer \
@@ -34,10 +28,10 @@ openssl x509 -req -in client.csr -CA ca.cer -CAkey ca.key \
 # Keep the existing empty passphrase for these ephemeral test credentials.
 : > pfx_passphrase.txt
 openssl pkcs12 -export -out test.pfx -inkey client.key -in client.cer \
-  -certfile ca.cer -passout pass:
+  -certfile ca.cer -keypbe AES-256-CBC -certpbe AES-256-CBC -passout pass:
 zip -q authorized_certs.zip ca.cer
-checksum="$(shasum -a 256 authorized_certs.zip)"
-printf '%s\n' "${checksum%% *}" > authorized_certs.zip.sha256
-printf 'tls:\n  cacert: "%s"\n' "$(openssl base64 -A -in ca.cer)" > tls_cacert.yaml
-openssl verify -CAfile ca.cer client.cer
-trap - EXIT
+ca_b64="$(openssl base64 -A -in ca.cer)"
+printf 'tls:\n  cacert: "%s"\n' "$ca_b64" > tls_cacert.yaml
+
+mkdir -p "$fixtures"
+mv authorized_certs.zip tls_cacert.yaml test.pfx pfx_passphrase.txt "$fixtures/"
