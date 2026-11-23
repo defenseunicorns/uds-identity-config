@@ -4,7 +4,12 @@
 
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../.cache/test-pki"
-work_dir="$(mktemp -d)"
+work_dir="$(mktemp -d validate.XXXXXXXX)"
+if [[ ! "$work_dir" =~ ^validate\.[[:alnum:]]{8}$ ]]; then
+  echo 'Unexpected validator scratch directory' >&2
+  exit 1
+fi
+readonly work_dir
 trap 'rm -rf -- "$work_dir"' EXIT
 
 if [[ ! -f pfx_passphrase.txt || -s pfx_passphrase.txt ]]; then

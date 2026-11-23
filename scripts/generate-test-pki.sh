@@ -9,8 +9,6 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fixtures="$repo_root/.cache/test-pki"
 work_dir="$(mktemp -d)"
 trap 'rm -rf -- "$work_dir"' EXIT
-trap 'exit 130' INT
-trap 'exit 143' TERM
 cd "$work_dir"
 
 openssl genrsa -out ca.key 2048

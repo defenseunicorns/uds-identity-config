@@ -116,7 +116,6 @@ tasks:
     description: "Copy cacert values into istio gateways"
     actions:
       - cmd: |
-          set -e
           yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-tenant.yaml .cache/test-pki/tls_cacert.yaml
           yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' uds-core/src/istio/values/config-admin.yaml .cache/test-pki/tls_cacert.yaml
 
@@ -140,15 +139,11 @@ tasks:
       - task: test-pki
       - description: Build identity config image with the generated CA
         cmd: |
-          set -e
-          test_zip="$(mktemp src/truststore/.test-ca.XXXXXX)"
-          trap 'rm -f -- "$test_zip"' EXIT
-          trap 'exit 130' INT
-          trap 'exit 143' TERM
-          cp .cache/test-pki/authorized_certs.zip "$test_zip"
+          test_zip=".cache/test-pki/authorized_certs.zip"
           checksum="$(shasum -a 256 "$test_zip")"
           docker build \
-            --build-arg "CA_ZIP_URL=${test_zip##*/}" \
+            --secret "id=test_ca,src=$test_zip" \
+            --build-arg CA_ZIP_URL=/run/secrets/test_ca \
             --build-arg "CA_ZIP_SHA256=${checksum%% *}" \
             --tag uds-core-config:keycloak src
       - task: clone-core

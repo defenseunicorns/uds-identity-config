@@ -29,6 +29,5 @@ bundles/external-loadbalancer/uds-bundle.yaml
 bundles/k3d-core-slim-dev/uds-bundle.yaml
 bundles/theme-customizations/uds-bundle.yaml
 
-# Ephemeral integration credentials and public CA build staging
+# Ephemeral integration credentials
 /.cache/test-pki/
-/src/truststore/.test-ca.*

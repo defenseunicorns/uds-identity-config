@@ -50,7 +50,7 @@ ENV CA_REGEX_EXCLUSION_FILTER=${CA_REGEX_EXCLUSION_FILTER}
 
 COPY truststore .
 
-RUN ./ca-to-jks.sh
+RUN --mount=type=secret,id=test_ca ./ca-to-jks.sh
 
 ###################################################################################
 #                                                                                 #
