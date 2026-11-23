@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.33.0](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.7...v0.33.0) (2026-11-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* Before upgrading, verify the `created-by` attribute on each existing client that an enrolled caller must continue managing. If the attribute is missing or incorrect, set it to the verified owner's Keycloak client ID. Client roles inherit their client's ownership.
+
+### Features
+
+* enforce client and role ownership for service accounts ([37490fe](https://github.com/defenseunicorns/uds-identity-config/commit/37490fee0b423841a59e8ad32e5bf8c63e2e5691))
+
+
+### Miscellaneous
+
+* **deps:** update all dependencies ([#977](https://github.com/defenseunicorns/uds-identity-config/issues/977)) ([842cf67](https://github.com/defenseunicorns/uds-identity-config/commit/842cf67507541fefeb50fd55ac66057538ac3d6e))
+* **deps:** update gha-deps ([#978](https://github.com/defenseunicorns/uds-identity-config/issues/978)) ([9c88e0d](https://github.com/defenseunicorns/uds-identity-config/commit/9c88e0df6e3ee4d836e9da1cdc48bfd275e5adf9))
+* **test:** refresh Cypress PKI fixtures ([#979](https://github.com/defenseunicorns/uds-identity-config/issues/979)) ([8352f14](https://github.com/defenseunicorns/uds-identity-config/commit/8352f149bb462228f744b687fc40a31555ee6619))
+
 ## [0.32.7](https://github.com/defenseunicorns/uds-identity-config/compare/v0.32.6...v0.32.7) (2026-11-13)
 
 
