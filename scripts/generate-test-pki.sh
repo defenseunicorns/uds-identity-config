@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 set -euo pipefail
+trap 'echo "PKI generation failed at line $LINENO" >&2' ERR
 umask 077
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -11,18 +12,23 @@ work_dir="$(mktemp -d)"
 trap 'rm -rf -- "$work_dir"' EXIT
 cd "$work_dir"
 
+echo "Generating the test CA"
 openssl genrsa -out ca.key 2048
 openssl req -x509 -new -key ca.key -sha256 -days 2 -out ca.cer \
   -subj '/C=US/O=UDS Integration Tests/CN=Ephemeral CAC Test CA' \
   -addext 'basicConstraints=critical,CA:TRUE' \
   -addext 'keyUsage=critical,keyCertSign,cRLSign' \
   -addext 'subjectKeyIdentifier=hash'
+
+echo "Issuing the CAC client certificate"
 openssl genrsa -out client.key 2048
 openssl req -new -key client.key -out client.csr \
   -config "$repo_root/src/csr.conf" -batch
 openssl x509 -req -in client.csr -CA ca.cer -CAkey ca.key \
   -set_serial "0x$(openssl rand -hex 16)" -sha256 -days 1 \
   -out client.cer -extensions v3_ext -extfile "$repo_root/src/csr.conf"
+
+echo "Packaging the client PFX and CA fixtures"
 # Keep the existing empty passphrase for these ephemeral test credentials.
 : > pfx_passphrase.txt
 openssl pkcs12 -export -out test.pfx -inkey client.key -in client.cer \

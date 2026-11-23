@@ -4,9 +4,8 @@
 
 set -e
 
-# Download DoD CA Certs
+ca_source="${1:?Usage: ca-to-jks.sh <CA archive URL or file>}"
 X509_CA_BUNDLE="$(pwd)/authorized_certs.pem"
-CA_ZIP_URL="${CA_ZIP_URL:-https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-dod_approved_external_pkis_trust_chains.zip}"
 CA_ZIP_ARCHIVE="/tmp/authorized_certs/authorized_certs.zip"
 CA_ZIP_SHA256="${CA_ZIP_SHA256:-$(tr -d '[:space:]' <authorized_certs.zip.sha256 2>/dev/null || true)}"
 
@@ -16,9 +15,7 @@ if [ -z "${CA_ZIP_SHA256}" ]; then
 fi
 
 mkdir -p /tmp/authorized_certs
-if [ -f "${CA_ZIP_URL}" ]; then
-	cp "${CA_ZIP_URL}" "${CA_ZIP_ARCHIVE}"
-else
+if [[ "$ca_source" == *://* ]]; then
 	curl \
 		--fail \
 		--show-error \
@@ -29,8 +26,10 @@ else
 		--retry 3 \
 		--retry-delay 5 \
 		--retry-max-time 180 \
-		"${CA_ZIP_URL}" \
+		"$ca_source" \
 		--output "${CA_ZIP_ARCHIVE}"
+else
+	cp -- "$ca_source" "${CA_ZIP_ARCHIVE}"
 fi
 
 echo "${CA_ZIP_SHA256}  ${CA_ZIP_ARCHIVE}" | sha256sum --check --strict -

@@ -50,7 +50,10 @@ ENV CA_REGEX_EXCLUSION_FILTER=${CA_REGEX_EXCLUSION_FILTER}
 
 COPY truststore .
 
-RUN --mount=type=secret,id=test_ca ./ca-to-jks.sh
+# Integration builds set CA_ZIP_URL to /run/secrets/test_ca and mount the public CA ZIP
+# there for this step. Regular builds pass the DoD URL defined above.
+# https://docs.docker.com/reference/dockerfile/#run---mounttypesecret
+RUN --mount=type=secret,id=test_ca ./ca-to-jks.sh "$CA_ZIP_URL"
 
 ###################################################################################
 #                                                                                 #

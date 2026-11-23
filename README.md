@@ -12,7 +12,8 @@ Available tasks used by `uds run <task name>`, also can be viewed via command li
 |----------------------------------------|-----------------------------------------------------------------------------------|
 | build-and-publish                      | Build and publish the multi-arch image                                            |
 | build-zarf-pkg                         | Build the image locally and package it with Zarf                                  |
-| dev-build                              | Build the image locally for dev                                                   |
+| build-image                            | Build the identity config image locally                                           |
+| dev-build                              | Alias for the default local build (`build-image`)                                 |
 | update-ca-zip-sha256                   | Update the pinned SHA-256 digest for the DoD CA bundle                            |
 | dev-update-image                       | Build the image and import locally into k3d                                       |
 | dev-theme                              | Copy theme to Keycloak in dev cluster                                             |

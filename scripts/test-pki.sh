@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 set -euo pipefail
+trap 'echo "PKI validation failed at line $LINENO" >&2' ERR
 cd "$(dirname "${BASH_SOURCE[0]}")/../.cache/test-pki"
 work_dir="$(mktemp -d validate.XXXXXXXX)"
 if [[ ! "$work_dir" =~ ^validate\.[[:alnum:]]{8}$ ]]; then
@@ -17,7 +18,7 @@ if [[ ! -f pfx_passphrase.txt || -s pfx_passphrase.txt ]]; then
   exit 1
 fi
 
-# Docker, the gateways, and the PFX must carry the same CA.
+echo "Comparing the CA in the Docker archive, gateway YAML, and client PFX"
 if [[ "$(unzip -Z1 authorized_certs.zip)" != ca.cer ]]; then
   echo 'Expected authorized_certs.zip to contain only ca.cer' >&2
   exit 1
@@ -26,11 +27,13 @@ unzip -p authorized_certs.zip ca.cer > "$work_dir/ca.cer"
 yq -er '.tls.cacert' tls_cacert.yaml | openssl base64 -d -A | cmp - "$work_dir/ca.cer"
 openssl pkcs12 -in test.pfx -passin pass: -cacerts -nokeys | openssl x509 | cmp - "$work_dir/ca.cer"
 
+echo "Verifying the client certificate chain and loading the PFX in Node"
 openssl pkcs12 -in test.pfx -passin pass: -clcerts -nokeys | openssl x509 > "$work_dir/client.cer"
 openssl verify -purpose sslclient -CAfile "$work_dir/ca.cer" "$work_dir/client.cer"
 # Use the same TLS runtime as Cypress to check the packaged client identity.
 node -e "require('node:tls').createSecureContext({pfx: require('node:fs').readFileSync('test.pfx'), passphrase: ''})"
 
+echo "Checking the CAC identity and certificate extensions"
 subject="$(openssl x509 -in "$work_dir/client.cer" -noout -subject -nameopt RFC2253 | sed 's/^subject= *//')"
 if [[ "$subject" != 'CN=UNICORN.DOUG.ROCKSTAR.1234567890,OU=PKI,O=U.S. Government,C=US' ]]; then
   echo "Unexpected CAC test identity: $subject" >&2
