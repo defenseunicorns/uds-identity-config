@@ -14,6 +14,8 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.provider.ProviderFactory;
 
+import static com.defenseunicorns.uds.keycloak.plugin.UDSConstants.UDS_REALM;
+
 /** Registers migration startup and live profile synchronization independently of Client Policy execution. */
 public final class UDSMigrationsProviderFactory implements ProviderFactory<UDSMigrations> {
     /** Creates the session-scoped migration runner. */
@@ -35,7 +37,7 @@ public final class UDSMigrationsProviderFactory implements ProviderFactory<UDSMi
         factory.register(event -> {
             if (event instanceof RealmModel.RealmAttributeUpdateEvent update
                     && Constants.CLIENT_PROFILES.equals(update.getAttributeName())
-                    && "uds".equals(update.getRealm().getName())) {
+                    && UDS_REALM.equals(update.getRealm().getName())) {
                 ProtocolMapperDelegationSyncer.sync(update.getKeycloakSession(), update.getRealm(), update.getAttributeValue());
             } else if (event instanceof PostMigrationEvent postMigrationEvent) {
                 try (KeycloakSession session = postMigrationEvent.getFactory().create()) {
